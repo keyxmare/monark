@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -7,6 +8,7 @@ import { useDependencyStore } from '@/dependency/stores/dependency'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const dependencyStore = useDependencyStore()
 
 const dependencyId = computed(() => route.params.id as string | undefined)
@@ -22,7 +24,7 @@ const isOutdated = ref(false)
 const repositoryUrl = ref('')
 const projectId = ref('')
 const submitting = ref(false)
-const error = ref('')
+const formError = ref('')
 
 onMounted(async () => {
   if (isEditMode.value && dependencyId.value) {
@@ -42,7 +44,7 @@ onMounted(async () => {
 })
 
 async function handleSubmit() {
-  error.value = ''
+  formError.value = ''
   submitting.value = true
 
   try {
@@ -73,7 +75,9 @@ async function handleSubmit() {
       router.push({ name: 'dependency-dependencies-detail', params: { id: dep.id } })
     }
   } catch {
-    error.value = isEditMode.value ? 'Failed to update dependency' : 'Failed to create dependency'
+    formError.value = isEditMode.value
+      ? t('dependency.dependencies.updateFailed')
+      : t('dependency.dependencies.createFailed')
   } finally {
     submitting.value = false
   }
@@ -89,13 +93,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="dependency-form-back"
         >
-          &larr; Back to dependencies
+          &larr; {{ t('common.backTo', { page: t('dependency.dependencies.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          {{ isEditMode ? 'Edit Dependency' : 'Create Dependency' }}
+          {{ isEditMode ? t('dependency.dependencies.editDependency') : t('dependency.dependencies.createDependency') }}
         </h2>
 
         <form
@@ -103,19 +107,19 @@ async function handleSubmit() {
           @submit.prevent="handleSubmit"
         >
           <div
-            v-if="error"
+            v-if="formError"
             class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
             role="alert"
             data-testid="dependency-form-error"
           >
-            {{ error }}
+            {{ formError }}
           </div>
 
           <div class="mb-4">
             <label
               for="name"
               class="mb-1 block text-sm font-medium text-text"
-            >Name</label>
+            >{{ t('dependency.dependencies.name') }}</label>
             <input
               id="name"
               v-model="name"
@@ -130,7 +134,7 @@ async function handleSubmit() {
             <label
               for="currentVersion"
               class="mb-1 block text-sm font-medium text-text"
-            >Current Version</label>
+            >{{ t('dependency.dependencies.currentVersion') }}</label>
             <input
               id="currentVersion"
               v-model="currentVersion"
@@ -145,7 +149,7 @@ async function handleSubmit() {
             <label
               for="latestVersion"
               class="mb-1 block text-sm font-medium text-text"
-            >Latest Version</label>
+            >{{ t('dependency.dependencies.latestVersion') }}</label>
             <input
               id="latestVersion"
               v-model="latestVersion"
@@ -160,7 +164,7 @@ async function handleSubmit() {
             <label
               for="ltsVersion"
               class="mb-1 block text-sm font-medium text-text"
-            >LTS Version</label>
+            >{{ t('dependency.dependencies.ltsVersion') }}</label>
             <input
               id="ltsVersion"
               v-model="ltsVersion"
@@ -175,7 +179,7 @@ async function handleSubmit() {
             <label
               for="packageManager"
               class="mb-1 block text-sm font-medium text-text"
-            >Package Manager</label>
+            >{{ t('dependency.dependencies.packageManager') }}</label>
             <select
               id="packageManager"
               v-model="packageManager"
@@ -199,7 +203,7 @@ async function handleSubmit() {
             <label
               for="type"
               class="mb-1 block text-sm font-medium text-text"
-            >Type</label>
+            >{{ t('dependency.dependencies.type') }}</label>
             <select
               id="type"
               v-model="type"
@@ -208,10 +212,10 @@ async function handleSubmit() {
               data-testid="dependency-form-type"
             >
               <option value="runtime">
-                Runtime
+                {{ t('dependency.dependencies.typeRuntime') }}
               </option>
               <option value="dev">
-                Dev
+                {{ t('dependency.dependencies.typeDev') }}
               </option>
             </select>
           </div>
@@ -227,14 +231,14 @@ async function handleSubmit() {
             <label
               for="isOutdated"
               class="text-sm font-medium text-text"
-            >Is Outdated</label>
+            >{{ t('dependency.dependencies.isOutdated') }}</label>
           </div>
 
           <div class="mb-4">
             <label
               for="repositoryUrl"
               class="mb-1 block text-sm font-medium text-text"
-            >Repository URL</label>
+            >{{ t('dependency.dependencies.repositoryUrl') }}</label>
             <input
               id="repositoryUrl"
               v-model="repositoryUrl"
@@ -252,7 +256,7 @@ async function handleSubmit() {
             <label
               for="projectId"
               class="mb-1 block text-sm font-medium text-text"
-            >Project ID</label>
+            >{{ t('dependency.dependencies.projectId') }}</label>
             <input
               id="projectId"
               v-model="projectId"
@@ -269,7 +273,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="dependency-form-submit"
           >
-            {{ submitting ? 'Saving...' : (isEditMode ? 'Update Dependency' : 'Create Dependency') }}
+            {{ submitting ? t('common.saving') : (isEditMode ? t('dependency.dependencies.updateDependency') : t('dependency.dependencies.createDependency')) }}
           </button>
         </form>
       </div>

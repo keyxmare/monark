@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 
+const { t } = useI18n()
 const dependencyStore = useDependencyStore()
 
 onMounted(() => {
@@ -21,14 +23,14 @@ async function handleDelete(id: string) {
     <div data-testid="dependency-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Dependencies
+          {{ t('dependency.dependencies.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'dependency-dependencies-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="dependency-create-link"
         >
-          Create Dependency
+          {{ t('dependency.dependencies.createDependency') }}
         </RouterLink>
       </div>
 
@@ -37,7 +39,7 @@ async function handleDelete(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="dependency-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -60,31 +62,31 @@ async function handleDelete(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Name
+                {{ t('dependency.dependencies.name') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Current
+                {{ t('dependency.dependencies.currentVersion') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Latest
+                {{ t('dependency.dependencies.latestVersion') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Package Manager
+                {{ t('dependency.dependencies.packageManager') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Type
+                {{ t('dependency.dependencies.type') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Status
+                {{ t('dependency.dependencies.status') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Repository
+                {{ t('dependency.dependencies.repository') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Vulnerabilities
+                {{ t('dependency.dependencies.vulnerabilities') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -133,7 +135,7 @@ async function handleDelete(id: string) {
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
                   data-testid="dependency-outdated-badge"
                 >
-                  {{ dep.isOutdated ? 'Outdated' : 'Up to date' }}
+                  {{ dep.isOutdated ? t('dependency.dependencies.outdated') : t('dependency.dependencies.upToDate') }}
                 </span>
               </td>
               <td class="px-4 py-3 text-sm">
@@ -145,7 +147,7 @@ async function handleDelete(id: string) {
                   class="inline-flex items-center gap-1 text-primary hover:text-primary-dark"
                   data-testid="dependency-repo-link"
                 >
-                  <span>Repo</span>
+                  <span>{{ t('dependency.dependencies.repo') }}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                     <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
@@ -166,21 +168,21 @@ async function handleDelete(id: string) {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="dependency-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
                 <RouterLink
                   :to="{ name: 'dependency-dependencies-edit', params: { id: dep.id } }"
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="dependency-edit-link"
                 >
-                  Edit
+                  {{ t('common.actions.edit') }}
                 </RouterLink>
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="dependency-delete"
                   @click="handleDelete(dep.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -192,7 +194,7 @@ async function handleDelete(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="dependency-list-empty"
         >
-          No dependencies found.
+          {{ t('dependency.dependencies.noDependencies') }}
         </div>
       </div>
     </div>

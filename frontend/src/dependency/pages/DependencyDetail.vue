@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 
 const route = useRoute()
+const { t } = useI18n()
 const dependencyStore = useDependencyStore()
 
 onMounted(() => {
@@ -23,7 +25,7 @@ onMounted(() => {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="dependency-detail-back"
         >
-          &larr; Back to dependencies
+          &larr; {{ t('common.backTo', { page: t('dependency.dependencies.title').toLowerCase() }) }}
         </RouterLink>
         <RouterLink
           v-if="dependencyStore.selectedDependency"
@@ -31,7 +33,7 @@ onMounted(() => {
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="dependency-detail-edit"
         >
-          Edit
+          {{ t('common.actions.edit') }}
         </RouterLink>
       </div>
 
@@ -40,7 +42,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="dependency-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -67,7 +69,7 @@ onMounted(() => {
           <dl class="space-y-4">
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Current Version
+                {{ t('dependency.dependencies.currentVersion') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -78,7 +80,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Latest Version
+                {{ t('dependency.dependencies.latestVersion') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -89,7 +91,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                LTS Version
+                {{ t('dependency.dependencies.ltsVersion') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -100,7 +102,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Repository
+                {{ t('dependency.dependencies.repository') }}
               </dt>
               <dd class="mt-1">
                 <a
@@ -126,7 +128,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Package Manager
+                {{ t('dependency.dependencies.packageManager') }}
               </dt>
               <dd class="mt-1">
                 <span
@@ -139,7 +141,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Type
+                {{ t('dependency.dependencies.type') }}
               </dt>
               <dd class="mt-1">
                 <span
@@ -156,7 +158,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Status
+                {{ t('dependency.dependencies.status') }}
               </dt>
               <dd class="mt-1">
                 <span
@@ -167,13 +169,13 @@ onMounted(() => {
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
                   data-testid="dependency-detail-outdated"
                 >
-                  {{ dependencyStore.selectedDependency.isOutdated ? 'Outdated' : 'Up to date' }}
+                  {{ dependencyStore.selectedDependency.isOutdated ? t('dependency.dependencies.outdated') : t('dependency.dependencies.upToDate') }}
                 </span>
               </dd>
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Vulnerabilities
+                {{ t('dependency.dependencies.vulnerabilities') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -184,7 +186,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Created At
+                {{ t('common.createdAt') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -199,14 +201,14 @@ onMounted(() => {
         <div class="max-w-2xl">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold text-text">
-              Vulnerabilities
+              {{ t('dependency.dependencies.vulnerabilities') }}
             </h3>
             <RouterLink
               :to="{ name: 'dependency-vulnerabilities-create' }"
               class="text-sm text-primary hover:text-primary-dark"
               data-testid="dependency-detail-add-vuln"
             >
-              Add vulnerability
+              {{ t('dependency.dependencies.addVulnerability') }}
             </RouterLink>
           </div>
         </div>
