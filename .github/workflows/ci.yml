@@ -21,7 +21,7 @@ jobs:
     name: Lint Backend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp docker/.env.example docker/.env
       - run: ${{ env.DC }} build backend
       - run: ${{ env.DC }} up -d backend
@@ -33,7 +33,7 @@ jobs:
     name: Lint Frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp docker/.env.example docker/.env
       - run: ${{ env.DC }} build frontend
       - run: ${{ env.DC }} up -d frontend
@@ -45,7 +45,7 @@ jobs:
     name: Test Backend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp docker/.env.example docker/.env
       - run: ${{ env.DC }} build
       - run: ${{ env.DC }} up -d
@@ -57,7 +57,7 @@ jobs:
     name: Test Frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp docker/.env.example docker/.env
       - run: ${{ env.DC }} build frontend
       - run: ${{ env.DC }} up -d frontend
@@ -68,7 +68,7 @@ jobs:
     name: Architecture
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp docker/.env.example docker/.env
       - run: ${{ env.DC }} build backend
       - run: ${{ env.DC }} up -d backend
@@ -79,7 +79,7 @@ jobs:
     name: Security Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp docker/.env.example docker/.env
       - run: ${{ env.DC }} build
       - run: ${{ env.DC }} up -d
@@ -92,6 +92,6 @@ jobs:
     name: Build Production
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cp docker/.env.example docker/.env
       - run: docker compose -f docker/compose.yaml -f docker/compose.prod.yaml build
