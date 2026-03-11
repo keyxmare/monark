@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use App\Dependency\Domain\Model\Dependency;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -54,6 +55,10 @@ final class Project
     #[ORM\OneToMany(targetEntity: Pipeline::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $pipelines;
 
+    /** @var Collection<int, Dependency> */
+    #[ORM\OneToMany(targetEntity: Dependency::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $dependencies;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -84,6 +89,7 @@ final class Project
         $this->externalId = $externalId;
         $this->techStacks = new ArrayCollection();
         $this->pipelines = new ArrayCollection();
+        $this->dependencies = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -173,6 +179,12 @@ final class Project
     public function getPipelines(): Collection
     {
         return $this->pipelines;
+    }
+
+    /** @return Collection<int, Dependency> */
+    public function getDependencies(): Collection
+    {
+        return $this->dependencies;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

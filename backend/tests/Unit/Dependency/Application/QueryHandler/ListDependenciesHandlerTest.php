@@ -35,7 +35,7 @@ describe('ListDependenciesHandler', function () {
             packageManager: PackageManager::Composer,
             type: DependencyType::Runtime,
             isOutdated: true,
-            projectId: '00000000-0000-7000-8000-000000000001',
+            project: Tests\Factory\Catalog\ProjectFactory::create(),
         );
         $dep2 = Dependency::create(
             name: 'vue',
@@ -45,7 +45,7 @@ describe('ListDependenciesHandler', function () {
             packageManager: PackageManager::Npm,
             type: DependencyType::Runtime,
             isOutdated: true,
-            projectId: '00000000-0000-7000-8000-000000000001',
+            project: Tests\Factory\Catalog\ProjectFactory::create(),
         );
 
         $handler = new ListDependenciesHandler(stubListDependenciesRepo([$dep1, $dep2], 2));

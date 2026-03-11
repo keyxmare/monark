@@ -53,7 +53,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
     {
         return $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
-            ->where('d.projectId = :projectId')
+            ->where('d.project = :projectId')
             ->setParameter('projectId', $projectId)
             ->orderBy('d.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
@@ -73,7 +73,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
         $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
             ->delete()
-            ->where('d.projectId = :projectId')
+            ->where('d.project = :projectId')
             ->setParameter('projectId', $projectId)
             ->getQuery()
             ->execute();

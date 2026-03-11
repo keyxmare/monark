@@ -2,13 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Catalog\Domain\Model\Project;
+use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Dependency\Application\Command\CreateDependencyCommand;
 use App\Dependency\Application\CommandHandler\CreateDependencyHandler;
 use App\Dependency\Application\DTO\CreateDependencyInput;
 use App\Dependency\Application\DTO\DependencyOutput;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Uid\Uuid;
+use Tests\Factory\Catalog\ProjectFactory;
 
 function stubCreateDependencyRepo(): DependencyRepositoryInterface
 {
@@ -24,10 +28,27 @@ function stubCreateDependencyRepo(): DependencyRepositoryInterface
     };
 }
 
+function stubCreateDependencyProjectRepo(?Project $project = null): ProjectRepositoryInterface
+{
+    return new class ($project) implements ProjectRepositoryInterface {
+        public function __construct(private readonly ?Project $project) {}
+        public function findById(Uuid $id): ?Project { return $this->project; }
+        public function findBySlug(string $slug): ?Project { return null; }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
+        public function findExternalIdsByProvider(Uuid $providerId): array { return []; }
+        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
+        public function count(): int { return 0; }
+        public function save(Project $project): void {}
+        public function delete(Project $project): void {}
+    };
+}
+
 describe('CreateDependencyHandler', function () {
     it('creates a dependency successfully', function () {
+        $project = ProjectFactory::create();
         $repo = stubCreateDependencyRepo();
-        $handler = new CreateDependencyHandler($repo);
+        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $handler = new CreateDependencyHandler($repo, $projectRepo);
 
         $input = new CreateDependencyInput(
             name: 'symfony/framework-bundle',
@@ -37,7 +58,7 @@ describe('CreateDependencyHandler', function () {
             packageManager: 'composer',
             type: 'runtime',
             isOutdated: true,
-            projectId: '00000000-0000-7000-8000-000000000001',
+            projectId: $project->getId()->toRfc4122(),
         );
 
         $result = $handler(new CreateDependencyCommand($input));
@@ -49,6 +70,48 @@ describe('CreateDependencyHandler', function () {
         expect($result->packageManager)->toBe('composer');
         expect($result->type)->toBe('runtime');
         expect($result->isOutdated)->toBeTrue();
+        expect($result->projectId)->toBe($project->getId()->toRfc4122());
         expect($repo->saved)->not->toBeNull();
+    });
+
+    it('throws not found when project does not exist', function () {
+        $repo = stubCreateDependencyRepo();
+        $projectRepo = stubCreateDependencyProjectRepo(null);
+        $handler = new CreateDependencyHandler($repo, $projectRepo);
+
+        $input = new CreateDependencyInput(
+            name: 'symfony/framework-bundle',
+            currentVersion: '7.2.0',
+            latestVersion: '8.0.0',
+            ltsVersion: '7.4.0',
+            packageManager: 'composer',
+            type: 'runtime',
+            isOutdated: true,
+            projectId: '00000000-0000-0000-0000-000000000000',
+        );
+
+        $handler(new CreateDependencyCommand($input));
+    })->throws(NotFoundException::class);
+
+    it('returns correct projectId in output', function () {
+        $project = ProjectFactory::create();
+        $repo = stubCreateDependencyRepo();
+        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $handler = new CreateDependencyHandler($repo, $projectRepo);
+
+        $input = new CreateDependencyInput(
+            name: 'vue',
+            currentVersion: '3.5.0',
+            latestVersion: '3.5.0',
+            ltsVersion: '3.5.0',
+            packageManager: 'npm',
+            type: 'runtime',
+            isOutdated: false,
+            projectId: $project->getId()->toRfc4122(),
+        );
+
+        $result = $handler(new CreateDependencyCommand($input));
+
+        expect($result->projectId)->toBe($project->getId()->toRfc4122());
     });
 });

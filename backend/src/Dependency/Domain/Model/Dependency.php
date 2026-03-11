@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dependency\Domain\Model;
 
+use App\Catalog\Domain\Model\Project;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,8 +39,9 @@ final class Dependency
     #[ORM\Column]
     private bool $isOutdated;
 
-    #[ORM\Column(type: 'uuid')]
-    private Uuid $projectId;
+    #[ORM\ManyToOne(targetEntity: Project::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private Project $project;
 
     /** @var Collection<int, Vulnerability> */
     #[ORM\OneToMany(targetEntity: Vulnerability::class, mappedBy: 'dependency', cascade: ['persist', 'remove'], orphanRemoval: true)]
@@ -60,7 +62,7 @@ final class Dependency
         PackageManager $packageManager,
         DependencyType $type,
         bool $isOutdated,
-        Uuid $projectId,
+        Project $project,
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -70,7 +72,7 @@ final class Dependency
         $this->packageManager = $packageManager;
         $this->type = $type;
         $this->isOutdated = $isOutdated;
-        $this->projectId = $projectId;
+        $this->project = $project;
         $this->vulnerabilities = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
@@ -84,7 +86,7 @@ final class Dependency
         PackageManager $packageManager,
         DependencyType $type,
         bool $isOutdated,
-        string $projectId,
+        Project $project,
     ): self {
         return new self(
             id: Uuid::v7(),
@@ -95,7 +97,7 @@ final class Dependency
             packageManager: $packageManager,
             type: $type,
             isOutdated: $isOutdated,
-            projectId: Uuid::fromString($projectId),
+            project: $project,
         );
     }
 
@@ -139,9 +141,14 @@ final class Dependency
         return $this->isOutdated;
     }
 
+    public function getProject(): Project
+    {
+        return $this->project;
+    }
+
     public function getProjectId(): Uuid
     {
-        return $this->projectId;
+        return $this->project->getId();
     }
 
     /** @return Collection<int, Vulnerability> */

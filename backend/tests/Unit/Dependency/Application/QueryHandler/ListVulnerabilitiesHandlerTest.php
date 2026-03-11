@@ -35,7 +35,7 @@ describe('ListVulnerabilitiesHandler', function () {
             packageManager: PackageManager::Composer,
             type: DependencyType::Runtime,
             isOutdated: true,
-            projectId: '00000000-0000-7000-8000-000000000001',
+            project: Tests\Factory\Catalog\ProjectFactory::create(),
         );
 
         $vuln1 = Vulnerability::create(

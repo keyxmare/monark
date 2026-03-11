@@ -73,7 +73,7 @@ final readonly class ScanProjectHandler
                 packageManager: $detected->packageManager,
                 type: $detected->type,
                 isOutdated: false,
-                projectId: $project->getId()->toRfc4122(),
+                project: $project,
             );
             $this->dependencyRepository->save($dependency);
             $depOutputs[] = [

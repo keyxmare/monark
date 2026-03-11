@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Factory\Dependency;
 
+use App\Catalog\Domain\Model\Project;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\DependencyType;
 use App\Dependency\Domain\Model\PackageManager;
+use Tests\Factory\Catalog\ProjectFactory;
 
 final class DependencyFactory
 {
@@ -20,7 +22,7 @@ final class DependencyFactory
             packageManager: $overrides['packageManager'] ?? PackageManager::Composer,
             type: $overrides['type'] ?? DependencyType::Runtime,
             isOutdated: $overrides['isOutdated'] ?? true,
-            projectId: $overrides['projectId'] ?? '00000000-0000-7000-8000-000000000001',
+            project: $overrides['project'] ?? ProjectFactory::create(),
         );
     }
 }
