@@ -376,6 +376,33 @@
       "noAttempts": "No attempts found."
     }
   },
+  "activity": {
+    "dashboard": {
+      "welcome": "Welcome to Monark"
+    },
+    "events": {
+      "title": "Activity Events",
+      "type": "Type",
+      "entityType": "Entity Type",
+      "entityId": "Entity ID",
+      "userId": "User ID",
+      "occurredAt": "Occurred At",
+      "payload": "Payload",
+      "noEvents": "No activity events found."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "notifTitle": "Title",
+      "channel": "Channel",
+      "status": "Status",
+      "message": "Message",
+      "read": "Read",
+      "unread": "Unread",
+      "markAsRead": "Mark as read",
+      "readAt": "Read At",
+      "noNotifications": "No notifications found."
+    }
+  },
   "aria": {
     "mainNavigation": "Main navigation",
     "sidebarNavigation": "Sidebar navigation",

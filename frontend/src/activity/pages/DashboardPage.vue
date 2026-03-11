@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { useDashboardStore } from '@/activity/stores/dashboard'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
+const { t } = useI18n()
 const dashboardStore = useDashboardStore()
 
 onMounted(() => {
@@ -21,7 +23,7 @@ const loading = computed(() => dashboardStore.loading)
         class="mb-6 text-2xl font-bold text-text"
         data-testid="dashboard-title"
       >
-        Welcome to Monark
+        {{ t('activity.dashboard.welcome') }}
       </h2>
 
       <div
@@ -29,7 +31,7 @@ const loading = computed(() => dashboardStore.loading)
         class="flex items-center justify-center py-12"
         data-testid="dashboard-loading"
       >
-        <span class="text-text-muted">Loading...</span>
+        <span class="text-text-muted">{{ t('common.actions.loading') }}</span>
       </div>
 
       <div

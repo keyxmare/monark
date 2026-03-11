@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useActivityEventStore } from '@/activity/stores/activity-event'
 
+const { t } = useI18n()
 const eventStore = useActivityEventStore()
 
 onMounted(() => {
@@ -17,7 +19,7 @@ onMounted(() => {
     <div data-testid="activity-event-list-page">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-text">
-          Activity Events
+          {{ t('activity.events.title') }}
         </h2>
       </div>
 
@@ -26,7 +28,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="activity-event-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -49,19 +51,19 @@ onMounted(() => {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Type
+                {{ t('activity.events.type') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Entity Type
+                {{ t('activity.events.entityType') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Entity ID
+                {{ t('activity.events.entityId') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Occurred At
+                {{ t('activity.events.occurredAt') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -92,7 +94,7 @@ onMounted(() => {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="activity-event-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
               </td>
             </tr>
@@ -104,7 +106,7 @@ onMounted(() => {
           class="py-8 text-center text-text-muted"
           data-testid="activity-event-list-empty"
         >
-          No activity events found.
+          {{ t('activity.events.noEvents') }}
         </div>
       </div>
     </div>

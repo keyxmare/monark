@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useNotificationStore } from '@/activity/stores/notification'
 
 const route = useRoute()
+const { t } = useI18n()
 const notificationStore = useNotificationStore()
 
 onMounted(() => {
@@ -29,7 +31,7 @@ async function handleMarkAsRead() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="notification-detail-back"
         >
-          &larr; Back to notifications
+          &larr; {{ t('common.backTo', { page: t('activity.notifications.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
@@ -38,7 +40,7 @@ async function handleMarkAsRead() {
         class="py-8 text-center text-text-muted"
         data-testid="notification-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -65,14 +67,14 @@ async function handleMarkAsRead() {
             data-testid="notification-detail-mark-read"
             @click="handleMarkAsRead"
           >
-            Mark as read
+            {{ t('activity.notifications.markAsRead') }}
           </button>
         </div>
 
         <dl class="space-y-4">
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Channel
+              {{ t('activity.notifications.channel') }}
             </dt>
             <dd
               class="mt-1"
@@ -85,7 +87,7 @@ async function handleMarkAsRead() {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Status
+              {{ t('activity.notifications.status') }}
             </dt>
             <dd
               class="mt-1"
@@ -99,13 +101,13 @@ async function handleMarkAsRead() {
                     : 'bg-warning/10 text-warning',
                 ]"
               >
-                {{ notificationStore.selectedNotification.readAt ? 'Read' : 'Unread' }}
+                {{ notificationStore.selectedNotification.readAt ? t('activity.notifications.read') : t('activity.notifications.unread') }}
               </span>
             </dd>
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Message
+              {{ t('activity.notifications.message') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -116,7 +118,7 @@ async function handleMarkAsRead() {
           </div>
           <div v-if="notificationStore.selectedNotification.readAt">
             <dt class="text-sm font-medium text-text-muted">
-              Read At
+              {{ t('activity.notifications.readAt') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -127,7 +129,7 @@ async function handleMarkAsRead() {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Created At
+              {{ t('common.createdAt') }}
             </dt>
             <dd
               class="mt-1 text-text"

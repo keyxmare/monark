@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useNotificationStore } from '@/activity/stores/notification'
 
+const { t } = useI18n()
 const notificationStore = useNotificationStore()
 
 onMounted(() => {
@@ -21,7 +23,7 @@ async function handleMarkAsRead(id: string) {
     <div data-testid="notification-list-page">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-text">
-          Notifications
+          {{ t('activity.notifications.title') }}
         </h2>
       </div>
 
@@ -30,7 +32,7 @@ async function handleMarkAsRead(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="notification-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -53,16 +55,16 @@ async function handleMarkAsRead(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Title
+                {{ t('activity.notifications.notifTitle') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Channel
+                {{ t('activity.notifications.channel') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Status
+                {{ t('activity.notifications.status') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -97,7 +99,7 @@ async function handleMarkAsRead(id: string) {
                   ]"
                   data-testid="notification-status-badge"
                 >
-                  {{ notification.readAt ? 'Read' : 'Unread' }}
+                  {{ notification.readAt ? t('activity.notifications.read') : t('activity.notifications.unread') }}
                 </span>
               </td>
               <td class="px-4 py-3 text-right">
@@ -107,14 +109,14 @@ async function handleMarkAsRead(id: string) {
                   data-testid="notification-mark-read"
                   @click="handleMarkAsRead(notification.id)"
                 >
-                  Mark as read
+                  {{ t('activity.notifications.markAsRead') }}
                 </button>
                 <RouterLink
                   :to="{ name: 'activity-notifications-detail', params: { id: notification.id } }"
                   class="ml-3 text-sm text-primary hover:text-primary-dark"
                   data-testid="notification-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
               </td>
             </tr>
@@ -126,7 +128,7 @@ async function handleMarkAsRead(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="notification-list-empty"
         >
-          No notifications found.
+          {{ t('activity.notifications.noNotifications') }}
         </div>
       </div>
     </div>

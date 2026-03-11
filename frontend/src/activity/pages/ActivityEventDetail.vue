@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useActivityEventStore } from '@/activity/stores/activity-event'
 
 const route = useRoute()
+const { t } = useI18n()
 const eventStore = useActivityEventStore()
 
 onMounted(() => {
@@ -23,7 +25,7 @@ onMounted(() => {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="activity-event-detail-back"
         >
-          &larr; Back to activity events
+          &larr; {{ t('common.backTo', { page: t('activity.events.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
@@ -32,7 +34,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="activity-event-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -56,7 +58,7 @@ onMounted(() => {
         <dl class="space-y-4">
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Type
+              {{ t('activity.events.type') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -69,7 +71,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Entity Type
+              {{ t('activity.events.entityType') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -80,7 +82,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Entity ID
+              {{ t('activity.events.entityId') }}
             </dt>
             <dd
               class="mt-1 font-mono text-text-muted"
@@ -91,7 +93,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              User ID
+              {{ t('activity.events.userId') }}
             </dt>
             <dd
               class="mt-1 font-mono text-text-muted"
@@ -102,7 +104,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Occurred At
+              {{ t('activity.events.occurredAt') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -113,7 +115,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Payload
+              {{ t('activity.events.payload') }}
             </dt>
             <dd
               class="mt-1"
