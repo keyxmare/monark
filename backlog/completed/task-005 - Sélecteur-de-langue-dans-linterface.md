@@ -1,10 +1,10 @@
 ---
 id: TASK-005
 title: Sélecteur de langue dans l'interface
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-11 16:18'
-updated_date: '2026-03-11 20:10'
+updated_date: '2026-03-11 20:33'
 labels:
   - i18n
   - frontend
@@ -60,18 +60,50 @@ Ajouter un composant `LanguageSwitcher` dans la topbar qui permet de basculer en
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Composant `LanguageSwitcher.vue` créé dans `src/shared/components/`
-- [ ] #2 Composable `useLocale` créé dans `src/shared/composables/` avec `currentLocale`, `setLocale`, `availableLocales`
-- [ ] #3 Le composant est intégré dans `AppTopbar.vue` (à droite, avant le profil)
-- [ ] #4 Clic sur FR/EN change la locale i18n instantanément (réactif, sans reload page)
-- [ ] #5 Le choix est persisté dans `localStorage` sous la clé `monark_locale`
-- [ ] #6 Au rechargement, la locale est restaurée depuis localStorage
-- [ ] #7 Si localStorage vide, la locale par défaut (FR) est utilisée
-- [ ] #8 Le header `Accept-Language` est envoyé dans les requêtes API selon la locale active
-- [ ] #9 Test unitaire du composable `useLocale` : setLocale, persistance, restauration
-- [ ] #10 Test unitaire du composant `LanguageSwitcher` : rendu, interaction, changement de locale
-- [ ] #11 Accessibilité : le composant est navigable au clavier et a un `aria-label`
+- [x] #1 Composant `LanguageSwitcher.vue` créé dans `src/shared/components/`
+- [x] #2 Composable `useLocale` créé dans `src/shared/composables/` avec `currentLocale`, `setLocale`, `availableLocales`
+- [x] #3 Le composant est intégré dans `AppTopbar.vue` (à droite, avant le profil)
+- [x] #4 Clic sur FR/EN change la locale i18n instantanément (réactif, sans reload page)
+- [x] #5 Le choix est persisté dans `localStorage` sous la clé `monark_locale`
+- [x] #6 Au rechargement, la locale est restaurée depuis localStorage
+- [x] #7 Si localStorage vide, la locale par défaut (FR) est utilisée
+- [x] #8 Le header `Accept-Language` est envoyé dans les requêtes API selon la locale active
+- [x] #9 Test unitaire du composable `useLocale` : setLocale, persistance, restauration
+- [x] #10 Test unitaire du composant `LanguageSwitcher` : rendu, interaction, changement de locale
+- [x] #11 Accessibilité : le composant est navigable au clavier et a un `aria-label`
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+## Résumé
+
+- Composable `useLocale` : `currentLocale`, `setLocale`, `availableLocales` — change i18n + persiste localStorage + met à jour `document.lang`
+- Composant `LanguageSwitcher.vue` : toggle FR/EN dans la topbar, highlight locale active, aria-label a11y
+- Intégré dans `AppTopbar.vue` à droite, avant le user menu
+- `i18n/index.ts` : restauration locale depuis `localStorage.monark_locale` au boot
+- `api.ts` : header `Accept-Language` envoyé avec chaque requête API
+- 12 tests : 7 pour useLocale, 5 pour LanguageSwitcher — tous passent
+- Fix vitest config : ajout `@vitejs/plugin-vue` + setup file pour reset locale en tests
+- Fix 2 tests pré-existants (activity-event, notification) avec assertions mal alignées
+
+## Fichiers créés (5)
+
+- `frontend/src/shared/composables/useLocale.ts`
+- `frontend/src/shared/components/LanguageSwitcher.vue`
+- `frontend/tests/setup.ts`
+- `frontend/tests/unit/shared/composables/useLocale.test.ts`
+- `frontend/tests/unit/shared/components/LanguageSwitcher.test.ts`
+
+## Fichiers modifiés (8)
+
+- `frontend/src/shared/components/AppTopbar.vue`
+- `frontend/src/shared/i18n/index.ts`
+- `frontend/src/shared/i18n/locales/en.json` + `fr.json` (clé `aria.changeLanguage`)
+- `frontend/src/shared/utils/api.ts`
+- `frontend/vitest.config.ts`
+- 2 test files (assertion fixes)
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
