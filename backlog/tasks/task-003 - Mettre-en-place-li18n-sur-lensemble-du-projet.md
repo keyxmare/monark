@@ -4,7 +4,7 @@ title: Mettre en place l'i18n sur l'ensemble du projet
 status: To Do
 assignee: []
 created_date: '2026-03-11 16:18'
-updated_date: '2026-03-11 16:43'
+updated_date: '2026-03-11 19:32'
 labels:
   - i18n
   - frontend
@@ -19,49 +19,25 @@ priority: high
 <!-- SECTION:DESCRIPTION:BEGIN -->
 ### Contexte
 
-Tous les textes de l'interface Monark sont actuellement en dur en anglais (labels, titres, messages d'erreur, placeholders, boutons). Pour supporter le multi-langue, il faut mettre en place l'infrastructure i18n côté backend et frontend.
+Tâche parente pour l'internationalisation du projet Monark. Découpée en sous-tâches par périmètre.
 
-### Objectif
+~250-300 chaînes hardcodées en anglais à extraire sur 50 fichiers Vue + backend.
 
-Internationaliser l'ensemble du projet avec deux locales : `fr` (français) et `en` (anglais). C'est la tâche fondation — les tâches TASK-004 (locale par défaut) et TASK-005 (sélecteur de langue) en dépendent.
+### Sous-tâches
 
-### Périmètre
+1. **TASK-003a** — Infrastructure i18n (install vue-i18n, config, structure, plugin, backend translation config)
+2. **TASK-003b** — i18n shared (sidebar, topbar, layouts, boutons communs, messages génériques)
+3. **TASK-003c** — i18n Identity (login, register, profil, teams, access tokens, users)
+4. **TASK-003d** — i18n Catalog (projets, providers, tech stacks, pipelines)
+5. **TASK-003e** — i18n Dependency (dépendances, vulnérabilités)
+6. **TASK-003f** — i18n Assessment (quiz, questions, réponses, tentatives)
+7. **TASK-003g** — i18n Activity (dashboard, événements, notifications)
+8. **TASK-003h** — i18n Backend (messages d'erreur métier, exceptions)
+9. **TASK-003i** — i18n Stores (messages d'erreur dans les stores Pinia)
 
-**Frontend** (`vue-i18n`)
-- Installer et configurer `vue-i18n` (mode Composition API)
-- Créer la structure `src/shared/i18n/` :
-  - `index.ts` : instance i18n, config, export
-  - `locales/fr.json` : traductions françaises
-  - `locales/en.json` : traductions anglaises
-- Organisation des clés par module : `identity.*`, `catalog.*`, `dependency.*`, `assessment.*`, `activity.*`, `shared.*`
-- Extraire **tous** les textes en dur des fichiers `.vue` : labels, titres de pages, boutons, messages d'état (loading, empty, error), colonnes de tableaux, tooltips, placeholders
-- Remplacer par `{{ $t('key') }}` ou `t('key')` en `<script setup>`
-- Enregistrer le plugin dans `main.ts`
+### Ordre d'exécution
 
-**Backend** (Symfony Translation)
-- Vérifier que le component Translation est bien actif (déjà inclus dans Symfony 8)
-- Créer `translations/messages.fr.yaml` et `translations/messages.en.yaml`
-- Extraire les messages d'erreur métier (NotFoundException, ValidationException, messages flash)
-- Configurer `framework.default_locale` et `framework.translator.default_path`
-
-**Modules à couvrir** (tous les textes visibles) :
-- `shared` : sidebar, topbar, layouts, navigation, boutons communs (Save, Cancel, Delete, Edit, Back, Loading...)
-- `identity` : login, register, profil, teams, access tokens, users
-- `catalog` : projets, providers, tech stacks, pipelines
-- `dependency` : dépendances, vulnérabilités
-- `assessment` : quiz, questions, réponses, tentatives
-- `activity` : dashboard, événements, notifications
-
-### Points d'attention
-- Les noms d'entités techniques (status enum values comme `pending`, `running`, `success`, `failed`) doivent aussi être traduits pour l'affichage
-- Les messages d'erreur de validation Symfony sont déjà traduits par le framework — ne pas les redéfinir
-- Garder les clés en anglais, format dot-notation : `catalog.projects.title`, `shared.actions.save`
-- Ne pas toucher aux tests existants dans cette tâche — juste s'assurer qu'ils passent toujours
-
-### Hors périmètre
-- Locale par défaut → TASK-004
-- Sélecteur de langue UI → TASK-005
-- Traduction des contenus utilisateur (noms de projets, descriptions, etc.)
+TASK-003a en premier (infra), puis 003b (shared), puis les modules dans n'importe quel ordre, 003h et 003i en dernier.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

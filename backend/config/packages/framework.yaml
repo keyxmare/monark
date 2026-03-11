@@ -15,3 +15,9 @@ framework:
 
     validation:
         email_validation_mode: html5
+
+    default_locale: fr
+    translator:
+        default_path: '%kernel.project_dir%/translations'
+        fallbacks:
+            - en

@@ -1,0 +1,20 @@
+error:
+  not_found: "Resource not found"
+  validation: "Validation failed"
+  unauthorized: "Unauthorized"
+  forbidden: "Forbidden"
+  server_error: "Internal server error"
+
+project:
+  not_found: "Project not found"
+  not_linked: "Project is not linked to a provider"
+
+dependency:
+  not_found: "Dependency not found"
+
+vulnerability:
+  not_found: "Vulnerability not found"
+
+scan:
+  success: "Scan completed successfully"
+  no_provider: "Project has no configured provider"

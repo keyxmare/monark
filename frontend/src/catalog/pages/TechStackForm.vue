@@ -31,6 +31,7 @@ async function handleSubmit() {
       language: language.value,
       framework: framework.value,
       version: version.value,
+      frameworkVersion: '',
       detectedAt: new Date(detectedAt.value).toISOString(),
       projectId: projectId.value,
     })

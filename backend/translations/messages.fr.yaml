@@ -1,0 +1,20 @@
+error:
+  not_found: "Ressource non trouvée"
+  validation: "Échec de la validation"
+  unauthorized: "Non autorisé"
+  forbidden: "Interdit"
+  server_error: "Erreur interne du serveur"
+
+project:
+  not_found: "Projet non trouvé"
+  not_linked: "Le projet n'est pas lié à un fournisseur"
+
+dependency:
+  not_found: "Dépendance non trouvée"
+
+vulnerability:
+  not_found: "Vulnérabilité non trouvée"
+
+scan:
+  success: "Scan terminé avec succès"
+  no_provider: "Le projet n'a pas de fournisseur configuré"

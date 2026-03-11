@@ -52,8 +52,8 @@ export const providerService = {
     return api.post<ApiResponse<{ connected: boolean }>>(`${BASE_URL}/${id}/test`, {})
   },
 
-  listRemoteProjects(id: string, page = 1, perPage = 20): Promise<ApiResponse<RemoteProject[]>> {
-    return api.get<ApiResponse<RemoteProject[]>>(`${BASE_URL}/${id}/remote-projects?page=${page}&per_page=${perPage}`)
+  listRemoteProjects(id: string, page = 1, perPage = 20): Promise<ApiResponse<PaginatedRemoteProjects | RemoteProject[]>> {
+    return api.get<ApiResponse<PaginatedRemoteProjects | RemoteProject[]>>(`${BASE_URL}/${id}/remote-projects?page=${page}&per_page=${perPage}`)
   },
 
   importProjects(id: string, data: ImportProjectsInput): Promise<ApiResponse<Project[]>> {

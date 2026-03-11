@@ -1,0 +1,64 @@
+{
+  "common": {
+    "actions": {
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "create": "Créer",
+      "back": "Retour",
+      "confirm": "Confirmer",
+      "search": "Rechercher",
+      "filter": "Filtrer",
+      "refresh": "Actualiser",
+      "close": "Fermer",
+      "submit": "Soumettre",
+      "reset": "Réinitialiser",
+      "loading": "Chargement…",
+      "retry": "Réessayer"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "pending": "En attente",
+      "success": "Succès",
+      "error": "Erreur",
+      "warning": "Avertissement"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {current} sur {total}",
+      "showing": "Affichage de {from} à {to} sur {total} résultats",
+      "perPage": "Par page"
+    },
+    "table": {
+      "noData": "Aucune donnée disponible",
+      "actions": "Actions"
+    },
+    "confirm": {
+      "title": "Confirmation",
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "errors": {
+      "required": "Ce champ est requis",
+      "invalid": "Valeur invalide",
+      "notFound": "Non trouvé",
+      "serverError": "Erreur serveur, veuillez réessayer",
+      "networkError": "Erreur réseau, vérifiez votre connexion",
+      "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action"
+    }
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "projects": "Projets",
+    "dependencies": "Dépendances",
+    "assessments": "Évaluations",
+    "activity": "Activité",
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  }
+}

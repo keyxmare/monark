@@ -1,0 +1,64 @@
+{
+  "common": {
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "back": "Back",
+      "confirm": "Confirm",
+      "search": "Search",
+      "filter": "Filter",
+      "refresh": "Refresh",
+      "close": "Close",
+      "submit": "Submit",
+      "reset": "Reset",
+      "loading": "Loading…",
+      "retry": "Retry"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}",
+      "showing": "Showing {from} to {to} of {total} results",
+      "perPage": "Per page"
+    },
+    "table": {
+      "noData": "No data available",
+      "actions": "Actions"
+    },
+    "confirm": {
+      "title": "Confirmation",
+      "deleteMessage": "Are you sure you want to delete this item?",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "errors": {
+      "required": "This field is required",
+      "invalid": "Invalid value",
+      "notFound": "Not found",
+      "serverError": "Server error, please try again",
+      "networkError": "Network error, check your connection",
+      "unauthorized": "You are not authorized to perform this action"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "dependencies": "Dependencies",
+    "assessments": "Assessments",
+    "activity": "Activity",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout"
+  }
+}
