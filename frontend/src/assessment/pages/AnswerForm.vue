@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -8,6 +9,7 @@ import { useQuestionStore } from '@/assessment/stores/question'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const answerStore = useAnswerStore()
 const questionStore = useQuestionStore()
 
@@ -19,7 +21,7 @@ const isCorrect = ref(false)
 const position = ref(0)
 const questionId = ref('')
 const submitting = ref(false)
-const error = ref('')
+const formError = ref('')
 
 onMounted(async () => {
   await questionStore.fetchAll(1, 100)
@@ -36,7 +38,7 @@ onMounted(async () => {
 })
 
 async function handleSubmit() {
-  error.value = ''
+  formError.value = ''
   submitting.value = true
 
   try {
@@ -57,7 +59,9 @@ async function handleSubmit() {
       router.push({ name: 'assessment-answers-list' })
     }
   } catch {
-    error.value = isEditMode.value ? 'Failed to update answer' : 'Failed to create answer'
+    formError.value = isEditMode.value
+      ? t('assessment.answers.updateFailed')
+      : t('assessment.answers.createFailed')
   } finally {
     submitting.value = false
   }
@@ -73,13 +77,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="answer-form-back"
         >
-          &larr; Back to answers
+          &larr; {{ t('common.backTo', { page: t('assessment.answers.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          {{ isEditMode ? 'Edit Answer' : 'Create Answer' }}
+          {{ isEditMode ? t('assessment.answers.editAnswer') : t('assessment.answers.createAnswer') }}
         </h2>
 
         <form
@@ -87,12 +91,12 @@ async function handleSubmit() {
           @submit.prevent="handleSubmit"
         >
           <div
-            v-if="error"
+            v-if="formError"
             class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
             role="alert"
             data-testid="answer-form-error"
           >
-            {{ error }}
+            {{ formError }}
           </div>
 
           <div
@@ -102,7 +106,7 @@ async function handleSubmit() {
             <label
               for="questionId"
               class="mb-1 block text-sm font-medium text-text"
-            >Question</label>
+            >{{ t('assessment.answers.question') }}</label>
             <select
               id="questionId"
               v-model="questionId"
@@ -114,7 +118,7 @@ async function handleSubmit() {
                 value=""
                 disabled
               >
-                Select a question
+                {{ t('assessment.answers.selectQuestion') }}
               </option>
               <option
                 v-for="question in questionStore.questions"
@@ -130,7 +134,7 @@ async function handleSubmit() {
             <label
               for="content"
               class="mb-1 block text-sm font-medium text-text"
-            >Content</label>
+            >{{ t('assessment.answers.content') }}</label>
             <textarea
               id="content"
               v-model="content"
@@ -152,14 +156,14 @@ async function handleSubmit() {
             <label
               for="isCorrect"
               class="text-sm font-medium text-text"
-            >Correct answer</label>
+            >{{ t('assessment.answers.correctAnswer') }}</label>
           </div>
 
           <div class="mb-6">
             <label
               for="position"
               class="mb-1 block text-sm font-medium text-text"
-            >Position</label>
+            >{{ t('assessment.answers.position') }}</label>
             <input
               id="position"
               v-model.number="position"
@@ -177,7 +181,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="answer-form-submit"
           >
-            {{ submitting ? 'Saving...' : (isEditMode ? 'Update Answer' : 'Create Answer') }}
+            {{ submitting ? t('common.saving') : (isEditMode ? t('assessment.answers.updateAnswer') : t('assessment.answers.createAnswer')) }}
           </button>
         </form>
       </div>

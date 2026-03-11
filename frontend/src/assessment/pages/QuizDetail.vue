@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -7,6 +8,7 @@ import { useQuizStore } from '@/assessment/stores/quiz'
 import { useQuestionStore } from '@/assessment/stores/question'
 
 const route = useRoute()
+const { t } = useI18n()
 const quizStore = useQuizStore()
 const questionStore = useQuestionStore()
 
@@ -34,7 +36,7 @@ function levelColor(level: string): string {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="quiz-detail-back"
         >
-          &larr; Back to quizzes
+          &larr; {{ t('common.backTo', { page: t('assessment.quizzes.title').toLowerCase() }) }}
         </RouterLink>
         <RouterLink
           v-if="quizStore.selectedQuiz"
@@ -42,7 +44,7 @@ function levelColor(level: string): string {
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="quiz-detail-edit"
         >
-          Edit
+          {{ t('common.actions.edit') }}
         </RouterLink>
       </div>
 
@@ -51,7 +53,7 @@ function levelColor(level: string): string {
         class="py-8 text-center text-text-muted"
         data-testid="quiz-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -78,7 +80,7 @@ function levelColor(level: string): string {
           <dl class="space-y-4">
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Slug
+                {{ t('assessment.quizzes.slug') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -89,7 +91,7 @@ function levelColor(level: string): string {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Description
+                {{ t('assessment.quizzes.description') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -101,7 +103,7 @@ function levelColor(level: string): string {
             <div class="flex gap-8">
               <div>
                 <dt class="text-sm font-medium text-text-muted">
-                  Type
+                  {{ t('assessment.quizzes.type') }}
                 </dt>
                 <dd
                   class="mt-1 text-text"
@@ -112,7 +114,7 @@ function levelColor(level: string): string {
               </div>
               <div>
                 <dt class="text-sm font-medium text-text-muted">
-                  Status
+                  {{ t('assessment.quizzes.status') }}
                 </dt>
                 <dd
                   class="mt-1 text-text"
@@ -123,43 +125,43 @@ function levelColor(level: string): string {
               </div>
               <div>
                 <dt class="text-sm font-medium text-text-muted">
-                  Time Limit
+                  {{ t('assessment.quizzes.timeLimit') }}
                 </dt>
                 <dd
                   class="mt-1 text-text"
                   data-testid="quiz-detail-time-limit"
                 >
-                  {{ quizStore.selectedQuiz.timeLimit ? `${quizStore.selectedQuiz.timeLimit} min` : 'No limit' }}
+                  {{ quizStore.selectedQuiz.timeLimit ? `${quizStore.selectedQuiz.timeLimit} min` : t('assessment.quizzes.noLimit') }}
                 </dd>
               </div>
             </div>
             <div class="flex gap-8">
               <div>
                 <dt class="text-sm font-medium text-text-muted">
-                  Starts At
+                  {{ t('assessment.quizzes.startsAt') }}
                 </dt>
                 <dd
                   class="mt-1 text-text"
                   data-testid="quiz-detail-starts-at"
                 >
-                  {{ quizStore.selectedQuiz.startsAt ? new Date(quizStore.selectedQuiz.startsAt).toLocaleDateString() : 'Not set' }}
+                  {{ quizStore.selectedQuiz.startsAt ? new Date(quizStore.selectedQuiz.startsAt).toLocaleDateString() : t('common.notSet') }}
                 </dd>
               </div>
               <div>
                 <dt class="text-sm font-medium text-text-muted">
-                  Ends At
+                  {{ t('assessment.quizzes.endsAt') }}
                 </dt>
                 <dd
                   class="mt-1 text-text"
                   data-testid="quiz-detail-ends-at"
                 >
-                  {{ quizStore.selectedQuiz.endsAt ? new Date(quizStore.selectedQuiz.endsAt).toLocaleDateString() : 'Not set' }}
+                  {{ quizStore.selectedQuiz.endsAt ? new Date(quizStore.selectedQuiz.endsAt).toLocaleDateString() : t('common.notSet') }}
                 </dd>
               </div>
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Created At
+                {{ t('common.createdAt') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -174,14 +176,14 @@ function levelColor(level: string): string {
         <div class="rounded-xl border border-border bg-surface">
           <div class="flex items-center justify-between border-b border-border px-4 py-3">
             <h3 class="text-lg font-semibold text-text">
-              Questions ({{ questionStore.total }})
+              {{ t('assessment.quizzes.questionsCount', { count: questionStore.total }) }}
             </h3>
             <RouterLink
               :to="{ name: 'assessment-questions-create' }"
               class="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
               data-testid="quiz-add-question"
             >
-              Add Question
+              {{ t('assessment.quizzes.addQuestion') }}
             </RouterLink>
           </div>
           <table
@@ -194,19 +196,19 @@ function levelColor(level: string): string {
                   #
                 </th>
                 <th class="px-4 py-2 text-left text-sm font-medium text-text-muted">
-                  Type
+                  {{ t('assessment.questions.type') }}
                 </th>
                 <th class="px-4 py-2 text-left text-sm font-medium text-text-muted">
-                  Content
+                  {{ t('assessment.questions.content') }}
                 </th>
                 <th class="px-4 py-2 text-left text-sm font-medium text-text-muted">
-                  Level
+                  {{ t('assessment.questions.level') }}
                 </th>
                 <th class="px-4 py-2 text-left text-sm font-medium text-text-muted">
-                  Score
+                  {{ t('assessment.questions.score') }}
                 </th>
                 <th class="px-4 py-2 text-right text-sm font-medium text-text-muted">
-                  Actions
+                  {{ t('common.table.actions') }}
                 </th>
               </tr>
             </thead>
@@ -245,7 +247,7 @@ function levelColor(level: string): string {
                     class="text-sm text-primary hover:text-primary-dark"
                     data-testid="question-view-link"
                   >
-                    View
+                    {{ t('common.actions.view') }}
                   </RouterLink>
                 </td>
               </tr>
@@ -256,7 +258,7 @@ function levelColor(level: string): string {
             class="py-6 text-center text-text-muted"
             data-testid="quiz-questions-empty"
           >
-            No questions yet.
+            {{ t('assessment.quizzes.noQuestions') }}
           </div>
         </div>
       </div>

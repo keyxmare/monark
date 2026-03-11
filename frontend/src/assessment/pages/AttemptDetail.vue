@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAttemptStore } from '@/assessment/stores/attempt'
 
 const route = useRoute()
+const { t } = useI18n()
 const attemptStore = useAttemptStore()
 
 onMounted(() => {
@@ -23,7 +25,7 @@ onMounted(() => {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="attempt-detail-back"
         >
-          &larr; Back to attempts
+          &larr; {{ t('common.backTo', { page: t('assessment.attempts.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
@@ -32,7 +34,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="attempt-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -50,13 +52,13 @@ onMounted(() => {
         data-testid="attempt-detail-card"
       >
         <h2 class="mb-6 text-2xl font-bold text-text">
-          Attempt Details
+          {{ t('assessment.attempts.attemptDetails') }}
         </h2>
 
         <dl class="space-y-4">
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Quiz
+              {{ t('assessment.attempts.quiz') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -67,7 +69,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              User
+              {{ t('assessment.attempts.user') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -79,7 +81,7 @@ onMounted(() => {
           <div class="flex gap-8">
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Score
+                {{ t('assessment.attempts.score') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -90,7 +92,7 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Status
+                {{ t('assessment.attempts.status') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -103,7 +105,7 @@ onMounted(() => {
           <div class="flex gap-8">
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Started At
+                {{ t('assessment.attempts.startedAt') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -114,19 +116,19 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Finished At
+                {{ t('assessment.attempts.finishedAt') }}
               </dt>
               <dd
                 class="mt-1 text-text"
                 data-testid="attempt-detail-finished-at"
               >
-                {{ attemptStore.selectedAttempt.finishedAt ? new Date(attemptStore.selectedAttempt.finishedAt).toLocaleString() : 'Not finished' }}
+                {{ attemptStore.selectedAttempt.finishedAt ? new Date(attemptStore.selectedAttempt.finishedAt).toLocaleString() : t('assessment.attempts.notFinished') }}
               </dd>
             </div>
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Created At
+              {{ t('common.createdAt') }}
             </dt>
             <dd
               class="mt-1 text-text"

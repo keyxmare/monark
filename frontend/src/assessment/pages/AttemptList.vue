@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAttemptStore } from '@/assessment/stores/attempt'
 
+const { t } = useI18n()
 const attemptStore = useAttemptStore()
 
 onMounted(() => {
@@ -25,7 +27,7 @@ function statusColor(status: string): string {
     <div data-testid="attempt-list-page">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-text">
-          Attempts
+          {{ t('assessment.attempts.title') }}
         </h2>
       </div>
 
@@ -34,7 +36,7 @@ function statusColor(status: string): string {
         class="py-8 text-center text-text-muted"
         data-testid="attempt-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -57,22 +59,22 @@ function statusColor(status: string): string {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Quiz
+                {{ t('assessment.attempts.quiz') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Score
+                {{ t('assessment.attempts.score') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Status
+                {{ t('assessment.attempts.status') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Started At
+                {{ t('assessment.attempts.startedAt') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Finished At
+                {{ t('assessment.attempts.finishedAt') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -110,7 +112,7 @@ function statusColor(status: string): string {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="attempt-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
               </td>
             </tr>
@@ -122,7 +124,7 @@ function statusColor(status: string): string {
           class="py-8 text-center text-text-muted"
           data-testid="attempt-list-empty"
         >
-          No attempts found.
+          {{ t('assessment.attempts.noAttempts') }}
         </div>
       </div>
     </div>

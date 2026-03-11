@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -8,6 +9,7 @@ import type { QuizStatus, QuizType } from '@/assessment/types/quiz'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const quizStore = useQuizStore()
 
 const quizId = computed(() => route.params.id as string | undefined)
@@ -22,7 +24,7 @@ const startsAt = ref('')
 const endsAt = ref('')
 const timeLimit = ref<number | undefined>(undefined)
 const submitting = ref(false)
-const error = ref('')
+const formError = ref('')
 
 onMounted(async () => {
   if (isEditMode.value && quizId.value) {
@@ -41,7 +43,7 @@ onMounted(async () => {
 })
 
 async function handleSubmit() {
-  error.value = ''
+  formError.value = ''
   submitting.value = true
 
   try {
@@ -71,7 +73,9 @@ async function handleSubmit() {
       router.push({ name: 'assessment-quizzes-detail', params: { id: quiz.id } })
     }
   } catch {
-    error.value = isEditMode.value ? 'Failed to update quiz' : 'Failed to create quiz'
+    formError.value = isEditMode.value
+      ? t('assessment.quizzes.updateFailed')
+      : t('assessment.quizzes.createFailed')
   } finally {
     submitting.value = false
   }
@@ -87,13 +91,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="quiz-form-back"
         >
-          &larr; Back to quizzes
+          &larr; {{ t('common.backTo', { page: t('assessment.quizzes.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          {{ isEditMode ? 'Edit Quiz' : 'Create Quiz' }}
+          {{ isEditMode ? t('assessment.quizzes.editQuiz') : t('assessment.quizzes.createQuiz') }}
         </h2>
 
         <form
@@ -101,19 +105,19 @@ async function handleSubmit() {
           @submit.prevent="handleSubmit"
         >
           <div
-            v-if="error"
+            v-if="formError"
             class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
             role="alert"
             data-testid="quiz-form-error"
           >
-            {{ error }}
+            {{ formError }}
           </div>
 
           <div class="mb-4">
             <label
               for="title"
               class="mb-1 block text-sm font-medium text-text"
-            >Title</label>
+            >{{ t('assessment.quizzes.quizTitle') }}</label>
             <input
               id="title"
               v-model="title"
@@ -128,7 +132,7 @@ async function handleSubmit() {
             <label
               for="slug"
               class="mb-1 block text-sm font-medium text-text"
-            >Slug</label>
+            >{{ t('assessment.quizzes.slug') }}</label>
             <input
               id="slug"
               v-model="slug"
@@ -144,7 +148,7 @@ async function handleSubmit() {
             <label
               for="description"
               class="mb-1 block text-sm font-medium text-text"
-            >Description</label>
+            >{{ t('assessment.quizzes.description') }}</label>
             <textarea
               id="description"
               v-model="description"
@@ -160,7 +164,7 @@ async function handleSubmit() {
               <label
                 for="type"
                 class="mb-1 block text-sm font-medium text-text"
-              >Type</label>
+              >{{ t('assessment.quizzes.type') }}</label>
               <select
                 id="type"
                 v-model="type"
@@ -168,10 +172,10 @@ async function handleSubmit() {
                 data-testid="quiz-form-type"
               >
                 <option value="quiz">
-                  Quiz
+                  {{ t('assessment.quizzes.typeQuiz') }}
                 </option>
                 <option value="survey">
-                  Survey
+                  {{ t('assessment.quizzes.typeSurvey') }}
                 </option>
               </select>
             </div>
@@ -179,7 +183,7 @@ async function handleSubmit() {
               <label
                 for="status"
                 class="mb-1 block text-sm font-medium text-text"
-              >Status</label>
+              >{{ t('assessment.quizzes.status') }}</label>
               <select
                 id="status"
                 v-model="status"
@@ -187,13 +191,13 @@ async function handleSubmit() {
                 data-testid="quiz-form-status"
               >
                 <option value="draft">
-                  Draft
+                  {{ t('assessment.quizzes.statusDraft') }}
                 </option>
                 <option value="published">
-                  Published
+                  {{ t('assessment.quizzes.statusPublished') }}
                 </option>
                 <option value="archived">
-                  Archived
+                  {{ t('assessment.quizzes.statusArchived') }}
                 </option>
               </select>
             </div>
@@ -204,7 +208,7 @@ async function handleSubmit() {
               <label
                 for="startsAt"
                 class="mb-1 block text-sm font-medium text-text"
-              >Starts At</label>
+              >{{ t('assessment.quizzes.startsAt') }}</label>
               <input
                 id="startsAt"
                 v-model="startsAt"
@@ -217,7 +221,7 @@ async function handleSubmit() {
               <label
                 for="endsAt"
                 class="mb-1 block text-sm font-medium text-text"
-              >Ends At</label>
+              >{{ t('assessment.quizzes.endsAt') }}</label>
               <input
                 id="endsAt"
                 v-model="endsAt"
@@ -232,7 +236,7 @@ async function handleSubmit() {
             <label
               for="timeLimit"
               class="mb-1 block text-sm font-medium text-text"
-            >Time Limit (minutes)</label>
+            >{{ t('assessment.quizzes.timeLimit') }}</label>
             <input
               id="timeLimit"
               v-model.number="timeLimit"
@@ -249,7 +253,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="quiz-form-submit"
           >
-            {{ submitting ? 'Saving...' : (isEditMode ? 'Update Quiz' : 'Create Quiz') }}
+            {{ submitting ? t('common.saving') : (isEditMode ? t('assessment.quizzes.updateQuiz') : t('assessment.quizzes.createQuiz')) }}
           </button>
         </form>
       </div>

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useQuizStore } from '@/assessment/stores/quiz'
 
+const { t } = useI18n()
 const quizStore = useQuizStore()
 
 onMounted(() => {
@@ -33,14 +35,14 @@ function typeColor(type: string): string {
     <div data-testid="quiz-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Quizzes
+          {{ t('assessment.quizzes.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'assessment-quizzes-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="quiz-create-link"
         >
-          Create Quiz
+          {{ t('assessment.quizzes.createQuiz') }}
         </RouterLink>
       </div>
 
@@ -49,7 +51,7 @@ function typeColor(type: string): string {
         class="py-8 text-center text-text-muted"
         data-testid="quiz-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -72,25 +74,25 @@ function typeColor(type: string): string {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Title
+                {{ t('assessment.quizzes.quizTitle') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Type
+                {{ t('assessment.quizzes.type') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Status
+                {{ t('assessment.quizzes.status') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Starts At
+                {{ t('assessment.quizzes.startsAt') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Ends At
+                {{ t('assessment.quizzes.endsAt') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Questions
+                {{ t('assessment.questions.title') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -137,21 +139,21 @@ function typeColor(type: string): string {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="quiz-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
                 <RouterLink
                   :to="{ name: 'assessment-quizzes-edit', params: { id: quiz.id } }"
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="quiz-edit-link"
                 >
-                  Edit
+                  {{ t('common.actions.edit') }}
                 </RouterLink>
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="quiz-delete"
                   @click="handleDelete(quiz.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -163,7 +165,7 @@ function typeColor(type: string): string {
           class="py-8 text-center text-text-muted"
           data-testid="quiz-list-empty"
         >
-          No quizzes found.
+          {{ t('assessment.quizzes.noQuizzes') }}
         </div>
       </div>
     </div>

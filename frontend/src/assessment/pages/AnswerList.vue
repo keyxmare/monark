@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAnswerStore } from '@/assessment/stores/answer'
 
 const route = useRoute()
+const { t } = useI18n()
 const answerStore = useAnswerStore()
 
 onMounted(() => {
@@ -23,14 +25,14 @@ async function handleDelete(id: string) {
     <div data-testid="answer-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Answers
+          {{ t('assessment.answers.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'assessment-answers-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="answer-create-link"
         >
-          Create Answer
+          {{ t('assessment.answers.createAnswer') }}
         </RouterLink>
       </div>
 
@@ -39,7 +41,7 @@ async function handleDelete(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="answer-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -62,16 +64,16 @@ async function handleDelete(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Content
+                {{ t('assessment.answers.content') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Correct
+                {{ t('assessment.answers.correct') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Position
+                {{ t('assessment.answers.position') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -91,7 +93,7 @@ async function handleDelete(id: string) {
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
                   data-testid="answer-correct-badge"
                 >
-                  {{ answer.isCorrect ? 'Yes' : 'No' }}
+                  {{ answer.isCorrect ? t('common.confirm.yes') : t('common.confirm.no') }}
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
@@ -103,14 +105,14 @@ async function handleDelete(id: string) {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="answer-edit-link"
                 >
-                  Edit
+                  {{ t('common.actions.edit') }}
                 </RouterLink>
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="answer-delete"
                   @click="handleDelete(answer.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -122,7 +124,7 @@ async function handleDelete(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="answer-list-empty"
         >
-          No answers found.
+          {{ t('assessment.answers.noAnswers') }}
         </div>
       </div>
     </div>

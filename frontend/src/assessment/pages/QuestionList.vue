@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useQuestionStore } from '@/assessment/stores/question'
 
 const route = useRoute()
+const { t } = useI18n()
 const questionStore = useQuestionStore()
 
 onMounted(() => {
@@ -40,14 +42,14 @@ function levelColor(level: string): string {
     <div data-testid="question-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Questions
+          {{ t('assessment.questions.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'assessment-questions-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="question-create-link"
         >
-          Create Question
+          {{ t('assessment.questions.createQuestion') }}
         </RouterLink>
       </div>
 
@@ -56,7 +58,7 @@ function levelColor(level: string): string {
         class="py-8 text-center text-text-muted"
         data-testid="question-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -79,22 +81,22 @@ function levelColor(level: string): string {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Type
+                {{ t('assessment.questions.type') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Content
+                {{ t('assessment.questions.content') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Level
+                {{ t('assessment.questions.level') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Score
+                {{ t('assessment.questions.score') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Position
+                {{ t('assessment.questions.position') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -138,21 +140,21 @@ function levelColor(level: string): string {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="question-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
                 <RouterLink
                   :to="{ name: 'assessment-questions-edit', params: { id: question.id } }"
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="question-edit-link"
                 >
-                  Edit
+                  {{ t('common.actions.edit') }}
                 </RouterLink>
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="question-delete"
                   @click="handleDelete(question.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -164,7 +166,7 @@ function levelColor(level: string): string {
           class="py-8 text-center text-text-muted"
           data-testid="question-list-empty"
         >
-          No questions found.
+          {{ t('assessment.questions.noQuestions') }}
         </div>
       </div>
     </div>
