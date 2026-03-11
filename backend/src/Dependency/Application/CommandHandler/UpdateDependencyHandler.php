@@ -38,6 +38,7 @@ final readonly class UpdateDependencyHandler
             packageManager: $input->packageManager !== null ? PackageManager::from($input->packageManager) : null,
             type: $input->type !== null ? DependencyType::from($input->type) : null,
             isOutdated: $input->isOutdated,
+            repositoryUrl: $input->repositoryUrl,
         );
 
         $this->dependencyRepository->save($dependency);

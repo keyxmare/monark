@@ -39,6 +39,9 @@ final class Dependency
     #[ORM\Column]
     private bool $isOutdated;
 
+    #[ORM\Column(length: 2048, nullable: true)]
+    private ?string $repositoryUrl;
+
     #[ORM\ManyToOne(targetEntity: Project::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Project $project;
@@ -63,6 +66,7 @@ final class Dependency
         DependencyType $type,
         bool $isOutdated,
         Project $project,
+        ?string $repositoryUrl = null,
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -73,6 +77,7 @@ final class Dependency
         $this->type = $type;
         $this->isOutdated = $isOutdated;
         $this->project = $project;
+        $this->repositoryUrl = $repositoryUrl;
         $this->vulnerabilities = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
@@ -87,6 +92,7 @@ final class Dependency
         DependencyType $type,
         bool $isOutdated,
         Project $project,
+        ?string $repositoryUrl = null,
     ): self {
         return new self(
             id: Uuid::v7(),
@@ -98,6 +104,7 @@ final class Dependency
             type: $type,
             isOutdated: $isOutdated,
             project: $project,
+            repositoryUrl: $repositoryUrl,
         );
     }
 
@@ -141,6 +148,11 @@ final class Dependency
         return $this->isOutdated;
     }
 
+    public function getRepositoryUrl(): ?string
+    {
+        return $this->repositoryUrl;
+    }
+
     public function getProject(): Project
     {
         return $this->project;
@@ -180,6 +192,8 @@ final class Dependency
         ?PackageManager $packageManager = null,
         ?DependencyType $type = null,
         ?bool $isOutdated = null,
+        ?string $repositoryUrl = null,
+        bool $clearRepositoryUrl = false,
     ): void {
         if ($name !== null) {
             $this->name = $name;
@@ -201,6 +215,11 @@ final class Dependency
         }
         if ($isOutdated !== null) {
             $this->isOutdated = $isOutdated;
+        }
+        if ($repositoryUrl !== null) {
+            $this->repositoryUrl = $repositoryUrl;
+        } elseif ($clearRepositoryUrl) {
+            $this->repositoryUrl = null;
         }
         $this->updatedAt = new \DateTimeImmutable();
     }

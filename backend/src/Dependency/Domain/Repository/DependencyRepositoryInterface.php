@@ -23,5 +23,7 @@ interface DependencyRepositoryInterface
 
     public function delete(Dependency $dependency): void;
 
+    public function countByProjectId(Uuid $projectId): int;
+
     public function deleteByProjectId(Uuid $projectId): void;
 }

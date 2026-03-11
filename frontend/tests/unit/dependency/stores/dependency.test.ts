@@ -24,6 +24,7 @@ const mockDependency = {
   type: 'runtime' as const,
   isOutdated: true,
   projectId: '00000000-0000-7000-8000-000000000001',
+  repositoryUrl: 'https://github.com/symfony/symfony',
   vulnerabilityCount: 2,
   createdAt: '2026-01-01T00:00:00+00:00',
   updatedAt: '2026-01-01T00:00:00+00:00',
@@ -121,5 +122,30 @@ describe('Dependency Store', () => {
     await store.fetchAll()
 
     expect(store.error).toBe('Failed to load dependencies')
+  })
+
+  it('exposes repositoryUrl from fetched dependency', async () => {
+    vi.mocked(dependencyService.get).mockResolvedValue({
+      data: mockDependency,
+      status: 200,
+    })
+
+    const store = useDependencyStore()
+    await store.fetchOne('dep-001')
+
+    expect(store.selectedDependency?.repositoryUrl).toBe('https://github.com/symfony/symfony')
+  })
+
+  it('handles null repositoryUrl', async () => {
+    const depWithoutUrl = { ...mockDependency, repositoryUrl: null }
+    vi.mocked(dependencyService.get).mockResolvedValue({
+      data: depWithoutUrl,
+      status: 200,
+    })
+
+    const store = useDependencyStore()
+    await store.fetchOne('dep-001')
+
+    expect(store.selectedDependency?.repositoryUrl).toBeNull()
   })
 })

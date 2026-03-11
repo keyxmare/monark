@@ -13,8 +13,10 @@ interface PaginatedDependencies {
 const BASE_URL = '/dependency/dependencies'
 
 export const dependencyService = {
-  list(page = 1, perPage = 20): Promise<ApiResponse<PaginatedDependencies>> {
-    return api.get<ApiResponse<PaginatedDependencies>>(`${BASE_URL}?page=${page}&per_page=${perPage}`)
+  list(page = 1, perPage = 20, projectId?: string): Promise<ApiResponse<PaginatedDependencies>> {
+    const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })
+    if (projectId) params.set('project_id', projectId)
+    return api.get<ApiResponse<PaginatedDependencies>>(`${BASE_URL}?${params}`)
   },
 
   get(id: string): Promise<ApiResponse<Dependency>> {

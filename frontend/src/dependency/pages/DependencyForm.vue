@@ -19,6 +19,7 @@ const ltsVersion = ref('')
 const packageManager = ref('composer')
 const type = ref('runtime')
 const isOutdated = ref(false)
+const repositoryUrl = ref('')
 const projectId = ref('')
 const submitting = ref(false)
 const error = ref('')
@@ -34,6 +35,7 @@ onMounted(async () => {
       packageManager.value = dependencyStore.selectedDependency.packageManager
       type.value = dependencyStore.selectedDependency.type
       isOutdated.value = dependencyStore.selectedDependency.isOutdated
+      repositoryUrl.value = dependencyStore.selectedDependency.repositoryUrl ?? ''
       projectId.value = dependencyStore.selectedDependency.projectId
     }
   }
@@ -53,6 +55,7 @@ async function handleSubmit() {
         packageManager: packageManager.value as 'composer' | 'npm' | 'pip',
         type: type.value as 'runtime' | 'dev',
         isOutdated: isOutdated.value,
+        repositoryUrl: repositoryUrl.value || null,
       })
       router.push({ name: 'dependency-dependencies-detail', params: { id: dependencyId.value } })
     } else {
@@ -65,6 +68,7 @@ async function handleSubmit() {
         type: type.value as 'runtime' | 'dev',
         isOutdated: isOutdated.value,
         projectId: projectId.value,
+        repositoryUrl: repositoryUrl.value || null,
       })
       router.push({ name: 'dependency-dependencies-detail', params: { id: dep.id } })
     }
@@ -224,6 +228,21 @@ async function handleSubmit() {
               for="isOutdated"
               class="text-sm font-medium text-text"
             >Is Outdated</label>
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="repositoryUrl"
+              class="mb-1 block text-sm font-medium text-text"
+            >Repository URL</label>
+            <input
+              id="repositoryUrl"
+              v-model="repositoryUrl"
+              type="url"
+              placeholder="https://github.com/vendor/package"
+              class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+              data-testid="dependency-form-repository-url"
+            >
           </div>
 
           <div

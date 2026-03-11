@@ -22,6 +22,7 @@ function stubDeleteDependencyRepo(?Dependency $dependency = null): DependencyRep
         public function save(Dependency $dependency): void {}
         public function delete(Dependency $dependency): void { $this->deleted = true; }
         public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
+        public function countByProjectId(Uuid $projectId): int { return 0; }
         public function deleteByProjectId(Uuid $projectId): void {}
     };
 }

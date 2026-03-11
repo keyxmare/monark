@@ -6,19 +6,24 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useProjectStore } from '@/catalog/stores/project'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { usePipelineStore } from '@/catalog/stores/pipeline'
+import { useDependencyStore } from '@/dependency/stores/dependency'
 
 const route = useRoute()
 const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
 const pipelineStore = usePipelineStore()
+const dependencyStore = useDependencyStore()
 
 const activeTab = ref<'tech-stacks' | 'pipelines' | 'dependencies'>('tech-stacks')
 const projectId = computed(() => route.params.id as string)
 
 onMounted(async () => {
   await projectStore.fetchOne(projectId.value)
-  await techStackStore.fetchAll(1, 20, projectId.value)
-  await pipelineStore.fetchAll(1, 10, projectId.value, projectStore.selected?.defaultBranch)
+  await Promise.all([
+    techStackStore.fetchAll(1, 20, projectId.value),
+    pipelineStore.fetchAll(1, 10, projectId.value, projectStore.selected?.defaultBranch),
+    dependencyStore.fetchAll(1, 100, projectId.value),
+  ])
 })
 
 async function handleDeleteTechStack(id: string) {
@@ -27,7 +32,10 @@ async function handleDeleteTechStack(id: string) {
 
 async function handleScan() {
   await projectStore.scan(projectId.value)
-  await techStackStore.fetchAll(1, 100, projectId.value)
+  await Promise.all([
+    techStackStore.fetchAll(1, 100, projectId.value),
+    dependencyStore.fetchAll(1, 100, projectId.value),
+  ])
 }
 </script>
 
@@ -211,7 +219,7 @@ async function handleScan() {
             data-testid="tab-dependencies"
             @click="activeTab = 'dependencies'"
           >
-            Dependencies ({{ projectStore.scanResult?.dependenciesDetected ?? 0 }})
+            Dependencies ({{ dependencyStore.total }})
           </button>
         </div>
 
@@ -395,12 +403,15 @@ async function handleScan() {
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
                   Type
                 </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Repository
+                </th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="dep in projectStore.scanResult?.dependencies ?? []"
-                :key="`${dep.name}-${dep.version}`"
+                v-for="dep in dependencyStore.dependencies"
+                :key="dep.id"
                 class="border-b border-border last:border-0"
                 data-testid="dependency-row"
               >
@@ -408,7 +419,7 @@ async function handleScan() {
                   {{ dep.name }}
                 </td>
                 <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ dep.version }}
+                  {{ dep.currentVersion }}
                 </td>
                 <td class="px-4 py-3 text-sm text-text-muted">
                   {{ dep.packageManager }}
@@ -416,11 +427,24 @@ async function handleScan() {
                 <td class="px-4 py-3 text-sm text-text-muted">
                   {{ dep.type }}
                 </td>
+                <td class="px-4 py-3 text-sm">
+                  <a
+                    v-if="dep.repositoryUrl"
+                    :href="dep.repositoryUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-primary hover:text-primary-dark"
+                  >Repo ↗</a>
+                  <span
+                    v-else
+                    class="text-text-muted"
+                  >—</span>
+                </td>
               </tr>
             </tbody>
           </table>
           <div
-            v-if="!projectStore.scanResult?.dependencies?.length"
+            v-if="dependencyStore.dependencies.length === 0"
             class="py-8 text-center text-text-muted"
             data-testid="dependencies-empty"
           >

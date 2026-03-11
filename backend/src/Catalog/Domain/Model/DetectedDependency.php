@@ -14,6 +14,7 @@ final readonly class DetectedDependency
         public string $currentVersion,
         public PackageManager $packageManager,
         public DependencyType $type,
+        public ?string $repositoryUrl = null,
     ) {
     }
 }

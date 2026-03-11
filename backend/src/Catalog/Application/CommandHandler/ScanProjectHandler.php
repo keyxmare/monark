@@ -74,6 +74,7 @@ final readonly class ScanProjectHandler
                 type: $detected->type,
                 isOutdated: false,
                 project: $project,
+                repositoryUrl: $detected->repositoryUrl,
             );
             $this->dependencyRepository->save($dependency);
             $depOutputs[] = [

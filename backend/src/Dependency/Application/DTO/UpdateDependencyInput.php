@@ -28,6 +28,10 @@ final readonly class UpdateDependencyInput
         public ?string $type = null,
 
         public ?bool $isOutdated = null,
+
+        #[Assert\Url]
+        #[Assert\Length(max: 2048)]
+        public ?string $repositoryUrl = null,
     ) {
     }
 }

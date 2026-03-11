@@ -10,6 +10,7 @@ use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Uid\Uuid;
 
 #[AsMessageHandler(bus: 'query.bus')]
 final readonly class ListDependenciesHandler
@@ -21,8 +22,15 @@ final readonly class ListDependenciesHandler
 
     public function __invoke(ListDependenciesQuery $query): DependencyListOutput
     {
-        $dependencies = $this->dependencyRepository->findAll($query->page, $query->perPage);
-        $total = $this->dependencyRepository->count();
+        $projectId = $query->projectId !== null ? Uuid::fromString($query->projectId) : null;
+
+        $dependencies = $projectId !== null
+            ? $this->dependencyRepository->findByProjectId($projectId, $query->page, $query->perPage)
+            : $this->dependencyRepository->findAll($query->page, $query->perPage);
+
+        $total = $projectId !== null
+            ? $this->dependencyRepository->countByProjectId($projectId)
+            : $this->dependencyRepository->count();
 
         $items = \array_map(
             static fn ($dependency) => DependencyOutput::fromEntity($dependency),

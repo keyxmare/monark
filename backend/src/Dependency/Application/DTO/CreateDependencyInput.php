@@ -38,6 +38,10 @@ final readonly class CreateDependencyInput
         #[Assert\NotBlank]
         #[Assert\Uuid]
         public string $projectId,
+
+        #[Assert\Url]
+        #[Assert\Length(max: 2048)]
+        public ?string $repositoryUrl = null,
     ) {
     }
 }

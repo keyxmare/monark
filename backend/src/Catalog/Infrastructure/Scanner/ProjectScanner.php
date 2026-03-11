@@ -65,6 +65,8 @@ class ProjectScanner
                 $lockData = \json_decode($composerLock, true);
                 if (\is_array($lockData)) {
                     $dependencies = $this->enrichComposerVersions($dependencies, $lockData);
+                    $dependencies = $this->enrichComposerUrls($dependencies, $lockData);
+                    $stacks = $this->enrichPhpStackVersions($stacks, $lockData);
                 }
             }
 
@@ -149,6 +151,49 @@ class ProjectScanner
         return $paths;
     }
 
+    private const array FRAMEWORK_PACKAGES = [
+        'Symfony' => 'symfony/framework-bundle',
+        'Laravel' => 'laravel/framework',
+        'Slim' => 'slim/slim',
+        'CakePHP' => 'cakephp/cakephp',
+        'Yii2' => 'yiisoft/yii2',
+    ];
+
+    /** @return list<DetectedStack> */
+    private function enrichPhpStackVersions(array $stacks, array $lockData): array
+    {
+        $lockVersions = [];
+        foreach (\array_merge($lockData['packages'] ?? [], $lockData['packages-dev'] ?? []) as $pkg) {
+            $lockVersions[$pkg['name']] = \ltrim($pkg['version'] ?? '', 'v');
+        }
+
+        $phpVersion = $lockData['platform']['php'] ?? $lockData['platform-overrides']['php'] ?? null;
+
+        return \array_map(
+            static function (?DetectedStack $stack) use ($lockVersions, $phpVersion): ?DetectedStack {
+                if ($stack === null || $stack->language !== 'PHP') {
+                    return $stack;
+                }
+
+                $enrichedPhpVersion = $phpVersion !== null ? \ltrim($phpVersion, 'v') : $stack->version;
+
+                $enrichedFrameworkVersion = $stack->frameworkVersion;
+                $frameworkPkg = self::FRAMEWORK_PACKAGES[$stack->framework] ?? null;
+                if ($frameworkPkg !== null && isset($lockVersions[$frameworkPkg])) {
+                    $enrichedFrameworkVersion = $lockVersions[$frameworkPkg];
+                }
+
+                return new DetectedStack(
+                    language: $stack->language,
+                    framework: $stack->framework,
+                    version: $enrichedPhpVersion,
+                    frameworkVersion: $enrichedFrameworkVersion,
+                );
+            },
+            $stacks,
+        );
+    }
+
     private function detectPhpStack(array $data): DetectedStack
     {
         $phpVersion = $this->cleanVersion($data['require']['php'] ?? '');
@@ -156,15 +201,9 @@ class ProjectScanner
         $framework = 'none';
         $frameworkVersion = '';
 
-        $frameworkDetectors = [
-            'symfony/framework-bundle' => 'Symfony',
-            'laravel/framework' => 'Laravel',
-            'slim/slim' => 'Slim',
-            'cakephp/cakephp' => 'CakePHP',
-            'yiisoft/yii2' => 'Yii2',
-        ];
+        $flipped = \array_flip(self::FRAMEWORK_PACKAGES);
 
-        foreach ($frameworkDetectors as $pkg => $name) {
+        foreach ($flipped as $pkg => $name) {
             if (isset($require[$pkg])) {
                 $framework = $name;
                 $frameworkVersion = $this->cleanVersion($require[$pkg]);
@@ -249,6 +288,45 @@ class ProjectScanner
         );
     }
 
+    /** @return list<DetectedDependency> */
+    private function enrichComposerUrls(array $dependencies, array $lockData): array
+    {
+        $lockUrls = [];
+        foreach (\array_merge($lockData['packages'] ?? [], $lockData['packages-dev'] ?? []) as $pkg) {
+            $url = $pkg['source']['url'] ?? $pkg['homepage'] ?? null;
+            if ($url !== null) {
+                $lockUrls[$pkg['name']] = \rtrim(\str_replace('.git', '', $url), '/');
+            }
+        }
+
+        return \array_map(
+            static function (DetectedDependency $dep) use ($lockUrls): DetectedDependency {
+                if ($dep->packageManager !== PackageManager::Composer || $dep->repositoryUrl !== null) {
+                    return $dep;
+                }
+
+                $url = $lockUrls[$dep->name] ?? null;
+                if ($url === null) {
+                    return $dep;
+                }
+
+                return new DetectedDependency(
+                    name: $dep->name,
+                    currentVersion: $dep->currentVersion,
+                    packageManager: $dep->packageManager,
+                    type: $dep->type,
+                    repositoryUrl: $url,
+                );
+            },
+            $dependencies,
+        );
+    }
+
+    private function resolveNpmUrl(string $name): string
+    {
+        return \sprintf('https://www.npmjs.com/package/%s', $name);
+    }
+
     private function detectJsStack(array $data): DetectedStack
     {
         $deps = $data['dependencies'] ?? [];
@@ -297,6 +375,7 @@ class ProjectScanner
                 currentVersion: $this->cleanVersion($version),
                 packageManager: PackageManager::Npm,
                 type: DependencyType::Runtime,
+                repositoryUrl: $this->resolveNpmUrl($name),
             );
         }
 
@@ -306,6 +385,7 @@ class ProjectScanner
                 currentVersion: $this->cleanVersion($version),
                 packageManager: PackageManager::Npm,
                 type: DependencyType::Dev,
+                repositoryUrl: $this->resolveNpmUrl($name),
             );
         }
 
@@ -346,6 +426,7 @@ class ProjectScanner
                     currentVersion: isset($m[2]) ? \trim($m[2]) : '*',
                     packageManager: PackageManager::Pip,
                     type: DependencyType::Runtime,
+                    repositoryUrl: \sprintf('https://pypi.org/project/%s/', $m[1]),
                 );
             }
         }

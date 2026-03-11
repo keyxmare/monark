@@ -68,6 +68,7 @@ function stubScanDependencyRepo(): DependencyRepositoryInterface
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
         public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
         public function count(): int { return 0; }
+        public function countByProjectId(Uuid $projectId): int { return 0; }
         public function save(Dependency $dependency): void { $this->saved[] = $dependency; }
         public function delete(Dependency $dependency): void {}
         public function deleteByProjectId(Uuid $projectId): void { $this->deletedByProject = true; }

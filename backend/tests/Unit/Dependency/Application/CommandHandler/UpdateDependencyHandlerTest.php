@@ -24,6 +24,7 @@ function stubUpdateDependencyRepo(?Dependency $dependency = null): DependencyRep
         public function save(Dependency $dependency): void { $this->saved = $dependency; }
         public function delete(Dependency $dependency): void {}
         public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
+        public function countByProjectId(Uuid $projectId): int { return 0; }
         public function deleteByProjectId(Uuid $projectId): void {}
     };
 }
@@ -52,6 +53,52 @@ describe('UpdateDependencyHandler', function () {
         expect($result->currentVersion)->toBe('8.0.0');
         expect($result->isOutdated)->toBeFalse();
         expect($repo->saved)->not->toBeNull();
+    });
+
+    it('updates repositoryUrl', function () {
+        $dependency = Dependency::create(
+            name: 'symfony/framework-bundle',
+            currentVersion: '7.2.0',
+            latestVersion: '8.0.0',
+            ltsVersion: '7.4.0',
+            packageManager: PackageManager::Composer,
+            type: DependencyType::Runtime,
+            isOutdated: true,
+            project: Tests\Factory\Catalog\ProjectFactory::create(),
+        );
+        $dependencyId = $dependency->getId()->toRfc4122();
+
+        $repo = stubUpdateDependencyRepo($dependency);
+        $handler = new UpdateDependencyHandler($repo);
+
+        $input = new UpdateDependencyInput(repositoryUrl: 'https://github.com/symfony/symfony');
+        $result = $handler(new UpdateDependencyCommand($dependencyId, $input));
+
+        expect($result->repositoryUrl)->toBe('https://github.com/symfony/symfony');
+    });
+
+    it('keeps repositoryUrl unchanged when not provided', function () {
+        $dependency = Dependency::create(
+            name: 'vue',
+            currentVersion: '3.5.0',
+            latestVersion: '3.5.0',
+            ltsVersion: '3.5.0',
+            packageManager: PackageManager::Npm,
+            type: DependencyType::Runtime,
+            isOutdated: false,
+            project: Tests\Factory\Catalog\ProjectFactory::create(),
+            repositoryUrl: 'https://github.com/vuejs/core',
+        );
+        $dependencyId = $dependency->getId()->toRfc4122();
+
+        $repo = stubUpdateDependencyRepo($dependency);
+        $handler = new UpdateDependencyHandler($repo);
+
+        $input = new UpdateDependencyInput(currentVersion: '3.6.0');
+        $result = $handler(new UpdateDependencyCommand($dependencyId, $input));
+
+        expect($result->currentVersion)->toBe('3.6.0');
+        expect($result->repositoryUrl)->toBe('https://github.com/vuejs/core');
     });
 
     it('throws not found when dependency does not exist', function () {

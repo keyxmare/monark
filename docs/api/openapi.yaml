@@ -230,8 +230,274 @@ paths:
         "404":
           description: Pipeline not found
 
+  /dependency/dependencies:
+    get:
+      summary: List dependencies
+      operationId: listDependencies
+      tags:
+        - Dependency
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Paginated dependencies list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedDependenciesResponse"
+
+    post:
+      summary: Create a dependency
+      operationId: createDependency
+      tags:
+        - Dependency
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDependencyInput"
+      responses:
+        "201":
+          description: Dependency created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DependencyResponse"
+
+  /dependency/dependencies/{id}:
+    get:
+      summary: Get dependency details
+      operationId: getDependency
+      tags:
+        - Dependency
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Dependency details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DependencyResponse"
+        "404":
+          description: Dependency not found
+
+    put:
+      summary: Update a dependency
+      operationId: updateDependency
+      tags:
+        - Dependency
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDependencyInput"
+      responses:
+        "200":
+          description: Dependency updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DependencyResponse"
+        "404":
+          description: Dependency not found
+
+    delete:
+      summary: Delete a dependency
+      operationId: deleteDependency
+      tags:
+        - Dependency
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Dependency deleted
+        "404":
+          description: Dependency not found
+
 components:
   schemas:
+    DependencyOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        currentVersion:
+          type: string
+        latestVersion:
+          type: string
+        ltsVersion:
+          type: string
+        packageManager:
+          type: string
+          enum: [composer, npm, pip]
+        type:
+          type: string
+          enum: [runtime, dev]
+        isOutdated:
+          type: boolean
+        projectId:
+          type: string
+          format: uuid
+        repositoryUrl:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 2048
+        vulnerabilityCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DependencyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/DependencyOutput"
+
+    PaginatedDependenciesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/DependencyOutput"
+            total:
+              type: integer
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total_pages:
+              type: integer
+
+    CreateDependencyInput:
+      type: object
+      required:
+        - name
+        - currentVersion
+        - latestVersion
+        - ltsVersion
+        - packageManager
+        - type
+        - isOutdated
+        - projectId
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        currentVersion:
+          type: string
+          maxLength: 100
+        latestVersion:
+          type: string
+          maxLength: 100
+        ltsVersion:
+          type: string
+          maxLength: 100
+        packageManager:
+          type: string
+          enum: [composer, npm, pip]
+        type:
+          type: string
+          enum: [runtime, dev]
+        isOutdated:
+          type: boolean
+        projectId:
+          type: string
+          format: uuid
+        repositoryUrl:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 2048
+
+    UpdateDependencyInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        currentVersion:
+          type: string
+          maxLength: 100
+        latestVersion:
+          type: string
+          maxLength: 100
+        ltsVersion:
+          type: string
+          maxLength: 100
+        packageManager:
+          type: string
+          enum: [composer, npm, pip]
+        type:
+          type: string
+          enum: [runtime, dev]
+        isOutdated:
+          type: boolean
+        repositoryUrl:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 2048
+
     ScanResultResponse:
       type: object
       properties:
@@ -379,3 +645,5 @@ tags:
     description: Health and readiness endpoints
   - name: Catalog
     description: Projects, providers, tech stacks, and pipelines
+  - name: Dependency
+    description: Dependencies, versions, and vulnerability tracking

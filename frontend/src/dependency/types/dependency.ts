@@ -12,6 +12,7 @@ export interface Dependency {
   type: DependencyType
   isOutdated: boolean
   projectId: string
+  repositoryUrl: string | null
   vulnerabilityCount: number
   createdAt: string
   updatedAt: string
@@ -26,6 +27,7 @@ export interface CreateDependencyInput {
   type: DependencyType
   isOutdated: boolean
   projectId: string
+  repositoryUrl?: string | null
 }
 
 export interface UpdateDependencyInput {
@@ -36,4 +38,5 @@ export interface UpdateDependencyInput {
   packageManager?: PackageManager
   type?: DependencyType
   isOutdated?: boolean
+  repositoryUrl?: string | null
 }

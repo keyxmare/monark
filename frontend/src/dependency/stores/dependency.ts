@@ -12,12 +12,12 @@ export const useDependencyStore = defineStore('dependency', () => {
   const currentPage = ref(1)
   const total = ref(0)
 
-  async function fetchAll(page = 1, perPage = 20): Promise<void> {
+  async function fetchAll(page = 1, perPage = 20, projectId?: string): Promise<void> {
     loading.value = true
     error.value = null
 
     try {
-      const response = await dependencyService.list(page, perPage)
+      const response = await dependencyService.list(page, perPage, projectId)
       dependencies.value = response.data.items
       totalPages.value = response.data.total_pages
       currentPage.value = response.data.page

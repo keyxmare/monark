@@ -24,6 +24,7 @@ function stubCreateDependencyRepo(): DependencyRepositoryInterface
         public function save(Dependency $dependency): void { $this->saved = $dependency; }
         public function delete(Dependency $dependency): void {}
         public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
+        public function countByProjectId(Uuid $projectId): int { return 0; }
         public function deleteByProjectId(Uuid $projectId): void {}
     };
 }
@@ -113,5 +114,50 @@ describe('CreateDependencyHandler', function () {
         $result = $handler(new CreateDependencyCommand($input));
 
         expect($result->projectId)->toBe($project->getId()->toRfc4122());
+    });
+
+    it('creates a dependency with repositoryUrl', function () {
+        $project = ProjectFactory::create();
+        $repo = stubCreateDependencyRepo();
+        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $handler = new CreateDependencyHandler($repo, $projectRepo);
+
+        $input = new CreateDependencyInput(
+            name: 'symfony/framework-bundle',
+            currentVersion: '7.2.0',
+            latestVersion: '8.0.0',
+            ltsVersion: '7.4.0',
+            packageManager: 'composer',
+            type: 'runtime',
+            isOutdated: true,
+            projectId: $project->getId()->toRfc4122(),
+            repositoryUrl: 'https://github.com/symfony/symfony',
+        );
+
+        $result = $handler(new CreateDependencyCommand($input));
+
+        expect($result->repositoryUrl)->toBe('https://github.com/symfony/symfony');
+    });
+
+    it('creates a dependency without repositoryUrl', function () {
+        $project = ProjectFactory::create();
+        $repo = stubCreateDependencyRepo();
+        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $handler = new CreateDependencyHandler($repo, $projectRepo);
+
+        $input = new CreateDependencyInput(
+            name: 'vue',
+            currentVersion: '3.5.0',
+            latestVersion: '3.5.0',
+            ltsVersion: '3.5.0',
+            packageManager: 'npm',
+            type: 'runtime',
+            isOutdated: false,
+            projectId: $project->getId()->toRfc4122(),
+        );
+
+        $result = $handler(new CreateDependencyCommand($input));
+
+        expect($result->repositoryUrl)->toBeNull();
     });
 });

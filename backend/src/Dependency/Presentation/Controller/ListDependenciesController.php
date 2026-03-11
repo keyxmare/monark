@@ -24,8 +24,9 @@ final readonly class ListDependenciesController
     {
         $page = $request->query->getInt('page', 1);
         $perPage = $request->query->getInt('per_page', 20);
+        $projectId = $request->query->get('project_id');
 
-        $envelope = $this->queryBus->dispatch(new ListDependenciesQuery($page, $perPage));
+        $envelope = $this->queryBus->dispatch(new ListDependenciesQuery($page, $perPage, $projectId));
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

@@ -68,6 +68,17 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
         $this->entityManager->flush();
     }
 
+    public function countByProjectId(Uuid $projectId): int
+    {
+        return (int) $this->entityManager->getRepository(Dependency::class)
+            ->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.project = :projectId')
+            ->setParameter('projectId', $projectId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function deleteByProjectId(Uuid $projectId): void
     {
         $this->entityManager->getRepository(Dependency::class)

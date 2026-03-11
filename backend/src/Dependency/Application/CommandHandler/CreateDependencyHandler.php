@@ -42,6 +42,7 @@ final readonly class CreateDependencyHandler
             type: DependencyType::from($input->type),
             isOutdated: $input->isOutdated,
             project: $project,
+            repositoryUrl: $input->repositoryUrl,
         );
 
         $this->dependencyRepository->save($dependency);
