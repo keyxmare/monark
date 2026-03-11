@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Identity\Application\Query;
+
+final readonly class GetAccessTokenQuery
+{
+    public function __construct(
+        public string $tokenId,
+    ) {
+    }
+}

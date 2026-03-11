@@ -76,6 +76,66 @@ services:
         tags:
             - { name: messenger.message_handler, bus: query.bus }
 
+    App\Identity\Domain\Repository\UserRepositoryInterface:
+        alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineUserRepository
+
+    App\Identity\Domain\Repository\AccessTokenRepositoryInterface:
+        alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineAccessTokenRepository
+
+    App\Identity\Domain\Repository\TeamRepositoryInterface:
+        alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineTeamRepository
+
+    App\Catalog\Domain\Repository\ProjectRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProjectRepository
+
+    App\Catalog\Domain\Repository\TechStackRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineTechStackRepository
+
+    App\Catalog\Domain\Repository\PipelineRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrinePipelineRepository
+
+    App\Catalog\Domain\Repository\ProviderRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
+
+    App\Catalog\Domain\Port\GitProviderInterface:
+        alias: App\Catalog\Infrastructure\GitProvider\GitLabClient
+
+    App\Activity\Domain\Repository\ActivityEventRepositoryInterface:
+        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineActivityEventRepository
+
+    App\Activity\Domain\Repository\NotificationRepositoryInterface:
+        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineNotificationRepository
+
+    App\Dependency\Domain\Repository\DependencyRepositoryInterface:
+        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyRepository
+
+    App\Dependency\Domain\Repository\VulnerabilityRepositoryInterface:
+        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineVulnerabilityRepository
+
+    App\Assessment\Domain\Repository\QuizRepositoryInterface:
+        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineQuizRepository
+
+    App\Assessment\Domain\Repository\QuestionRepositoryInterface:
+        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineQuestionRepository
+
+    App\Assessment\Domain\Repository\AnswerRepositoryInterface:
+        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineAnswerRepository
+
+    App\Assessment\Domain\Repository\AttemptRepositoryInterface:
+        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineAttemptRepository
+
+    App\Identity\Application\CommandHandler\RegisterUserHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Identity\Application\CommandHandler\UpdateUserHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Identity\Infrastructure\Security\ApiTokenHandler:
+        arguments:
+            $appSecret: '%kernel.secret%'
+
     App\Shared\Infrastructure\EventListener\ExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }

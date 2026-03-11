@@ -1,0 +1,464 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Catalog\Infrastructure\Scanner;
+
+use App\Catalog\Domain\Model\DetectedDependency;
+use App\Catalog\Domain\Model\DetectedStack;
+use App\Catalog\Domain\Model\Project;
+use App\Catalog\Domain\Model\ScanResult;
+use App\Catalog\Domain\Port\GitProviderInterface;
+use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Dependency\Domain\Model\DependencyType;
+use App\Dependency\Domain\Model\PackageManager;
+
+class ProjectScanner
+{
+    private const array MANIFEST_FILES = [
+        'composer.json',
+        'composer.lock',
+        'package.json',
+        'requirements.txt',
+        'pyproject.toml',
+        'go.mod',
+        'Cargo.toml',
+        'Gemfile',
+        'Dockerfile',
+    ];
+
+    public function __construct(
+        private GitProviderFactory $gitProviderFactory,
+    ) {
+    }
+
+    public function scan(Project $project): ScanResult
+    {
+        $provider = $project->getProvider();
+        $externalId = $project->getExternalId();
+        $ref = $project->getDefaultBranch();
+
+        if ($provider === null || $externalId === null) {
+            return new ScanResult(stacks: [], dependencies: []);
+        }
+
+        $gitProvider = $this->gitProviderFactory->create($provider);
+        $searchPaths = $this->discoverSearchPaths($gitProvider, $project);
+
+        $stacks = [];
+        $dependencies = [];
+
+        foreach ($searchPaths as $basePath) {
+            $prefix = $basePath === '' ? '' : $basePath . '/';
+
+            $composerJson = $gitProvider->getFileContent($provider, $externalId, $prefix . 'composer.json', $ref);
+            if ($composerJson !== null) {
+                $data = \json_decode($composerJson, true);
+                if (\is_array($data)) {
+                    $stacks[] = $this->detectPhpStack($data);
+                    \array_push($dependencies, ...$this->extractComposerDeps($data));
+                }
+            }
+
+            $composerLock = $gitProvider->getFileContent($provider, $externalId, $prefix . 'composer.lock', $ref);
+            if ($composerLock !== null && $composerJson !== null) {
+                $lockData = \json_decode($composerLock, true);
+                if (\is_array($lockData)) {
+                    $dependencies = $this->enrichComposerVersions($dependencies, $lockData);
+                }
+            }
+
+            $packageJson = $gitProvider->getFileContent($provider, $externalId, $prefix . 'package.json', $ref);
+            if ($packageJson !== null) {
+                $data = \json_decode($packageJson, true);
+                if (\is_array($data)) {
+                    $stacks[] = $this->detectJsStack($data);
+                    \array_push($dependencies, ...$this->extractNpmDeps($data));
+                }
+            }
+
+            $requirementsTxt = $gitProvider->getFileContent($provider, $externalId, $prefix . 'requirements.txt', $ref);
+            if ($requirementsTxt !== null) {
+                $stacks[] = $this->detectPythonStack($requirementsTxt);
+                \array_push($dependencies, ...$this->extractPipDeps($requirementsTxt));
+            }
+
+            $pyprojectToml = $gitProvider->getFileContent($provider, $externalId, $prefix . 'pyproject.toml', $ref);
+            if ($pyprojectToml !== null && $requirementsTxt === null) {
+                $stacks[] = $this->detectPyprojectStack($pyprojectToml);
+            }
+
+            $goMod = $gitProvider->getFileContent($provider, $externalId, $prefix . 'go.mod', $ref);
+            if ($goMod !== null) {
+                $stacks[] = $this->detectGoStack($goMod);
+            }
+
+            $cargoToml = $gitProvider->getFileContent($provider, $externalId, $prefix . 'Cargo.toml', $ref);
+            if ($cargoToml !== null) {
+                $stacks[] = $this->detectRustStack($cargoToml);
+            }
+
+            $gemfile = $gitProvider->getFileContent($provider, $externalId, $prefix . 'Gemfile', $ref);
+            if ($gemfile !== null) {
+                $stacks[] = $this->detectRubyStack($gemfile);
+            }
+
+            $dockerfile = $gitProvider->getFileContent($provider, $externalId, $prefix . 'Dockerfile', $ref);
+            if ($dockerfile !== null) {
+                $stacks[] = $this->detectDockerStack($dockerfile);
+            }
+        }
+
+        return new ScanResult(
+            stacks: \array_values(\array_filter($stacks)),
+            dependencies: $this->deduplicateDependencies($dependencies),
+        );
+    }
+
+    /** @return list<string> */
+    private function discoverSearchPaths(GitProviderInterface $gitProvider, Project $project): array
+    {
+        $provider = $project->getProvider();
+        $externalId = $project->getExternalId();
+        $ref = $project->getDefaultBranch();
+
+        $paths = [''];
+
+        $rootEntries = $gitProvider->listDirectory($provider, $externalId, '', $ref);
+
+        foreach ($rootEntries as $entry) {
+            if ($entry['type'] !== 'tree') {
+                continue;
+            }
+
+            $subEntries = $gitProvider->listDirectory($provider, $externalId, $entry['path'], $ref);
+            $hasManifest = false;
+
+            foreach ($subEntries as $subEntry) {
+                if ($subEntry['type'] === 'blob' && \in_array($subEntry['name'], self::MANIFEST_FILES, true)) {
+                    $hasManifest = true;
+                    break;
+                }
+            }
+
+            if ($hasManifest) {
+                $paths[] = $entry['path'];
+            }
+        }
+
+        return $paths;
+    }
+
+    private function detectPhpStack(array $data): DetectedStack
+    {
+        $phpVersion = $this->cleanVersion($data['require']['php'] ?? '');
+        $require = $data['require'] ?? [];
+        $framework = 'none';
+        $frameworkVersion = '';
+
+        $frameworkDetectors = [
+            'symfony/framework-bundle' => 'Symfony',
+            'laravel/framework' => 'Laravel',
+            'slim/slim' => 'Slim',
+            'cakephp/cakephp' => 'CakePHP',
+            'yiisoft/yii2' => 'Yii2',
+        ];
+
+        foreach ($frameworkDetectors as $pkg => $name) {
+            if (isset($require[$pkg])) {
+                $framework = $name;
+                $frameworkVersion = $this->cleanVersion($require[$pkg]);
+                break;
+            }
+        }
+
+        if ($framework === 'none') {
+            foreach ($require as $pkg => $ver) {
+                if (\str_starts_with($pkg, 'symfony/')) {
+                    $framework = 'Symfony';
+                    $frameworkVersion = $this->cleanVersion($ver);
+                    break;
+                }
+                if (\str_starts_with($pkg, 'laravel/')) {
+                    $framework = 'Laravel';
+                    $frameworkVersion = $this->cleanVersion($ver);
+                    break;
+                }
+            }
+        }
+
+        return new DetectedStack(language: 'PHP', framework: $framework, version: $phpVersion, frameworkVersion: $frameworkVersion);
+    }
+
+    /** @return list<DetectedDependency> */
+    private function extractComposerDeps(array $data): array
+    {
+        $deps = [];
+
+        foreach ($data['require'] ?? [] as $name => $version) {
+            if ($name === 'php' || \str_starts_with($name, 'ext-')) {
+                continue;
+            }
+            $deps[] = new DetectedDependency(
+                name: $name,
+                currentVersion: $this->cleanVersion($version),
+                packageManager: PackageManager::Composer,
+                type: DependencyType::Runtime,
+            );
+        }
+
+        foreach ($data['require-dev'] ?? [] as $name => $version) {
+            $deps[] = new DetectedDependency(
+                name: $name,
+                currentVersion: $this->cleanVersion($version),
+                packageManager: PackageManager::Composer,
+                type: DependencyType::Dev,
+            );
+        }
+
+        return $deps;
+    }
+
+    /** @return list<DetectedDependency> */
+    private function enrichComposerVersions(array $dependencies, array $lockData): array
+    {
+        $lockVersions = [];
+        foreach (\array_merge($lockData['packages'] ?? [], $lockData['packages-dev'] ?? []) as $pkg) {
+            $lockVersions[$pkg['name']] = \ltrim($pkg['version'] ?? '', 'v');
+        }
+
+        return \array_map(
+            static function (DetectedDependency $dep) use ($lockVersions): DetectedDependency {
+                if ($dep->packageManager !== PackageManager::Composer) {
+                    return $dep;
+                }
+
+                $locked = $lockVersions[$dep->name] ?? null;
+                if ($locked === null) {
+                    return $dep;
+                }
+
+                return new DetectedDependency(
+                    name: $dep->name,
+                    currentVersion: $locked,
+                    packageManager: $dep->packageManager,
+                    type: $dep->type,
+                );
+            },
+            $dependencies,
+        );
+    }
+
+    private function detectJsStack(array $data): DetectedStack
+    {
+        $deps = $data['dependencies'] ?? [];
+        $devDeps = $data['devDependencies'] ?? [];
+        $allDeps = \array_merge($deps, $devDeps);
+        $allDepsKeys = \array_keys($allDeps);
+
+        $language = \in_array('typescript', $allDepsKeys, true) ? 'TypeScript' : 'JavaScript';
+        $framework = 'none';
+        $frameworkVersion = '';
+
+        $engines = $data['engines'] ?? [];
+        $version = isset($engines['node']) ? $this->cleanVersion($engines['node']) : '';
+
+        $frameworkMap = [
+            'nuxt' => 'Nuxt',
+            '@nuxt/core' => 'Nuxt',
+            'next' => 'Next.js',
+            'vue' => 'Vue',
+            'react' => 'React',
+            '@angular/core' => 'Angular',
+            'svelte' => 'Svelte',
+            'astro' => 'Astro',
+            'remix' => 'Remix',
+        ];
+
+        foreach ($frameworkMap as $pkg => $name) {
+            if (isset($allDeps[$pkg])) {
+                $framework = $name;
+                $frameworkVersion = $this->cleanVersion($allDeps[$pkg]);
+                break;
+            }
+        }
+
+        return new DetectedStack(language: $language, framework: $framework, version: $version, frameworkVersion: $frameworkVersion);
+    }
+
+    /** @return list<DetectedDependency> */
+    private function extractNpmDeps(array $data): array
+    {
+        $deps = [];
+
+        foreach ($data['dependencies'] ?? [] as $name => $version) {
+            $deps[] = new DetectedDependency(
+                name: $name,
+                currentVersion: $this->cleanVersion($version),
+                packageManager: PackageManager::Npm,
+                type: DependencyType::Runtime,
+            );
+        }
+
+        foreach ($data['devDependencies'] ?? [] as $name => $version) {
+            $deps[] = new DetectedDependency(
+                name: $name,
+                currentVersion: $this->cleanVersion($version),
+                packageManager: PackageManager::Npm,
+                type: DependencyType::Dev,
+            );
+        }
+
+        return $deps;
+    }
+
+    private function detectPythonStack(string $content): DetectedStack
+    {
+        $framework = 'none';
+        $lower = \strtolower($content);
+
+        if (\str_contains($lower, 'django')) {
+            $framework = 'Django';
+        } elseif (\str_contains($lower, 'fastapi')) {
+            $framework = 'FastAPI';
+        } elseif (\str_contains($lower, 'flask')) {
+            $framework = 'Flask';
+        }
+
+        return new DetectedStack(language: 'Python', framework: $framework, version: '', frameworkVersion: '');
+    }
+
+    /** @return list<DetectedDependency> */
+    private function extractPipDeps(string $content): array
+    {
+        $deps = [];
+        $lines = \explode("\n", $content);
+
+        foreach ($lines as $line) {
+            $line = \trim($line);
+            if ($line === '' || \str_starts_with($line, '#') || \str_starts_with($line, '-')) {
+                continue;
+            }
+
+            if (\preg_match('/^([a-zA-Z0-9_.-]+)\s*(?:[=<>!~]+\s*(.+))?$/', $line, $m)) {
+                $deps[] = new DetectedDependency(
+                    name: $m[1],
+                    currentVersion: isset($m[2]) ? \trim($m[2]) : '*',
+                    packageManager: PackageManager::Pip,
+                    type: DependencyType::Runtime,
+                );
+            }
+        }
+
+        return $deps;
+    }
+
+    private function detectPyprojectStack(string $content): DetectedStack
+    {
+        $framework = 'none';
+        $lower = \strtolower($content);
+
+        if (\str_contains($lower, 'django')) {
+            $framework = 'Django';
+        } elseif (\str_contains($lower, 'fastapi')) {
+            $framework = 'FastAPI';
+        } elseif (\str_contains($lower, 'flask')) {
+            $framework = 'Flask';
+        }
+
+        $version = '';
+        if (\preg_match('/requires-python\s*=\s*"([^"]+)"/', $content, $m)) {
+            $version = $m[1];
+        }
+
+        return new DetectedStack(language: 'Python', framework: $framework, version: $version, frameworkVersion: '');
+    }
+
+    private function detectGoStack(string $content): DetectedStack
+    {
+        $version = '';
+        if (\preg_match('/^go\s+([\d.]+)/m', $content, $m)) {
+            $version = $m[1];
+        }
+
+        $framework = 'none';
+        if (\str_contains($content, 'github.com/gin-gonic/gin')) {
+            $framework = 'Gin';
+        } elseif (\str_contains($content, 'github.com/gofiber/fiber')) {
+            $framework = 'Fiber';
+        } elseif (\str_contains($content, 'github.com/labstack/echo')) {
+            $framework = 'Echo';
+        }
+
+        return new DetectedStack(language: 'Go', framework: $framework, version: $version, frameworkVersion: '');
+    }
+
+    private function detectRustStack(string $content): DetectedStack
+    {
+        $version = '';
+        if (\preg_match('/\[package\].*?version\s*=\s*"([^"]+)"/s', $content, $m)) {
+            $version = $m[1];
+        }
+
+        $framework = 'none';
+        if (\str_contains($content, 'actix-web')) {
+            $framework = 'Actix';
+        } elseif (\str_contains($content, 'axum')) {
+            $framework = 'Axum';
+        } elseif (\str_contains($content, 'rocket')) {
+            $framework = 'Rocket';
+        }
+
+        return new DetectedStack(language: 'Rust', framework: $framework, version: $version, frameworkVersion: '');
+    }
+
+    private function detectRubyStack(string $content): DetectedStack
+    {
+        $framework = 'none';
+        if (\str_contains($content, "'rails'") || \str_contains($content, '"rails"')) {
+            $framework = 'Rails';
+        } elseif (\str_contains($content, "'sinatra'") || \str_contains($content, '"sinatra"')) {
+            $framework = 'Sinatra';
+        }
+
+        $version = '';
+        if (\preg_match("/ruby ['\"]([^'\"]+)['\"]/", $content, $m)) {
+            $version = $m[1];
+        }
+
+        return new DetectedStack(language: 'Ruby', framework: $framework, version: $version, frameworkVersion: '');
+    }
+
+    private function detectDockerStack(string $content): DetectedStack
+    {
+        $image = 'unknown';
+        if (\preg_match('/^FROM\s+([^\s]+)/im', $content, $m)) {
+            $image = $m[1];
+        }
+
+        return new DetectedStack(language: 'Docker', framework: $image, version: '', frameworkVersion: '');
+    }
+
+    private function cleanVersion(string $version): string
+    {
+        return \ltrim(\trim($version), '^~>=<! ');
+    }
+
+    /** @return list<DetectedDependency> */
+    private function deduplicateDependencies(array $dependencies): array
+    {
+        $seen = [];
+        $result = [];
+
+        foreach ($dependencies as $dep) {
+            $key = $dep->packageManager->value . ':' . $dep->name;
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $result[] = $dep;
+        }
+
+        return $result;
+    }
+}

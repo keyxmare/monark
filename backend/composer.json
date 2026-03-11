@@ -13,6 +13,7 @@
         "symfony/console": "^8.0",
         "symfony/dotenv": "^8.0",
         "symfony/framework-bundle": "^8.0",
+        "symfony/http-client": "^8.0",
         "symfony/messenger": "^8.0",
         "symfony/monolog-bundle": "^4.0",
         "symfony/object-mapper": "^8.0",
@@ -49,7 +50,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "App\\Tests\\": "tests/",
+            "Tests\\": "tests/"
         }
     },
     "scripts": {
