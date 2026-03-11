@@ -33,15 +33,28 @@ async function handleSubmit() {
 <template>
   <AuthLayout>
     <div data-testid="login-page">
-      <h1 class="mb-6 text-center text-2xl font-bold text-text">Sign in to Monark</h1>
+      <h1 class="mb-6 text-center text-2xl font-bold text-text">
+        Sign in to Monark
+      </h1>
 
-      <form data-testid="login-form" @submit.prevent="handleSubmit">
-        <div v-if="error" class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger" role="alert" data-testid="login-error">
+      <form
+        data-testid="login-form"
+        @submit.prevent="handleSubmit"
+      >
+        <div
+          v-if="error"
+          class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
+          role="alert"
+          data-testid="login-error"
+        >
           {{ error }}
         </div>
 
         <div class="mb-4">
-          <label for="email" class="mb-1 block text-sm font-medium text-text">Email</label>
+          <label
+            for="email"
+            class="mb-1 block text-sm font-medium text-text"
+          >Email</label>
           <input
             id="email"
             v-model="email"
@@ -50,11 +63,14 @@ async function handleSubmit() {
             autocomplete="email"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="login-email"
-          />
+          >
         </div>
 
         <div class="mb-6">
-          <label for="password" class="mb-1 block text-sm font-medium text-text">Password</label>
+          <label
+            for="password"
+            class="mb-1 block text-sm font-medium text-text"
+          >Password</label>
           <input
             id="password"
             v-model="password"
@@ -63,7 +79,7 @@ async function handleSubmit() {
             autocomplete="current-password"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="login-password"
-          />
+          >
         </div>
 
         <button
@@ -77,7 +93,11 @@ async function handleSubmit() {
 
         <p class="mt-4 text-center text-sm text-text-muted">
           Don't have an account?
-          <RouterLink :to="{ name: 'register' }" class="text-primary hover:text-primary-dark" data-testid="login-register-link">
+          <RouterLink
+            :to="{ name: 'register' }"
+            class="text-primary hover:text-primary-dark"
+            data-testid="login-register-link"
+          >
             Sign up
           </RouterLink>
         </p>

@@ -20,15 +20,22 @@ const mainClasses = computed(() => [
 
     <div
       v-if="mobileOpen"
+      role="button"
+      tabindex="0"
+      aria-label="Close sidebar"
       class="fixed inset-0 z-30 bg-black/50 md:hidden"
       data-testid="sidebar-overlay"
       @click="mobileOpen = false"
+      @keydown.escape="mobileOpen = false"
     />
 
     <div :class="mainClasses">
       <AppTopbar />
 
-      <main class="p-6" data-testid="main-content">
+      <main
+        class="p-6"
+        data-testid="main-content"
+      >
         <slot />
       </main>
     </div>

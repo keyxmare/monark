@@ -18,6 +18,7 @@ final readonly class ApiResponse
         return new self(success: true, data: $data, error: null);
     }
 
+    /** @param array<string, string[]> $errors */
     public static function error(string $message, int $code = 400, array $errors = []): self
     {
         return new self(

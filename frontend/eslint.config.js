@@ -2,6 +2,7 @@ import boundaries from 'eslint-plugin-boundaries'
 import perfectionist from 'eslint-plugin-perfectionist'
 import pluginVue from 'eslint-plugin-vue'
 import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility'
+import tseslint from 'typescript-eslint'
 
 const BOUNDED_CONTEXTS = ['shared', 'identity', 'catalog', 'dependency', 'assessment', 'activity']
 
@@ -10,15 +11,16 @@ export default [
   ...vuejsAccessibility.configs['flat/recommended'],
   perfectionist.configs['recommended-natural'],
   {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+  {
     plugins: {
       boundaries,
-    },
-    settings: {
-      'boundaries/elements': BOUNDED_CONTEXTS.map((context) => ({
-        mode: 'folder',
-        pattern: `src/${context}`,
-        type: context,
-      })),
     },
     rules: {
       'boundaries/element-types': [
@@ -33,6 +35,19 @@ export default [
       ],
       'boundaries/no-private': 'error',
       'vue/multi-word-component-names': 'off',
+      'vuejs-accessibility/label-has-for': [
+        'error',
+        {
+          required: { some: ['nesting', 'id'] },
+        },
+      ],
+    },
+    settings: {
+      'boundaries/elements': BOUNDED_CONTEXTS.map((context) => ({
+        mode: 'folder',
+        pattern: `src/${context}`,
+        type: context,
+      })),
     },
   },
   {

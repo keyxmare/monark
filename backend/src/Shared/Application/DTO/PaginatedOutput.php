@@ -6,6 +6,7 @@ namespace App\Shared\Application\DTO;
 
 final readonly class PaginatedOutput
 {
+    /** @param list<mixed> $items */
     public function __construct(
         public array $items,
         public int $total,

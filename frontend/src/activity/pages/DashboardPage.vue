@@ -17,7 +17,10 @@ const loading = computed(() => dashboardStore.loading)
 <template>
   <DashboardLayout>
     <div data-testid="dashboard-page">
-      <h2 class="mb-6 text-2xl font-bold text-text" data-testid="dashboard-title">
+      <h2
+        class="mb-6 text-2xl font-bold text-text"
+        data-testid="dashboard-title"
+      >
         Welcome to Monark
       </h2>
 
@@ -40,11 +43,19 @@ const loading = computed(() => dashboardStore.loading)
           class="rounded-xl border border-border bg-surface p-6 shadow-sm"
           data-testid="metric-card"
         >
-          <p class="text-sm font-medium text-text-muted">{{ metric.label }}</p>
-          <p class="mt-2 text-3xl font-bold text-text">{{ metric.value }}</p>
-          <p v-if="metric.change !== undefined" class="mt-1 text-sm" :class="[
-            metric.change >= 0 ? 'text-success' : 'text-danger',
-          ]">
+          <p class="text-sm font-medium text-text-muted">
+            {{ metric.label }}
+          </p>
+          <p class="mt-2 text-3xl font-bold text-text">
+            {{ metric.value }}
+          </p>
+          <p
+            v-if="metric.change !== undefined"
+            class="mt-1 text-sm"
+            :class="[
+              metric.change >= 0 ? 'text-success' : 'text-danger',
+            ]"
+          >
             {{ metric.change >= 0 ? '+' : '' }}{{ metric.change }}%
           </p>
         </div>

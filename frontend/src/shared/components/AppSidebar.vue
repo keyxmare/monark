@@ -23,9 +23,16 @@ function isActive(path: string): boolean {
 </script>
 
 <template>
-  <aside :class="sidebarClasses" aria-label="Main navigation" data-testid="sidebar">
+  <aside
+    :class="sidebarClasses"
+    aria-label="Main navigation"
+    data-testid="sidebar"
+  >
     <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
-      <span v-if="!collapsed" class="text-lg font-bold tracking-wide">Monark</span>
+      <span
+        v-if="!collapsed"
+        class="text-lg font-bold tracking-wide"
+      >Monark</span>
       <button
         class="rounded p-1.5 hover:bg-sidebar-hover"
         aria-label="Toggle sidebar"
@@ -36,7 +43,10 @@ function isActive(path: string): boolean {
       </button>
     </div>
 
-    <nav class="mt-4 flex-1 space-y-1 px-2" aria-label="Sidebar navigation">
+    <nav
+      class="mt-4 flex-1 space-y-1 px-2"
+      aria-label="Sidebar navigation"
+    >
       <RouterLink
         v-for="item in navItems"
         :key="item.to"

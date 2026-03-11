@@ -44,7 +44,7 @@ final readonly class ExceptionListener
     {
         $errors = [];
         foreach ($exception->getViolations() as $violation) {
-            $errors[$violation->getPropertyPath()][] = $violation->getMessage();
+            $errors[$violation->getPropertyPath()][] = (string) $violation->getMessage();
         }
 
         return new JsonResponse(

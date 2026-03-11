@@ -19,10 +19,15 @@ const { toggleMobile } = useSidebar()
         <span class="text-xl">☰</span>
       </button>
 
-      <h1 class="text-lg font-semibold text-text">Monark</h1>
+      <h1 class="text-lg font-semibold text-text">
+        Monark
+      </h1>
     </div>
 
-    <div class="flex items-center gap-3" data-testid="topbar-user-area">
+    <div
+      class="flex items-center gap-3"
+      data-testid="topbar-user-area"
+    >
       <div
         class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-white"
         data-testid="user-avatar"
