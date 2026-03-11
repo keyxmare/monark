@@ -1,9 +1,10 @@
 ---
 id: TASK-003.08
 title: 'i18n — Backend (exceptions, messages d''erreur métier)'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-11 19:33'
+updated_date: '2026-03-11 20:04'
 labels:
   - i18n
   - backend

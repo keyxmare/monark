@@ -1,10 +1,10 @@
 ---
 id: TASK-003.01
 title: i18n — Infrastructure (vue-i18n + Symfony Translation)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-03-11 19:32'
-updated_date: '2026-03-11 19:34'
+updated_date: '2026-03-11 19:48'
 labels:
   - i18n
   - frontend

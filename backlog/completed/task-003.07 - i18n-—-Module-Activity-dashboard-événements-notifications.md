@@ -1,9 +1,10 @@
 ---
 id: TASK-003.07
 title: 'i18n — Module Activity (dashboard, événements, notifications)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-11 19:33'
+updated_date: '2026-03-11 20:04'
 labels:
   - i18n
   - frontend
@@ -35,6 +36,12 @@ Extraire tous les textes hardcodés des pages Activity (~5 pages Vue).
 - [ ] #3 0 texte anglais en dur dans activity/pages/
 - [ ] #4 Tests passent
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Translated all 5 Activity module pages (DashboardPage, ActivityEventList, ActivityEventDetail, NotificationList, NotificationDetail) with vue-i18n. Added ~25 activity.dashboard.*, activity.events.*, and activity.notifications.* locale keys in both en.json and fr.json. Build passes cleanly.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

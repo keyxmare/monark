@@ -1,9 +1,10 @@
 ---
 id: TASK-003.02
 title: 'i18n — Module shared (layouts, navigation, boutons communs)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-11 19:33'
+updated_date: '2026-03-11 19:48'
 labels:
   - i18n
   - frontend
