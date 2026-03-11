@@ -106,6 +106,9 @@ services:
     App\Activity\Domain\Repository\NotificationRepositoryInterface:
         alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineNotificationRepository
 
+    App\Activity\Domain\Repository\SyncTaskRepositoryInterface:
+        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineSyncTaskRepository
+
     App\Dependency\Domain\Repository\DependencyRepositoryInterface:
         alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyRepository
 
