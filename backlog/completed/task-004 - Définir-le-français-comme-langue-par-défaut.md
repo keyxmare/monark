@@ -1,10 +1,10 @@
 ---
 id: TASK-004
 title: Définir le français comme langue par défaut
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-11 16:18'
-updated_date: '2026-03-11 20:10'
+updated_date: '2026-03-11 20:27'
 labels:
   - i18n
   - frontend
@@ -55,6 +55,24 @@ Configurer `fr` comme locale par défaut sur le backend et le frontend. S'assure
 - [ ] #8 Les dates s'affichent au format FR (JJ/MM/AAAA) quand la locale est `fr`
 - [ ] #9 Tests backend et frontend passent sans régression
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+## Résumé
+
+- Backend : `default_locale: fr` déjà configuré dans `framework.yaml` ✅
+- Frontend : `locale: 'fr'` + `fallbackLocale: 'en'` déjà configurés dans `i18n/index.ts` ✅
+- Ajout de `datetimeFormats` (en/fr) avec formats `short` (date) et `long` (date+heure) dans la config vue-i18n
+- Remplacement de tous les `toLocaleDateString()` → `d(new Date(...), 'short')` et `toLocaleString()` → `d(new Date(...), 'long')` dans 19 fichiers Vue
+- Correction de 2 chaînes hardcodées en anglais dans ProjectDetail.vue ("Package Manager", "Type")
+- Build frontend OK, zéro occurrence de `toLocaleDateString`/`toLocaleString` restante
+
+## Fichiers modifiés (20)
+
+- `frontend/src/shared/i18n/index.ts` — datetimeFormats config
+- 19 pages Vue : ProviderList, ProviderDetail, TechStackList, PipelineList, PipelineDetail, ProjectDetail, UserDetail, TeamDetail, AccessTokenList, QuizDetail, QuizList, AttemptDetail, AttemptList, ActivityEventDetail, ActivityEventList, NotificationDetail, VulnerabilityDetail, VulnerabilityList, DependencyDetail
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
