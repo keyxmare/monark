@@ -39,7 +39,7 @@
         "pestphp/pest": "^4.0",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^2.0",
-        "deptrac/deptrac": "^2.0",
+        "deptrac/deptrac": "^4.6",
         "rector/rector": "^2.0",
         "symfony/debug-bundle": "^8.0",
         "symfony/web-profiler-bundle": "^8.0"
