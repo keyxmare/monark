@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/identity/stores/auth'
@@ -7,6 +8,7 @@ import { useSidebar } from '@/shared/composables/useSidebar'
 
 const { toggleMobile } = useSidebar()
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 const menuOpen = ref(false)
 
@@ -36,7 +38,7 @@ async function handleLogout() {
     <div class="flex items-center gap-4">
       <button
         class="rounded p-2 hover:bg-surface-muted md:hidden"
-        aria-label="Open menu"
+        :aria-label="t('aria.openMenu')"
         data-testid="topbar-menu-toggle"
         @click="toggleMobile"
       >
@@ -76,7 +78,7 @@ async function handleLogout() {
           data-testid="logout-btn"
           @click="handleLogout"
         >
-          Logout
+          {{ t('nav.logout') }}
         </button>
       </div>
     </div>

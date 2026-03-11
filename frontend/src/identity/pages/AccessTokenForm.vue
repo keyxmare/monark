@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -7,6 +8,7 @@ import type { TokenProvider } from '@/identity/types/access-token'
 import { useAccessTokenStore } from '@/identity/stores/access-token'
 
 const router = useRouter()
+const { t } = useI18n()
 const tokenStore = useAccessTokenStore()
 
 const provider = ref<TokenProvider>('gitlab')
@@ -29,7 +31,7 @@ async function handleSubmit() {
     })
     router.push({ name: 'identity-access-tokens-list' })
   } catch {
-    error.value = 'Failed to create access token'
+    error.value = t('identity.accessTokens.createFailed')
   } finally {
     submitting.value = false
   }
@@ -45,13 +47,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="access-token-form-back"
         >
-          &larr; Back to access tokens
+          &larr; {{ t('common.backTo', { page: t('identity.accessTokens.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          Add Access Token
+          {{ t('identity.accessTokens.addToken') }}
         </h2>
 
         <form
@@ -71,7 +73,7 @@ async function handleSubmit() {
             <label
               for="provider"
               class="mb-1 block text-sm font-medium text-text"
-            >Provider</label>
+            >{{ t('identity.accessTokens.provider') }}</label>
             <select
               id="provider"
               v-model="provider"
@@ -91,7 +93,7 @@ async function handleSubmit() {
             <label
               for="token"
               class="mb-1 block text-sm font-medium text-text"
-            >Token</label>
+            >{{ t('identity.accessTokens.token') }}</label>
             <input
               id="token"
               v-model="token"
@@ -106,12 +108,12 @@ async function handleSubmit() {
             <label
               for="scopes"
               class="mb-1 block text-sm font-medium text-text"
-            >Scopes (comma-separated)</label>
+            >{{ t('identity.accessTokens.scopesHint') }}</label>
             <input
               id="scopes"
               v-model="scopes"
               type="text"
-              placeholder="read_api, read_repository"
+              :placeholder="t('identity.accessTokens.scopesPlaceholder')"
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="access-token-scopes"
             >
@@ -121,7 +123,7 @@ async function handleSubmit() {
             <label
               for="expiresAt"
               class="mb-1 block text-sm font-medium text-text"
-            >Expires At (optional)</label>
+            >{{ t('identity.accessTokens.expiresAtOptional') }}</label>
             <input
               id="expiresAt"
               v-model="expiresAt"
@@ -137,7 +139,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="access-token-submit"
           >
-            {{ submitting ? 'Creating...' : 'Create Token' }}
+            {{ submitting ? t('common.creating') : t('identity.accessTokens.createToken') }}
           </button>
         </form>
       </div>

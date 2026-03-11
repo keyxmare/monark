@@ -15,7 +15,8 @@
       "submit": "Submit",
       "reset": "Reset",
       "loading": "Loading…",
-      "retry": "Retry"
+      "retry": "Retry",
+      "view": "View"
     },
     "status": {
       "active": "Active",
@@ -49,16 +50,106 @@
       "serverError": "Server error, please try again",
       "networkError": "Network error, check your connection",
       "unauthorized": "You are not authorized to perform this action"
-    }
+    },
+    "notSet": "Not set",
+    "none": "None",
+    "never": "Never",
+    "noDescription": "No description",
+    "saving": "Saving…",
+    "creating": "Creating…",
+    "backTo": "Back to {page}"
   },
   "nav": {
     "dashboard": "Dashboard",
+    "sections": {
+      "catalog": "Catalog",
+      "dependency": "Dependency",
+      "activity": "Activity",
+      "assessment": "Assessment",
+      "identity": "Identity"
+    },
+    "providers": "Providers",
     "projects": "Projects",
+    "techStacks": "Tech Stacks",
+    "pipelines": "Pipelines",
     "dependencies": "Dependencies",
-    "assessments": "Assessments",
-    "activity": "Activity",
-    "settings": "Settings",
-    "profile": "Profile",
+    "vulnerabilities": "Vulnerabilities",
+    "activityEvents": "Activity Events",
+    "notifications": "Notifications",
+    "quizzes": "Quizzes",
+    "questions": "Questions",
+    "attempts": "Attempts",
+    "users": "Users",
+    "accessTokens": "Access Tokens",
+    "teams": "Teams",
     "logout": "Logout"
+  },
+  "identity": {
+    "users": {
+      "title": "Users",
+      "email": "Email",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "roles": "Roles",
+      "avatar": "Avatar",
+      "createdAt": "Created At",
+      "noUsers": "No users found."
+    },
+    "accessTokens": {
+      "title": "Access Tokens",
+      "addToken": "Add Token",
+      "provider": "Provider",
+      "token": "Token",
+      "scopes": "Scopes",
+      "scopesPlaceholder": "read_api, read_repository",
+      "scopesHint": "Scopes (comma-separated)",
+      "expiresAt": "Expires At",
+      "expiresAtOptional": "Expires At (optional)",
+      "createToken": "Create Token",
+      "noTokens": "No access tokens found.",
+      "createFailed": "Failed to create access token"
+    },
+    "teams": {
+      "title": "Teams",
+      "createTeam": "Create Team",
+      "editTeam": "Edit Team",
+      "name": "Name",
+      "slug": "Slug",
+      "description": "Description",
+      "members": "Members",
+      "memberCount": "{count} member(s)",
+      "noTeams": "No teams found.",
+      "updateTeam": "Update Team",
+      "createFailed": "Failed to create team",
+      "updateFailed": "Failed to update team"
+    },
+    "auth": {
+      "signIn": "Sign in",
+      "signInTitle": "Sign in to Monark",
+      "signingIn": "Signing in…",
+      "signUp": "Sign up",
+      "createAccount": "Create an account",
+      "creatingAccount": "Creating account…",
+      "createAccountBtn": "Create account",
+      "email": "Email",
+      "password": "Password",
+      "noAccount": "Don't have an account?",
+      "hasAccount": "Already have an account?",
+      "invalidCredentials": "Invalid credentials",
+      "registerFailed": "Registration failed. Please try again."
+    },
+    "profile": {
+      "title": "Profile",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email"
+    }
+  },
+  "aria": {
+    "mainNavigation": "Main navigation",
+    "sidebarNavigation": "Sidebar navigation",
+    "toggleSidebar": "Toggle sidebar",
+    "closeSidebar": "Close sidebar",
+    "openMenu": "Open menu"
   }
 }

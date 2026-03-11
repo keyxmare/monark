@@ -15,7 +15,8 @@
       "submit": "Soumettre",
       "reset": "Réinitialiser",
       "loading": "Chargement…",
-      "retry": "Réessayer"
+      "retry": "Réessayer",
+      "view": "Voir"
     },
     "status": {
       "active": "Actif",
@@ -49,16 +50,106 @@
       "serverError": "Erreur serveur, veuillez réessayer",
       "networkError": "Erreur réseau, vérifiez votre connexion",
       "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action"
-    }
+    },
+    "notSet": "Non défini",
+    "none": "Aucun",
+    "never": "Jamais",
+    "noDescription": "Aucune description",
+    "saving": "Enregistrement…",
+    "creating": "Création…",
+    "backTo": "Retour aux {page}"
   },
   "nav": {
     "dashboard": "Tableau de bord",
+    "sections": {
+      "catalog": "Catalogue",
+      "dependency": "Dépendances",
+      "activity": "Activité",
+      "assessment": "Évaluation",
+      "identity": "Identité"
+    },
+    "providers": "Fournisseurs",
     "projects": "Projets",
+    "techStacks": "Stacks techniques",
+    "pipelines": "Pipelines",
     "dependencies": "Dépendances",
-    "assessments": "Évaluations",
-    "activity": "Activité",
-    "settings": "Paramètres",
-    "profile": "Profil",
+    "vulnerabilities": "Vulnérabilités",
+    "activityEvents": "Événements",
+    "notifications": "Notifications",
+    "quizzes": "Quiz",
+    "questions": "Questions",
+    "attempts": "Tentatives",
+    "users": "Utilisateurs",
+    "accessTokens": "Jetons d'accès",
+    "teams": "Équipes",
     "logout": "Déconnexion"
+  },
+  "identity": {
+    "users": {
+      "title": "Utilisateurs",
+      "email": "Email",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "roles": "Rôles",
+      "avatar": "Avatar",
+      "createdAt": "Créé le",
+      "noUsers": "Aucun utilisateur trouvé."
+    },
+    "accessTokens": {
+      "title": "Jetons d'accès",
+      "addToken": "Ajouter un jeton",
+      "provider": "Fournisseur",
+      "token": "Jeton",
+      "scopes": "Portées",
+      "scopesPlaceholder": "read_api, read_repository",
+      "scopesHint": "Portées (séparées par des virgules)",
+      "expiresAt": "Expire le",
+      "expiresAtOptional": "Expire le (optionnel)",
+      "createToken": "Créer le jeton",
+      "noTokens": "Aucun jeton d'accès trouvé.",
+      "createFailed": "Échec de la création du jeton d'accès"
+    },
+    "teams": {
+      "title": "Équipes",
+      "createTeam": "Créer une équipe",
+      "editTeam": "Modifier l'équipe",
+      "name": "Nom",
+      "slug": "Identifiant",
+      "description": "Description",
+      "members": "Membres",
+      "memberCount": "{count} membre(s)",
+      "noTeams": "Aucune équipe trouvée.",
+      "updateTeam": "Mettre à jour",
+      "createFailed": "Échec de la création de l'équipe",
+      "updateFailed": "Échec de la mise à jour de l'équipe"
+    },
+    "auth": {
+      "signIn": "Se connecter",
+      "signInTitle": "Connexion à Monark",
+      "signingIn": "Connexion…",
+      "signUp": "S'inscrire",
+      "createAccount": "Créer un compte",
+      "creatingAccount": "Création du compte…",
+      "createAccountBtn": "Créer le compte",
+      "email": "Email",
+      "password": "Mot de passe",
+      "noAccount": "Pas encore de compte ?",
+      "hasAccount": "Déjà un compte ?",
+      "invalidCredentials": "Identifiants invalides",
+      "registerFailed": "Échec de l'inscription. Veuillez réessayer."
+    },
+    "profile": {
+      "title": "Profil",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email"
+    }
+  },
+  "aria": {
+    "mainNavigation": "Navigation principale",
+    "sidebarNavigation": "Navigation latérale",
+    "toggleSidebar": "Basculer le panneau latéral",
+    "closeSidebar": "Fermer le panneau latéral",
+    "openMenu": "Ouvrir le menu"
   }
 }

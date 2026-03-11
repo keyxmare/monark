@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
 import AuthLayout from '@/shared/layouts/AuthLayout.vue'
 import { useAuthStore } from '@/identity/stores/auth'
 
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 const firstName = ref('')
 const lastName = ref('')
@@ -23,7 +25,7 @@ async function handleSubmit() {
     await authStore.login(email.value, password.value)
     router.push({ name: 'dashboard' })
   } catch {
-    error.value = 'Registration failed. Please try again.'
+    error.value = t('identity.auth.registerFailed')
   } finally {
     submitting.value = false
   }
@@ -34,7 +36,7 @@ async function handleSubmit() {
   <AuthLayout>
     <div data-testid="register-page">
       <h1 class="mb-6 text-center text-2xl font-bold text-text">
-        Create an account
+        {{ t('identity.auth.createAccount') }}
       </h1>
 
       <form
@@ -54,7 +56,7 @@ async function handleSubmit() {
           <label
             for="firstName"
             class="mb-1 block text-sm font-medium text-text"
-          >First Name</label>
+          >{{ t('identity.users.firstName') }}</label>
           <input
             id="firstName"
             v-model="firstName"
@@ -70,7 +72,7 @@ async function handleSubmit() {
           <label
             for="lastName"
             class="mb-1 block text-sm font-medium text-text"
-          >Last Name</label>
+          >{{ t('identity.users.lastName') }}</label>
           <input
             id="lastName"
             v-model="lastName"
@@ -86,7 +88,7 @@ async function handleSubmit() {
           <label
             for="email"
             class="mb-1 block text-sm font-medium text-text"
-          >Email</label>
+          >{{ t('identity.auth.email') }}</label>
           <input
             id="email"
             v-model="email"
@@ -102,7 +104,7 @@ async function handleSubmit() {
           <label
             for="password"
             class="mb-1 block text-sm font-medium text-text"
-          >Password</label>
+          >{{ t('identity.auth.password') }}</label>
           <input
             id="password"
             v-model="password"
@@ -120,17 +122,17 @@ async function handleSubmit() {
           class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           data-testid="register-submit"
         >
-          {{ submitting ? 'Creating account...' : 'Create account' }}
+          {{ submitting ? t('identity.auth.creatingAccount') : t('identity.auth.createAccountBtn') }}
         </button>
 
         <p class="mt-4 text-center text-sm text-text-muted">
-          Already have an account?
+          {{ t('identity.auth.hasAccount') }}
           <RouterLink
             :to="{ name: 'login' }"
             class="text-primary hover:text-primary-dark"
             data-testid="register-login-link"
           >
-            Sign in
+            {{ t('identity.auth.signIn') }}
           </RouterLink>
         </p>
       </form>

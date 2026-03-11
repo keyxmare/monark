@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useUserStore } from '@/identity/stores/user'
 
 const route = useRoute()
+const { t } = useI18n()
 const userStore = useUserStore()
 
 onMounted(() => {
@@ -23,7 +25,7 @@ onMounted(() => {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="user-detail-back"
         >
-          &larr; Back to users
+          &larr; {{ t('common.backTo', { page: t('identity.users.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
@@ -32,7 +34,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="user-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -56,7 +58,7 @@ onMounted(() => {
         <dl class="space-y-4">
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Email
+              {{ t('identity.users.email') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -67,7 +69,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              First Name
+              {{ t('identity.users.firstName') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -78,7 +80,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Last Name
+              {{ t('identity.users.lastName') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -89,18 +91,18 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Avatar
+              {{ t('identity.users.avatar') }}
             </dt>
             <dd
               class="mt-1 text-text"
               data-testid="user-detail-avatar"
             >
-              {{ userStore.selectedUser.avatar ?? 'Not set' }}
+              {{ userStore.selectedUser.avatar ?? t('common.notSet') }}
             </dd>
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Roles
+              {{ t('identity.users.roles') }}
             </dt>
             <dd
               class="mt-1 flex flex-wrap gap-2"
@@ -117,7 +119,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Created At
+              {{ t('identity.users.createdAt') }}
             </dt>
             <dd
               class="mt-1 text-text"

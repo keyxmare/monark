@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -7,6 +8,7 @@ import { useTeamStore } from '@/identity/stores/team'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const teamStore = useTeamStore()
 
 const teamId = computed(() => route.params.id as string | undefined)
@@ -50,7 +52,7 @@ async function handleSubmit() {
       router.push({ name: 'identity-teams-detail', params: { id: team.id } })
     }
   } catch {
-    error.value = isEditMode.value ? 'Failed to update team' : 'Failed to create team'
+    error.value = isEditMode.value ? t('identity.teams.updateFailed') : t('identity.teams.createFailed')
   } finally {
     submitting.value = false
   }
@@ -66,13 +68,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="team-form-back"
         >
-          &larr; Back to teams
+          &larr; {{ t('common.backTo', { page: t('identity.teams.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          {{ isEditMode ? 'Edit Team' : 'Create Team' }}
+          {{ isEditMode ? t('identity.teams.editTeam') : t('identity.teams.createTeam') }}
         </h2>
 
         <form
@@ -92,7 +94,7 @@ async function handleSubmit() {
             <label
               for="name"
               class="mb-1 block text-sm font-medium text-text"
-            >Name</label>
+            >{{ t('identity.teams.name') }}</label>
             <input
               id="name"
               v-model="name"
@@ -107,7 +109,7 @@ async function handleSubmit() {
             <label
               for="slug"
               class="mb-1 block text-sm font-medium text-text"
-            >Slug</label>
+            >{{ t('identity.teams.slug') }}</label>
             <input
               id="slug"
               v-model="slug"
@@ -123,7 +125,7 @@ async function handleSubmit() {
             <label
               for="description"
               class="mb-1 block text-sm font-medium text-text"
-            >Description</label>
+            >{{ t('identity.teams.description') }}</label>
             <textarea
               id="description"
               v-model="description"
@@ -139,7 +141,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="team-form-submit"
           >
-            {{ submitting ? 'Saving...' : (isEditMode ? 'Update Team' : 'Create Team') }}
+            {{ submitting ? t('common.saving') : (isEditMode ? t('identity.teams.updateTeam') : t('identity.teams.createTeam')) }}
           </button>
         </form>
       </div>

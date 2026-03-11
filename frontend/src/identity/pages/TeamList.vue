@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useTeamStore } from '@/identity/stores/team'
 
+const { t } = useI18n()
 const teamStore = useTeamStore()
 
 onMounted(() => {
@@ -21,14 +23,14 @@ async function handleDelete(id: string) {
     <div data-testid="team-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Teams
+          {{ t('identity.teams.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'identity-teams-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="team-create-link"
         >
-          Create Team
+          {{ t('identity.teams.createTeam') }}
         </RouterLink>
       </div>
 
@@ -37,7 +39,7 @@ async function handleDelete(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="team-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -60,16 +62,16 @@ async function handleDelete(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Name
+                {{ t('identity.teams.name') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Slug
+                {{ t('identity.teams.slug') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Members
+                {{ t('identity.teams.members') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -95,21 +97,21 @@ async function handleDelete(id: string) {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="team-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
                 <RouterLink
                   :to="{ name: 'identity-teams-edit', params: { id: team.id } }"
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="team-edit-link"
                 >
-                  Edit
+                  {{ t('common.actions.edit') }}
                 </RouterLink>
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="team-delete"
                   @click="handleDelete(team.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -121,7 +123,7 @@ async function handleDelete(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="team-list-empty"
         >
-          No teams found.
+          {{ t('identity.teams.noTeams') }}
         </div>
       </div>
     </div>

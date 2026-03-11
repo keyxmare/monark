@@ -1,66 +1,68 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import { useSidebar } from '@/shared/composables/useSidebar'
 
 const route = useRoute()
+const { t } = useI18n()
 const { collapsed, mobileOpen, toggle } = useSidebar()
 
 interface NavItem {
   icon: string
-  label: string
+  labelKey: string
   to: string
 }
 
 interface NavSection {
-  heading?: string
+  headingKey?: string
   items: NavItem[]
 }
 
 const navSections = computed<NavSection[]>(() => [
   {
     items: [
-      { icon: '▦', label: 'Dashboard', to: '/' },
+      { icon: '▦', labelKey: 'nav.dashboard', to: '/' },
     ],
   },
   {
-    heading: 'Catalog',
+    headingKey: 'nav.sections.catalog',
     items: [
-      { icon: '🔌', label: 'Providers', to: '/catalog/providers' },
-      { icon: '📦', label: 'Projects', to: '/catalog/projects' },
-      { icon: '🔧', label: 'Tech Stacks', to: '/catalog/tech-stacks' },
-      { icon: '🚀', label: 'Pipelines', to: '/catalog/pipelines' },
+      { icon: '🔌', labelKey: 'nav.providers', to: '/catalog/providers' },
+      { icon: '📦', labelKey: 'nav.projects', to: '/catalog/projects' },
+      { icon: '🔧', labelKey: 'nav.techStacks', to: '/catalog/tech-stacks' },
+      { icon: '🚀', labelKey: 'nav.pipelines', to: '/catalog/pipelines' },
     ],
   },
   {
-    heading: 'Dependency',
+    headingKey: 'nav.sections.dependency',
     items: [
-      { icon: '📋', label: 'Dependencies', to: '/dependency/dependencies' },
-      { icon: '🛡', label: 'Vulnerabilities', to: '/dependency/vulnerabilities' },
+      { icon: '📋', labelKey: 'nav.dependencies', to: '/dependency/dependencies' },
+      { icon: '🛡', labelKey: 'nav.vulnerabilities', to: '/dependency/vulnerabilities' },
     ],
   },
   {
-    heading: 'Activity',
+    headingKey: 'nav.sections.activity',
     items: [
-      { icon: '⚡', label: 'Activity Events', to: '/activity/events' },
-      { icon: '🔔', label: 'Notifications', to: '/activity/notifications' },
+      { icon: '⚡', labelKey: 'nav.activityEvents', to: '/activity/events' },
+      { icon: '🔔', labelKey: 'nav.notifications', to: '/activity/notifications' },
     ],
   },
   {
-    heading: 'Assessment',
+    headingKey: 'nav.sections.assessment',
     items: [
-      { icon: '📝', label: 'Quizzes', to: '/assessment/quizzes' },
-      { icon: '❓', label: 'Questions', to: '/assessment/questions' },
-      { icon: '🎯', label: 'Attempts', to: '/assessment/attempts' },
+      { icon: '📝', labelKey: 'nav.quizzes', to: '/assessment/quizzes' },
+      { icon: '❓', labelKey: 'nav.questions', to: '/assessment/questions' },
+      { icon: '🎯', labelKey: 'nav.attempts', to: '/assessment/attempts' },
     ],
   },
   {
-    heading: 'Identity',
+    headingKey: 'nav.sections.identity',
     items: [
-      { icon: '👤', label: 'Users', to: '/identity/users' },
-      { icon: '🔑', label: 'Access Tokens', to: '/identity/access-tokens' },
-      { icon: '👥', label: 'Teams', to: '/identity/teams' },
+      { icon: '👤', labelKey: 'nav.users', to: '/identity/users' },
+      { icon: '🔑', labelKey: 'nav.accessTokens', to: '/identity/access-tokens' },
+      { icon: '👥', labelKey: 'nav.teams', to: '/identity/teams' },
     ],
   },
 ])
@@ -79,7 +81,7 @@ function isActive(path: string): boolean {
 <template>
   <aside
     :class="sidebarClasses"
-    aria-label="Main navigation"
+    :aria-label="t('aria.mainNavigation')"
     data-testid="sidebar"
   >
     <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
@@ -89,7 +91,7 @@ function isActive(path: string): boolean {
       >Monark</span>
       <button
         class="rounded p-1.5 hover:bg-sidebar-hover"
-        aria-label="Toggle sidebar"
+        :aria-label="t('aria.toggleSidebar')"
         data-testid="sidebar-toggle"
         @click="toggle"
       >
@@ -99,17 +101,17 @@ function isActive(path: string): boolean {
 
     <nav
       class="mt-4 flex-1 space-y-4 overflow-y-auto px-2"
-      aria-label="Sidebar navigation"
+      :aria-label="t('aria.sidebarNavigation')"
     >
       <div
         v-for="(section, sIdx) in navSections"
         :key="sIdx"
       >
         <p
-          v-if="section.heading && !collapsed"
+          v-if="section.headingKey && !collapsed"
           class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/40"
         >
-          {{ section.heading }}
+          {{ t(section.headingKey) }}
         </p>
         <div class="space-y-1">
           <RouterLink
@@ -122,10 +124,10 @@ function isActive(path: string): boolean {
                 ? 'bg-sidebar-active text-white'
                 : 'text-white/70 hover:bg-sidebar-hover hover:text-white',
             ]"
-            :data-testid="`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`"
+            :data-testid="`nav-${t(item.labelKey).toLowerCase().replace(/\s+/g, '-')}`"
           >
             <span class="text-base">{{ item.icon }}</span>
-            <span v-if="!collapsed">{{ item.label }}</span>
+            <span v-if="!collapsed">{{ t(item.labelKey) }}</span>
           </RouterLink>
         </div>
       </div>

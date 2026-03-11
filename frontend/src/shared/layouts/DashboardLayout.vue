@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import AppSidebar from '@/shared/components/AppSidebar.vue'
 import AppTopbar from '@/shared/components/AppTopbar.vue'
 import { useSidebar } from '@/shared/composables/useSidebar'
 
+const { t } = useI18n()
 const { collapsed, mobileOpen } = useSidebar()
 
 const mainClasses = computed(() => [
@@ -22,7 +24,7 @@ const mainClasses = computed(() => [
       v-if="mobileOpen"
       role="button"
       tabindex="0"
-      aria-label="Close sidebar"
+      :aria-label="t('aria.closeSidebar')"
       class="fixed inset-0 z-30 bg-black/50 md:hidden"
       data-testid="sidebar-overlay"
       @click="mobileOpen = false"

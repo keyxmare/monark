@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useTeamStore } from '@/identity/stores/team'
 
 const route = useRoute()
+const { t } = useI18n()
 const teamStore = useTeamStore()
 
 onMounted(() => {
@@ -23,7 +25,7 @@ onMounted(() => {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="team-detail-back"
         >
-          &larr; Back to teams
+          &larr; {{ t('common.backTo', { page: t('identity.teams.title').toLowerCase() }) }}
         </RouterLink>
         <RouterLink
           v-if="teamStore.selectedTeam"
@@ -31,7 +33,7 @@ onMounted(() => {
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="team-detail-edit"
         >
-          Edit
+          {{ t('common.actions.edit') }}
         </RouterLink>
       </div>
 
@@ -40,7 +42,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="team-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -64,7 +66,7 @@ onMounted(() => {
         <dl class="space-y-4">
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Slug
+              {{ t('identity.teams.slug') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -75,29 +77,29 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Description
+              {{ t('identity.teams.description') }}
             </dt>
             <dd
               class="mt-1 text-text"
               data-testid="team-detail-description"
             >
-              {{ teamStore.selectedTeam.description ?? 'No description' }}
+              {{ teamStore.selectedTeam.description ?? t('common.noDescription') }}
             </dd>
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Members
+              {{ t('identity.teams.members') }}
             </dt>
             <dd
               class="mt-1 text-text"
               data-testid="team-detail-member-count"
             >
-              {{ teamStore.selectedTeam.memberCount }} member(s)
+              {{ t('identity.teams.memberCount', { count: teamStore.selectedTeam.memberCount }) }}
             </dd>
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Created At
+              {{ t('identity.users.createdAt') }}
             </dt>
             <dd
               class="mt-1 text-text"

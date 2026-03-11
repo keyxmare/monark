@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAccessTokenStore } from '@/identity/stores/access-token'
 
+const { t } = useI18n()
 const tokenStore = useAccessTokenStore()
 
 onMounted(() => {
@@ -21,14 +23,14 @@ async function handleDelete(id: string) {
     <div data-testid="access-token-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Access Tokens
+          {{ t('identity.accessTokens.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'identity-access-tokens-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="access-token-create-link"
         >
-          Add Token
+          {{ t('identity.accessTokens.addToken') }}
         </RouterLink>
       </div>
 
@@ -37,7 +39,7 @@ async function handleDelete(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="access-token-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -60,16 +62,16 @@ async function handleDelete(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Provider
+                {{ t('identity.accessTokens.provider') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Scopes
+                {{ t('identity.accessTokens.scopes') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Expires At
+                {{ t('identity.accessTokens.expiresAt') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -86,10 +88,10 @@ async function handleDelete(id: string) {
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text">
-                {{ token.scopes.join(', ') || 'None' }}
+                {{ token.scopes.join(', ') || t('common.none') }}
               </td>
               <td class="px-4 py-3 text-sm text-text">
-                {{ token.expiresAt ? new Date(token.expiresAt).toLocaleDateString() : 'Never' }}
+                {{ token.expiresAt ? new Date(token.expiresAt).toLocaleDateString() : t('common.never') }}
               </td>
               <td class="px-4 py-3 text-right">
                 <button
@@ -97,7 +99,7 @@ async function handleDelete(id: string) {
                   data-testid="access-token-delete"
                   @click="handleDelete(token.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -109,7 +111,7 @@ async function handleDelete(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="access-token-list-empty"
         >
-          No access tokens found.
+          {{ t('identity.accessTokens.noTokens') }}
         </div>
       </div>
     </div>

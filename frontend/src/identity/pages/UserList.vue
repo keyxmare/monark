@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useUserStore } from '@/identity/stores/user'
 
+const { t } = useI18n()
 const userStore = useUserStore()
 
 onMounted(() => {
@@ -17,7 +19,7 @@ onMounted(() => {
     <div data-testid="user-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Users
+          {{ t('identity.users.title') }}
         </h2>
       </div>
 
@@ -26,7 +28,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="user-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -49,19 +51,19 @@ onMounted(() => {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Email
+                {{ t('identity.users.email') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                First Name
+                {{ t('identity.users.firstName') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Last Name
+                {{ t('identity.users.lastName') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Roles
+                {{ t('identity.users.roles') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -90,7 +92,7 @@ onMounted(() => {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="user-list-view"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
               </td>
             </tr>
@@ -102,7 +104,7 @@ onMounted(() => {
           class="py-8 text-center text-text-muted"
           data-testid="user-list-empty"
         >
-          No users found.
+          {{ t('identity.users.noUsers') }}
         </div>
       </div>
     </div>

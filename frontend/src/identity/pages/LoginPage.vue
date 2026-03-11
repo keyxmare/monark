@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
 import AuthLayout from '@/shared/layouts/AuthLayout.vue'
 import { useAuthStore } from '@/identity/stores/auth'
 
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
@@ -20,7 +22,7 @@ async function handleSubmit() {
     await authStore.login(email.value, password.value)
     router.push({ name: 'dashboard' })
   } catch {
-    error.value = 'Invalid credentials'
+    error.value = t('identity.auth.invalidCredentials')
   } finally {
     submitting.value = false
   }
@@ -31,7 +33,7 @@ async function handleSubmit() {
   <AuthLayout>
     <div data-testid="login-page">
       <h1 class="mb-6 text-center text-2xl font-bold text-text">
-        Sign in to Monark
+        {{ t('identity.auth.signInTitle') }}
       </h1>
 
       <form
@@ -51,7 +53,7 @@ async function handleSubmit() {
           <label
             for="email"
             class="mb-1 block text-sm font-medium text-text"
-          >Email</label>
+          >{{ t('identity.auth.email') }}</label>
           <input
             id="email"
             v-model="email"
@@ -67,7 +69,7 @@ async function handleSubmit() {
           <label
             for="password"
             class="mb-1 block text-sm font-medium text-text"
-          >Password</label>
+          >{{ t('identity.auth.password') }}</label>
           <input
             id="password"
             v-model="password"
@@ -85,17 +87,17 @@ async function handleSubmit() {
           class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           data-testid="login-submit"
         >
-          {{ submitting ? 'Signing in...' : 'Sign in' }}
+          {{ submitting ? t('identity.auth.signingIn') : t('identity.auth.signIn') }}
         </button>
 
         <p class="mt-4 text-center text-sm text-text-muted">
-          Don't have an account?
+          {{ t('identity.auth.noAccount') }}
           <RouterLink
             :to="{ name: 'register' }"
             class="text-primary hover:text-primary-dark"
             data-testid="login-register-link"
           >
-            Sign up
+            {{ t('identity.auth.signUp') }}
           </RouterLink>
         </p>
       </form>
