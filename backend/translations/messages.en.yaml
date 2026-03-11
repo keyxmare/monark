@@ -1,9 +1,14 @@
 error:
   not_found: "Resource not found"
+  entity_not_found: "%entity% with id \"%id%\" was not found."
   validation: "Validation failed"
   unauthorized: "Unauthorized"
   forbidden: "Forbidden"
   server_error: "Internal server error"
+  duplicate_email: "A user with this email already exists."
+  duplicate_slug: "This slug is already in use."
+  invalid_credentials: "Invalid credentials."
+  project_not_linked: "This project is not linked to a provider."
 
 project:
   not_found: "Project not found"

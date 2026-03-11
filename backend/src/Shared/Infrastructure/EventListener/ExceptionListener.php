@@ -10,24 +10,36 @@ use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 final readonly class ExceptionListener
 {
+    public function __construct(
+        private TranslatorInterface $translator,
+    ) {
+    }
+
     public function __invoke(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
 
         $response = match (true) {
             $exception instanceof NotFoundException => new JsonResponse(
-                ApiResponse::error($exception->getMessage(), 404)->toArray(),
+                ApiResponse::error(
+                    $this->translator->trans('error.entity_not_found', [
+                        '%entity%' => $exception->entity,
+                        '%id%' => $exception->entityId,
+                    ]),
+                    404,
+                )->toArray(),
                 404,
             ),
             $exception instanceof DomainException => new JsonResponse(
-                ApiResponse::error($exception->getMessage(), 422)->toArray(),
+                ApiResponse::error($this->translateDomainMessage($exception->getMessage()), 422)->toArray(),
                 422,
             ),
-            $exception instanceof ValidationFailedException => $this->handleValidation($exception),
+            $exception instanceof ValidationFailedException => $this->handleValidation(),
             $exception instanceof HttpException => new JsonResponse(
                 ApiResponse::error($exception->getMessage(), $exception->getStatusCode())->toArray(),
                 $exception->getStatusCode(),
@@ -40,16 +52,34 @@ final readonly class ExceptionListener
         }
     }
 
-    private function handleValidation(ValidationFailedException $exception): JsonResponse
+    private function handleValidation(): JsonResponse
     {
-        $errors = [];
-        foreach ($exception->getViolations() as $violation) {
-            $errors[$violation->getPropertyPath()][] = (string) $violation->getMessage();
-        }
-
         return new JsonResponse(
-            ApiResponse::error('Validation failed.', 422, $errors)->toArray(),
+            ApiResponse::error($this->translator->trans('error.validation'), 422)->toArray(),
             422,
         );
+    }
+
+    private function translateDomainMessage(string $message): string
+    {
+        $keyMap = [
+            'A user with this email already exists.' => 'error.duplicate_email',
+            'A team with this slug already exists.' => 'error.duplicate_slug',
+            'A project with this slug already exists.' => 'error.duplicate_slug',
+            'A quiz with this slug already exists.' => 'error.duplicate_slug',
+            'Invalid credentials.' => 'error.invalid_credentials',
+        ];
+
+        $key = $keyMap[$message] ?? null;
+
+        if ($key !== null) {
+            return $this->translator->trans($key);
+        }
+
+        if (\str_contains($message, 'is not linked to a provider')) {
+            return $this->translator->trans('error.project_not_linked');
+        }
+
+        return $message;
     }
 }
