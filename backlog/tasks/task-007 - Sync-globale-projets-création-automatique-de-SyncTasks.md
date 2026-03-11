@@ -1,9 +1,10 @@
 ---
 id: TASK-007
 title: Sync globale projets & création automatique de SyncTasks
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-11 19:57'
+updated_date: '2026-03-11 20:34'
 labels:
   - feature
   - catalog
