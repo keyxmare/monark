@@ -4,13 +4,12 @@ title: Définir le français comme langue par défaut
 status: To Do
 assignee: []
 created_date: '2026-03-11 16:18'
-updated_date: '2026-03-11 16:43'
+updated_date: '2026-03-11 20:10'
 labels:
   - i18n
   - frontend
   - backend
-dependencies:
-  - TASK-003
+dependencies: []
 priority: high
 ---
 
