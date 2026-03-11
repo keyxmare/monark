@@ -230,9 +230,12 @@
       "importSelected": "Import Selected ({count})",
       "importing": "Importing…",
       "selectProject": "Select {name}",
+      "username": "GitHub Username",
+      "usernameHint": "Allows listing public projects without an API token",
+      "tokenOptionalHint": "Optional for public repos. Required to access private repos.",
       "showToken": "Show",
       "hideToken": "Hide",
-      "tokenPlaceholder": "glpat-xxxxxxxxxxxxxxxxxxxx",
+      "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "tokenKeepCurrent": "Leave empty to keep current"
     },
     "techStacks": {

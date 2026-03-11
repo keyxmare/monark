@@ -32,6 +32,7 @@ final readonly class UpdateProviderHandler
             name: $input->name,
             url: $input->url,
             apiToken: $input->apiToken,
+            username: $input->username,
         );
 
         $this->providerRepository->save($provider);

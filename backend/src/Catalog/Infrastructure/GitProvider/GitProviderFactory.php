@@ -12,6 +12,7 @@ class GitProviderFactory
 {
     public function __construct(
         private readonly GitLabClient $gitLabClient,
+        private readonly GitHubClient $gitHubClient,
     ) {
     }
 
@@ -19,6 +20,7 @@ class GitProviderFactory
     {
         return match ($provider->getType()) {
             ProviderType::GitLab => $this->gitLabClient,
+            ProviderType::GitHub => $this->gitHubClient,
             default => throw new \InvalidArgumentException(\sprintf('Unsupported provider type: %s', $provider->getType()->value)),
         };
     }

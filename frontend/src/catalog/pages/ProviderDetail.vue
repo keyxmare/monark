@@ -163,6 +163,17 @@ async function handleTestConnection() {
                 {{ providerStore.selected.url }}
               </dd>
             </div>
+            <div v-if="providerStore.selected.username">
+              <dt class="text-sm font-medium text-text-muted">
+                {{ t('catalog.providers.username') }}
+              </dt>
+              <dd
+                class="mt-1 text-text"
+                data-testid="provider-detail-username"
+              >
+                {{ providerStore.selected.username }}
+              </dd>
+            </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('catalog.providers.lastSync') }}

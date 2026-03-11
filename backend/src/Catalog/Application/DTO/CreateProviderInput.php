@@ -22,8 +22,10 @@ final readonly class CreateProviderInput
         #[Assert\Length(max: 500)]
         public string $url,
 
-        #[Assert\NotBlank]
-        public string $apiToken,
+        public ?string $apiToken = null,
+
+        #[Assert\Length(max: 255)]
+        public ?string $username = null,
     ) {
     }
 }

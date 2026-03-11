@@ -6,6 +6,7 @@ export interface Provider {
   name: string
   type: ProviderType
   url: string
+  username: string | null
   status: ProviderStatus
   lastSyncAt: string | null
   createdAt: string
@@ -16,13 +17,15 @@ export interface CreateProviderInput {
   name: string
   type: ProviderType
   url: string
-  apiToken: string
+  apiToken?: string
+  username?: string
 }
 
 export interface UpdateProviderInput {
   name?: string
   url?: string
   apiToken?: string
+  username?: string
 }
 
 export interface RemoteProject {

@@ -230,9 +230,12 @@
       "importSelected": "Importer la sélection ({count})",
       "importing": "Import en cours…",
       "selectProject": "Sélectionner {name}",
+      "username": "Nom d'utilisateur GitHub",
+      "usernameHint": "Permet de lister les projets publics sans jeton API",
+      "tokenOptionalHint": "Optionnel pour les repos publics. Requis pour accéder aux repos privés.",
       "showToken": "Afficher",
       "hideToken": "Masquer",
-      "tokenPlaceholder": "glpat-xxxxxxxxxxxxxxxxxxxx",
+      "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "tokenKeepCurrent": "Laisser vide pour conserver l'actuel"
     },
     "techStacks": {

@@ -13,13 +13,15 @@ final class ProviderFactory
         string $name = 'GitLab Test',
         ProviderType $type = ProviderType::GitLab,
         string $url = 'https://gitlab.example.com',
-        string $apiToken = 'glpat-test-token-123',
+        ?string $apiToken = 'glpat-test-token-123',
+        ?string $username = null,
     ): Provider {
         return Provider::create(
             name: $name,
             type: $type,
             url: $url,
             apiToken: $apiToken,
+            username: $username,
         );
     }
 }

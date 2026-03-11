@@ -19,10 +19,13 @@ const isEdit = computed(() => !!providerId.value)
 const form = ref({
   apiToken: '',
   name: '',
-  type: 'gitlab' as ProviderType,
+  type: 'github' as ProviderType,
   url: '',
+  username: '',
 })
 const showToken = ref(false)
+const isGitHub = computed(() => form.value.type === 'github')
+const tokenRequired = computed(() => !isEdit.value && !isGitHub.value)
 const submitting = ref(false)
 const formError = ref('')
 
@@ -33,6 +36,7 @@ onMounted(async () => {
       form.value.name = providerStore.selected.name
       form.value.type = providerStore.selected.type
       form.value.url = providerStore.selected.url
+      form.value.username = providerStore.selected.username ?? ''
     }
   }
 })
@@ -47,14 +51,16 @@ async function handleSubmit() {
         apiToken: form.value.apiToken || undefined,
         name: form.value.name,
         url: form.value.url,
+        username: form.value.username || undefined,
       })
       router.push({ name: 'catalog-providers-detail', params: { id: providerId.value } })
     } else {
       const provider = await providerStore.create({
-        apiToken: form.value.apiToken,
+        apiToken: form.value.apiToken || undefined,
         name: form.value.name,
         type: form.value.type,
         url: form.value.url,
+        username: form.value.username || undefined,
       })
       router.push({ name: 'catalog-providers-detail', params: { id: provider.id } })
     }
@@ -147,10 +153,32 @@ async function handleSubmit() {
               v-model="form.url"
               type="url"
               required
-              placeholder="https://gitlab.example.com"
+              :placeholder="isGitHub ? 'https://api.github.com' : 'https://gitlab.example.com'"
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="field-url"
             >
+          </div>
+
+          <div
+            v-if="isGitHub"
+            class="mb-4"
+          >
+            <label
+              for="field-username"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{ t('catalog.providers.username') }}</label>
+            <input
+              id="field-username"
+              v-model="form.username"
+              type="text"
+              :required="isGitHub && !form.apiToken"
+              placeholder="keyxmare"
+              class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+              data-testid="field-username"
+            >
+            <p class="mt-1 text-xs text-text-muted">
+              {{ t('catalog.providers.usernameHint') }}
+            </p>
           </div>
 
           <div class="mb-6">
@@ -163,7 +191,7 @@ async function handleSubmit() {
                 id="field-apiToken"
                 v-model="form.apiToken"
                 :type="showToken ? 'text' : 'password'"
-                :required="!isEdit"
+                :required="tokenRequired"
                 :placeholder="isEdit ? t('catalog.providers.tokenKeepCurrent') : t('catalog.providers.tokenPlaceholder')"
                 class="w-full rounded-lg border border-border px-3 py-2 pr-16 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
                 data-testid="field-apiToken"
@@ -177,6 +205,12 @@ async function handleSubmit() {
                 {{ showToken ? t('catalog.providers.hideToken') : t('catalog.providers.showToken') }}
               </button>
             </div>
+            <p
+              v-if="isGitHub"
+              class="mt-1 text-xs text-text-muted"
+            >
+              {{ t('catalog.providers.tokenOptionalHint') }}
+            </p>
           </div>
 
           <button

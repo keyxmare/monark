@@ -29,6 +29,7 @@ final readonly class CreateProviderHandler
             type: $input->type,
             url: $input->url,
             apiToken: $input->apiToken,
+            username: $input->username,
         );
 
         $client = $this->gitProviderFactory->create($provider);

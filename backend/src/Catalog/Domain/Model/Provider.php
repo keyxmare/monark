@@ -26,8 +26,11 @@ final class Provider
     #[ORM\Column(length: 500)]
     private string $url;
 
-    #[ORM\Column(type: 'text')]
-    private string $apiToken;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $apiToken;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $username;
 
     #[ORM\Column(type: 'string', enumType: ProviderStatus::class)]
     private ProviderStatus $status;
@@ -50,13 +53,15 @@ final class Provider
         string $name,
         ProviderType $type,
         string $url,
-        string $apiToken,
+        ?string $apiToken,
+        ?string $username = null,
     ) {
         $this->id = $id;
         $this->name = $name;
         $this->type = $type;
         $this->url = $url;
         $this->apiToken = $apiToken;
+        $this->username = $username;
         $this->status = ProviderStatus::Pending;
         $this->lastSyncAt = null;
         $this->projects = new ArrayCollection();
@@ -68,7 +73,8 @@ final class Provider
         string $name,
         ProviderType $type,
         string $url,
-        string $apiToken,
+        ?string $apiToken = null,
+        ?string $username = null,
     ): self {
         return new self(
             id: Uuid::v7(),
@@ -76,6 +82,7 @@ final class Provider
             type: $type,
             url: \rtrim($url, '/'),
             apiToken: $apiToken,
+            username: $username,
         );
     }
 
@@ -99,9 +106,14 @@ final class Provider
         return $this->url;
     }
 
-    public function getApiToken(): string
+    public function getApiToken(): ?string
     {
         return $this->apiToken;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
     }
 
     public function getStatus(): ProviderStatus
@@ -134,6 +146,7 @@ final class Provider
         ?string $name = null,
         ?string $url = null,
         ?string $apiToken = null,
+        ?string $username = null,
     ): void {
         if ($name !== null) {
             $this->name = $name;
@@ -143,6 +156,9 @@ final class Provider
         }
         if ($apiToken !== null) {
             $this->apiToken = $apiToken;
+        }
+        if ($username !== null) {
+            $this->username = $username;
         }
         $this->updatedAt = new \DateTimeImmutable();
     }
