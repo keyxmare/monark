@@ -1,4 +1,7 @@
+import type { WritableComputedRef } from 'vue'
+
 import type { ApiError, ApiResponse } from '@/shared/types'
+import { i18n } from '@/shared/i18n'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
@@ -6,6 +9,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const url = `${BASE_URL}${endpoint}`
   const headers: HeadersInit = {
     Accept: 'application/json',
+    'Accept-Language': (i18n.global.locale as unknown as WritableComputedRef<string>).value,
     'Content-Type': 'application/json',
     ...options.headers,
   }

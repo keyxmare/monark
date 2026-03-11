@@ -435,6 +435,7 @@
     "sidebarNavigation": "Navigation latérale",
     "toggleSidebar": "Basculer le panneau latéral",
     "closeSidebar": "Fermer le panneau latéral",
-    "openMenu": "Ouvrir le menu"
+    "openMenu": "Ouvrir le menu",
+    "changeLanguage": "Changer de langue"
   }
 }

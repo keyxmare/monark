@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
+import LanguageSwitcher from '@/shared/components/LanguageSwitcher.vue'
 import { useAuthStore } from '@/identity/stores/auth'
 import { useSidebar } from '@/shared/composables/useSidebar'
 
@@ -54,6 +55,7 @@ async function handleLogout() {
       class="relative flex items-center gap-3"
       data-testid="topbar-user-area"
     >
+      <LanguageSwitcher />
       <button
         class="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-muted"
         data-testid="user-menu-toggle"

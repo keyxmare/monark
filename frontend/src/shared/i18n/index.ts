@@ -16,9 +16,13 @@ const datetimeFormats = {
   },
 }
 
+const STORAGE_KEY = 'monark_locale'
+const savedLocale = localStorage.getItem(STORAGE_KEY)
+const initialLocale = savedLocale === 'en' ? 'en' : 'fr'
+
 export const i18n = createI18n<[MessageSchema], 'en' | 'fr'>({
   legacy: false,
-  locale: 'fr',
+  locale: initialLocale,
   fallbackLocale: 'en',
   globalInjection: true,
   messages: {

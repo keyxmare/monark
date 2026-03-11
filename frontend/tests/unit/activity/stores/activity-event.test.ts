@@ -76,6 +76,6 @@ describe('Activity Event Store', () => {
     const store = useActivityEventStore()
     await store.fetchOne('999')
 
-    expect(store.error).toBe('Failed to load activity event')
+    expect(store.error).toBe('Failed to load activity events')
   })
 })

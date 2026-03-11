@@ -91,6 +91,6 @@ describe('Notification Store', () => {
     const store = useNotificationStore()
     await store.markAsRead('123')
 
-    expect(store.error).toBe('Failed to mark notification as read')
+    expect(store.error).toBe('Failed to mark as read')
   })
 })
