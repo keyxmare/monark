@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Answer, CreateAnswerInput, UpdateAnswerInput } from '@/assessment/types/answer'
 import { answerService } from '@/assessment/services/answer.service'
+import { i18n } from '@/shared/i18n'
 
 export const useAnswerStore = defineStore('assessment-answer', () => {
+  const t = i18n.global.t
   const answers = ref<Answer[]>([])
   const selectedAnswer = ref<Answer | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useAnswerStore = defineStore('assessment-answer', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load answers'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.answers') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useAnswerStore = defineStore('assessment-answer', () => {
       const response = await answerService.get(id)
       selectedAnswer.value = response.data
     } catch {
-      error.value = 'Failed to load answer'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.answers') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const useAnswerStore = defineStore('assessment-answer', () => {
       answers.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create answer'
-      throw new Error('Failed to create answer')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.answers') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -71,7 +73,7 @@ export const useAnswerStore = defineStore('assessment-answer', () => {
         answers.value[index] = response.data
       }
     } catch {
-      error.value = 'Failed to update answer'
+      error.value = t('common.errors.failedToUpdate', { entity: t('common.entities.answers') })
     } finally {
       loading.value = false
     }
@@ -85,7 +87,7 @@ export const useAnswerStore = defineStore('assessment-answer', () => {
       await answerService.remove(id)
       answers.value = answers.value.filter(a => a.id !== id)
     } catch {
-      error.value = 'Failed to delete answer'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.answers') })
     } finally {
       loading.value = false
     }

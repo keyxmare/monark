@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreateTechStackInput, TechStack } from '@/catalog/types/tech-stack'
 import { techStackService } from '@/catalog/services/tech-stack.service'
+import { i18n } from '@/shared/i18n'
 
 export const useTechStackStore = defineStore('catalog-tech-stack', () => {
+  const t = i18n.global.t
   const techStacks = ref<TechStack[]>([])
   const selected = ref<TechStack | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useTechStackStore = defineStore('catalog-tech-stack', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load tech stacks'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.techStacks') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useTechStackStore = defineStore('catalog-tech-stack', () => {
       const response = await techStackService.get(id)
       selected.value = response.data
     } catch {
-      error.value = 'Failed to load tech stack'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.techStacks') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const useTechStackStore = defineStore('catalog-tech-stack', () => {
       techStacks.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create tech stack'
-      throw new Error('Failed to create tech stack')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.techStacks') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -67,7 +69,7 @@ export const useTechStackStore = defineStore('catalog-tech-stack', () => {
       await techStackService.remove(id)
       techStacks.value = techStacks.value.filter(ts => ts.id !== id)
     } catch {
-      error.value = 'Failed to delete tech stack'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.techStacks') })
     } finally {
       loading.value = false
     }

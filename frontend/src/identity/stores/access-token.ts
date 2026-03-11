@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { AccessToken, CreateAccessTokenInput } from '@/identity/types/access-token'
 import { accessTokenService } from '@/identity/services/access-token.service'
+import { i18n } from '@/shared/i18n'
 
 export const useAccessTokenStore = defineStore('accessToken', () => {
+  const t = i18n.global.t
   const tokens = ref<AccessToken[]>([])
   const selectedToken = ref<AccessToken | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useAccessTokenStore = defineStore('accessToken', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load access tokens'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.accessTokens') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useAccessTokenStore = defineStore('accessToken', () => {
       const response = await accessTokenService.get(id)
       selectedToken.value = response.data
     } catch {
-      error.value = 'Failed to load access token'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.accessTokens') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const useAccessTokenStore = defineStore('accessToken', () => {
       tokens.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create access token'
-      throw new Error('Failed to create access token')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.accessTokens') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -67,7 +69,7 @@ export const useAccessTokenStore = defineStore('accessToken', () => {
       await accessTokenService.remove(id)
       tokens.value = tokens.value.filter(t => t.id !== id)
     } catch {
-      error.value = 'Failed to delete access token'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.accessTokens') })
     } finally {
       loading.value = false
     }

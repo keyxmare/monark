@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { UpdateUserInput, User } from '@/identity/types/user'
 import { userService } from '@/identity/services/user.service'
+import { i18n } from '@/shared/i18n'
 
 export const useUserStore = defineStore('user', () => {
+  const t = i18n.global.t
   const users = ref<User[]>([])
   const selectedUser = ref<User | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useUserStore = defineStore('user', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load users'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.users') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useUserStore = defineStore('user', () => {
       const response = await userService.get(id)
       selectedUser.value = response.data
     } catch {
-      error.value = 'Failed to load user'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.users') })
     } finally {
       loading.value = false
     }
@@ -55,7 +57,7 @@ export const useUserStore = defineStore('user', () => {
         users.value[index] = response.data
       }
     } catch {
-      error.value = 'Failed to update user'
+      error.value = t('common.errors.failedToUpdate', { entity: t('common.entities.users') })
     } finally {
       loading.value = false
     }

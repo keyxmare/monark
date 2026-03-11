@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { ActivityEvent } from '@/activity/types/activity-event'
 import { activityEventService } from '@/activity/services/activity-event.service'
+import { i18n } from '@/shared/i18n'
 
 export const useActivityEventStore = defineStore('activityEvent', () => {
+  const t = i18n.global.t
   const events = ref<ActivityEvent[]>([])
   const selectedEvent = ref<ActivityEvent | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useActivityEventStore = defineStore('activityEvent', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load activity events'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.activityEvents') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useActivityEventStore = defineStore('activityEvent', () => {
       const response = await activityEventService.get(id)
       selectedEvent.value = response.data
     } catch {
-      error.value = 'Failed to load activity event'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.activityEvents') })
     } finally {
       loading.value = false
     }

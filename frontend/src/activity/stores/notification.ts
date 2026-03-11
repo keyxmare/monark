@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Notification } from '@/activity/types/notification'
 import { notificationService } from '@/activity/services/notification.service'
+import { i18n } from '@/shared/i18n'
 
 export const useNotificationStore = defineStore('notification', () => {
+  const t = i18n.global.t
   const notifications = ref<Notification[]>([])
   const selectedNotification = ref<Notification | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useNotificationStore = defineStore('notification', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load notifications'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.notifications') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useNotificationStore = defineStore('notification', () => {
       const response = await notificationService.get(id)
       selectedNotification.value = response.data
     } catch {
-      error.value = 'Failed to load notification'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.notifications') })
     } finally {
       loading.value = false
     }
@@ -57,7 +59,7 @@ export const useNotificationStore = defineStore('notification', () => {
         selectedNotification.value = response.data
       }
     } catch {
-      error.value = 'Failed to mark notification as read'
+      error.value = t('common.errors.failedToMarkAsRead')
     } finally {
       loading.value = false
     }

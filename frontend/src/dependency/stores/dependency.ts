@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreateDependencyInput, Dependency, UpdateDependencyInput } from '@/dependency/types/dependency'
 import { dependencyService } from '@/dependency/services/dependency.service'
+import { i18n } from '@/shared/i18n'
 
 export const useDependencyStore = defineStore('dependency', () => {
+  const t = i18n.global.t
   const dependencies = ref<Dependency[]>([])
   const selectedDependency = ref<Dependency | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useDependencyStore = defineStore('dependency', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load dependencies'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.dependencies') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useDependencyStore = defineStore('dependency', () => {
       const response = await dependencyService.get(id)
       selectedDependency.value = response.data
     } catch {
-      error.value = 'Failed to load dependency'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.dependencies') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const useDependencyStore = defineStore('dependency', () => {
       dependencies.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create dependency'
-      throw new Error('Failed to create dependency')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.dependencies') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -71,7 +73,7 @@ export const useDependencyStore = defineStore('dependency', () => {
         dependencies.value[index] = response.data
       }
     } catch {
-      error.value = 'Failed to update dependency'
+      error.value = t('common.errors.failedToUpdate', { entity: t('common.entities.dependencies') })
     } finally {
       loading.value = false
     }
@@ -85,7 +87,7 @@ export const useDependencyStore = defineStore('dependency', () => {
       await dependencyService.remove(id)
       dependencies.value = dependencies.value.filter(d => d.id !== id)
     } catch {
-      error.value = 'Failed to delete dependency'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.dependencies') })
     } finally {
       loading.value = false
     }

@@ -2,8 +2,10 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { User } from '@/identity/types/user'
 import { authService } from '@/identity/services/auth.service'
+import { i18n } from '@/shared/i18n'
 
 export const useAuthStore = defineStore('auth', () => {
+  const t = i18n.global.t
   const currentUser = ref<User | null>(null)
   const token = ref<string | null>(localStorage.getItem('auth_token'))
   const loading = ref(false)
@@ -21,7 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
       currentUser.value = response.data.user
       localStorage.setItem('auth_token', response.data.token)
     } catch (err) {
-      error.value = 'Invalid credentials'
+      error.value = t('identity.auth.invalidCredentials')
       throw err
     } finally {
       loading.value = false
@@ -40,7 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await authService.register({ email, password, firstName, lastName })
     } catch (err) {
-      error.value = 'Registration failed'
+      error.value = t('identity.auth.registerFailed')
       throw err
     } finally {
       loading.value = false

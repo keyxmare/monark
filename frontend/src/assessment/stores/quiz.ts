@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreateQuizInput, Quiz, UpdateQuizInput } from '@/assessment/types/quiz'
 import { quizService } from '@/assessment/services/quiz.service'
+import { i18n } from '@/shared/i18n'
 
 export const useQuizStore = defineStore('assessment-quiz', () => {
+  const t = i18n.global.t
   const quizzes = ref<Quiz[]>([])
   const selectedQuiz = ref<Quiz | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useQuizStore = defineStore('assessment-quiz', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load quizzes'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.quizzes') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useQuizStore = defineStore('assessment-quiz', () => {
       const response = await quizService.get(id)
       selectedQuiz.value = response.data
     } catch {
-      error.value = 'Failed to load quiz'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.quizzes') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const useQuizStore = defineStore('assessment-quiz', () => {
       quizzes.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create quiz'
-      throw new Error('Failed to create quiz')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.quizzes') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -71,7 +73,7 @@ export const useQuizStore = defineStore('assessment-quiz', () => {
         quizzes.value[index] = response.data
       }
     } catch {
-      error.value = 'Failed to update quiz'
+      error.value = t('common.errors.failedToUpdate', { entity: t('common.entities.quizzes') })
     } finally {
       loading.value = false
     }
@@ -85,7 +87,7 @@ export const useQuizStore = defineStore('assessment-quiz', () => {
       await quizService.remove(id)
       quizzes.value = quizzes.value.filter(q => q.id !== id)
     } catch {
-      error.value = 'Failed to delete quiz'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.quizzes') })
     } finally {
       loading.value = false
     }

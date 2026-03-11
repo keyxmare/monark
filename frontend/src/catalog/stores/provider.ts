@@ -9,8 +9,10 @@ import type {
 } from '@/catalog/types/provider'
 import type { Project } from '@/catalog/types/project'
 import { providerService } from '@/catalog/services/provider.service'
+import { i18n } from '@/shared/i18n'
 
 export const useProviderStore = defineStore('catalog-provider', () => {
+  const t = i18n.global.t
   const providers = ref<Provider[]>([])
   const selected = ref<Provider | null>(null)
   const remoteProjects = ref<RemoteProject[]>([])
@@ -34,7 +36,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load providers'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.providers') })
     } finally {
       loading.value = false
     }
@@ -48,7 +50,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
       const response = await providerService.get(id)
       selected.value = response.data
     } catch {
-      error.value = 'Failed to load provider'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.providers') })
     } finally {
       loading.value = false
     }
@@ -63,8 +65,8 @@ export const useProviderStore = defineStore('catalog-provider', () => {
       providers.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create provider'
-      throw new Error('Failed to create provider')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.providers') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -82,7 +84,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
         providers.value[index] = response.data
       }
     } catch {
-      error.value = 'Failed to update provider'
+      error.value = t('common.errors.failedToUpdate', { entity: t('common.entities.providers') })
     } finally {
       loading.value = false
     }
@@ -96,7 +98,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
       await providerService.remove(id)
       providers.value = providers.value.filter(p => p.id !== id)
     } catch {
-      error.value = 'Failed to delete provider'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.providers') })
     } finally {
       loading.value = false
     }
@@ -117,7 +119,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
       }
       return response.data.connected
     } catch {
-      error.value = 'Failed to test connection'
+      error.value = t('common.errors.failedToTestConnection')
       return false
     } finally {
       loading.value = false
@@ -143,7 +145,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
         remoteProjectsTotal.value = data.total
       }
     } catch {
-      error.value = 'Failed to load remote projects'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.remoteProjects') })
     } finally {
       loading.value = false
     }
@@ -162,8 +164,8 @@ export const useProviderStore = defineStore('catalog-provider', () => {
       )
       return response.data
     } catch {
-      error.value = 'Failed to import projects'
-      throw new Error('Failed to import projects')
+      error.value = t('common.errors.failedToImportProjects')
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }

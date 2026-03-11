@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Attempt, CreateAttemptInput } from '@/assessment/types/attempt'
 import { attemptService } from '@/assessment/services/attempt.service'
+import { i18n } from '@/shared/i18n'
 
 export const useAttemptStore = defineStore('assessment-attempt', () => {
+  const t = i18n.global.t
   const attempts = ref<Attempt[]>([])
   const selectedAttempt = ref<Attempt | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useAttemptStore = defineStore('assessment-attempt', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load attempts'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.attempts') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useAttemptStore = defineStore('assessment-attempt', () => {
       const response = await attemptService.get(id)
       selectedAttempt.value = response.data
     } catch {
-      error.value = 'Failed to load attempt'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.attempts') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const useAttemptStore = defineStore('assessment-attempt', () => {
       attempts.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create attempt'
-      throw new Error('Failed to create attempt')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.attempts') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }

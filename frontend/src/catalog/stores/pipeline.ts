@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreatePipelineInput, Pipeline } from '@/catalog/types/pipeline'
 import { pipelineService } from '@/catalog/services/pipeline.service'
+import { i18n } from '@/shared/i18n'
 
 export const usePipelineStore = defineStore('catalog-pipeline', () => {
+  const t = i18n.global.t
   const pipelines = ref<Pipeline[]>([])
   const selected = ref<Pipeline | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const usePipelineStore = defineStore('catalog-pipeline', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load pipelines'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.pipelines') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const usePipelineStore = defineStore('catalog-pipeline', () => {
       const response = await pipelineService.get(id)
       selected.value = response.data
     } catch {
-      error.value = 'Failed to load pipeline'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.pipelines') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const usePipelineStore = defineStore('catalog-pipeline', () => {
       pipelines.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create pipeline'
-      throw new Error('Failed to create pipeline')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.pipelines') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }

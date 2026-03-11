@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreateTeamInput, Team, UpdateTeamInput } from '@/identity/types/team'
 import { teamService } from '@/identity/services/team.service'
+import { i18n } from '@/shared/i18n'
 
 export const useTeamStore = defineStore('team', () => {
+  const t = i18n.global.t
   const teams = ref<Team[]>([])
   const selectedTeam = ref<Team | null>(null)
   const loading = ref(false)
@@ -23,7 +25,7 @@ export const useTeamStore = defineStore('team', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load teams'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.teams') })
     } finally {
       loading.value = false
     }
@@ -37,7 +39,7 @@ export const useTeamStore = defineStore('team', () => {
       const response = await teamService.get(id)
       selectedTeam.value = response.data
     } catch {
-      error.value = 'Failed to load team'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.teams') })
     } finally {
       loading.value = false
     }
@@ -52,8 +54,8 @@ export const useTeamStore = defineStore('team', () => {
       teams.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create team'
-      throw new Error('Failed to create team')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.teams') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -71,7 +73,7 @@ export const useTeamStore = defineStore('team', () => {
         teams.value[index] = response.data
       }
     } catch {
-      error.value = 'Failed to update team'
+      error.value = t('common.errors.failedToUpdate', { entity: t('common.entities.teams') })
     } finally {
       loading.value = false
     }
@@ -85,7 +87,7 @@ export const useTeamStore = defineStore('team', () => {
       await teamService.remove(id)
       teams.value = teams.value.filter(t => t.id !== id)
     } catch {
-      error.value = 'Failed to delete team'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.teams') })
     } finally {
       loading.value = false
     }

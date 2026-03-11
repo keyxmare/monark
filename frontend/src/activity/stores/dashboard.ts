@@ -2,10 +2,12 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { dashboardService } from '@/activity/services/dashboard.service'
 import type { DashboardMetric } from '@/activity/services/dashboard.service'
+import { i18n } from '@/shared/i18n'
 
 export type { DashboardMetric }
 
 export const useDashboardStore = defineStore('dashboard', () => {
+  const t = i18n.global.t
   const metrics = ref<DashboardMetric[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -18,7 +20,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
       const response = await dashboardService.getDashboard()
       metrics.value = response.data.metrics
     } catch {
-      error.value = 'Failed to load dashboard'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.dashboard') })
     } finally {
       loading.value = false
     }

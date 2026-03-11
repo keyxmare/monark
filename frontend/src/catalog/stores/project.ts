@@ -2,8 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { CreateProjectInput, Project, ScanResult, UpdateProjectInput } from '@/catalog/types/project'
 import { projectService } from '@/catalog/services/project.service'
+import { i18n } from '@/shared/i18n'
 
 export const useProjectStore = defineStore('catalog-project', () => {
+  const t = i18n.global.t
   const projects = ref<Project[]>([])
   const selected = ref<Project | null>(null)
   const loading = ref(false)
@@ -25,7 +27,7 @@ export const useProjectStore = defineStore('catalog-project', () => {
       currentPage.value = response.data.page
       total.value = response.data.total
     } catch {
-      error.value = 'Failed to load projects'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.projects') })
     } finally {
       loading.value = false
     }
@@ -39,7 +41,7 @@ export const useProjectStore = defineStore('catalog-project', () => {
       const response = await projectService.get(id)
       selected.value = response.data
     } catch {
-      error.value = 'Failed to load project'
+      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.projects') })
     } finally {
       loading.value = false
     }
@@ -54,8 +56,8 @@ export const useProjectStore = defineStore('catalog-project', () => {
       projects.value.unshift(response.data)
       return response.data
     } catch {
-      error.value = 'Failed to create project'
-      throw new Error('Failed to create project')
+      error.value = t('common.errors.failedToCreate', { entity: t('common.entities.projects') })
+      throw new Error(error.value)
     } finally {
       loading.value = false
     }
@@ -73,7 +75,7 @@ export const useProjectStore = defineStore('catalog-project', () => {
         projects.value[index] = response.data
       }
     } catch {
-      error.value = 'Failed to update project'
+      error.value = t('common.errors.failedToUpdate', { entity: t('common.entities.projects') })
     } finally {
       loading.value = false
     }
@@ -87,7 +89,7 @@ export const useProjectStore = defineStore('catalog-project', () => {
       await projectService.remove(id)
       projects.value = projects.value.filter(p => p.id !== id)
     } catch {
-      error.value = 'Failed to delete project'
+      error.value = t('common.errors.failedToDelete', { entity: t('common.entities.projects') })
     } finally {
       loading.value = false
     }
@@ -103,8 +105,8 @@ export const useProjectStore = defineStore('catalog-project', () => {
       scanResult.value = response.data
       return response.data
     } catch {
-      error.value = 'Failed to scan project'
-      throw new Error('Failed to scan project')
+      error.value = t('common.errors.failedToScan', { entity: t('common.entities.projects') })
+      throw new Error(error.value)
     } finally {
       scanning.value = false
     }
