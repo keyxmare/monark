@@ -1,6 +1,5 @@
 ---
-status: in_progress
-step: 6
+status: completed
 skill: new-project
 ---
 
