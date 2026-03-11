@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useProjectStore } from '@/catalog/stores/project'
 
+const { t } = useI18n()
 const projectStore = useProjectStore()
 
 onMounted(() => {
@@ -21,14 +23,14 @@ async function handleDelete(id: string) {
     <div data-testid="project-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Projects
+          {{ t('catalog.projects.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'catalog-projects-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="project-create-link"
         >
-          Create Project
+          {{ t('catalog.projects.createProject') }}
         </RouterLink>
       </div>
 
@@ -37,7 +39,7 @@ async function handleDelete(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="project-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -60,25 +62,25 @@ async function handleDelete(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Name
+                {{ t('catalog.projects.name') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Repository
+                {{ t('catalog.projects.repository') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Visibility
+                {{ t('catalog.projects.visibility') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Branch
+                {{ t('catalog.projects.branch') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Tech Stacks
+                {{ t('catalog.projects.techStacks') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Pipelines
+                {{ t('catalog.projects.pipelines') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -123,21 +125,21 @@ async function handleDelete(id: string) {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="project-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
                 <RouterLink
                   :to="{ name: 'catalog-projects-edit', params: { id: project.id } }"
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="project-edit-link"
                 >
-                  Edit
+                  {{ t('common.actions.edit') }}
                 </RouterLink>
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="project-delete"
                   @click="handleDelete(project.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -149,7 +151,7 @@ async function handleDelete(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="project-list-empty"
         >
-          No projects found.
+          {{ t('catalog.projects.noProjects') }}
         </div>
       </div>
     </div>

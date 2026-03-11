@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
 import { useProviderStore } from '@/catalog/stores/provider'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
+const { t } = useI18n()
 const providerStore = useProviderStore()
 const testingId = ref<null | string>(null)
 
@@ -28,14 +30,14 @@ async function handleTestConnection(id: string) {
     <div data-testid="provider-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Providers
+          {{ t('catalog.providers.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'catalog-providers-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="provider-create-link"
         >
-          Create Provider
+          {{ t('catalog.providers.createProvider') }}
         </RouterLink>
       </div>
 
@@ -44,7 +46,7 @@ async function handleTestConnection(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="provider-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -67,22 +69,22 @@ async function handleTestConnection(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Name
+                {{ t('catalog.providers.name') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Type
+                {{ t('catalog.providers.type') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                URL
+                {{ t('catalog.providers.url') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Status
+                {{ t('catalog.providers.status') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Last Sync
+                {{ t('catalog.providers.lastSync') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -135,28 +137,28 @@ async function handleTestConnection(id: string) {
                   data-testid="provider-test-connection"
                   @click="handleTestConnection(provider.id)"
                 >
-                  {{ testingId === provider.id ? 'Testing...' : 'Test' }}
+                  {{ testingId === provider.id ? t('catalog.providers.testing') : t('catalog.providers.test') }}
                 </button>
                 <RouterLink
                   :to="{ name: 'catalog-providers-detail', params: { id: provider.id } }"
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="provider-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
                 <RouterLink
                   :to="{ name: 'catalog-providers-edit', params: { id: provider.id } }"
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="provider-edit-link"
                 >
-                  Edit
+                  {{ t('common.actions.edit') }}
                 </RouterLink>
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="provider-delete"
                   @click="handleDelete(provider.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -168,7 +170,7 @@ async function handleTestConnection(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="provider-list-empty"
         >
-          No providers found.
+          {{ t('catalog.providers.noProviders') }}
         </div>
       </div>
     </div>

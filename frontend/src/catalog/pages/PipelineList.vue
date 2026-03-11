@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { usePipelineStore } from '@/catalog/stores/pipeline'
 
 const route = useRoute()
+const { t } = useI18n()
 const pipelineStore = usePipelineStore()
 
 const projectId = route.query.project_id as string | undefined
@@ -20,7 +22,7 @@ onMounted(() => {
     <div data-testid="pipeline-list-page">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-text">
-          Pipelines
+          {{ t('catalog.pipelines.title') }}
         </h2>
       </div>
 
@@ -29,7 +31,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="pipeline-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -52,25 +54,25 @@ onMounted(() => {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                External ID
+                {{ t('catalog.pipelines.externalId') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Ref
+                {{ t('catalog.pipelines.ref') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Status
+                {{ t('catalog.pipelines.status') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Duration
+                {{ t('catalog.pipelines.duration') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Started At
+                {{ t('catalog.pipelines.startedAt') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Finished At
+                {{ t('catalog.pipelines.finishedAt') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -118,7 +120,7 @@ onMounted(() => {
                   class="text-sm text-primary hover:text-primary-dark"
                   data-testid="pipeline-view-link"
                 >
-                  View
+                  {{ t('common.actions.view') }}
                 </RouterLink>
               </td>
             </tr>
@@ -130,7 +132,7 @@ onMounted(() => {
           class="py-8 text-center text-text-muted"
           data-testid="pipeline-list-empty"
         >
-          No pipelines found.
+          {{ t('catalog.pipelines.noPipelines') }}
         </div>
       </div>
     </div>

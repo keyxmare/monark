@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -7,6 +8,7 @@ import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { useProjectStore } from '@/catalog/stores/project'
 
 const router = useRouter()
+const { t } = useI18n()
 const techStackStore = useTechStackStore()
 const projectStore = useProjectStore()
 
@@ -37,7 +39,7 @@ async function handleSubmit() {
     })
     router.push({ name: 'catalog-tech-stacks-list' })
   } catch {
-    formError.value = 'Failed to create tech stack'
+    formError.value = t('catalog.techStacks.createFailed')
   } finally {
     submitting.value = false
   }
@@ -53,13 +55,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="tech-stack-form-back"
         >
-          &larr; Back to tech stacks
+          &larr; {{ t('common.backTo', { page: t('catalog.techStacks.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          Add Tech Stack
+          {{ t('catalog.techStacks.addTechStack') }}
         </h2>
 
         <form
@@ -79,7 +81,7 @@ async function handleSubmit() {
             <label
               for="projectId"
               class="mb-1 block text-sm font-medium text-text"
-            >Project</label>
+            >{{ t('catalog.techStacks.project') }}</label>
             <select
               id="projectId"
               v-model="projectId"
@@ -91,7 +93,7 @@ async function handleSubmit() {
                 value=""
                 disabled
               >
-                Select a project
+                {{ t('catalog.techStacks.selectProject') }}
               </option>
               <option
                 v-for="project in projectStore.projects"
@@ -107,7 +109,7 @@ async function handleSubmit() {
             <label
               for="language"
               class="mb-1 block text-sm font-medium text-text"
-            >Language</label>
+            >{{ t('catalog.techStacks.language') }}</label>
             <input
               id="language"
               v-model="language"
@@ -122,7 +124,7 @@ async function handleSubmit() {
             <label
               for="framework"
               class="mb-1 block text-sm font-medium text-text"
-            >Framework</label>
+            >{{ t('catalog.techStacks.framework') }}</label>
             <input
               id="framework"
               v-model="framework"
@@ -137,7 +139,7 @@ async function handleSubmit() {
             <label
               for="version"
               class="mb-1 block text-sm font-medium text-text"
-            >Version</label>
+            >{{ t('catalog.techStacks.version') }}</label>
             <input
               id="version"
               v-model="version"
@@ -152,7 +154,7 @@ async function handleSubmit() {
             <label
               for="detectedAt"
               class="mb-1 block text-sm font-medium text-text"
-            >Detected At</label>
+            >{{ t('catalog.techStacks.detectedAt') }}</label>
             <input
               id="detectedAt"
               v-model="detectedAt"
@@ -169,7 +171,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="tech-stack-form-submit"
           >
-            {{ submitting ? 'Saving...' : 'Add Tech Stack' }}
+            {{ submitting ? t('common.saving') : t('catalog.techStacks.addTechStack') }}
           </button>
         </form>
       </div>

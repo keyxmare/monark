@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
 
 const route = useRoute()
+const { t } = useI18n()
 const techStackStore = useTechStackStore()
 
 const projectId = route.query.project_id as string | undefined
@@ -24,14 +26,14 @@ async function handleDelete(id: string) {
     <div data-testid="tech-stack-list-page">
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
-          Tech Stacks
+          {{ t('catalog.techStacks.title') }}
         </h2>
         <RouterLink
           :to="{ name: 'catalog-tech-stacks-create' }"
           class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           data-testid="tech-stack-create-link"
         >
-          Add Tech Stack
+          {{ t('catalog.techStacks.addTechStack') }}
         </RouterLink>
       </div>
 
@@ -40,7 +42,7 @@ async function handleDelete(id: string) {
         class="py-8 text-center text-text-muted"
         data-testid="tech-stack-list-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -63,19 +65,19 @@ async function handleDelete(id: string) {
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Language
+                {{ t('catalog.techStacks.language') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Framework
+                {{ t('catalog.techStacks.framework') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Version
+                {{ t('catalog.techStacks.version') }}
               </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                Detected At
+                {{ t('catalog.techStacks.detectedAt') }}
               </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                Actions
+                {{ t('common.table.actions') }}
               </th>
             </tr>
           </thead>
@@ -104,7 +106,7 @@ async function handleDelete(id: string) {
                   data-testid="tech-stack-delete"
                   @click="handleDelete(ts.id)"
                 >
-                  Delete
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -116,7 +118,7 @@ async function handleDelete(id: string) {
           class="py-8 text-center text-text-muted"
           data-testid="tech-stack-list-empty"
         >
-          No tech stacks found.
+          {{ t('catalog.techStacks.noTechStacks') }}
         </div>
       </div>
     </div>

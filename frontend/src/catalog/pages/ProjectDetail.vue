@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -9,6 +10,7 @@ import { usePipelineStore } from '@/catalog/stores/pipeline'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 
 const route = useRoute()
+const { t } = useI18n()
 const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
 const pipelineStore = usePipelineStore()
@@ -48,7 +50,7 @@ async function handleScan() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="project-detail-back"
         >
-          &larr; Back to projects
+          &larr; {{ t('common.backTo', { page: t('catalog.projects.title').toLowerCase() }) }}
         </RouterLink>
         <div class="flex gap-2">
           <button
@@ -58,7 +60,7 @@ async function handleScan() {
             data-testid="project-scan-btn"
             @click="handleScan"
           >
-            {{ projectStore.scanning ? 'Scanning...' : 'Scan Project' }}
+            {{ projectStore.scanning ? t('catalog.projects.scanning') : t('catalog.projects.scanProject') }}
           </button>
           <RouterLink
             v-if="projectStore.selected"
@@ -66,7 +68,7 @@ async function handleScan() {
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
             data-testid="project-detail-edit"
           >
-            Edit
+            {{ t('common.actions.edit') }}
           </RouterLink>
         </div>
       </div>
@@ -76,7 +78,7 @@ async function handleScan() {
         class="py-8 text-center text-text-muted"
         data-testid="project-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -100,7 +102,7 @@ async function handleScan() {
           <dl class="space-y-4">
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Slug
+                {{ t('catalog.projects.slug') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -111,18 +113,18 @@ async function handleScan() {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Description
+                {{ t('catalog.projects.description') }}
               </dt>
               <dd
                 class="mt-1 text-text"
                 data-testid="project-detail-description"
               >
-                {{ projectStore.selected.description ?? 'No description' }}
+                {{ projectStore.selected.description ?? t('common.noDescription') }}
               </dd>
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Repository URL
+                {{ t('catalog.projects.repositoryUrl') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -133,7 +135,7 @@ async function handleScan() {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Default Branch
+                {{ t('catalog.projects.defaultBranch') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -144,7 +146,7 @@ async function handleScan() {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Visibility
+                {{ t('catalog.projects.visibility') }}
               </dt>
               <dd class="mt-1">
                 <span
@@ -162,7 +164,7 @@ async function handleScan() {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Created At
+                {{ t('identity.users.createdAt') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -180,7 +182,7 @@ async function handleScan() {
           data-testid="scan-result-banner"
         >
           <p class="text-sm font-medium text-success">
-            Scan complete — {{ projectStore.scanResult.stacksDetected }} tech stacks and {{ projectStore.scanResult.dependenciesDetected }} dependencies detected.
+            {{ t('catalog.projects.scanComplete', { stacks: projectStore.scanResult.stacksDetected, deps: projectStore.scanResult.dependenciesDetected }) }}
           </p>
         </div>
 
@@ -195,7 +197,7 @@ async function handleScan() {
             data-testid="tab-tech-stacks"
             @click="activeTab = 'tech-stacks'"
           >
-            Tech Stacks ({{ techStackStore.total }})
+            {{ t('catalog.projects.techStacksCount', { count: techStackStore.total }) }}
           </button>
           <button
             :class="[
@@ -207,7 +209,7 @@ async function handleScan() {
             data-testid="tab-pipelines"
             @click="activeTab = 'pipelines'"
           >
-            Pipelines ({{ pipelineStore.total }})
+            {{ t('catalog.projects.pipelinesCount', { count: pipelineStore.total }) }}
           </button>
           <button
             :class="[
@@ -219,7 +221,7 @@ async function handleScan() {
             data-testid="tab-dependencies"
             @click="activeTab = 'dependencies'"
           >
-            Dependencies ({{ dependencyStore.total }})
+            {{ t('catalog.projects.dependenciesCount', { count: dependencyStore.total }) }}
           </button>
         </div>
 
@@ -232,22 +234,22 @@ async function handleScan() {
             <thead>
               <tr class="border-b border-border bg-surface-muted">
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Language
+                  {{ t('catalog.techStacks.language') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Language Version
+                  {{ t('catalog.techStacks.languageVersion') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Framework
+                  {{ t('catalog.techStacks.framework') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Framework Version
+                  {{ t('catalog.techStacks.frameworkVersion') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Detected At
+                  {{ t('catalog.techStacks.detectedAt') }}
                 </th>
                 <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                  Actions
+                  {{ t('common.table.actions') }}
                 </th>
               </tr>
             </thead>
@@ -279,7 +281,7 @@ async function handleScan() {
                     data-testid="tech-stack-delete"
                     @click="handleDeleteTechStack(ts.id)"
                   >
-                    Delete
+                    {{ t('common.actions.delete') }}
                   </button>
                 </td>
               </tr>
@@ -290,7 +292,7 @@ async function handleScan() {
             class="py-8 text-center text-text-muted"
             data-testid="tech-stacks-empty"
           >
-            No tech stacks detected.
+            {{ t('catalog.projects.noTechStacks') }}
           </div>
         </div>
 
@@ -303,25 +305,25 @@ async function handleScan() {
             <thead>
               <tr class="border-b border-border bg-surface-muted">
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  External ID
+                  {{ t('catalog.pipelines.externalId') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Ref
+                  {{ t('catalog.pipelines.ref') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Status
+                  {{ t('catalog.pipelines.status') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Duration
+                  {{ t('catalog.pipelines.duration') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Started At
+                  {{ t('catalog.pipelines.startedAt') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Finished At
+                  {{ t('catalog.pipelines.finishedAt') }}
                 </th>
                 <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                  Actions
+                  {{ t('common.table.actions') }}
                 </th>
               </tr>
             </thead>
@@ -369,7 +371,7 @@ async function handleScan() {
                     class="text-sm text-primary hover:text-primary-dark"
                     data-testid="pipeline-view-link"
                   >
-                    View
+                    {{ t('common.actions.view') }}
                   </RouterLink>
                 </td>
               </tr>
@@ -380,7 +382,7 @@ async function handleScan() {
             class="py-8 text-center text-text-muted"
             data-testid="pipelines-empty"
           >
-            No pipelines found.
+            {{ t('catalog.projects.noPipelines') }}
           </div>
         </div>
         <div
@@ -392,10 +394,10 @@ async function handleScan() {
             <thead>
               <tr class="border-b border-border bg-surface-muted">
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Name
+                  {{ t('catalog.projects.name') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Version
+                  {{ t('catalog.techStacks.version') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
                   Package Manager
@@ -404,7 +406,7 @@ async function handleScan() {
                   Type
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Repository
+                  {{ t('catalog.projects.repository') }}
                 </th>
               </tr>
             </thead>
@@ -434,7 +436,7 @@ async function handleScan() {
                     target="_blank"
                     rel="noopener"
                     class="text-primary hover:text-primary-dark"
-                  >Repo ↗</a>
+                  >{{ t('catalog.projects.repoLink') }} ↗</a>
                   <span
                     v-else
                     class="text-text-muted"
@@ -448,7 +450,7 @@ async function handleScan() {
             class="py-8 text-center text-text-muted"
             data-testid="dependencies-empty"
           >
-            No dependencies found. Run a scan to detect dependencies.
+            {{ t('catalog.projects.noDependencies') }}
           </div>
         </div>
       </template>

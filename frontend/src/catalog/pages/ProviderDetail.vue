@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import type { RemoteProject } from '@/catalog/types/provider'
@@ -9,6 +10,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const providerStore = useProviderStore()
 
 const providerId = computed(() => route.params.id as string)
@@ -69,7 +71,7 @@ async function handleTestConnection() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="provider-detail-back"
         >
-          &larr; Back to providers
+          &larr; {{ t('common.backTo', { page: t('catalog.providers.title').toLowerCase() }) }}
         </RouterLink>
         <div
           v-if="providerStore.selected"
@@ -80,14 +82,14 @@ async function handleTestConnection() {
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
             data-testid="provider-detail-edit"
           >
-            Edit
+            {{ t('common.actions.edit') }}
           </RouterLink>
           <button
             class="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-danger/80"
             data-testid="provider-detail-delete"
             @click="handleDelete"
           >
-            Delete
+            {{ t('common.actions.delete') }}
           </button>
         </div>
       </div>
@@ -97,7 +99,7 @@ async function handleTestConnection() {
         class="py-8 text-center text-text-muted"
         data-testid="provider-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -134,7 +136,7 @@ async function handleTestConnection() {
           <dl class="space-y-4">
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Type
+                {{ t('catalog.providers.type') }}
               </dt>
               <dd class="mt-1">
                 <span
@@ -152,7 +154,7 @@ async function handleTestConnection() {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                URL
+                {{ t('catalog.providers.url') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -163,18 +165,18 @@ async function handleTestConnection() {
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Last Sync
+                {{ t('catalog.providers.lastSync') }}
               </dt>
               <dd
                 class="mt-1 text-text"
                 data-testid="provider-detail-last-sync"
               >
-                {{ providerStore.selected.lastSyncAt ? new Date(providerStore.selected.lastSyncAt).toLocaleDateString() : 'Never' }}
+                {{ providerStore.selected.lastSyncAt ? new Date(providerStore.selected.lastSyncAt).toLocaleDateString() : t('common.never') }}
               </dd>
             </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
-                Created At
+                {{ t('identity.users.createdAt') }}
               </dt>
               <dd
                 class="mt-1 text-text"
@@ -192,7 +194,7 @@ async function handleTestConnection() {
               data-testid="provider-test-connection"
               @click="handleTestConnection"
             >
-              {{ testingConnection ? 'Testing...' : 'Test Connection' }}
+              {{ testingConnection ? t('catalog.providers.testing') : t('catalog.providers.testConnection') }}
             </button>
           </div>
         </div>
@@ -200,7 +202,7 @@ async function handleTestConnection() {
         <div class="mt-8">
           <div class="mb-4 flex items-center justify-between">
             <h3 class="text-xl font-bold text-text">
-              Remote Projects
+              {{ t('catalog.providers.remoteProjects') }}
             </h3>
             <button
               v-if="selectedIds.length > 0"
@@ -209,7 +211,7 @@ async function handleTestConnection() {
               data-testid="provider-import-selected"
               @click="handleImport"
             >
-              {{ importing ? 'Importing...' : `Import Selected (${selectedIds.length})` }}
+              {{ importing ? t('catalog.providers.importing') : t('catalog.providers.importSelected', { count: selectedIds.length }) }}
             </button>
           </div>
 
@@ -218,7 +220,7 @@ async function handleTestConnection() {
             class="py-8 text-center text-text-muted"
             data-testid="remote-projects-loading"
           >
-            Loading remote projects...
+            {{ t('catalog.providers.loadingRemote') }}
           </div>
 
           <div
@@ -236,7 +238,7 @@ async function handleTestConnection() {
                 v-model="selectedIds"
                 type="checkbox"
                 :value="project.externalId"
-                :aria-label="`Select ${project.name}`"
+                :aria-label="t('catalog.providers.selectProject', { name: project.name })"
                 :data-testid="`select-${project.externalId}`"
               >
               <span
@@ -244,7 +246,7 @@ async function handleTestConnection() {
                 class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800"
                 data-testid="remote-project-imported-badge"
               >
-                Imported
+                {{ t('catalog.providers.imported') }}
               </span>
               <div class="flex-1">
                 <p class="font-medium text-text">
@@ -267,7 +269,7 @@ async function handleTestConnection() {
               class="py-8 text-center text-text-muted"
               data-testid="remote-projects-empty"
             >
-              No remote projects found.
+              {{ t('catalog.providers.noRemoteProjects') }}
             </div>
           </div>
         </div>

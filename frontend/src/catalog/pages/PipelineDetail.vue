@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { usePipelineStore } from '@/catalog/stores/pipeline'
 
 const route = useRoute()
+const { t } = useI18n()
 const pipelineStore = usePipelineStore()
 
 onMounted(() => {
@@ -23,7 +25,7 @@ onMounted(() => {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="pipeline-detail-back"
         >
-          &larr; Back to pipelines
+          &larr; {{ t('common.backTo', { page: t('catalog.pipelines.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
@@ -32,7 +34,7 @@ onMounted(() => {
         class="py-8 text-center text-text-muted"
         data-testid="pipeline-detail-loading"
       >
-        Loading...
+        {{ t('common.actions.loading') }}
       </div>
 
       <div
@@ -50,13 +52,13 @@ onMounted(() => {
         data-testid="pipeline-detail-card"
       >
         <h2 class="mb-6 text-2xl font-bold text-text">
-          Pipeline #{{ pipelineStore.selected.externalId }}
+          {{ t('catalog.pipelines.pipelineNumber', { id: pipelineStore.selected.externalId }) }}
         </h2>
 
         <dl class="space-y-4">
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              External ID
+              {{ t('catalog.pipelines.externalId') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -67,7 +69,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Ref
+              {{ t('catalog.pipelines.ref') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -78,7 +80,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Status
+              {{ t('catalog.pipelines.status') }}
             </dt>
             <dd class="mt-1">
               <span
@@ -99,7 +101,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Duration
+              {{ t('catalog.pipelines.duration') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -110,7 +112,7 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Started At
+              {{ t('catalog.pipelines.startedAt') }}
             </dt>
             <dd
               class="mt-1 text-text"
@@ -121,18 +123,18 @@ onMounted(() => {
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Finished At
+              {{ t('catalog.pipelines.finishedAt') }}
             </dt>
             <dd
               class="mt-1 text-text"
               data-testid="pipeline-detail-finished-at"
             >
-              {{ pipelineStore.selected.finishedAt ? new Date(pipelineStore.selected.finishedAt).toLocaleString() : 'Not finished' }}
+              {{ pipelineStore.selected.finishedAt ? new Date(pipelineStore.selected.finishedAt).toLocaleString() : t('catalog.pipelines.notFinished') }}
             </dd>
           </div>
           <div>
             <dt class="text-sm font-medium text-text-muted">
-              Created At
+              {{ t('identity.users.createdAt') }}
             </dt>
             <dd
               class="mt-1 text-text"

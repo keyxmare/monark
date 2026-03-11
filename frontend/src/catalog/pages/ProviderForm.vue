@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import type { ProviderType } from '@/catalog/types/provider'
@@ -9,6 +10,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const providerStore = useProviderStore()
 
 const providerId = computed(() => route.params.id as string | undefined)
@@ -57,7 +59,7 @@ async function handleSubmit() {
       router.push({ name: 'catalog-providers-detail', params: { id: provider.id } })
     }
   } catch {
-    formError.value = isEdit.value ? 'Failed to update provider' : 'Failed to create provider'
+    formError.value = isEdit.value ? t('catalog.providers.updateFailed') : t('catalog.providers.createFailed')
   } finally {
     submitting.value = false
   }
@@ -73,13 +75,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="provider-form-back"
         >
-          &larr; Back to providers
+          &larr; {{ t('common.backTo', { page: t('catalog.providers.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          {{ isEdit ? 'Edit Provider' : 'Create Provider' }}
+          {{ isEdit ? t('catalog.providers.editProvider') : t('catalog.providers.createProvider') }}
         </h2>
 
         <form
@@ -99,7 +101,7 @@ async function handleSubmit() {
             <label
               for="field-name"
               class="mb-1 block text-sm font-medium text-text"
-            >Name</label>
+            >{{ t('catalog.providers.name') }}</label>
             <input
               id="field-name"
               v-model="form.name"
@@ -114,7 +116,7 @@ async function handleSubmit() {
             <label
               for="field-type"
               class="mb-1 block text-sm font-medium text-text"
-            >Type</label>
+            >{{ t('catalog.providers.type') }}</label>
             <select
               id="field-type"
               v-model="form.type"
@@ -139,7 +141,7 @@ async function handleSubmit() {
             <label
               for="field-url"
               class="mb-1 block text-sm font-medium text-text"
-            >URL</label>
+            >{{ t('catalog.providers.url') }}</label>
             <input
               id="field-url"
               v-model="form.url"
@@ -155,14 +157,14 @@ async function handleSubmit() {
             <label
               for="field-apiToken"
               class="mb-1 block text-sm font-medium text-text"
-            >API Token</label>
+            >{{ t('catalog.providers.apiToken') }}</label>
             <div class="relative">
               <input
                 id="field-apiToken"
                 v-model="form.apiToken"
                 :type="showToken ? 'text' : 'password'"
                 :required="!isEdit"
-                :placeholder="isEdit ? 'Leave empty to keep current' : 'glpat-xxxxxxxxxxxxxxxxxxxx'"
+                :placeholder="isEdit ? t('catalog.providers.tokenKeepCurrent') : t('catalog.providers.tokenPlaceholder')"
                 class="w-full rounded-lg border border-border px-3 py-2 pr-16 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
                 data-testid="field-apiToken"
               >
@@ -172,7 +174,7 @@ async function handleSubmit() {
                 data-testid="toggle-token-visibility"
                 @click="showToken = !showToken"
               >
-                {{ showToken ? 'Hide' : 'Show' }}
+                {{ showToken ? t('catalog.providers.hideToken') : t('catalog.providers.showToken') }}
               </button>
             </div>
           </div>
@@ -183,7 +185,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="provider-form-submit"
           >
-            {{ submitting ? 'Saving...' : (isEdit ? 'Update Provider' : 'Create Provider') }}
+            {{ submitting ? t('common.saving') : (isEdit ? t('catalog.providers.updateProvider') : t('catalog.providers.createProvider')) }}
           </button>
         </form>
       </div>

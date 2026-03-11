@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -8,6 +9,7 @@ import type { ProjectVisibility } from '@/catalog/types/project'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const projectStore = useProjectStore()
 
 const projectId = computed(() => route.params.id as string | undefined)
@@ -66,7 +68,7 @@ async function handleSubmit() {
       router.push({ name: 'catalog-projects-detail', params: { id: project.id } })
     }
   } catch {
-    formError.value = isEditMode.value ? 'Failed to update project' : 'Failed to create project'
+    formError.value = isEditMode.value ? t('catalog.projects.updateFailed') : t('catalog.projects.createFailed')
   } finally {
     submitting.value = false
   }
@@ -82,13 +84,13 @@ async function handleSubmit() {
           class="text-sm text-primary hover:text-primary-dark"
           data-testid="project-form-back"
         >
-          &larr; Back to projects
+          &larr; {{ t('common.backTo', { page: t('catalog.projects.title').toLowerCase() }) }}
         </RouterLink>
       </div>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
-          {{ isEditMode ? 'Edit Project' : 'Create Project' }}
+          {{ isEditMode ? t('catalog.projects.editProject') : t('catalog.projects.createProject') }}
         </h2>
 
         <form
@@ -108,7 +110,7 @@ async function handleSubmit() {
             <label
               for="name"
               class="mb-1 block text-sm font-medium text-text"
-            >Name</label>
+            >{{ t('catalog.projects.name') }}</label>
             <input
               id="name"
               v-model="name"
@@ -123,7 +125,7 @@ async function handleSubmit() {
             <label
               for="slug"
               class="mb-1 block text-sm font-medium text-text"
-            >Slug</label>
+            >{{ t('catalog.projects.slug') }}</label>
             <input
               id="slug"
               v-model="slug"
@@ -139,7 +141,7 @@ async function handleSubmit() {
             <label
               for="description"
               class="mb-1 block text-sm font-medium text-text"
-            >Description</label>
+            >{{ t('catalog.projects.description') }}</label>
             <textarea
               id="description"
               v-model="description"
@@ -153,7 +155,7 @@ async function handleSubmit() {
             <label
               for="repositoryUrl"
               class="mb-1 block text-sm font-medium text-text"
-            >Repository URL</label>
+            >{{ t('catalog.projects.repositoryUrl') }}</label>
             <input
               id="repositoryUrl"
               v-model="repositoryUrl"
@@ -168,7 +170,7 @@ async function handleSubmit() {
             <label
               for="defaultBranch"
               class="mb-1 block text-sm font-medium text-text"
-            >Default Branch</label>
+            >{{ t('catalog.projects.defaultBranch') }}</label>
             <input
               id="defaultBranch"
               v-model="defaultBranch"
@@ -183,7 +185,7 @@ async function handleSubmit() {
             <label
               for="visibility"
               class="mb-1 block text-sm font-medium text-text"
-            >Visibility</label>
+            >{{ t('catalog.projects.visibility') }}</label>
             <select
               id="visibility"
               v-model="visibility"
@@ -192,10 +194,10 @@ async function handleSubmit() {
               data-testid="project-form-visibility"
             >
               <option value="private">
-                Private
+                {{ t('catalog.projects.visibilityPrivate') }}
               </option>
               <option value="public">
-                Public
+                {{ t('catalog.projects.visibilityPublic') }}
               </option>
             </select>
           </div>
@@ -207,7 +209,7 @@ async function handleSubmit() {
             <label
               for="ownerId"
               class="mb-1 block text-sm font-medium text-text"
-            >Owner ID</label>
+            >{{ t('catalog.projects.ownerId') }}</label>
             <input
               id="ownerId"
               v-model="ownerId"
@@ -224,7 +226,7 @@ async function handleSubmit() {
             class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             data-testid="project-form-submit"
           >
-            {{ submitting ? 'Saving...' : (isEditMode ? 'Update Project' : 'Create Project') }}
+            {{ submitting ? t('common.saving') : (isEditMode ? t('catalog.projects.updateProject') : t('catalog.projects.createProject')) }}
           </button>
         </form>
       </div>
