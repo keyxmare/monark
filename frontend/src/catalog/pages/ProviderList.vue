@@ -1,0 +1,176 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
+
+import { useProviderStore } from '@/catalog/stores/provider'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+
+const providerStore = useProviderStore()
+const testingId = ref<null | string>(null)
+
+onMounted(() => {
+  providerStore.fetchAll()
+})
+
+async function handleDelete(id: string) {
+  await providerStore.remove(id)
+}
+
+async function handleTestConnection(id: string) {
+  testingId.value = id
+  await providerStore.testConnection(id)
+  testingId.value = null
+}
+</script>
+
+<template>
+  <DashboardLayout>
+    <div data-testid="provider-list-page">
+      <div class="mb-6 flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-text">
+          Providers
+        </h2>
+        <RouterLink
+          :to="{ name: 'catalog-providers-create' }"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+          data-testid="provider-create-link"
+        >
+          Create Provider
+        </RouterLink>
+      </div>
+
+      <div
+        v-if="providerStore.loading"
+        class="py-8 text-center text-text-muted"
+        data-testid="provider-list-loading"
+      >
+        Loading...
+      </div>
+
+      <div
+        v-else-if="providerStore.error"
+        class="rounded-lg bg-danger/10 p-4 text-danger"
+        role="alert"
+        data-testid="provider-list-error"
+      >
+        {{ providerStore.error }}
+      </div>
+
+      <div
+        v-else
+        class="overflow-hidden rounded-xl border border-border bg-surface"
+      >
+        <table
+          class="w-full"
+          data-testid="provider-list-table"
+        >
+          <thead>
+            <tr class="border-b border-border bg-surface-muted">
+              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                Name
+              </th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                Type
+              </th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                URL
+              </th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                Status
+              </th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                Last Sync
+              </th>
+              <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="provider in providerStore.providers"
+              :key="provider.id"
+              class="border-b border-border last:border-0"
+              data-testid="provider-list-row"
+            >
+              <td class="px-4 py-3 text-sm text-text">
+                {{ provider.name }}
+              </td>
+              <td class="px-4 py-3">
+                <span
+                  :class="{
+                    'bg-orange-100 text-orange-800': provider.type === 'gitlab',
+                    'bg-gray-100 text-gray-800': provider.type === 'github',
+                    'bg-blue-100 text-blue-800': provider.type === 'bitbucket',
+                  }"
+                  class="rounded-full px-2 py-0.5 text-xs font-medium"
+                  data-testid="provider-type-badge"
+                >
+                  {{ provider.type }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-sm text-text-muted">
+                {{ provider.url }}
+              </td>
+              <td class="px-4 py-3">
+                <span
+                  :class="{
+                    'bg-green-100 text-green-800': provider.status === 'connected',
+                    'bg-yellow-100 text-yellow-800': provider.status === 'pending',
+                    'bg-red-100 text-red-800': provider.status === 'error',
+                  }"
+                  class="rounded-full px-2 py-0.5 text-xs font-medium"
+                  data-testid="provider-status-badge"
+                >
+                  {{ provider.status }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-sm text-text-muted">
+                {{ provider.lastSyncAt ? new Date(provider.lastSyncAt).toLocaleDateString() : '—' }}
+              </td>
+              <td class="flex items-center justify-end gap-3 px-4 py-3">
+                <button
+                  :disabled="testingId === provider.id"
+                  class="text-sm text-primary hover:text-primary-dark disabled:opacity-50"
+                  data-testid="provider-test-connection"
+                  @click="handleTestConnection(provider.id)"
+                >
+                  {{ testingId === provider.id ? 'Testing...' : 'Test' }}
+                </button>
+                <RouterLink
+                  :to="{ name: 'catalog-providers-detail', params: { id: provider.id } }"
+                  class="text-sm text-primary hover:text-primary-dark"
+                  data-testid="provider-view-link"
+                >
+                  View
+                </RouterLink>
+                <RouterLink
+                  :to="{ name: 'catalog-providers-edit', params: { id: provider.id } }"
+                  class="text-sm text-primary hover:text-primary-dark"
+                  data-testid="provider-edit-link"
+                >
+                  Edit
+                </RouterLink>
+                <button
+                  class="text-sm text-danger hover:text-danger/80"
+                  data-testid="provider-delete"
+                  @click="handleDelete(provider.id)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div
+          v-if="providerStore.providers.length === 0"
+          class="py-8 text-center text-text-muted"
+          data-testid="provider-list-empty"
+        >
+          No providers found.
+        </div>
+      </div>
+    </div>
+  </DashboardLayout>
+</template>

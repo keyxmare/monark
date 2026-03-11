@@ -1,0 +1,433 @@
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useProjectStore } from '@/catalog/stores/project'
+import { useTechStackStore } from '@/catalog/stores/tech-stack'
+import { usePipelineStore } from '@/catalog/stores/pipeline'
+
+const route = useRoute()
+const projectStore = useProjectStore()
+const techStackStore = useTechStackStore()
+const pipelineStore = usePipelineStore()
+
+const activeTab = ref<'tech-stacks' | 'pipelines' | 'dependencies'>('tech-stacks')
+const projectId = computed(() => route.params.id as string)
+
+onMounted(async () => {
+  await projectStore.fetchOne(projectId.value)
+  await techStackStore.fetchAll(1, 20, projectId.value)
+  await pipelineStore.fetchAll(1, 10, projectId.value, projectStore.selected?.defaultBranch)
+})
+
+async function handleDeleteTechStack(id: string) {
+  await techStackStore.remove(id)
+}
+
+async function handleScan() {
+  await projectStore.scan(projectId.value)
+  await techStackStore.fetchAll(1, 100, projectId.value)
+}
+</script>
+
+<template>
+  <DashboardLayout>
+    <div data-testid="project-detail-page">
+      <div class="mb-6 flex items-center justify-between">
+        <RouterLink
+          :to="{ name: 'catalog-projects-list' }"
+          class="text-sm text-primary hover:text-primary-dark"
+          data-testid="project-detail-back"
+        >
+          &larr; Back to projects
+        </RouterLink>
+        <div class="flex gap-2">
+          <button
+            v-if="projectStore.selected?.externalId"
+            :disabled="projectStore.scanning"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+            data-testid="project-scan-btn"
+            @click="handleScan"
+          >
+            {{ projectStore.scanning ? 'Scanning...' : 'Scan Project' }}
+          </button>
+          <RouterLink
+            v-if="projectStore.selected"
+            :to="{ name: 'catalog-projects-edit', params: { id: projectStore.selected.id } }"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+            data-testid="project-detail-edit"
+          >
+            Edit
+          </RouterLink>
+        </div>
+      </div>
+
+      <div
+        v-if="projectStore.loading"
+        class="py-8 text-center text-text-muted"
+        data-testid="project-detail-loading"
+      >
+        Loading...
+      </div>
+
+      <div
+        v-else-if="projectStore.error"
+        class="rounded-lg bg-danger/10 p-4 text-danger"
+        role="alert"
+        data-testid="project-detail-error"
+      >
+        {{ projectStore.error }}
+      </div>
+
+      <template v-else-if="projectStore.selected">
+        <div
+          class="mb-6 max-w-2xl rounded-xl border border-border bg-surface p-6"
+          data-testid="project-detail-card"
+        >
+          <h2 class="mb-6 text-2xl font-bold text-text">
+            {{ projectStore.selected.name }}
+          </h2>
+
+          <dl class="space-y-4">
+            <div>
+              <dt class="text-sm font-medium text-text-muted">
+                Slug
+              </dt>
+              <dd
+                class="mt-1 text-text"
+                data-testid="project-detail-slug"
+              >
+                {{ projectStore.selected.slug }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-text-muted">
+                Description
+              </dt>
+              <dd
+                class="mt-1 text-text"
+                data-testid="project-detail-description"
+              >
+                {{ projectStore.selected.description ?? 'No description' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-text-muted">
+                Repository URL
+              </dt>
+              <dd
+                class="mt-1 text-text"
+                data-testid="project-detail-repository-url"
+              >
+                {{ projectStore.selected.repositoryUrl }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-text-muted">
+                Default Branch
+              </dt>
+              <dd
+                class="mt-1 text-text"
+                data-testid="project-detail-default-branch"
+              >
+                {{ projectStore.selected.defaultBranch }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-text-muted">
+                Visibility
+              </dt>
+              <dd class="mt-1">
+                <span
+                  :class="[
+                    'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                    projectStore.selected.visibility === 'public'
+                      ? 'bg-success/10 text-success'
+                      : 'bg-warning/10 text-warning',
+                  ]"
+                  data-testid="project-detail-visibility"
+                >
+                  {{ projectStore.selected.visibility }}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-text-muted">
+                Created At
+              </dt>
+              <dd
+                class="mt-1 text-text"
+                data-testid="project-detail-created-at"
+              >
+                {{ new Date(projectStore.selected.createdAt).toLocaleDateString() }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div
+          v-if="projectStore.scanResult"
+          class="mb-6 rounded-lg border border-success/30 bg-success/10 p-4"
+          data-testid="scan-result-banner"
+        >
+          <p class="text-sm font-medium text-success">
+            Scan complete — {{ projectStore.scanResult.stacksDetected }} tech stacks and {{ projectStore.scanResult.dependenciesDetected }} dependencies detected.
+          </p>
+        </div>
+
+        <div class="mb-4 flex gap-2 border-b border-border">
+          <button
+            :class="[
+              'px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === 'tech-stacks'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-text-muted hover:text-text',
+            ]"
+            data-testid="tab-tech-stacks"
+            @click="activeTab = 'tech-stacks'"
+          >
+            Tech Stacks ({{ techStackStore.total }})
+          </button>
+          <button
+            :class="[
+              'px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === 'pipelines'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-text-muted hover:text-text',
+            ]"
+            data-testid="tab-pipelines"
+            @click="activeTab = 'pipelines'"
+          >
+            Pipelines ({{ pipelineStore.total }})
+          </button>
+          <button
+            :class="[
+              'px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === 'dependencies'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-text-muted hover:text-text',
+            ]"
+            data-testid="tab-dependencies"
+            @click="activeTab = 'dependencies'"
+          >
+            Dependencies ({{ projectStore.scanResult?.dependenciesDetected ?? 0 }})
+          </button>
+        </div>
+
+        <div
+          v-if="activeTab === 'tech-stacks'"
+          class="overflow-hidden rounded-xl border border-border bg-surface"
+          data-testid="tech-stacks-panel"
+        >
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-border bg-surface-muted">
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Language
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Language Version
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Framework
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Framework Version
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Detected At
+                </th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="ts in techStackStore.techStacks"
+                :key="ts.id"
+                class="border-b border-border last:border-0"
+                data-testid="tech-stack-row"
+              >
+                <td class="px-4 py-3 text-sm text-text">
+                  {{ ts.language }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ ts.version || '—' }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text">
+                  {{ ts.framework }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ ts.frameworkVersion || '—' }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ new Date(ts.detectedAt).toLocaleDateString() }}
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <button
+                    class="text-sm text-danger hover:text-danger/80"
+                    data-testid="tech-stack-delete"
+                    @click="handleDeleteTechStack(ts.id)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div
+            v-if="techStackStore.techStacks.length === 0"
+            class="py-8 text-center text-text-muted"
+            data-testid="tech-stacks-empty"
+          >
+            No tech stacks detected.
+          </div>
+        </div>
+
+        <div
+          v-if="activeTab === 'pipelines'"
+          class="overflow-hidden rounded-xl border border-border bg-surface"
+          data-testid="pipelines-panel"
+        >
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-border bg-surface-muted">
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  External ID
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Ref
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Status
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Duration
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Started At
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Finished At
+                </th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="pipeline in pipelineStore.pipelines"
+                :key="pipeline.id"
+                class="border-b border-border last:border-0"
+                data-testid="pipeline-row"
+              >
+                <td class="px-4 py-3 text-sm text-text">
+                  {{ pipeline.externalId }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ pipeline.ref }}
+                </td>
+                <td class="px-4 py-3">
+                  <span
+                    :class="[
+                      'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                      {
+                        'bg-warning/10 text-warning': pipeline.status === 'pending',
+                        'bg-info/10 text-info': pipeline.status === 'running',
+                        'bg-success/10 text-success': pipeline.status === 'success',
+                        'bg-danger/10 text-danger': pipeline.status === 'failed',
+                      },
+                    ]"
+                    data-testid="pipeline-status-badge"
+                  >
+                    {{ pipeline.status }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ pipeline.duration }}s
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ new Date(pipeline.startedAt).toLocaleDateString() }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ pipeline.finishedAt ? new Date(pipeline.finishedAt).toLocaleDateString() : '—' }}
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <RouterLink
+                    :to="{ name: 'catalog-pipelines-detail', params: { id: pipeline.id } }"
+                    class="text-sm text-primary hover:text-primary-dark"
+                    data-testid="pipeline-view-link"
+                  >
+                    View
+                  </RouterLink>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div
+            v-if="pipelineStore.pipelines.length === 0"
+            class="py-8 text-center text-text-muted"
+            data-testid="pipelines-empty"
+          >
+            No pipelines found.
+          </div>
+        </div>
+        <div
+          v-if="activeTab === 'dependencies'"
+          class="overflow-hidden rounded-xl border border-border bg-surface"
+          data-testid="dependencies-panel"
+        >
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-border bg-surface-muted">
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Name
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Version
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Package Manager
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  Type
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="dep in projectStore.scanResult?.dependencies ?? []"
+                :key="`${dep.name}-${dep.version}`"
+                class="border-b border-border last:border-0"
+                data-testid="dependency-row"
+              >
+                <td class="px-4 py-3 text-sm text-text">
+                  {{ dep.name }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ dep.version }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ dep.packageManager }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ dep.type }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div
+            v-if="!projectStore.scanResult?.dependencies?.length"
+            class="py-8 text-center text-text-muted"
+            data-testid="dependencies-empty"
+          >
+            No dependencies found. Run a scan to detect dependencies.
+          </div>
+        </div>
+      </template>
+    </div>
+  </DashboardLayout>
+</template>

@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { activityRoutes } from '@/activity/routes'
+import { assessmentRoutes } from '@/assessment/routes'
+import { catalogRoutes } from '@/catalog/routes'
+import { dependencyRoutes } from '@/dependency/routes'
 import { identityRoutes } from '@/identity/routes'
 
-const routes = [...activityRoutes, ...identityRoutes]
+const routes = [...activityRoutes, ...assessmentRoutes, ...catalogRoutes, ...dependencyRoutes, ...identityRoutes]
 
 export const router = createRouter({
   history: createWebHistory(),

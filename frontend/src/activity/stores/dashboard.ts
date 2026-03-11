@@ -1,30 +1,31 @@
-import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { defineStore } from 'pinia'
+import { dashboardService } from '@/activity/services/dashboard.service'
+import type { DashboardMetric } from '@/activity/services/dashboard.service'
 
-export interface DashboardMetric {
-  change?: number
-  label: string
-  value: number | string
-}
+export type { DashboardMetric }
 
 export const useDashboardStore = defineStore('dashboard', () => {
   const metrics = ref<DashboardMetric[]>([])
   const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  async function load() {
+  async function load(): Promise<void> {
     loading.value = true
+    error.value = null
+
     try {
-      const response = await fetch('/api/dashboard/metrics')
-      if (response.ok) {
-        const data = await response.json()
-        metrics.value = data.data ?? []
-      }
+      const response = await dashboardService.getDashboard()
+      metrics.value = response.data.metrics
+    } catch {
+      error.value = 'Failed to load dashboard'
     } finally {
       loading.value = false
     }
   }
 
   return {
+    error,
     load,
     loading,
     metrics,

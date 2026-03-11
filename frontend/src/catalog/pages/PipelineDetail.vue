@@ -1,0 +1,148 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { usePipelineStore } from '@/catalog/stores/pipeline'
+
+const route = useRoute()
+const pipelineStore = usePipelineStore()
+
+onMounted(() => {
+  const id = route.params.id as string
+  pipelineStore.fetchOne(id)
+})
+</script>
+
+<template>
+  <DashboardLayout>
+    <div data-testid="pipeline-detail-page">
+      <div class="mb-6">
+        <RouterLink
+          :to="{ name: 'catalog-pipelines-list' }"
+          class="text-sm text-primary hover:text-primary-dark"
+          data-testid="pipeline-detail-back"
+        >
+          &larr; Back to pipelines
+        </RouterLink>
+      </div>
+
+      <div
+        v-if="pipelineStore.loading"
+        class="py-8 text-center text-text-muted"
+        data-testid="pipeline-detail-loading"
+      >
+        Loading...
+      </div>
+
+      <div
+        v-else-if="pipelineStore.error"
+        class="rounded-lg bg-danger/10 p-4 text-danger"
+        role="alert"
+        data-testid="pipeline-detail-error"
+      >
+        {{ pipelineStore.error }}
+      </div>
+
+      <div
+        v-else-if="pipelineStore.selected"
+        class="max-w-2xl rounded-xl border border-border bg-surface p-6"
+        data-testid="pipeline-detail-card"
+      >
+        <h2 class="mb-6 text-2xl font-bold text-text">
+          Pipeline #{{ pipelineStore.selected.externalId }}
+        </h2>
+
+        <dl class="space-y-4">
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              External ID
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="pipeline-detail-external-id"
+            >
+              {{ pipelineStore.selected.externalId }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Ref
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="pipeline-detail-ref"
+            >
+              {{ pipelineStore.selected.ref }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Status
+            </dt>
+            <dd class="mt-1">
+              <span
+                :class="[
+                  'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                  {
+                    'bg-warning/10 text-warning': pipelineStore.selected.status === 'pending',
+                    'bg-info/10 text-info': pipelineStore.selected.status === 'running',
+                    'bg-success/10 text-success': pipelineStore.selected.status === 'success',
+                    'bg-danger/10 text-danger': pipelineStore.selected.status === 'failed',
+                  },
+                ]"
+                data-testid="pipeline-detail-status"
+              >
+                {{ pipelineStore.selected.status }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Duration
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="pipeline-detail-duration"
+            >
+              {{ pipelineStore.selected.duration }}s
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Started At
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="pipeline-detail-started-at"
+            >
+              {{ new Date(pipelineStore.selected.startedAt).toLocaleString() }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Finished At
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="pipeline-detail-finished-at"
+            >
+              {{ pipelineStore.selected.finishedAt ? new Date(pipelineStore.selected.finishedAt).toLocaleString() : 'Not finished' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Created At
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="pipeline-detail-created-at"
+            >
+              {{ new Date(pipelineStore.selected.createdAt).toLocaleDateString() }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </DashboardLayout>
+</template>

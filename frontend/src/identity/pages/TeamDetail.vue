@@ -1,0 +1,113 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useTeamStore } from '@/identity/stores/team'
+
+const route = useRoute()
+const teamStore = useTeamStore()
+
+onMounted(() => {
+  const id = route.params.id as string
+  teamStore.fetchOne(id)
+})
+</script>
+
+<template>
+  <DashboardLayout>
+    <div data-testid="team-detail-page">
+      <div class="mb-6 flex items-center justify-between">
+        <RouterLink
+          :to="{ name: 'identity-teams-list' }"
+          class="text-sm text-primary hover:text-primary-dark"
+          data-testid="team-detail-back"
+        >
+          &larr; Back to teams
+        </RouterLink>
+        <RouterLink
+          v-if="teamStore.selectedTeam"
+          :to="{ name: 'identity-teams-edit', params: { id: teamStore.selectedTeam.id } }"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+          data-testid="team-detail-edit"
+        >
+          Edit
+        </RouterLink>
+      </div>
+
+      <div
+        v-if="teamStore.loading"
+        class="py-8 text-center text-text-muted"
+        data-testid="team-detail-loading"
+      >
+        Loading...
+      </div>
+
+      <div
+        v-else-if="teamStore.error"
+        class="rounded-lg bg-danger/10 p-4 text-danger"
+        role="alert"
+        data-testid="team-detail-error"
+      >
+        {{ teamStore.error }}
+      </div>
+
+      <div
+        v-else-if="teamStore.selectedTeam"
+        class="max-w-2xl rounded-xl border border-border bg-surface p-6"
+        data-testid="team-detail-card"
+      >
+        <h2 class="mb-6 text-2xl font-bold text-text">
+          {{ teamStore.selectedTeam.name }}
+        </h2>
+
+        <dl class="space-y-4">
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Slug
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="team-detail-slug"
+            >
+              {{ teamStore.selectedTeam.slug }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Description
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="team-detail-description"
+            >
+              {{ teamStore.selectedTeam.description ?? 'No description' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Members
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="team-detail-member-count"
+            >
+              {{ teamStore.selectedTeam.memberCount }} member(s)
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-text-muted">
+              Created At
+            </dt>
+            <dd
+              class="mt-1 text-text"
+              data-testid="team-detail-created-at"
+            >
+              {{ new Date(teamStore.selectedTeam.createdAt).toLocaleDateString() }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </DashboardLayout>
+</template>

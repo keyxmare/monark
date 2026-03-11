@@ -3,9 +3,10 @@ import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import AuthLayout from '@/shared/layouts/AuthLayout.vue'
-import { api } from '@/shared/utils/api'
+import { useAuthStore } from '@/identity/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const error = ref('')
@@ -16,11 +17,7 @@ async function handleSubmit() {
   submitting.value = true
 
   try {
-    const response = await api.post<{ token: string }>('/auth/login', {
-      email: email.value,
-      password: password.value,
-    })
-    localStorage.setItem('auth_token', response.token)
+    await authStore.login(email.value, password.value)
     router.push({ name: 'dashboard' })
   } catch {
     error.value = 'Invalid credentials'

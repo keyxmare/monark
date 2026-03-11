@@ -3,10 +3,12 @@ import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import AuthLayout from '@/shared/layouts/AuthLayout.vue'
-import { api } from '@/shared/utils/api'
+import { useAuthStore } from '@/identity/stores/auth'
 
 const router = useRouter()
-const name = ref('')
+const authStore = useAuthStore()
+const firstName = ref('')
+const lastName = ref('')
 const email = ref('')
 const password = ref('')
 const error = ref('')
@@ -17,12 +19,9 @@ async function handleSubmit() {
   submitting.value = true
 
   try {
-    await api.post('/auth/register', {
-      email: email.value,
-      name: name.value,
-      password: password.value,
-    })
-    router.push({ name: 'login' })
+    await authStore.register(email.value, password.value, firstName.value, lastName.value)
+    await authStore.login(email.value, password.value)
+    router.push({ name: 'dashboard' })
   } catch {
     error.value = 'Registration failed. Please try again.'
   } finally {
@@ -53,17 +52,33 @@ async function handleSubmit() {
 
         <div class="mb-4">
           <label
-            for="name"
+            for="firstName"
             class="mb-1 block text-sm font-medium text-text"
-          >Name</label>
+          >First Name</label>
           <input
-            id="name"
-            v-model="name"
+            id="firstName"
+            v-model="firstName"
             type="text"
             required
-            autocomplete="name"
+            autocomplete="given-name"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
-            data-testid="register-name"
+            data-testid="register-first-name"
+          >
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="lastName"
+            class="mb-1 block text-sm font-medium text-text"
+          >Last Name</label>
+          <input
+            id="lastName"
+            v-model="lastName"
+            type="text"
+            required
+            autocomplete="family-name"
+            class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+            data-testid="register-last-name"
           >
         </div>
 

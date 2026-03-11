@@ -1,24 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
-import { api } from '@/shared/utils/api'
+import { useAuthStore } from '@/identity/stores/auth'
 
-interface UserProfile {
-  email: string
-  name: string
-}
+const authStore = useAuthStore()
 
-const profile = ref<null | UserProfile>(null)
-const loading = ref(false)
-
-onMounted(async () => {
-  loading.value = true
-  try {
-    profile.value = await api.get<UserProfile>('/auth/profile')
-  } finally {
-    loading.value = false
-  }
+onMounted(() => {
+  authStore.fetchCurrentUser()
 })
 </script>
 
@@ -30,7 +19,7 @@ onMounted(async () => {
       </h2>
 
       <div
-        v-if="loading"
+        v-if="authStore.loading"
         class="py-8 text-center text-text-muted"
         data-testid="profile-loading"
       >
@@ -38,19 +27,30 @@ onMounted(async () => {
       </div>
 
       <div
-        v-else-if="profile"
+        v-else-if="authStore.currentUser"
         class="max-w-lg rounded-xl border border-border bg-surface p-6"
         data-testid="profile-card"
       >
         <div class="mb-4">
           <p class="text-sm font-medium text-text-muted">
-            Name
+            First Name
           </p>
           <p
             class="text-lg text-text"
-            data-testid="profile-name"
+            data-testid="profile-first-name"
           >
-            {{ profile.name }}
+            {{ authStore.currentUser.firstName }}
+          </p>
+        </div>
+        <div class="mb-4">
+          <p class="text-sm font-medium text-text-muted">
+            Last Name
+          </p>
+          <p
+            class="text-lg text-text"
+            data-testid="profile-last-name"
+          >
+            {{ authStore.currentUser.lastName }}
           </p>
         </div>
         <div>
@@ -61,7 +61,7 @@ onMounted(async () => {
             class="text-lg text-text"
             data-testid="profile-email"
           >
-            {{ profile.email }}
+            {{ authStore.currentUser.email }}
           </p>
         </div>
       </div>
