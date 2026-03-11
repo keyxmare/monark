@@ -10,7 +10,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const providerStore = useProviderStore()
 
 const providerId = computed(() => route.params.id as string)
@@ -171,7 +171,7 @@ async function handleTestConnection() {
                 class="mt-1 text-text"
                 data-testid="provider-detail-last-sync"
               >
-                {{ providerStore.selected.lastSyncAt ? new Date(providerStore.selected.lastSyncAt).toLocaleDateString() : t('common.never') }}
+                {{ providerStore.selected.lastSyncAt ? d(new Date(providerStore.selected.lastSyncAt), 'short') : t('common.never') }}
               </dd>
             </div>
             <div>
@@ -182,7 +182,7 @@ async function handleTestConnection() {
                 class="mt-1 text-text"
                 data-testid="provider-detail-created-at"
               >
-                {{ new Date(providerStore.selected.createdAt).toLocaleDateString() }}
+                {{ d(new Date(providerStore.selected.createdAt), 'short') }}
               </dd>
             </div>
           </dl>

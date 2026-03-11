@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { usePipelineStore } from '@/catalog/stores/pipeline'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const pipelineStore = usePipelineStore()
 
 const projectId = route.query.project_id as string | undefined
@@ -109,10 +109,10 @@ onMounted(() => {
                 {{ pipeline.duration }}s
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ new Date(pipeline.startedAt).toLocaleDateString() }}
+                {{ d(new Date(pipeline.startedAt), 'short') }}
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ pipeline.finishedAt ? new Date(pipeline.finishedAt).toLocaleDateString() : '—' }}
+                {{ pipeline.finishedAt ? d(new Date(pipeline.finishedAt), 'short') : '—' }}
               </td>
               <td class="px-4 py-3 text-right">
                 <RouterLink

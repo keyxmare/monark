@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useNotificationStore } from '@/activity/stores/notification'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const notificationStore = useNotificationStore()
 
 onMounted(() => {
@@ -124,7 +124,7 @@ async function handleMarkAsRead() {
               class="mt-1 text-text"
               data-testid="notification-detail-read-at"
             >
-              {{ new Date(notificationStore.selectedNotification.readAt).toLocaleString() }}
+              {{ d(new Date(notificationStore.selectedNotification.readAt), 'long') }}
             </dd>
           </div>
           <div>
@@ -135,7 +135,7 @@ async function handleMarkAsRead() {
               class="mt-1 text-text"
               data-testid="notification-detail-created-at"
             >
-              {{ new Date(notificationStore.selectedNotification.createdAt).toLocaleString() }}
+              {{ d(new Date(notificationStore.selectedNotification.createdAt), 'long') }}
             </dd>
           </div>
         </dl>

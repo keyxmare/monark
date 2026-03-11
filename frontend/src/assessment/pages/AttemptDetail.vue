@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAttemptStore } from '@/assessment/stores/attempt'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const attemptStore = useAttemptStore()
 
 onMounted(() => {
@@ -111,7 +111,7 @@ onMounted(() => {
                 class="mt-1 text-text"
                 data-testid="attempt-detail-started-at"
               >
-                {{ new Date(attemptStore.selectedAttempt.startedAt).toLocaleString() }}
+                {{ d(new Date(attemptStore.selectedAttempt.startedAt), 'long') }}
               </dd>
             </div>
             <div>
@@ -122,7 +122,7 @@ onMounted(() => {
                 class="mt-1 text-text"
                 data-testid="attempt-detail-finished-at"
               >
-                {{ attemptStore.selectedAttempt.finishedAt ? new Date(attemptStore.selectedAttempt.finishedAt).toLocaleString() : t('assessment.attempts.notFinished') }}
+                {{ attemptStore.selectedAttempt.finishedAt ? d(new Date(attemptStore.selectedAttempt.finishedAt), 'long') : t('assessment.attempts.notFinished') }}
               </dd>
             </div>
           </div>
@@ -134,7 +134,7 @@ onMounted(() => {
               class="mt-1 text-text"
               data-testid="attempt-detail-created-at"
             >
-              {{ new Date(attemptStore.selectedAttempt.createdAt).toLocaleDateString() }}
+              {{ d(new Date(attemptStore.selectedAttempt.createdAt), 'short') }}
             </dd>
           </div>
         </dl>

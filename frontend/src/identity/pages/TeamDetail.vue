@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useTeamStore } from '@/identity/stores/team'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const teamStore = useTeamStore()
 
 onMounted(() => {
@@ -105,7 +105,7 @@ onMounted(() => {
               class="mt-1 text-text"
               data-testid="team-detail-created-at"
             >
-              {{ new Date(teamStore.selectedTeam.createdAt).toLocaleDateString() }}
+              {{ d(new Date(teamStore.selectedTeam.createdAt), 'short') }}
             </dd>
           </div>
         </dl>

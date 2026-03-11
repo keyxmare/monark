@@ -5,6 +5,17 @@ import fr from './locales/fr.json'
 
 export type MessageSchema = typeof en
 
+const datetimeFormats = {
+  en: {
+    short: { year: 'numeric', month: '2-digit', day: '2-digit' } as const,
+    long: { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' } as const,
+  },
+  fr: {
+    short: { year: 'numeric', month: '2-digit', day: '2-digit' } as const,
+    long: { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' } as const,
+  },
+}
+
 export const i18n = createI18n<[MessageSchema], 'en' | 'fr'>({
   legacy: false,
   locale: 'fr',
@@ -14,4 +25,5 @@ export const i18n = createI18n<[MessageSchema], 'en' | 'fr'>({
     en,
     fr,
   },
+  datetimeFormats,
 })

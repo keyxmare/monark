@@ -10,7 +10,7 @@ import { usePipelineStore } from '@/catalog/stores/pipeline'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
 const pipelineStore = usePipelineStore()
@@ -170,7 +170,7 @@ async function handleScan() {
                 class="mt-1 text-text"
                 data-testid="project-detail-created-at"
               >
-                {{ new Date(projectStore.selected.createdAt).toLocaleDateString() }}
+                {{ d(new Date(projectStore.selected.createdAt), 'short') }}
               </dd>
             </div>
           </dl>
@@ -273,7 +273,7 @@ async function handleScan() {
                   {{ ts.frameworkVersion || '—' }}
                 </td>
                 <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ new Date(ts.detectedAt).toLocaleDateString() }}
+                  {{ d(new Date(ts.detectedAt), 'short') }}
                 </td>
                 <td class="px-4 py-3 text-right">
                   <button
@@ -360,10 +360,10 @@ async function handleScan() {
                   {{ pipeline.duration }}s
                 </td>
                 <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ new Date(pipeline.startedAt).toLocaleDateString() }}
+                  {{ d(new Date(pipeline.startedAt), 'short') }}
                 </td>
                 <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ pipeline.finishedAt ? new Date(pipeline.finishedAt).toLocaleDateString() : '—' }}
+                  {{ pipeline.finishedAt ? d(new Date(pipeline.finishedAt), 'short') : '—' }}
                 </td>
                 <td class="px-4 py-3 text-right">
                   <RouterLink
@@ -400,10 +400,10 @@ async function handleScan() {
                   {{ t('catalog.techStacks.version') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Package Manager
+                  {{ t('dependency.dependencies.packageManager') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  Type
+                  {{ t('dependency.dependencies.type') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
                   {{ t('catalog.projects.repository') }}

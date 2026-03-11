@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAttemptStore } from '@/assessment/stores/attempt'
 
-const { t } = useI18n()
+const { t, d } = useI18n()
 const attemptStore = useAttemptStore()
 
 onMounted(() => {
@@ -101,10 +101,10 @@ function statusColor(status: string): string {
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ new Date(attempt.startedAt).toLocaleString() }}
+                {{ d(new Date(attempt.startedAt), 'long') }}
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ attempt.finishedAt ? new Date(attempt.finishedAt).toLocaleString() : '—' }}
+                {{ attempt.finishedAt ? d(new Date(attempt.finishedAt), 'long') : '—' }}
               </td>
               <td class="px-4 py-3 text-right">
                 <RouterLink

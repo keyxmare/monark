@@ -8,7 +8,7 @@ import { useQuizStore } from '@/assessment/stores/quiz'
 import { useQuestionStore } from '@/assessment/stores/question'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const quizStore = useQuizStore()
 const questionStore = useQuestionStore()
 
@@ -144,7 +144,7 @@ function levelColor(level: string): string {
                   class="mt-1 text-text"
                   data-testid="quiz-detail-starts-at"
                 >
-                  {{ quizStore.selectedQuiz.startsAt ? new Date(quizStore.selectedQuiz.startsAt).toLocaleDateString() : t('common.notSet') }}
+                  {{ quizStore.selectedQuiz.startsAt ? d(new Date(quizStore.selectedQuiz.startsAt), 'short') : t('common.notSet') }}
                 </dd>
               </div>
               <div>
@@ -155,7 +155,7 @@ function levelColor(level: string): string {
                   class="mt-1 text-text"
                   data-testid="quiz-detail-ends-at"
                 >
-                  {{ quizStore.selectedQuiz.endsAt ? new Date(quizStore.selectedQuiz.endsAt).toLocaleDateString() : t('common.notSet') }}
+                  {{ quizStore.selectedQuiz.endsAt ? d(new Date(quizStore.selectedQuiz.endsAt), 'short') : t('common.notSet') }}
                 </dd>
               </div>
             </div>
@@ -167,7 +167,7 @@ function levelColor(level: string): string {
                 class="mt-1 text-text"
                 data-testid="quiz-detail-created-at"
               >
-                {{ new Date(quizStore.selectedQuiz.createdAt).toLocaleDateString() }}
+                {{ d(new Date(quizStore.selectedQuiz.createdAt), 'short') }}
               </dd>
             </div>
           </dl>

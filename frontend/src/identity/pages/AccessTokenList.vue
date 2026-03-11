@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAccessTokenStore } from '@/identity/stores/access-token'
 
-const { t } = useI18n()
+const { t, d } = useI18n()
 const tokenStore = useAccessTokenStore()
 
 onMounted(() => {
@@ -91,7 +91,7 @@ async function handleDelete(id: string) {
                 {{ token.scopes.join(', ') || t('common.none') }}
               </td>
               <td class="px-4 py-3 text-sm text-text">
-                {{ token.expiresAt ? new Date(token.expiresAt).toLocaleDateString() : t('common.never') }}
+                {{ token.expiresAt ? d(new Date(token.expiresAt), 'short') : t('common.never') }}
               </td>
               <td class="px-4 py-3 text-right">
                 <button

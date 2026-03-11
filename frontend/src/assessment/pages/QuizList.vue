@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useQuizStore } from '@/assessment/stores/quiz'
 
-const { t } = useI18n()
+const { t, d } = useI18n()
 const quizStore = useQuizStore()
 
 onMounted(() => {
@@ -125,10 +125,10 @@ function typeColor(type: string): string {
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ quiz.startsAt ? new Date(quiz.startsAt).toLocaleDateString() : '—' }}
+                {{ quiz.startsAt ? d(new Date(quiz.startsAt), 'short') : '—' }}
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ quiz.endsAt ? new Date(quiz.endsAt).toLocaleDateString() : '—' }}
+                {{ quiz.endsAt ? d(new Date(quiz.endsAt), 'short') : '—' }}
               </td>
               <td class="px-4 py-3 text-sm text-text">
                 {{ quiz.questionCount }}

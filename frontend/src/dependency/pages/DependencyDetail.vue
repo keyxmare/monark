@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const dependencyStore = useDependencyStore()
 
 onMounted(() => {
@@ -192,7 +192,7 @@ onMounted(() => {
                 class="mt-1 text-text"
                 data-testid="dependency-detail-created-at"
               >
-                {{ new Date(dependencyStore.selectedDependency.createdAt).toLocaleDateString() }}
+                {{ d(new Date(dependencyStore.selectedDependency.createdAt), 'short') }}
               </dd>
             </div>
           </dl>

@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useUserStore } from '@/identity/stores/user'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const userStore = useUserStore()
 
 onMounted(() => {
@@ -125,7 +125,7 @@ onMounted(() => {
               class="mt-1 text-text"
               data-testid="user-detail-created-at"
             >
-              {{ new Date(userStore.selectedUser.createdAt).toLocaleDateString() }}
+              {{ d(new Date(userStore.selectedUser.createdAt), 'short') }}
             </dd>
           </div>
         </dl>

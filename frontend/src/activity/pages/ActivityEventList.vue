@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useActivityEventStore } from '@/activity/stores/activity-event'
 
-const { t } = useI18n()
+const { t, d } = useI18n()
 const eventStore = useActivityEventStore()
 
 onMounted(() => {
@@ -86,7 +86,7 @@ onMounted(() => {
                 {{ event.entityId }}
               </td>
               <td class="px-4 py-3 text-sm text-text">
-                {{ new Date(event.occurredAt).toLocaleString() }}
+                {{ d(new Date(event.occurredAt), 'long') }}
               </td>
               <td class="px-4 py-3 text-right">
                 <RouterLink

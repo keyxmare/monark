@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useActivityEventStore } from '@/activity/stores/activity-event'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const eventStore = useActivityEventStore()
 
 onMounted(() => {
@@ -110,7 +110,7 @@ onMounted(() => {
               class="mt-1 text-text"
               data-testid="activity-event-detail-occurred-at"
             >
-              {{ new Date(eventStore.selectedEvent.occurredAt).toLocaleString() }}
+              {{ d(new Date(eventStore.selectedEvent.occurredAt), 'long') }}
             </dd>
           </div>
           <div>

@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { usePipelineStore } from '@/catalog/stores/pipeline'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const pipelineStore = usePipelineStore()
 
 onMounted(() => {
@@ -118,7 +118,7 @@ onMounted(() => {
               class="mt-1 text-text"
               data-testid="pipeline-detail-started-at"
             >
-              {{ new Date(pipelineStore.selected.startedAt).toLocaleString() }}
+              {{ d(new Date(pipelineStore.selected.startedAt), 'long') }}
             </dd>
           </div>
           <div>
@@ -129,7 +129,7 @@ onMounted(() => {
               class="mt-1 text-text"
               data-testid="pipeline-detail-finished-at"
             >
-              {{ pipelineStore.selected.finishedAt ? new Date(pipelineStore.selected.finishedAt).toLocaleString() : t('catalog.pipelines.notFinished') }}
+              {{ pipelineStore.selected.finishedAt ? d(new Date(pipelineStore.selected.finishedAt), 'long') : t('catalog.pipelines.notFinished') }}
             </dd>
           </div>
           <div>
@@ -140,7 +140,7 @@ onMounted(() => {
               class="mt-1 text-text"
               data-testid="pipeline-detail-created-at"
             >
-              {{ new Date(pipelineStore.selected.createdAt).toLocaleDateString() }}
+              {{ d(new Date(pipelineStore.selected.createdAt), 'short') }}
             </dd>
           </div>
         </dl>

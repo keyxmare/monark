@@ -7,7 +7,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const techStackStore = useTechStackStore()
 
 const projectId = route.query.project_id as string | undefined
@@ -98,7 +98,7 @@ async function handleDelete(id: string) {
                 {{ ts.version }}
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ new Date(ts.detectedAt).toLocaleDateString() }}
+                {{ d(new Date(ts.detectedAt), 'short') }}
               </td>
               <td class="px-4 py-3 text-right">
                 <button

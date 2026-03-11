@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 import { useProviderStore } from '@/catalog/stores/provider'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
-const { t } = useI18n()
+const { t, d } = useI18n()
 const providerStore = useProviderStore()
 const testingId = ref<null | string>(null)
 
@@ -128,7 +128,7 @@ async function handleTestConnection(id: string) {
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
-                {{ provider.lastSyncAt ? new Date(provider.lastSyncAt).toLocaleDateString() : '—' }}
+                {{ provider.lastSyncAt ? d(new Date(provider.lastSyncAt), 'short') : '—' }}
               </td>
               <td class="flex items-center justify-end gap-3 px-4 py-3">
                 <button
