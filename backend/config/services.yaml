@@ -1,0 +1,81 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Shared\:
+        resource: '../src/Shared/'
+
+    App\Identity\:
+        resource: '../src/Identity/'
+
+    App\Catalog\:
+        resource: '../src/Catalog/'
+
+    App\Dependency\:
+        resource: '../src/Dependency/'
+
+    App\Assessment\:
+        resource: '../src/Assessment/'
+
+    App\Activity\:
+        resource: '../src/Activity/'
+
+    App\DataFixtures\:
+        resource: '../src/DataFixtures/'
+
+    App\Identity\Application\CommandHandler\:
+        resource: '../src/Identity/Application/CommandHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
+
+    App\Identity\Application\QueryHandler\:
+        resource: '../src/Identity/Application/QueryHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: query.bus }
+
+    App\Catalog\Application\CommandHandler\:
+        resource: '../src/Catalog/Application/CommandHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
+
+    App\Catalog\Application\QueryHandler\:
+        resource: '../src/Catalog/Application/QueryHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: query.bus }
+
+    App\Dependency\Application\CommandHandler\:
+        resource: '../src/Dependency/Application/CommandHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
+
+    App\Dependency\Application\QueryHandler\:
+        resource: '../src/Dependency/Application/QueryHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: query.bus }
+
+    App\Assessment\Application\CommandHandler\:
+        resource: '../src/Assessment/Application/CommandHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
+
+    App\Assessment\Application\QueryHandler\:
+        resource: '../src/Assessment/Application/QueryHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: query.bus }
+
+    App\Activity\Application\CommandHandler\:
+        resource: '../src/Activity/Application/CommandHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: command.bus }
+
+    App\Activity\Application\QueryHandler\:
+        resource: '../src/Activity/Application/QueryHandler/'
+        tags:
+            - { name: messenger.message_handler, bus: query.bus }
+
+    App\Shared\Infrastructure\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }

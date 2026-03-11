@@ -1,0 +1,256 @@
+{
+  "version": "1.0",
+  "skill_version": "2.3.0",
+  "created_at": "2026-03-11T00:00:00Z",
+  "updated_at": "2026-03-11T00:00:00Z",
+  "name": "monark",
+  "description": "Hub développeur permettant de monitorer leurs activités, suivi de projets (dépendances techniques, retard par rapport à LTS etc.), partage de questionnaires, quizz etc.",
+  "type": "web",
+  "preset": "backoffice",
+  "backend": "symfony",
+  "frontend": "vue",
+  "database": "postgresql",
+  "task_runner": "make",
+  "complexity": "advanced",
+  "profile": "advanced",
+  "test_php_framework": "pest",
+  "package_manager": "pnpm",
+  "layout": "dashboard",
+  "ui_framework": "tailwind",
+  "ssr": null,
+  "nuxt_ddd_strategy": null,
+  "bounded_contexts": ["Identity", "Catalog", "Dependency", "Assessment", "Activity"],
+  "modules": ["auth", "messenger"],
+  "cli_lang": null,
+  "lib_lang": null,
+  "features": {
+    "Identity": {
+      "entities": [
+        {
+          "name": "User",
+          "properties": {
+            "email": "string",
+            "password": "string",
+            "firstName": "string",
+            "lastName": "string",
+            "avatar": "string",
+            "roles": "json"
+          },
+          "relations": [
+            { "target": "AccessToken", "type": "OneToMany", "mappedBy": "user", "cascade": ["persist", "remove"], "orphanRemoval": true }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE"]
+        },
+        {
+          "name": "AccessToken",
+          "properties": {
+            "provider": "enum(gitlab,github)",
+            "token": "string",
+            "scopes": "json",
+            "expiresAt": "datetime"
+          },
+          "relations": [
+            { "target": "User", "type": "ManyToOne", "inversedBy": "accessTokens", "nullable": false }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "DELETE"]
+        },
+        {
+          "name": "Team",
+          "properties": {
+            "name": "string",
+            "slug": "string",
+            "description": "text"
+          },
+          "relations": [
+            { "target": "User", "type": "ManyToMany" }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
+        }
+      ],
+      "custom": ["Register", "Login", "Logout"]
+    },
+    "Catalog": {
+      "entities": [
+        {
+          "name": "Project",
+          "properties": {
+            "name": "string",
+            "slug": "string",
+            "description": "text",
+            "repositoryUrl": "string",
+            "defaultBranch": "string",
+            "visibility": "enum(public,private)",
+            "ownerId": "string"
+          },
+          "relations": [
+            { "target": "TechStack", "type": "OneToMany", "mappedBy": "project", "cascade": ["persist", "remove"], "orphanRemoval": true },
+            { "target": "Pipeline", "type": "OneToMany", "mappedBy": "project", "cascade": ["persist", "remove"], "orphanRemoval": true }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
+        },
+        {
+          "name": "TechStack",
+          "properties": {
+            "language": "string",
+            "framework": "string",
+            "version": "string",
+            "detectedAt": "datetime"
+          },
+          "relations": [
+            { "target": "Project", "type": "ManyToOne", "inversedBy": "techStacks", "nullable": false }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "DELETE"]
+        },
+        {
+          "name": "Pipeline",
+          "properties": {
+            "externalId": "string",
+            "ref": "string",
+            "status": "enum(pending,running,success,failed)",
+            "duration": "int",
+            "startedAt": "datetime",
+            "finishedAt": "datetime"
+          },
+          "relations": [
+            { "target": "Project", "type": "ManyToOne", "inversedBy": "pipelines", "nullable": false }
+          ],
+          "crud": ["CREATE", "READ", "LIST"]
+        }
+      ],
+      "custom": []
+    },
+    "Dependency": {
+      "entities": [
+        {
+          "name": "Dependency",
+          "properties": {
+            "name": "string",
+            "currentVersion": "string",
+            "latestVersion": "string",
+            "ltsVersion": "string",
+            "packageManager": "enum(composer,npm,pip)",
+            "type": "enum(runtime,dev)",
+            "isOutdated": "bool",
+            "projectId": "string"
+          },
+          "relations": [
+            { "target": "Vulnerability", "type": "OneToMany", "mappedBy": "dependency", "cascade": ["persist", "remove"], "orphanRemoval": true }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
+        },
+        {
+          "name": "Vulnerability",
+          "properties": {
+            "cveId": "string",
+            "severity": "enum(critical,high,medium,low)",
+            "title": "string",
+            "description": "text",
+            "patchedVersion": "string",
+            "status": "enum(open,acknowledged,fixed,ignored)",
+            "detectedAt": "datetime"
+          },
+          "relations": [
+            { "target": "Dependency", "type": "ManyToOne", "inversedBy": "vulnerabilities", "nullable": false }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE"]
+        }
+      ],
+      "custom": []
+    },
+    "Assessment": {
+      "entities": [
+        {
+          "name": "Quiz",
+          "properties": {
+            "title": "string",
+            "slug": "string",
+            "description": "text",
+            "type": "enum(quiz,survey)",
+            "status": "enum(draft,published,archived)",
+            "startsAt": "datetime",
+            "endsAt": "datetime",
+            "timeLimit": "int",
+            "authorId": "string"
+          },
+          "relations": [
+            { "target": "Question", "type": "OneToMany", "mappedBy": "quiz", "cascade": ["persist", "remove"], "orphanRemoval": true }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
+        },
+        {
+          "name": "Question",
+          "properties": {
+            "type": "enum(single_choice,multiple_choice,text,code)",
+            "content": "text",
+            "level": "enum(easy,medium,hard)",
+            "score": "int",
+            "position": "int"
+          },
+          "relations": [
+            { "target": "Quiz", "type": "ManyToOne", "inversedBy": "questions", "nullable": false },
+            { "target": "Answer", "type": "OneToMany", "mappedBy": "question", "cascade": ["persist", "remove"], "orphanRemoval": true }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
+        },
+        {
+          "name": "Answer",
+          "properties": {
+            "content": "text",
+            "isCorrect": "bool",
+            "position": "int"
+          },
+          "relations": [
+            { "target": "Question", "type": "ManyToOne", "inversedBy": "answers", "nullable": false }
+          ],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
+        },
+        {
+          "name": "Attempt",
+          "properties": {
+            "score": "int",
+            "status": "enum(started,submitted,graded)",
+            "startedAt": "datetime",
+            "finishedAt": "datetime",
+            "userId": "string",
+            "quizId": "string"
+          },
+          "relations": [],
+          "crud": ["CREATE", "READ", "LIST"]
+        }
+      ],
+      "custom": []
+    },
+    "Activity": {
+      "entities": [
+        {
+          "name": "ActivityEvent",
+          "properties": {
+            "type": "string",
+            "entityType": "string",
+            "entityId": "string",
+            "payload": "json",
+            "occurredAt": "datetime",
+            "userId": "string"
+          },
+          "relations": [],
+          "crud": ["CREATE", "READ", "LIST"]
+        },
+        {
+          "name": "Notification",
+          "properties": {
+            "title": "string",
+            "message": "text",
+            "channel": "enum(in_app,email)",
+            "readAt": "datetime",
+            "userId": "string"
+          },
+          "relations": [],
+          "crud": ["CREATE", "READ", "LIST", "UPDATE"]
+        }
+      ],
+      "custom": []
+    }
+  },
+  "config": {},
+  "metrics": null
+}

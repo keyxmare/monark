@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DC: docker compose -f docker/compose.yaml -f docker/compose.override.yaml
+
+jobs:
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: ${{ env.DC }} build backend
+      - run: ${{ env.DC }} up -d backend
+      - run: ${{ env.DC }} exec -T backend composer install --no-interaction
+      - run: ${{ env.DC }} exec -T backend php vendor/bin/php-cs-fixer fix --dry-run --diff
+      - run: ${{ env.DC }} exec -T backend php vendor/bin/phpstan analyse
+
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: ${{ env.DC }} build frontend
+      - run: ${{ env.DC }} up -d frontend
+      - run: ${{ env.DC }} exec -T frontend pnpm install
+      - run: ${{ env.DC }} exec -T frontend pnpm lint
+      - run: ${{ env.DC }} exec -T frontend pnpm format:check
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: ${{ env.DC }} build
+      - run: ${{ env.DC }} up -d
+      - run: ${{ env.DC }} exec -T backend composer install --no-interaction
+      - run: ${{ env.DC }} exec -T backend php bin/console doctrine:migrations:migrate --no-interaction
+      - run: ${{ env.DC }} exec -T backend php vendor/bin/pest --coverage --min=80
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: ${{ env.DC }} build frontend
+      - run: ${{ env.DC }} up -d frontend
+      - run: ${{ env.DC }} exec -T frontend pnpm install
+      - run: ${{ env.DC }} exec -T frontend pnpm test:coverage
+
+  architecture:
+    name: Architecture
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: ${{ env.DC }} build backend
+      - run: ${{ env.DC }} up -d backend
+      - run: ${{ env.DC }} exec -T backend composer install --no-interaction
+      - run: ${{ env.DC }} exec -T backend php vendor/bin/deptrac analyse
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: ${{ env.DC }} build
+      - run: ${{ env.DC }} up -d
+      - run: ${{ env.DC }} exec -T backend composer install --no-interaction
+      - run: ${{ env.DC }} exec -T backend composer audit
+      - run: ${{ env.DC }} exec -T frontend pnpm install
+      - run: ${{ env.DC }} exec -T frontend pnpm audit
+
+  build:
+    name: Build Production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: docker compose -f docker/compose.yaml -f docker/compose.prod.yaml build

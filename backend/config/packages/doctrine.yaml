@@ -1,0 +1,42 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        server_version: '17'
+        driver: 'pdo_pgsql'
+        use_savepoints: true
+
+    orm:
+        auto_generate_proxy_classes: false
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            Identity:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Identity/Domain/Model'
+                prefix: 'App\Identity\Domain\Model'
+                alias: Identity
+            Catalog:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Catalog/Domain/Model'
+                prefix: 'App\Catalog\Domain\Model'
+                alias: Catalog
+            Dependency:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Dependency/Domain/Model'
+                prefix: 'App\Dependency\Domain\Model'
+                alias: Dependency
+            Assessment:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Assessment/Domain/Model'
+                prefix: 'App\Assessment\Domain\Model'
+                alias: Assessment
+            Activity:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Activity/Domain/Model'
+                prefix: 'App\Activity\Domain\Model'
+                alias: Activity

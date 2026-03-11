@@ -1,0 +1,31 @@
+{
+  "name": "Monark",
+  "dockerComposeFile": [
+    "../docker/compose.yaml",
+    "../docker/compose.override.yaml"
+  ],
+  "service": "backend",
+  "workspaceFolder": "/app",
+  "postCreateCommand": "make install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug",
+        "Vue.volar",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "cweijan.vscode-database-client2"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[php]": {
+          "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+        }
+      }
+    }
+  }
+}

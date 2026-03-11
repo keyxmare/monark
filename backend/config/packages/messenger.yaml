@@ -1,0 +1,34 @@
+framework:
+    messenger:
+        default_bus: command.bus
+
+        buses:
+            command.bus:
+                middleware:
+                    - doctrine_transaction
+            query.bus: ~
+            event.bus:
+                default_middleware:
+                    allow_no_handlers: true
+
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: monark
+                        type: topic
+                    queues:
+                        monark_default:
+                            binding_keys: ['default']
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+
+            failed:
+                dsn: 'doctrine://default?queue_name=failed'
+
+        failure_transport: failed
+
+        routing: {}

@@ -1,0 +1,23 @@
+
+# <type>(<scope>): <subject>
+#
+# Types:
+#   feat     — new feature
+#   fix      — bug fix
+#   docs     — documentation
+#   style    — formatting (no code change)
+#   refactor — code restructuring
+#   perf     — performance improvement
+#   test     — adding/updating tests
+#   build    — build system or dependencies
+#   ci       — CI configuration
+#   chore    — maintenance tasks
+#   revert   — revert a commit
+#
+# Scope examples: identity, catalog, dependency, assessment, activity, docker, ci
+#
+# Rules:
+#   - Subject in imperative mood ("add" not "added")
+#   - No period at end of subject
+#   - Max 72 chars for subject line
+#   - Body: explain what and why (not how)

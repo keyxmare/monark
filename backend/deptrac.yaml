@@ -1,0 +1,132 @@
+deptrac:
+  paths:
+    - ./src
+
+  layers:
+    - name: Identity_Domain
+      collectors:
+        - type: directory
+          value: src/Identity/Domain/.*
+
+    - name: Identity_Application
+      collectors:
+        - type: directory
+          value: src/Identity/Application/.*
+
+    - name: Identity_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Identity/Infrastructure/.*
+
+    - name: Catalog_Domain
+      collectors:
+        - type: directory
+          value: src/Catalog/Domain/.*
+
+    - name: Catalog_Application
+      collectors:
+        - type: directory
+          value: src/Catalog/Application/.*
+
+    - name: Catalog_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Catalog/Infrastructure/.*
+
+    - name: Dependency_Domain
+      collectors:
+        - type: directory
+          value: src/Dependency/Domain/.*
+
+    - name: Dependency_Application
+      collectors:
+        - type: directory
+          value: src/Dependency/Application/.*
+
+    - name: Dependency_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Dependency/Infrastructure/.*
+
+    - name: Assessment_Domain
+      collectors:
+        - type: directory
+          value: src/Assessment/Domain/.*
+
+    - name: Assessment_Application
+      collectors:
+        - type: directory
+          value: src/Assessment/Application/.*
+
+    - name: Assessment_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Assessment/Infrastructure/.*
+
+    - name: Activity_Domain
+      collectors:
+        - type: directory
+          value: src/Activity/Domain/.*
+
+    - name: Activity_Application
+      collectors:
+        - type: directory
+          value: src/Activity/Application/.*
+
+    - name: Activity_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Activity/Infrastructure/.*
+
+    - name: Shared
+      collectors:
+        - type: directory
+          value: src/Shared/.*
+
+  ruleset:
+    Identity_Domain: ~
+    Identity_Application:
+      - Identity_Domain
+      - Shared
+    Identity_Infrastructure:
+      - Identity_Domain
+      - Identity_Application
+      - Shared
+
+    Catalog_Domain: ~
+    Catalog_Application:
+      - Catalog_Domain
+      - Shared
+    Catalog_Infrastructure:
+      - Catalog_Domain
+      - Catalog_Application
+      - Shared
+
+    Dependency_Domain: ~
+    Dependency_Application:
+      - Dependency_Domain
+      - Shared
+    Dependency_Infrastructure:
+      - Dependency_Domain
+      - Dependency_Application
+      - Shared
+
+    Assessment_Domain: ~
+    Assessment_Application:
+      - Assessment_Domain
+      - Shared
+    Assessment_Infrastructure:
+      - Assessment_Domain
+      - Assessment_Application
+      - Shared
+
+    Activity_Domain: ~
+    Activity_Application:
+      - Activity_Domain
+      - Shared
+    Activity_Infrastructure:
+      - Activity_Domain
+      - Activity_Application
+      - Shared
+
+    Shared: ~
