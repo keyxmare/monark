@@ -31,4 +31,5 @@ framework:
 
         failure_transport: failed
 
-        routing: {}
+        routing:
+            App\Catalog\Application\Command\ScanProjectCommand: async

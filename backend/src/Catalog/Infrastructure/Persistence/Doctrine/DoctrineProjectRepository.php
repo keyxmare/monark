@@ -59,6 +59,28 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
             ->getResult();
     }
 
+    /** @return list<Project> */
+    public function findByProviderId(Uuid $providerId): array
+    {
+        return $this->entityManager->getRepository(Project::class)
+            ->createQueryBuilder('p')
+            ->where('p.provider = :providerId')
+            ->setParameter('providerId', $providerId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return list<Project> */
+    public function findAllWithProvider(): array
+    {
+        return $this->entityManager->getRepository(Project::class)
+            ->createQueryBuilder('p')
+            ->where('p.provider IS NOT NULL')
+            ->andWhere('p.externalId IS NOT NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function count(): int
     {
         return (int) $this->entityManager->getRepository(Project::class)

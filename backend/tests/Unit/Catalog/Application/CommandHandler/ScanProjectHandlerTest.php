@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\CommandHandler\ScanProjectHandler;
 use App\Catalog\Application\DTO\ScanResultOutput;
+use App\Catalog\Domain\Event\ProjectScannedEvent;
 use App\Catalog\Domain\Model\DetectedDependency;
 use App\Catalog\Domain\Model\DetectedStack;
 use App\Catalog\Domain\Model\Project;
@@ -23,8 +24,23 @@ use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\DependencyType;
 use App\Dependency\Domain\Model\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\Factory\Catalog\ProviderFactory;
+
+function spyScanEventBus(): object
+{
+    return new class implements MessageBusInterface {
+        /** @var list<object> */
+        public array $dispatched = [];
+        public function dispatch(object $message, array $stamps = []): Envelope
+        {
+            $this->dispatched[] = $message;
+            return Envelope::wrap($message, $stamps);
+        }
+    };
+}
 
 function stubScanProjectRepo(?Project $project = null): ProjectRepositoryInterface
 {
@@ -35,6 +51,8 @@ function stubScanProjectRepo(?Project $project = null): ProjectRepositoryInterfa
         public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
         public function findExternalIdsByProvider(Uuid $providerId): array { return []; }
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
+        public function findByProviderId(Uuid $providerId): array { return []; }
+        public function findAllWithProvider(): array { return []; }
         public function count(): int { return 0; }
         public function save(Project $project): void {}
         public function delete(Project $project): void {}
@@ -120,7 +138,8 @@ describe('ScanProjectHandler', function () {
         );
 
         $scanner = stubProjectScanner($scanResult);
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner);
+        $eventBus = spyScanEventBus();
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
@@ -138,6 +157,11 @@ describe('ScanProjectHandler', function () {
         expect($techStackRepo->deletedByProject)->toBeTrue();
         expect($depRepo->saved)->toHaveCount(2);
         expect($depRepo->deletedByProject)->toBeTrue();
+        expect($eventBus->dispatched)->toHaveCount(1);
+        expect($eventBus->dispatched[0])->toBeInstanceOf(ProjectScannedEvent::class);
+        expect($eventBus->dispatched[0]->projectId)->toBe($project->getId()->toRfc4122());
+        expect($eventBus->dispatched[0]->scanResult->stacks)->toHaveCount(2);
+        expect($eventBus->dispatched[0]->scanResult->dependencies)->toHaveCount(2);
     });
 
     it('throws not found for unknown project', function () {
@@ -146,7 +170,8 @@ describe('ScanProjectHandler', function () {
         $depRepo = stubScanDependencyRepo();
         $scanner = stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner);
+        $eventBus = spyScanEventBus();
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
@@ -167,7 +192,8 @@ describe('ScanProjectHandler', function () {
         $depRepo = stubScanDependencyRepo();
         $scanner = stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner);
+        $eventBus = spyScanEventBus();
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
     })->throws(\DomainException::class);

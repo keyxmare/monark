@@ -6,6 +6,7 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\DTO\ScanResultOutput;
+use App\Catalog\Domain\Event\ProjectScannedEvent;
 use App\Catalog\Domain\Model\TechStack;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
@@ -14,6 +15,7 @@ use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 
 #[AsMessageHandler(bus: 'command.bus')]
@@ -24,6 +26,7 @@ final readonly class ScanProjectHandler
         private TechStackRepositoryInterface $techStackRepository,
         private DependencyRepositoryInterface $dependencyRepository,
         private ProjectScanner $projectScanner,
+        private MessageBusInterface $eventBus,
     ) {
     }
 
@@ -84,6 +87,11 @@ final readonly class ScanProjectHandler
                 'type' => $detected->type->value,
             ];
         }
+
+        $this->eventBus->dispatch(new ProjectScannedEvent(
+            projectId: $command->projectId,
+            scanResult: $scanResult,
+        ));
 
         return new ScanResultOutput(
             stacksDetected: \count($stackOutputs),

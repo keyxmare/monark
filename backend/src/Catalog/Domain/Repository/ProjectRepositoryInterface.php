@@ -21,6 +21,12 @@ interface ProjectRepositoryInterface
     /** @return list<Project> */
     public function findAll(int $page = 1, int $perPage = 20): array;
 
+    /** @return list<Project> */
+    public function findByProviderId(Uuid $providerId): array;
+
+    /** @return list<Project> */
+    public function findAllWithProvider(): array;
+
     public function count(): int;
 
     public function save(Project $project): void;

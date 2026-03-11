@@ -132,6 +132,14 @@ services:
         arguments:
             $eventBus: '@event.bus'
 
+    App\Catalog\Application\CommandHandler\ScanProjectHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\CommandHandler\SyncAllProjectsHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
     App\Identity\Infrastructure\Security\ApiTokenHandler:
         arguments:
             $appSecret: '%kernel.secret%'

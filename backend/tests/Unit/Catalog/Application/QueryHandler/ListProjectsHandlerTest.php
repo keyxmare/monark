@@ -19,6 +19,8 @@ function stubListProjectsRepo(array $projects = [], int $count = 0): ProjectRepo
         public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
         public function findExternalIdsByProvider(Uuid $providerId): array { return []; }
         public function findAll(int $page = 1, int $perPage = 20): array { return $this->projects; }
+        public function findByProviderId(Uuid $providerId): array { return []; }
+        public function findAllWithProvider(): array { return []; }
         public function count(): int { return $this->count; }
         public function save(Project $project): void {}
         public function delete(Project $project): void {}
