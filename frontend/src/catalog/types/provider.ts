@@ -8,6 +8,7 @@ export interface Provider {
   url: string
   username: string | null
   status: ProviderStatus
+  projectsCount: number
   lastSyncAt: string | null
   createdAt: string
   updatedAt: string

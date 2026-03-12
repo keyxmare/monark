@@ -224,6 +224,7 @@
       "url": "URL",
       "apiToken": "API Token",
       "status": "Status",
+      "projects": "Projects",
       "lastSync": "Last Sync",
       "testConnection": "Test Connection",
       "testing": "Testing…",

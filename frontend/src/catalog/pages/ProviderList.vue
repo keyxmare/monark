@@ -146,6 +146,9 @@ function requestDelete(provider: { id: string; name: string }) {
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
                 {{ t('catalog.providers.status') }}
               </th>
+              <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
+                {{ t('catalog.providers.projects') }}
+              </th>
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
                 {{ t('catalog.providers.lastSync') }}
               </th>
@@ -203,6 +206,12 @@ function requestDelete(provider: { id: string; name: string }) {
                 >
                   {{ t(`catalog.providers.statuses.${provider.status}`) }}
                 </span>
+              </td>
+              <td
+                class="px-4 py-3 text-right text-sm tabular-nums text-text"
+                data-testid="provider-projects-count"
+              >
+                {{ provider.projectsCount }}
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
                 {{ provider.lastSyncAt ? d(new Date(provider.lastSyncAt), 'short') : '—' }}

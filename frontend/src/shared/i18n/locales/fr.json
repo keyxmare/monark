@@ -224,6 +224,7 @@
       "url": "URL",
       "apiToken": "Jeton API",
       "status": "Statut",
+      "projects": "Projets",
       "lastSync": "Dernière synchro",
       "testConnection": "Tester la connexion",
       "testing": "Test en cours…",
