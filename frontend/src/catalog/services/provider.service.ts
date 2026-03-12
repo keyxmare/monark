@@ -52,15 +52,16 @@ export const providerService = {
     return api.post<ApiResponse<{ connected: boolean }>>(`${BASE_URL}/${id}/test`, {})
   },
 
-  listRemoteProjects(id: string, page = 1, perPage = 20): Promise<ApiResponse<PaginatedRemoteProjects | RemoteProject[]>> {
-    return api.get<ApiResponse<PaginatedRemoteProjects | RemoteProject[]>>(`${BASE_URL}/${id}/remote-projects?page=${page}&per_page=${perPage}`)
+  listRemoteProjects(id: string, page = 1, perPage = 20): Promise<ApiResponse<PaginatedRemoteProjects>> {
+    return api.get<ApiResponse<PaginatedRemoteProjects>>(`${BASE_URL}/${id}/remote-projects?page=${page}&per_page=${perPage}`)
   },
 
   importProjects(id: string, data: ImportProjectsInput): Promise<ApiResponse<Project[]>> {
     return api.post<ApiResponse<Project[]>>(`${BASE_URL}/${id}/import`, data)
   },
 
-  syncAll(id: string): Promise<ApiResponse<{ projectsCount: number, startedAt: string }>> {
-    return api.post<ApiResponse<{ projectsCount: number, startedAt: string }>>(`${BASE_URL}/${id}/sync-all`, {})
+  syncAll(id: string, force = false): Promise<ApiResponse<{ projectsCount: number, startedAt: string }>> {
+    const params = force ? '?force=1' : ''
+    return api.post<ApiResponse<{ projectsCount: number, startedAt: string }>>(`${BASE_URL}/${id}/sync-all${params}`, {})
   },
 }

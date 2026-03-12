@@ -69,9 +69,16 @@ async function handleSyncAll() {
   try {
     const count = await providerStore.syncAll(providerId.value)
     syncMessage.value = t('catalog.providers.syncStarted', { count })
+  } catch {
+    syncMessage.value = t('common.errors.failedToSync')
   } finally {
     syncing.value = false
   }
+}
+
+async function handlePageChange(page: number) {
+  selectedIds.value = []
+  await providerStore.fetchRemoteProjects(providerId.value, page)
 }
 </script>
 
@@ -211,7 +218,7 @@ async function handleSyncAll() {
             </div>
           </dl>
 
-          <div class="mt-6 flex items-center gap-3">
+          <div class="mt-6">
             <button
               :disabled="testingConnection"
               class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
@@ -220,21 +227,6 @@ async function handleSyncAll() {
             >
               {{ testingConnection ? t('catalog.providers.testing') : t('catalog.providers.testConnection') }}
             </button>
-            <button
-              :disabled="syncing"
-              class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
-              data-testid="provider-sync-all"
-              @click="handleSyncAll"
-            >
-              {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
-            </button>
-          </div>
-          <div
-            v-if="syncMessage"
-            class="mt-3 rounded-lg bg-green-100 px-4 py-2 text-sm text-green-800"
-            data-testid="provider-sync-message"
-          >
-            {{ syncMessage }}
           </div>
         </div>
 
@@ -243,15 +235,34 @@ async function handleSyncAll() {
             <h3 class="text-xl font-bold text-text">
               {{ t('catalog.providers.remoteProjects') }}
             </h3>
-            <button
-              v-if="selectedIds.length > 0"
-              :disabled="importing"
-              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
-              data-testid="provider-import-selected"
-              @click="handleImport"
-            >
-              {{ importing ? t('catalog.providers.importing') : t('catalog.providers.importSelected', { count: selectedIds.length }) }}
-            </button>
+            <div class="flex items-center gap-3">
+              <button
+                :disabled="syncing"
+                class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
+                data-testid="provider-sync-all"
+                @click="handleSyncAll"
+              >
+                {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
+              </button>
+              <button
+                v-if="selectedIds.length > 0"
+                :disabled="importing"
+                class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+                data-testid="provider-import-selected"
+                @click="handleImport"
+              >
+                {{ importing ? t('catalog.providers.importing') : t('catalog.providers.importSelected', { count: selectedIds.length }) }}
+              </button>
+            </div>
+          </div>
+
+          <div
+            v-if="syncMessage"
+            class="mb-4 rounded-lg px-4 py-3 text-sm"
+            :class="syncMessage === t('common.errors.failedToSync') ? 'bg-danger/10 text-danger' : 'bg-green-100 text-green-800'"
+            data-testid="provider-sync-message"
+          >
+            {{ syncMessage }}
           </div>
 
           <div
@@ -310,6 +321,35 @@ async function handleSyncAll() {
             >
               {{ t('catalog.providers.noRemoteProjects') }}
             </div>
+          </div>
+
+          <div
+            v-if="providerStore.remoteProjectsTotalPages > 1"
+            class="mt-4 flex items-center justify-between"
+            data-testid="remote-projects-pagination"
+          >
+            <button
+              :disabled="providerStore.remoteProjectsCurrentPage <= 1 || providerStore.loading"
+              class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+              data-testid="remote-projects-prev"
+              @click="handlePageChange(providerStore.remoteProjectsCurrentPage - 1)"
+            >
+              {{ t('common.pagination.previous') }}
+            </button>
+            <span
+              class="text-sm text-text-muted"
+              data-testid="remote-projects-page-indicator"
+            >
+              {{ t('common.pagination.page', { current: providerStore.remoteProjectsCurrentPage, total: providerStore.remoteProjectsTotalPages }) }}
+            </span>
+            <button
+              :disabled="providerStore.remoteProjectsCurrentPage >= providerStore.remoteProjectsTotalPages || providerStore.loading"
+              class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+              data-testid="remote-projects-next"
+              @click="handlePageChange(providerStore.remoteProjectsCurrentPage + 1)"
+            >
+              {{ t('common.pagination.next') }}
+            </button>
           </div>
         </div>
       </template>

@@ -28,6 +28,6 @@ final readonly class ListRemoteProjectsController
         $envelope = $this->queryBus->dispatch(new ListRemoteProjectsQuery($id, $page, $perPage));
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
-        return new JsonResponse(ApiResponse::success($result)->toArray());
+        return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());
     }
 }

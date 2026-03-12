@@ -133,17 +133,10 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     try {
       const response = await providerService.listRemoteProjects(id, page, perPage)
       const data = response.data
-      if (Array.isArray(data)) {
-        remoteProjects.value = data
-        remoteProjectsTotal.value = data.length
-        remoteProjectsTotalPages.value = 1
-        remoteProjectsCurrentPage.value = 1
-      } else {
-        remoteProjects.value = data.items
-        remoteProjectsTotalPages.value = data.total_pages
-        remoteProjectsCurrentPage.value = data.page
-        remoteProjectsTotal.value = data.total
-      }
+      remoteProjects.value = data.items
+      remoteProjectsTotalPages.value = data.total_pages
+      remoteProjectsCurrentPage.value = data.page
+      remoteProjectsTotal.value = data.total
     } catch {
       error.value = t('common.errors.failedToLoad', { entity: t('common.entities.remoteProjects') })
     } finally {
@@ -171,16 +164,9 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     }
   }
 
-  async function syncAll(id: string): Promise<number> {
-    error.value = null
-
-    try {
-      const response = await providerService.syncAll(id)
-      return response.data.projectsCount
-    } catch {
-      error.value = t('common.errors.failedToSync')
-      throw new Error(error.value)
-    }
+  async function syncAll(id: string, force = false): Promise<number> {
+    const response = await providerService.syncAll(id, force)
+    return response.data.projectsCount
   }
 
   return {
