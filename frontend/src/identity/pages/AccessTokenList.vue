@@ -3,10 +3,10 @@ import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useAccessTokenStore } from '@/identity/stores/access-token'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const tokenStore = useAccessTokenStore()
 
 onMounted(() => {

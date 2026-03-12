@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, computed, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { MessengerStats } from '@/activity/types/messenger'
+
 import { useMessengerStore } from '@/activity/stores/messenger'
 import { useMercure } from '@/shared/composables/useMercure'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
@@ -10,7 +11,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 const { t } = useI18n()
 const messengerStore = useMessengerStore()
 
-const { data: liveStats, connected } = useMercure<MessengerStats>('/messenger/stats')
+const { connected, data: liveStats } = useMercure<MessengerStats>('/messenger/stats')
 
 watch(liveStats, (stats) => {
   if (stats) {

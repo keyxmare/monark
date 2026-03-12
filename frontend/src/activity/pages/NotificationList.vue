@@ -3,8 +3,8 @@ import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useNotificationStore } from '@/activity/stores/notification'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const { t } = useI18n()
 const notificationStore = useNotificationStore()

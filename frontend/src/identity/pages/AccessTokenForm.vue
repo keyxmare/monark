@@ -3,9 +3,10 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import type { TokenProvider } from '@/identity/types/access-token'
+
 import { useAccessTokenStore } from '@/identity/stores/access-token'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -24,10 +25,10 @@ async function handleSubmit() {
 
   try {
     await tokenStore.create({
-      provider: provider.value,
-      token: token.value,
-      scopes: scopes.value ? scopes.value.split(',').map(s => s.trim()) : [],
       expiresAt: expiresAt.value || undefined,
+      provider: provider.value,
+      scopes: scopes.value ? scopes.value.split(',').map(s => s.trim()) : [],
+      token: token.value,
     })
     router.push({ name: 'identity-access-tokens-list' })
   } catch {

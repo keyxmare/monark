@@ -3,9 +3,10 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
-import { useQuizStore } from '@/assessment/stores/quiz'
 import type { QuizStatus, QuizType } from '@/assessment/types/quiz'
+
+import { useQuizStore } from '@/assessment/stores/quiz'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,26 +50,26 @@ async function handleSubmit() {
   try {
     if (isEditMode.value && quizId.value) {
       await quizStore.update(quizId.value, {
-        title: title.value,
-        slug: slug.value,
         description: description.value,
-        type: type.value,
-        status: status.value,
-        startsAt: startsAt.value || undefined,
         endsAt: endsAt.value || undefined,
+        slug: slug.value,
+        startsAt: startsAt.value || undefined,
+        status: status.value,
         timeLimit: timeLimit.value,
+        title: title.value,
+        type: type.value,
       })
       router.push({ name: 'assessment-quizzes-detail', params: { id: quizId.value } })
     } else {
       const quiz = await quizStore.create({
-        title: title.value,
-        slug: slug.value,
         description: description.value,
-        type: type.value,
-        status: status.value,
-        startsAt: startsAt.value || undefined,
         endsAt: endsAt.value || undefined,
+        slug: slug.value,
+        startsAt: startsAt.value || undefined,
+        status: status.value,
         timeLimit: timeLimit.value,
+        title: title.value,
+        type: type.value,
       })
       router.push({ name: 'assessment-quizzes-detail', params: { id: quiz.id } })
     }

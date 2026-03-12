@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useSyncTaskStore } from '@/activity/stores/sync-task'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const syncTaskStore = useSyncTaskStore()
 
 const filterStatus = ref('')
@@ -21,9 +21,9 @@ onMounted(async () => {
 
 async function applyFilters() {
   await syncTaskStore.fetchAll({
+    severity: filterSeverity.value || undefined,
     status: filterStatus.value || undefined,
     type: filterType.value || undefined,
-    severity: filterSeverity.value || undefined,
   })
 }
 
@@ -36,19 +36,19 @@ function severityClass(severity: string): string {
   const classes: Record<string, string> = {
     critical: 'bg-red-100 text-red-800',
     high: 'bg-orange-100 text-orange-800',
-    medium: 'bg-yellow-100 text-yellow-800',
-    low: 'bg-blue-100 text-blue-800',
     info: 'bg-gray-100 text-gray-800',
+    low: 'bg-blue-100 text-blue-800',
+    medium: 'bg-yellow-100 text-yellow-800',
   }
   return classes[severity] ?? 'bg-gray-100 text-gray-800'
 }
 
 function statusClass(status: string): string {
   const classes: Record<string, string> = {
-    open: 'bg-red-100 text-red-800',
     acknowledged: 'bg-yellow-100 text-yellow-800',
-    resolved: 'bg-green-100 text-green-800',
     dismissed: 'bg-gray-100 text-gray-800',
+    open: 'bg-red-100 text-red-800',
+    resolved: 'bg-green-100 text-green-800',
   }
   return classes[status] ?? 'bg-gray-100 text-gray-800'
 }
@@ -89,6 +89,7 @@ function statusClass(status: string): string {
       >
         <select
           v-model="filterStatus"
+          :aria-label="t('activity.syncTasks.allStatuses')"
           class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text"
           data-testid="filter-status"
           @change="applyFilters"
@@ -111,6 +112,7 @@ function statusClass(status: string): string {
         </select>
         <select
           v-model="filterType"
+          :aria-label="t('activity.syncTasks.allTypes')"
           class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text"
           data-testid="filter-type"
           @change="applyFilters"
@@ -133,6 +135,7 @@ function statusClass(status: string): string {
         </select>
         <select
           v-model="filterSeverity"
+          :aria-label="t('activity.syncTasks.allSeverities')"
           class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text"
           data-testid="filter-severity"
           @change="applyFilters"

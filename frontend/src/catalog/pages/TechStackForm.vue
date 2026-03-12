@@ -3,9 +3,9 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
-import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { useProjectStore } from '@/catalog/stores/project'
+import { useTechStackStore } from '@/catalog/stores/tech-stack'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -30,12 +30,12 @@ async function handleSubmit() {
 
   try {
     await techStackStore.create({
-      language: language.value,
-      framework: framework.value,
-      version: version.value,
-      frameworkVersion: '',
       detectedAt: new Date(detectedAt.value).toISOString(),
+      framework: framework.value,
+      frameworkVersion: '',
+      language: language.value,
       projectId: projectId.value,
+      version: version.value,
     })
     router.push({ name: 'catalog-tech-stacks-list' })
   } catch {

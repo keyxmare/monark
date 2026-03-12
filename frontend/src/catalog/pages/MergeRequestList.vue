@@ -3,11 +3,11 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useMergeRequestStore } from '@/catalog/stores/merge-request'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const store = useMergeRequestStore()
 
 const projectId = computed(() => route.params.projectId as string)
@@ -17,12 +17,12 @@ const statusFilter = ref<string>(savedFilter)
 const authorFilter = ref('')
 
 const statusOptions = [
-  { value: 'active', label: t('catalog.mergeRequests.statusActive') },
-  { value: 'open', label: t('catalog.mergeRequests.statusOpen') },
-  { value: 'draft', label: t('catalog.mergeRequests.statusDraft') },
-  { value: 'merged', label: t('catalog.mergeRequests.statusMerged') },
-  { value: 'closed', label: t('catalog.mergeRequests.statusClosed') },
-  { value: '', label: t('catalog.mergeRequests.allStatuses') },
+  { label: t('catalog.mergeRequests.statusActive'), value: 'active' },
+  { label: t('catalog.mergeRequests.statusOpen'), value: 'open' },
+  { label: t('catalog.mergeRequests.statusDraft'), value: 'draft' },
+  { label: t('catalog.mergeRequests.statusMerged'), value: 'merged' },
+  { label: t('catalog.mergeRequests.statusClosed'), value: 'closed' },
+  { label: t('catalog.mergeRequests.allStatuses'), value: '' },
 ]
 
 onMounted(() => {
@@ -35,10 +35,10 @@ watch([statusFilter, authorFilter], () => {
 })
 
 const statusBadgeClass: Record<string, string> = {
-  open: 'bg-success/10 text-success',
-  merged: 'bg-info/10 text-info',
   closed: 'bg-danger/10 text-danger',
   draft: 'bg-warning/10 text-warning',
+  merged: 'bg-info/10 text-info',
+  open: 'bg-success/10 text-success',
 }
 </script>
 

@@ -3,11 +3,11 @@ import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const techStackStore = useTechStackStore()
 
 const projectId = route.query.project_id as string | undefined

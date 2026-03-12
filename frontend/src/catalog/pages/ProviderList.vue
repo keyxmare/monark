@@ -14,7 +14,7 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
 
 const router = useRouter()
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const providerStore = useProviderStore()
 const toastStore = useToastStore()
 const { track } = useSyncProgress()

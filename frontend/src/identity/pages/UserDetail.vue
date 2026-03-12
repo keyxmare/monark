@@ -3,11 +3,11 @@ import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useUserStore } from '@/identity/stores/user'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const userStore = useUserStore()
 
 onMounted(() => {

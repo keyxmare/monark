@@ -18,10 +18,11 @@ const progressPercent = computed(() => {
 
 const variantClasses = computed(() => {
   switch (props.toast.variant) {
-    case 'success': return 'border-green-500 bg-green-50 text-green-900'
     case 'error': return 'border-red-500 bg-red-50 text-red-900'
     case 'info': return 'border-blue-500 bg-blue-50 text-blue-900'
     case 'progress': return 'border-primary bg-blue-50 text-blue-900'
+    case 'success': return 'border-green-500 bg-green-50 text-green-900'
+    default: return ''
   }
 })
 

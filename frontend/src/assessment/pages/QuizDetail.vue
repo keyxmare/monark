@@ -3,12 +3,12 @@ import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
-import { useQuizStore } from '@/assessment/stores/quiz'
 import { useQuestionStore } from '@/assessment/stores/question'
+import { useQuizStore } from '@/assessment/stores/quiz'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const quizStore = useQuizStore()
 const questionStore = useQuestionStore()
 

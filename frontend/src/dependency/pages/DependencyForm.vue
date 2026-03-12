@@ -3,8 +3,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useDependencyStore } from '@/dependency/stores/dependency'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -50,27 +50,27 @@ async function handleSubmit() {
   try {
     if (isEditMode.value && dependencyId.value) {
       await dependencyStore.update(dependencyId.value, {
-        name: name.value,
         currentVersion: currentVersion.value,
+        isOutdated: isOutdated.value,
         latestVersion: latestVersion.value,
         ltsVersion: ltsVersion.value,
+        name: name.value,
         packageManager: packageManager.value as 'composer' | 'npm' | 'pip',
-        type: type.value as 'runtime' | 'dev',
-        isOutdated: isOutdated.value,
         repositoryUrl: repositoryUrl.value || null,
+        type: type.value as 'dev' | 'runtime',
       })
       router.push({ name: 'dependency-dependencies-detail', params: { id: dependencyId.value } })
     } else {
       const dep = await dependencyStore.create({
-        name: name.value,
         currentVersion: currentVersion.value,
+        isOutdated: isOutdated.value,
         latestVersion: latestVersion.value,
         ltsVersion: ltsVersion.value,
+        name: name.value,
         packageManager: packageManager.value as 'composer' | 'npm' | 'pip',
-        type: type.value as 'runtime' | 'dev',
-        isOutdated: isOutdated.value,
         projectId: projectId.value,
         repositoryUrl: repositoryUrl.value || null,
+        type: type.value as 'dev' | 'runtime',
       })
       router.push({ name: 'dependency-dependencies-detail', params: { id: dep.id } })
     }

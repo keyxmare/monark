@@ -3,8 +3,8 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import LanguageSwitcher from '@/shared/components/LanguageSwitcher.vue'
 import { useAuthStore } from '@/identity/stores/auth'
+import LanguageSwitcher from '@/shared/components/LanguageSwitcher.vue'
 import { useSidebar } from '@/shared/composables/useSidebar'
 
 const { toggleMobile } = useSidebar()

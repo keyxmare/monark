@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
-import AuthLayout from '@/shared/layouts/AuthLayout.vue'
 import { useAuthStore } from '@/identity/stores/auth'
+import AuthLayout from '@/shared/layouts/AuthLayout.vue'
 
 const router = useRouter()
 const { t } = useI18n()

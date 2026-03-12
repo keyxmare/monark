@@ -3,9 +3,10 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
-import { useProjectStore } from '@/catalog/stores/project'
 import type { ProjectVisibility } from '@/catalog/types/project'
+
+import { useProjectStore } from '@/catalog/stores/project'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,23 +48,23 @@ async function handleSubmit() {
   try {
     if (isEditMode.value && projectId.value) {
       await projectStore.update(projectId.value, {
-        name: name.value,
-        slug: slug.value,
-        description: description.value || undefined,
-        repositoryUrl: repositoryUrl.value,
         defaultBranch: defaultBranch.value,
+        description: description.value || undefined,
+        name: name.value,
+        repositoryUrl: repositoryUrl.value,
+        slug: slug.value,
         visibility: visibility.value,
       })
       router.push({ name: 'catalog-projects-detail', params: { id: projectId.value } })
     } else {
       const project = await projectStore.create({
-        name: name.value,
-        slug: slug.value,
-        description: description.value || undefined,
-        repositoryUrl: repositoryUrl.value,
         defaultBranch: defaultBranch.value,
-        visibility: visibility.value,
+        description: description.value || undefined,
+        name: name.value,
         ownerId: ownerId.value,
+        repositoryUrl: repositoryUrl.value,
+        slug: slug.value,
+        visibility: visibility.value,
       })
       router.push({ name: 'catalog-projects-detail', params: { id: project.id } })
     }

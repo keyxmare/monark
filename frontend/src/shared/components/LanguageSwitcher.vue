@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import { useLocale } from '@/shared/composables/useLocale'
 import type { Locale } from '@/shared/composables/useLocale'
+
+import { useLocale } from '@/shared/composables/useLocale'
 
 const { t } = useI18n()
 const { availableLocales, currentLocale, setLocale } = useLocale()
 
 const labels: Record<Locale, string> = {
-  fr: 'FR',
   en: 'EN',
+  fr: 'FR',
 }
 
 function toggle() {

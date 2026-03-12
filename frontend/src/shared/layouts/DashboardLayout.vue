@@ -31,7 +31,10 @@ const mainClasses = computed(() => [
       @keydown.escape="mobileOpen = false"
     />
 
-    <div :class="mainClasses" class="flex-1">
+    <div
+      :class="mainClasses"
+      class="flex-1"
+    >
       <AppTopbar />
 
       <main

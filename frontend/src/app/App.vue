@@ -2,8 +2,8 @@
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 
-import AppToastContainer from '@/shared/components/AppToastContainer.vue'
 import { useAuthStore } from '@/identity/stores/auth'
+import AppToastContainer from '@/shared/components/AppToastContainer.vue'
 
 const authStore = useAuthStore()
 

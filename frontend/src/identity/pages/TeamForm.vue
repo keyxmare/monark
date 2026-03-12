@@ -3,8 +3,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useTeamStore } from '@/identity/stores/team'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -38,16 +38,16 @@ async function handleSubmit() {
   try {
     if (isEditMode.value && teamId.value) {
       await teamStore.update(teamId.value, {
+        description: description.value || undefined,
         name: name.value,
         slug: slug.value,
-        description: description.value || undefined,
       })
       router.push({ name: 'identity-teams-detail', params: { id: teamId.value } })
     } else {
       const team = await teamStore.create({
+        description: description.value || undefined,
         name: name.value,
         slug: slug.value,
-        description: description.value || undefined,
       })
       router.push({ name: 'identity-teams-detail', params: { id: team.id } })
     }

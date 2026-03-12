@@ -3,10 +3,11 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import type { QuestionLevel, QuestionType } from '@/assessment/types/question'
+
 import { useQuestionStore } from '@/assessment/stores/question'
 import { useQuizStore } from '@/assessment/stores/quiz'
-import type { QuestionLevel, QuestionType } from '@/assessment/types/question'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,21 +50,21 @@ async function handleSubmit() {
   try {
     if (isEditMode.value && questionId.value) {
       await questionStore.update(questionId.value, {
-        type: type.value,
         content: content.value,
         level: level.value,
-        score: score.value,
         position: position.value,
+        score: score.value,
+        type: type.value,
       })
       router.push({ name: 'assessment-questions-detail', params: { id: questionId.value } })
     } else {
       const question = await questionStore.create({
-        type: type.value,
         content: content.value,
         level: level.value,
-        score: score.value,
         position: position.value,
         quizId: quizId.value,
+        score: score.value,
+        type: type.value,
       })
       router.push({ name: 'assessment-questions-detail', params: { id: question.id } })
     }

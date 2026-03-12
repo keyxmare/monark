@@ -3,10 +3,10 @@ import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useQuizStore } from '@/assessment/stores/quiz'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const quizStore = useQuizStore()
 
 onMounted(() => {
@@ -19,8 +19,8 @@ async function handleDelete(id: string) {
 
 function statusColor(status: string): string {
   switch (status) {
-    case 'published': return 'bg-success/10 text-success'
     case 'archived': return 'bg-text-muted/10 text-text-muted'
+    case 'published': return 'bg-success/10 text-success'
     default: return 'bg-warning/10 text-warning'
   }
 }

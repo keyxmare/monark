@@ -3,8 +3,8 @@ import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useQuestionStore } from '@/assessment/stores/question'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -19,20 +19,20 @@ async function handleDelete(id: string) {
   await questionStore.remove(id)
 }
 
-function typeColor(type: string): string {
-  switch (type) {
-    case 'single_choice': return 'bg-primary/10 text-primary'
-    case 'multiple_choice': return 'bg-info/10 text-info'
-    case 'code': return 'bg-warning/10 text-warning'
-    default: return 'bg-text-muted/10 text-text-muted'
-  }
-}
-
 function levelColor(level: string): string {
   switch (level) {
     case 'easy': return 'bg-success/10 text-success'
     case 'hard': return 'bg-danger/10 text-danger'
     default: return 'bg-warning/10 text-warning'
+  }
+}
+
+function typeColor(type: string): string {
+  switch (type) {
+    case 'code': return 'bg-warning/10 text-warning'
+    case 'multiple_choice': return 'bg-info/10 text-info'
+    case 'single_choice': return 'bg-primary/10 text-primary'
+    default: return 'bg-text-muted/10 text-text-muted'
   }
 }
 </script>

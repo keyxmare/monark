@@ -3,22 +3,22 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useMergeRequestStore } from '@/catalog/stores/merge-request'
+import { usePipelineStore } from '@/catalog/stores/pipeline'
 import { useProjectStore } from '@/catalog/stores/project'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
-import { usePipelineStore } from '@/catalog/stores/pipeline'
 import { useDependencyStore } from '@/dependency/stores/dependency'
-import { useMergeRequestStore } from '@/catalog/stores/merge-request'
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
 const pipelineStore = usePipelineStore()
 const dependencyStore = useDependencyStore()
 const mergeRequestStore = useMergeRequestStore()
 
-const activeTab = ref<'tech-stacks' | 'pipelines' | 'dependencies' | 'merge-requests'>('tech-stacks')
+const activeTab = ref<'dependencies' | 'merge-requests' | 'pipelines' | 'tech-stacks'>('tech-stacks')
 const projectId = computed(() => route.params.id as string)
 
 onMounted(async () => {
