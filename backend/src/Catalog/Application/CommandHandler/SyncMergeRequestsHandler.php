@@ -39,17 +39,33 @@ final readonly class SyncMergeRequestsHandler
         }
 
         $client = $this->gitProviderFactory->create($provider);
+        $lastSyncedAt = $project->getLastSyncedAt();
+        $isIncremental = $lastSyncedAt !== null && !$command->force;
+        $updatedAfter = $isIncremental ? $lastSyncedAt : null;
 
         $created = 0;
         $updated = 0;
         $projectId = $project->getId();
         $page = 1;
         $perPage = 100;
+        $shouldContinue = true;
 
-        do {
-            $remoteMRs = $client->listMergeRequests($provider, $project->getExternalId(), null, $page, $perPage);
+        while ($shouldContinue) {
+            $remoteMRs = $client->listMergeRequests($provider, $project->getExternalId(), null, $page, $perPage, $updatedAfter);
+
+            if (\count($remoteMRs) === 0) {
+                break;
+            }
 
             foreach ($remoteMRs as $remoteMR) {
+                if ($isIncremental && $remoteMR->updatedAt !== null) {
+                    $remoteUpdated = new \DateTimeImmutable($remoteMR->updatedAt);
+                    if ($remoteUpdated < $lastSyncedAt) {
+                        $shouldContinue = false;
+                        break;
+                    }
+                }
+
                 $existing = $this->mergeRequestRepository->findByExternalIdAndProject($remoteMR->externalId, $projectId);
                 $status = MergeRequestStatus::tryFrom($remoteMR->status) ?? MergeRequestStatus::Open;
 
@@ -90,8 +106,15 @@ final readonly class SyncMergeRequestsHandler
                 }
             }
 
+            if (\count($remoteMRs) < $perPage) {
+                break;
+            }
+
             ++$page;
-        } while (\count($remoteMRs) === $perPage);
+        }
+
+        $project->markSynced();
+        $this->projectRepository->save($project);
 
         $this->eventBus->dispatch(new MergeRequestsSyncedEvent(
             projectId: $command->projectId,

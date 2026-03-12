@@ -95,7 +95,7 @@ final readonly class GitLabClient implements GitProviderInterface
     }
 
     /** @return list<RemoteMergeRequest> */
-    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
     {
         $url = \sprintf('%s/api/v4/projects/%s/merge_requests', $provider->getUrl(), \rawurlencode($externalProjectId));
 
@@ -115,6 +115,10 @@ final readonly class GitLabClient implements GitProviderInterface
             };
         } else {
             $query['state'] = 'all';
+        }
+
+        if ($updatedAfter !== null) {
+            $query['updated_after'] = $updatedAfter->format(\DateTimeInterface::ATOM);
         }
 
         $response = $this->httpClient->request('GET', $url, [

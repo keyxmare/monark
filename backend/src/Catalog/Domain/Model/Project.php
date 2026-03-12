@@ -63,6 +63,9 @@ final class Project
     #[ORM\OneToMany(targetEntity: MergeRequest::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $mergeRequests;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastSyncedAt;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -95,6 +98,7 @@ final class Project
         $this->pipelines = new ArrayCollection();
         $this->dependencies = new ArrayCollection();
         $this->mergeRequests = new ArrayCollection();
+        $this->lastSyncedAt = null;
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -234,6 +238,17 @@ final class Project
         if ($visibility !== null) {
             $this->visibility = $visibility;
         }
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function getLastSyncedAt(): ?\DateTimeImmutable
+    {
+        return $this->lastSyncedAt;
+    }
+
+    public function markSynced(): void
+    {
+        $this->lastSyncedAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 }

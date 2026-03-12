@@ -143,7 +143,7 @@ final readonly class GitHubClient implements GitProviderInterface
     }
 
     /** @return list<RemoteMergeRequest> */
-    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
     {
         $perPage = \min($perPage, 100);
         $url = \sprintf('%s/repos/%s/pulls', $this->baseUrl($provider), $externalProjectId);
@@ -163,6 +163,10 @@ final readonly class GitHubClient implements GitProviderInterface
             };
         } else {
             $query['state'] = 'all';
+        }
+
+        if ($updatedAfter !== null) {
+            $query['since'] = $updatedAfter->format(\DateTimeInterface::ATOM);
         }
 
         $response = $this->httpClient->request('GET', $url, [

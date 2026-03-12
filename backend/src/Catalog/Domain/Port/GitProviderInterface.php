@@ -25,5 +25,5 @@ interface GitProviderInterface
     public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array;
 
     /** @return list<RemoteMergeRequest> */
-    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array;
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array;
 }

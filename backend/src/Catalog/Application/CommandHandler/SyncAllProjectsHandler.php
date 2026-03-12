@@ -55,7 +55,7 @@ final readonly class SyncAllProjectsHandler
             );
 
             $this->commandBus->dispatch(
-                new SyncMergeRequestsCommand($projectId),
+                new SyncMergeRequestsCommand($projectId, $command->force),
                 [new DispatchAfterCurrentBusStamp()],
             );
         }

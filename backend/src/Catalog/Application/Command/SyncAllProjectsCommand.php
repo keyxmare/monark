@@ -8,6 +8,7 @@ final readonly class SyncAllProjectsCommand
 {
     public function __construct(
         public ?string $providerId = null,
+        public bool $force = false,
     ) {
     }
 }
