@@ -29,11 +29,15 @@ const allSelected = computed(() =>
 const someSelected = computed(() =>
   selectedIds.value.length > 0 && selectedIds.value.length < selectableProjects.value.length,
 )
+type SortField = 'defaultBranch' | 'name' | 'visibility'
+
 const filterVisibility = ref('all')
 const importing = ref(false)
 const searchQuery = ref('')
 const selectedIds = ref<string[]>([])
 const showDeleteConfirm = ref(false)
+const sortDir = ref<'asc' | 'desc'>('asc')
+const sortField = ref<SortField>('name')
 const syncing = ref(false)
 const testingConnection = ref(false)
 const filteredProjects = computed(() => {
@@ -45,7 +49,9 @@ const filteredProjects = computed(() => {
   if (filterVisibility.value !== 'all') {
     projects = projects.filter(rp => rp.visibility === filterVisibility.value)
   }
-  return projects
+  const dir = sortDir.value === 'asc' ? 1 : -1
+  const field = sortField.value
+  return [...projects].sort((a, b) => a[field].localeCompare(b[field]) * dir)
 })
 
 onMounted(async () => {
@@ -120,6 +126,15 @@ function toggleSelectAll() {
     selectedIds.value = []
   } else {
     selectedIds.value = selectableProjects.value.map(rp => rp.externalId)
+  }
+}
+
+function toggleSort(field: SortField) {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortField.value = field
+    sortDir.value = 'asc'
   }
 }
 </script>
@@ -417,6 +432,24 @@ function toggleSelectAll() {
                   {{ t('catalog.providers.visibility.internal') }}
                 </option>
               </select>
+              <div
+                class="flex items-center gap-1"
+                data-testid="remote-projects-sort"
+              >
+                <button
+                  v-for="field in (['name', 'visibility', 'defaultBranch'] as const)"
+                  :key="field"
+                  :class="sortField === field ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-muted hover:border-primary/50'"
+                  class="rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors"
+                  :data-testid="`sort-${field}`"
+                  @click="toggleSort(field)"
+                >
+                  {{ t(`catalog.providers.sort.${field}`) }}
+                  <span v-if="sortField === field">
+                    {{ sortDir === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </button>
+              </div>
             </div>
 
             <div

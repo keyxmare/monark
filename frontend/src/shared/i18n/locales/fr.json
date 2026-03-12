@@ -238,6 +238,11 @@
       "imported": "Importé",
       "allVisibilities": "Toutes les visibilités",
       "searchProjects": "Rechercher un projet…",
+      "sort": {
+        "name": "Nom",
+        "visibility": "Visibilité",
+        "defaultBranch": "Branche"
+      },
       "noRemoteProjects": "Aucun projet distant trouvé",
       "noRemoteProjectsHint": "Vérifiez la configuration du fournisseur ou synchronisez les projets.",
       "importSelected": "Importer la sélection ({count})",
