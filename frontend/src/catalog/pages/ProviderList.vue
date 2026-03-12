@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+
+import type { Provider } from '@/catalog/types/provider'
 
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
+import DropdownMenu from '@/shared/components/DropdownMenu.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
 
+const router = useRouter()
 const { t, d } = useI18n()
 const providerStore = useProviderStore()
 const toastStore = useToastStore()
@@ -21,14 +25,38 @@ onMounted(() => {
   providerStore.fetchAll()
 })
 
-function requestDelete(provider: { id: string; name: string }) {
-  deleteTarget.value = provider
-}
-
 async function confirmDelete() {
   if (!deleteTarget.value) return
   await providerStore.remove(deleteTarget.value.id)
   deleteTarget.value = null
+}
+
+function getDropdownItems(provider: Provider) {
+  return [
+    { action: 'test', disabled: testingId.value === provider.id, label: testingId.value === provider.id ? t('catalog.providers.testing') : t('catalog.providers.test') },
+    { action: 'view', label: t('common.actions.view') },
+    { action: 'edit', label: t('common.actions.edit') },
+    { action: 'delete', label: t('common.actions.delete'), variant: 'danger' as const },
+  ]
+}
+
+function handleDropdownAction(action: string, provider: Provider) {
+  if (action === 'test') handleTestConnection(provider)
+  else if (action === 'view') router.push({ name: 'catalog-providers-detail', params: { id: provider.id } })
+  else if (action === 'edit') router.push({ name: 'catalog-providers-edit', params: { id: provider.id } })
+  else if (action === 'delete') requestDelete(provider)
+}
+
+async function handleSyncAll() {
+  syncing.value = true
+  try {
+    const result = await providerStore.syncAllGlobal()
+    track(result.id, result.projectsCount)
+  } catch {
+    // error handled by store
+  } finally {
+    syncing.value = false
+  }
 }
 
 async function handleTestConnection(provider: { id: string; name: string }) {
@@ -43,16 +71,12 @@ async function handleTestConnection(provider: { id: string; name: string }) {
   })
 }
 
-async function handleSyncAll() {
-  syncing.value = true
-  try {
-    const result = await providerStore.syncAllGlobal()
-    track(result.id, result.projectsCount)
-  } catch {
-    // error handled by store
-  } finally {
-    syncing.value = false
-  }
+function navigateToDetail(id: string) {
+  router.push({ name: 'catalog-providers-detail', params: { id } })
+}
+
+function requestDelete(provider: { id: string; name: string }) {
+  deleteTarget.value = provider
 }
 </script>
 
@@ -133,10 +157,11 @@ async function handleSyncAll() {
             <tr
               v-for="provider in providerStore.providers"
               :key="provider.id"
-              class="border-b border-border last:border-0"
+              class="cursor-pointer border-b border-border last:border-0 hover:bg-background/50"
               data-testid="provider-list-row"
+              @click="navigateToDetail(provider.id)"
             >
-              <td class="px-4 py-3 text-sm text-text">
+              <td class="px-4 py-3 text-sm font-medium text-text">
                 {{ provider.name }}
               </td>
               <td class="px-4 py-3">
@@ -171,36 +196,14 @@ async function handleSyncAll() {
               <td class="px-4 py-3 text-sm text-text-muted">
                 {{ provider.lastSyncAt ? d(new Date(provider.lastSyncAt), 'short') : '—' }}
               </td>
-              <td class="flex items-center justify-end gap-3 px-4 py-3">
-                <button
-                  :disabled="testingId === provider.id"
-                  class="text-sm text-primary hover:text-primary-dark disabled:opacity-50"
-                  data-testid="provider-test-connection"
-                  @click="handleTestConnection(provider)"
-                >
-                  {{ testingId === provider.id ? t('catalog.providers.testing') : t('catalog.providers.test') }}
-                </button>
-                <RouterLink
-                  :to="{ name: 'catalog-providers-detail', params: { id: provider.id } }"
-                  class="text-sm text-primary hover:text-primary-dark"
-                  data-testid="provider-view-link"
-                >
-                  {{ t('common.actions.view') }}
-                </RouterLink>
-                <RouterLink
-                  :to="{ name: 'catalog-providers-edit', params: { id: provider.id } }"
-                  class="text-sm text-primary hover:text-primary-dark"
-                  data-testid="provider-edit-link"
-                >
-                  {{ t('common.actions.edit') }}
-                </RouterLink>
-                <button
-                  class="text-sm text-danger hover:text-danger/80"
-                  data-testid="provider-delete"
-                  @click="requestDelete(provider)"
-                >
-                  {{ t('common.actions.delete') }}
-                </button>
+              <td
+                class="px-4 py-3 text-right"
+                @click.stop
+              >
+                <DropdownMenu
+                  :items="getDropdownItems(provider)"
+                  @select="handleDropdownAction($event, provider)"
+                />
               </td>
             </tr>
           </tbody>
