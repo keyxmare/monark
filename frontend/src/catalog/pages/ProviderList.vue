@@ -211,10 +211,35 @@ function requestDelete(provider: { id: string; name: string }) {
 
         <div
           v-if="providerStore.providers.length === 0"
-          class="py-8 text-center text-text-muted"
+          class="flex flex-col items-center py-12"
           data-testid="provider-list-empty"
         >
-          {{ t('catalog.providers.noProviders') }}
+          <svg
+            class="mb-4 h-12 w-12 text-text-muted/50"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.374a4.5 4.5 0 00-1.242-7.244l4.5-4.5a4.5 4.5 0 016.364 6.364l-1.757 1.757"
+            />
+          </svg>
+          <p class="mb-1 text-sm font-medium text-text">
+            {{ t('catalog.providers.noProviders') }}
+          </p>
+          <p class="mb-4 text-sm text-text-muted">
+            {{ t('catalog.providers.noProvidersHint') }}
+          </p>
+          <RouterLink
+            :to="{ name: 'catalog-providers-create' }"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+            data-testid="provider-empty-create-link"
+          >
+            {{ t('catalog.providers.createProvider') }}
+          </RouterLink>
         </div>
       </div>
       <ConfirmDialog
