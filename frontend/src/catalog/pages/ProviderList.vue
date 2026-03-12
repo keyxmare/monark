@@ -125,7 +125,7 @@ function requestDelete(provider: { id: string; name: string }) {
 
       <div
         v-else
-        class="overflow-hidden rounded-xl border border-border bg-surface"
+        class="rounded-xl border border-border bg-surface"
       >
         <table
           class="w-full"
