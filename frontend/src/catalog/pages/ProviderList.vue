@@ -5,6 +5,7 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import type { Provider } from '@/catalog/types/provider'
 
+import ProviderIcon from '@/catalog/components/ProviderIcon.vue'
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
@@ -166,14 +167,13 @@ function requestDelete(provider: { id: string; name: string }) {
               </td>
               <td class="px-4 py-3">
                 <span
-                  :class="{
-                    'bg-orange-100 text-orange-800': provider.type === 'gitlab',
-                    'bg-gray-100 text-gray-800': provider.type === 'github',
-                    'bg-blue-100 text-blue-800': provider.type === 'bitbucket',
-                  }"
-                  class="rounded-full px-2 py-0.5 text-xs font-medium"
+                  class="inline-flex items-center gap-1.5 text-sm"
                   data-testid="provider-type-badge"
                 >
+                  <ProviderIcon
+                    :type="provider.type"
+                    :size="16"
+                  />
                   {{ t(`catalog.providers.types.${provider.type}`) }}
                 </span>
               </td>

@@ -5,6 +5,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import type { RemoteProject } from '@/catalog/types/provider'
 
+import ProviderIcon from '@/catalog/components/ProviderIcon.vue'
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
@@ -171,14 +172,13 @@ async function handlePageChange(page: number) {
               </dt>
               <dd class="mt-1">
                 <span
-                  :class="{
-                    'bg-orange-100 text-orange-800': providerStore.selected.type === 'gitlab',
-                    'bg-gray-100 text-gray-800': providerStore.selected.type === 'github',
-                    'bg-blue-100 text-blue-800': providerStore.selected.type === 'bitbucket',
-                  }"
-                  class="rounded-full px-2 py-0.5 text-xs font-medium"
+                  class="inline-flex items-center gap-1.5 text-sm text-text"
                   data-testid="provider-detail-type"
                 >
+                  <ProviderIcon
+                    :type="providerStore.selected.type"
+                    :size="18"
+                  />
                   {{ t(`catalog.providers.types.${providerStore.selected.type}`) }}
                 </span>
               </dd>

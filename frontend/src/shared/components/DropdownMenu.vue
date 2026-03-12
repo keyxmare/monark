@@ -59,7 +59,7 @@ onBeforeUnmount(() => {
     data-testid="dropdown-menu"
   >
     <button
-      class="rounded-lg p-1.5 text-text-muted transition-colors hover:bg-background hover:text-text"
+      class="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:bg-background hover:text-text"
       data-testid="dropdown-trigger"
       type="button"
       :aria-expanded="open"
@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
           ]"
           :data-testid="`dropdown-item-${item.action}`"
           :disabled="item.disabled"
-          class="flex w-full items-center px-3 py-2 text-left text-sm transition-colors"
+          class="flex w-full cursor-pointer items-center px-3 py-2 text-left text-sm transition-colors"
           role="menuitem"
           type="button"
           @click.stop="selectItem(item)"
