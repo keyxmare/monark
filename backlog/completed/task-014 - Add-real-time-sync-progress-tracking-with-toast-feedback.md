@@ -1,10 +1,10 @@
 ---
 id: TASK-014
 title: Add real-time sync progress tracking with toast feedback
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-12 15:21'
-updated_date: '2026-03-12 15:22'
+updated_date: '2026-03-12 15:50'
 labels:
   - fullstack
   - catalog
@@ -77,17 +77,23 @@ Currently, sync-all triggers async commands but provides no progress feedback. T
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 SyncJob entity persists in database with progress tracking
-- [ ] #2 SyncAllProjectsHandler creates a SyncJob and returns its ID
-- [ ] #3 Progress increments as each project sync completes
-- [ ] #4 Mercure publishes update on each progress increment to /sync-jobs/{id}
-- [ ] #5 Frontend subscribes to Mercure topic and receives real-time updates
-- [ ] #6 Toast shows X/Y projects synced with progress bar
-- [ ] #7 Toast auto-dismisses 5s after completion
-- [ ] #8 Toast can be manually closed at any time (closes EventSource)
-- [ ] #9 Works for both global sync-all and per-provider sync
-- [ ] #10 GET /api/catalog/sync-jobs/{id} available as fallback
+- [x] #1 SyncJob entity persists in database with progress tracking
+- [x] #2 SyncAllProjectsHandler creates a SyncJob and returns its ID
+- [x] #3 Progress increments as each project sync completes
+- [x] #4 Mercure publishes update on each progress increment to /sync-jobs/{id}
+- [x] #5 Frontend subscribes to Mercure topic and receives real-time updates
+- [x] #6 Toast shows X/Y projects synced with progress bar
+- [x] #7 Toast auto-dismisses 5s after completion
+- [x] #8 Toast can be manually closed at any time (closes EventSource)
+- [x] #9 Works for both global sync-all and per-provider sync
+- [x] #10 GET /api/catalog/sync-jobs/{id} available as fallback
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+SyncJob entity (catalog_sync_jobs) tracks totalProjects/completedProjects/status. SyncAllProjectsHandler creates job and passes syncJobId to SyncMergeRequestsCommand. On completion, ProjectSyncCompletedEvent dispatched → IncrementSyncJobProgressListener increments and publishes to Mercure /sync-jobs/{id}. Frontend useSyncProgress composable subscribes via useMercure and updates toast progress in real-time. Both ProviderList and ProviderDetail use it. GET /api/catalog/sync-jobs/{id} as fallback. Commit: cb797a0.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

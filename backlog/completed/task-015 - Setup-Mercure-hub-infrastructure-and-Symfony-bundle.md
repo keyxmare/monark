@@ -1,10 +1,10 @@
 ---
 id: TASK-015
 title: Setup Mercure hub infrastructure and Symfony bundle
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-12 15:22'
-updated_date: '2026-03-12 15:24'
+updated_date: '2026-03-12 15:35'
 labels:
   - infrastructure
   - mercure
@@ -48,13 +48,19 @@ Configure Mercure as the real-time push layer for the project. Mercure was plann
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Mercure hub runs as Docker service
-- [ ] #2 Backend can publish to Mercure hub via HubInterface
-- [ ] #3 Frontend can subscribe to Mercure topics via EventSource
-- [ ] #4 JWT auth configured between Symfony and Mercure hub
-- [ ] #5 Vite dev proxy routes /.well-known/mercure correctly
-- [ ] #6 Shared useMercure composable available with subscribe/auto-close/reconnect
+- [x] #1 Mercure hub runs as Docker service
+- [x] #2 Backend can publish to Mercure hub via HubInterface
+- [x] #3 Frontend can subscribe to Mercure topics via EventSource
+- [x] #4 JWT auth configured between Symfony and Mercure hub
+- [x] #5 Vite dev proxy routes /.well-known/mercure correctly
+- [x] #6 Shared useMercure composable available with subscribe/auto-close/reconnect
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Mercure hub running as Docker service (dunglas/mercure, dev Caddyfile, anonymous subscriptions, CORS for localhost:3000). symfony/mercure-bundle installed and configured with JWT secret. HubInterface autowirable. Vite proxy routes /.well-known/mercure to hub. Shared useMercure composable with auto-reconnect on disconnect. Commit: 59d244a.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

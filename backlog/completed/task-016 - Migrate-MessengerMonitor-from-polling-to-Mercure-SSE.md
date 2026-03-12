@@ -1,9 +1,10 @@
 ---
 id: TASK-016
 title: Migrate MessengerMonitor from polling to Mercure SSE
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-12 15:24'
+updated_date: '2026-03-12 15:56'
 labels:
   - fullstack
   - activity
@@ -54,13 +55,19 @@ Currently `MessengerMonitor.vue` uses `setInterval(() => messengerStore.fetchSta
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 MessengerMonitor receives real-time updates via Mercure SSE
-- [ ] #2 No more setInterval polling in MessengerMonitor
-- [ ] #3 Initial load still fetches via REST endpoint
-- [ ] #4 Scheduler publishes stats every 5s only when data changes
-- [ ] #5 Queue and worker stats update in real-time
-- [ ] #6 EventSource closed on component unmount
+- [x] #1 MessengerMonitor receives real-time updates via Mercure SSE
+- [x] #2 No more setInterval polling in MessengerMonitor
+- [x] #3 Initial load still fetches via REST endpoint
+- [x] #4 Scheduler publishes stats every 5s only when data changes
+- [x] #5 Queue and worker stats update in real-time
+- [x] #6 EventSource closed on component unmount
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+PublishMessengerStatsCommand runs as messenger-stats-publisher Docker service, queries RabbitMQ every 5s and publishes to Mercure /messenger/stats only when data changes. MessengerMonitor.vue replaced setInterval with useMercure subscription + live connection indicator (green/red dot). Initial load still via REST. Commit: bdd48b8.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
