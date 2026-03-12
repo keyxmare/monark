@@ -128,6 +128,8 @@ it('lists quizzes', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListQuizzesQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('creates a question and returns 201', function () use ($ts, $uuid) {
@@ -172,6 +174,8 @@ it('lists questions', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListQuestionsQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('creates an answer and returns 201', function () use ($ts, $uuid) {
@@ -215,6 +219,8 @@ it('lists answers', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListAnswersQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('creates an attempt and returns 201', function () use ($ts, $uuid) {
@@ -241,4 +247,6 @@ it('lists attempts', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListAttemptsQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });

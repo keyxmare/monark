@@ -103,10 +103,17 @@ describe('CreateStalePrTasksListener', function () {
         ));
 
         expect($syncTaskRepo->saved)->toHaveCount(1);
-        expect($syncTaskRepo->saved[0]->getType())->toBe(SyncTaskType::StalePr);
-        expect($syncTaskRepo->saved[0]->getSeverity())->toBe(SyncTaskSeverity::Medium);
-        expect($syncTaskRepo->saved[0]->getMetadata()['externalId'])->toBe('42');
-        expect($syncTaskRepo->saved[0]->getMetadata()['daysSinceUpdate'])->toBe(10);
+        $task = $syncTaskRepo->saved[0];
+        expect($task->getType())->toBe(SyncTaskType::StalePr);
+        expect($task->getSeverity())->toBe(SyncTaskSeverity::Medium);
+        expect($task->getMetadata()['externalId'])->toBe('42');
+        expect($task->getMetadata()['title'])->toBe('Stale MR');
+        expect($task->getMetadata()['author'])->toBe('dev');
+        expect($task->getMetadata()['status'])->toBe('open');
+        expect($task->getMetadata()['daysSinceUpdate'])->toBe(10);
+        expect($task->getMetadata()['url'])->toContain('42');
+        expect($task->getTitle())->toContain('42');
+        expect($task->getDescription())->toContain('10');
     });
 
     it('creates high severity task for MR stale > 30 days', function () {

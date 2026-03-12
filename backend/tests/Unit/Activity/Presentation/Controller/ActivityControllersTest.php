@@ -67,6 +67,11 @@ it('lists sync tasks with filters', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListSyncTasksQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
+    expect($bus->dispatched->status)->toBe('open');
+    expect($bus->dispatched->type)->toBe('vulnerability');
+    expect($bus->dispatched->severity)->toBe('critical');
 });
 
 it('updates sync task status via PATCH', function () {

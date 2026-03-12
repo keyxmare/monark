@@ -69,8 +69,10 @@ describe('GitHubClient', function () {
             expect($projects[0]->repositoryUrl)->toBe('https://github.com/keyxmare/monark.git');
             expect($projects[0]->defaultBranch)->toBe('main');
             expect($projects[0]->visibility)->toBe('public');
+            expect($projects[0]->avatarUrl)->toBe('https://avatars.githubusercontent.com/u/1');
             expect($projects[1]->visibility)->toBe('private');
             expect($projects[1]->defaultBranch)->toBe('develop');
+            expect($projects[1]->description)->toBeNull();
         });
 
         it('uses /user/repos with auth headers', function () {
@@ -79,9 +81,13 @@ describe('GitHubClient', function () {
 
             $client->listProjects(githubProvider(), 2, 50);
 
-            expect($mockResponse->getRequestUrl())->toContain('/user/repos');
-            expect($mockResponse->getRequestUrl())->toContain('type=owner');
-            expect($mockResponse->getRequestUrl())->toContain('page=2');
+            $url = $mockResponse->getRequestUrl();
+            expect($url)->toContain('/user/repos');
+            expect($url)->toContain('type=owner');
+            expect($url)->toContain('page=2');
+            expect($url)->toContain('per_page=50');
+            expect($url)->toContain('sort=full_name');
+            expect($url)->toContain('direction=asc');
         });
 
         it('caps per_page at 100', function () {
@@ -115,8 +121,15 @@ describe('GitHubClient', function () {
 
             expect($projects)->toHaveCount(1);
             expect($projects[0]->name)->toBe('open-source');
-            expect($mockResponse->getRequestUrl())->toContain('/users/keyxmare/repos');
-            expect($mockResponse->getRequestUrl())->not->toContain('type=owner');
+            expect($projects[0]->repositoryUrl)->toBe('https://github.com/keyxmare/open-source.git');
+            expect($projects[0]->avatarUrl)->toBe('https://avatars.githubusercontent.com/u/1');
+            $url = $mockResponse->getRequestUrl();
+            expect($url)->toContain('/users/keyxmare/repos');
+            expect($url)->not->toContain('type=owner');
+            expect($url)->toContain('sort=');
+            expect($url)->toContain('direction=');
+            expect($url)->toContain('page=');
+            expect($url)->toContain('per_page=');
         });
     });
 
@@ -133,6 +146,62 @@ describe('GitHubClient', function () {
 
             expect($count)->toBe(17);
             expect($mockResponse->getRequestUrl())->toContain('/user');
+        });
+
+        it('returns only private repos when visibility filter is private', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                'login' => 'keyxmare',
+                'public_repos' => 12,
+                'owned_private_repos' => 5,
+            ]));
+
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+            $count = $client->countProjects(githubProvider(), null, 'private');
+
+            expect($count)->toBe(5);
+        });
+
+        it('returns only public repos when visibility filter is public', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                'login' => 'keyxmare',
+                'public_repos' => 12,
+                'owned_private_repos' => 5,
+            ]));
+
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+            $count = $client->countProjects(githubProvider(), null, 'public');
+
+            expect($count)->toBe(12);
+        });
+
+        it('uses search API for count with search term', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                'total_count' => 3,
+                'items' => [],
+            ]));
+
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+            $count = $client->countProjects(githubProvider(), 'monark');
+
+            expect($count)->toBe(3);
+            $url = $mockResponse->getRequestUrl();
+            expect($url)->toContain('/search/repositories');
+            expect($url)->toContain('per_page=1');
+            expect($url)->toContain('monark');
+            expect($url)->toContain('user:@me');
+        });
+
+        it('uses search API with visibility filter', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                'total_count' => 2,
+            ]));
+
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+            $count = $client->countProjects(githubProvider(), 'monark', 'private');
+
+            expect($count)->toBe(2);
+            $url = $mockResponse->getRequestUrl();
+            expect($url)->toContain('is:private');
         });
 
         it('returns only public repos count when no token', function () {
@@ -189,6 +258,7 @@ describe('GitHubClient', function () {
 
             expect($result)->toBe('Hello World');
             expect($mockResponse->getRequestUrl())->toContain('/repos/keyxmare/monark/contents/README.md');
+            expect($mockResponse->getRequestUrl())->toContain('ref=main');
         });
 
         it('returns null on 404', function () {
@@ -223,6 +293,9 @@ describe('GitHubClient', function () {
             expect($project->description)->toBe('Dev hub');
             expect($project->defaultBranch)->toBe('main');
             expect($project->visibility)->toBe('public');
+            expect($project->repositoryUrl)->toBe('https://github.com/keyxmare/monark.git');
+            expect($project->avatarUrl)->toBe('https://avatars.githubusercontent.com/u/1');
+            expect($project->slug)->toBe('keyxmare/monark');
             expect($mockResponse->getRequestUrl())->toContain('/repos/keyxmare/monark');
         });
 
@@ -327,6 +400,10 @@ describe('GitHubClient', function () {
             expect($prs[0]->deletions)->toBe(20);
             expect($prs[0]->reviewers)->toBe(['alice', 'bob']);
             expect($prs[0]->labels)->toBe(['feature', 'frontend']);
+            expect($prs[0]->createdAt)->toBe('2026-03-10T10:00:00Z');
+            expect($prs[0]->updatedAt)->toBe('2026-03-11T14:00:00Z');
+            expect($prs[0]->mergedAt)->toBeNull();
+            expect($prs[0]->closedAt)->toBeNull();
         });
 
         it('maps merged PR via merged_at field', function () {
@@ -396,6 +473,82 @@ describe('GitHubClient', function () {
             expect($mockResponse->getRequestUrl())->toContain('state=open');
             expect($mockResponse->getRequestUrl())->toContain('page=2');
             expect($mockResponse->getRequestUrl())->toContain('per_page=10');
+        });
+
+        it('maps closed (not merged) PR correctly', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                [
+                    'number' => 7,
+                    'title' => 'feat: rejected',
+                    'body' => 'Was rejected',
+                    'state' => 'closed',
+                    'draft' => false,
+                    'head' => ['ref' => 'feature/nope'],
+                    'base' => ['ref' => 'main'],
+                    'user' => ['login' => 'dev'],
+                    'html_url' => 'https://github.com/keyxmare/monark/pull/7',
+                    'additions' => 5,
+                    'deletions' => 2,
+                    'requested_reviewers' => [],
+                    'labels' => [['name' => 'wontfix']],
+                    'created_at' => '2026-03-10T10:00:00Z',
+                    'updated_at' => '2026-03-11T10:00:00Z',
+                    'merged_at' => null,
+                    'closed_at' => '2026-03-11T10:00:00Z',
+                ],
+            ]));
+
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+
+            expect($prs[0]->status)->toBe('closed');
+            expect($prs[0]->mergedAt)->toBeNull();
+            expect($prs[0]->closedAt)->toBe('2026-03-11T10:00:00Z');
+            expect($prs[0]->additions)->toBe(5);
+            expect($prs[0]->deletions)->toBe(2);
+        });
+
+        it('maps PR with missing optional fields', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                [
+                    'number' => 99,
+                    'title' => 'minimal PR',
+                    'body' => null,
+                    'state' => 'open',
+                    'draft' => false,
+                    'head' => ['ref' => 'fix/min'],
+                    'base' => ['ref' => 'main'],
+                    'user' => ['login' => 'bot'],
+                    'html_url' => 'https://github.com/keyxmare/monark/pull/99',
+                    'requested_reviewers' => [],
+                    'labels' => [],
+                    'created_at' => '2026-03-12T08:00:00Z',
+                    'updated_at' => '2026-03-12T08:00:00Z',
+                    'merged_at' => null,
+                    'closed_at' => null,
+                ],
+            ]));
+
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+
+            expect($prs[0]->description)->toBeNull();
+            expect($prs[0]->additions)->toBeNull();
+            expect($prs[0]->deletions)->toBeNull();
+            expect($prs[0]->reviewers)->toBe([]);
+            expect($prs[0]->labels)->toBe([]);
+            expect($prs[0]->author)->toBe('bot');
+        });
+
+        it('passes updatedAfter filter in URL', function () {
+            $mockResponse = new MockResponse(\json_encode([]));
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+
+            $after = new \DateTimeImmutable('2026-03-10T10:00:00+00:00');
+            $client->listMergeRequests(githubProvider(), 'keyxmare/monark', null, 1, 20, $after);
+
+            expect($mockResponse->getRequestUrl())->toContain('sort=updated');
+            expect($mockResponse->getRequestUrl())->toContain('direction=desc');
         });
 
         it('returns empty array for repo with no PRs', function () {

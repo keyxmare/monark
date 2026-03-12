@@ -43,7 +43,9 @@ describe('GitLabClient', function () {
             expect($project->defaultBranch)->toBe('main');
             expect($project->visibility)->toBe('public');
             expect($project->repositoryUrl)->toBe('https://gitlab.example.com/team/monark.git');
+            expect($project->avatarUrl)->toBeNull();
             expect($mockResponse->getRequestUrl())->toContain('/api/v4/projects/42');
+            expect($mockResponse->getRequestOptions()['normalized_headers']['private-token'][0] ?? '')->toContain('glpat-test-token');
         });
 
         it('handles private project with no description', function () {
@@ -62,6 +64,22 @@ describe('GitLabClient', function () {
             expect($project->visibility)->toBe('private');
             expect($project->defaultBranch)->toBe('develop');
             expect($project->description)->toBeNull();
+        });
+
+        it('falls back to web_url when http_url_to_repo is missing', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                'id' => 77,
+                'name' => 'web-only',
+                'path_with_namespace' => 'team/web-only',
+                'web_url' => 'https://gitlab.example.com/team/web-only',
+                'default_branch' => 'main',
+                'visibility' => 'internal',
+            ]));
+
+            $client = new GitLabClient(new MockHttpClient($mockResponse));
+            $project = $client->getProject(gitlabProvider(), '77');
+
+            expect($project->repositoryUrl)->toBe('https://gitlab.example.com/team/web-only');
         });
 
         it('URL-encodes the external id', function () {
@@ -176,15 +194,73 @@ describe('GitLabClient', function () {
             expect($mrs[0]->mergedAt)->toBe('2026-03-11T10:00:00Z');
         });
 
+        it('includes url and dates in mapping', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                [
+                    'iid' => 42,
+                    'title' => 'MR',
+                    'source_branch' => 'feat',
+                    'target_branch' => 'main',
+                    'state' => 'opened',
+                    'draft' => false,
+                    'author' => ['username' => 'dev'],
+                    'web_url' => 'https://gitlab.example.com/mr/42',
+                    'reviewers' => [],
+                    'labels' => [],
+                    'created_at' => '2026-03-10T10:00:00Z',
+                    'updated_at' => '2026-03-11T14:00:00Z',
+                    'merged_at' => null,
+                    'closed_at' => null,
+                ],
+            ]));
+
+            $client = new GitLabClient(new MockHttpClient($mockResponse));
+            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+
+            expect($mrs[0]->url)->toBe('https://gitlab.example.com/mr/42');
+            expect($mrs[0]->createdAt)->toBe('2026-03-10T10:00:00Z');
+            expect($mrs[0]->updatedAt)->toBe('2026-03-11T14:00:00Z');
+            expect($mrs[0]->mergedAt)->toBeNull();
+            expect($mrs[0]->closedAt)->toBeNull();
+        });
+
+        it('handles MR with missing author', function () {
+            $mockResponse = new MockResponse(\json_encode([
+                [
+                    'iid' => 1,
+                    'title' => 'No Author MR',
+                    'source_branch' => 'fix',
+                    'target_branch' => 'main',
+                    'state' => 'opened',
+                    'draft' => false,
+                    'web_url' => 'https://gitlab.example.com/mr/1',
+                    'reviewers' => [],
+                    'labels' => [],
+                    'created_at' => '2026-03-12T08:00:00Z',
+                    'updated_at' => '2026-03-12T08:00:00Z',
+                    'merged_at' => null,
+                    'closed_at' => null,
+                ],
+            ]));
+
+            $client = new GitLabClient(new MockHttpClient($mockResponse));
+            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+
+            expect($mrs[0]->author)->toBe('');
+        });
+
         it('passes state filter as GitLab format', function () {
             $mockResponse = new MockResponse(\json_encode([]));
             $client = new GitLabClient(new MockHttpClient($mockResponse));
 
             $client->listMergeRequests(gitlabProvider(), '42', 'open', 2, 10);
 
-            expect($mockResponse->getRequestUrl())->toContain('state=opened');
-            expect($mockResponse->getRequestUrl())->toContain('page=2');
-            expect($mockResponse->getRequestUrl())->toContain('per_page=10');
+            $url = $mockResponse->getRequestUrl();
+            expect($url)->toContain('state=opened');
+            expect($url)->toContain('page=2');
+            expect($url)->toContain('per_page=10');
+            expect($url)->toContain('order_by=updated_at');
+            expect($url)->toContain('sort=desc');
         });
 
         it('returns empty array for project with no MRs', function () {

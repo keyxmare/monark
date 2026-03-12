@@ -119,6 +119,20 @@ it('lists projects and returns paginated 200', function () {
     expect($bus->dispatched->perPage)->toBe(10);
 });
 
+it('lists projects with default pagination', function () {
+    $listOutput = new ProjectListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
+    $bus = stubProjectBus($listOutput);
+    $controller = new ListProjectsController($bus);
+
+    $request = Request::create('/api/catalog/projects', 'GET');
+    $response = $controller($request);
+
+    expect($response->getStatusCode())->toBe(200);
+    expect($bus->dispatched)->toBeInstanceOf(ListProjectsQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
+});
+
 it('scans a project and returns 202', function () {
     $bus = stubProjectBus();
     $controller = new ScanProjectController($bus);

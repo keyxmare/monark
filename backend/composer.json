@@ -33,14 +33,15 @@
         "twig/extra-bundle": "^3.0"
     },
     "require-dev": {
+        "deptrac/deptrac": "^2.0",
         "doctrine/doctrine-fixtures-bundle": "^4.0",
         "friendsofphp/php-cs-fixer": "^3.0",
-        "infection/infection": "^0.32",
         "infection/extension-installer": "^0.1",
+        "infection/infection": "^0.32",
         "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-mutate": "^4.0",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^2.0",
-        "deptrac/deptrac": "^2.0",
         "rector/rector": "^2.0",
         "symfony/debug-bundle": "^8.0",
         "symfony/web-profiler-bundle": "^8.0"

@@ -117,6 +117,8 @@ it('lists providers with pagination', function () {
     $data = \json_decode((string) $response->getContent(), true);
     expect($data['data'])->toHaveKeys(['items', 'total', 'page', 'per_page']);
     expect($bus->dispatched)->toBeInstanceOf(ListProvidersQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('tests provider connection and returns 200', function () {
@@ -194,6 +196,28 @@ it('lists remote projects with filters', function () {
     $data = \json_decode((string) $response->getContent(), true);
     expect($data['data'])->toHaveKeys(['items', 'total']);
     expect($bus->dispatched)->toBeInstanceOf(ListRemoteProjectsQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(10);
     expect($bus->dispatched->search)->toBe('monark');
     expect($bus->dispatched->visibility)->toBe('public');
+    expect($bus->dispatched->sort)->toBe('name');
+    expect($bus->dispatched->sortDir)->toBe('asc');
+});
+
+it('lists remote projects with default pagination', function () {
+    $listOutput = new RemoteProjectListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
+    $bus = stubProviderBus($listOutput);
+    $controller = new ListRemoteProjectsController($bus);
+
+    $request = Request::create('/api/catalog/providers/prov-1/remote-projects', 'GET');
+    $response = $controller('prov-1', $request);
+
+    expect($response->getStatusCode())->toBe(200);
+    expect($bus->dispatched)->toBeInstanceOf(ListRemoteProjectsQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
+    expect($bus->dispatched->search)->toBeNull();
+    expect($bus->dispatched->visibility)->toBeNull();
+    expect($bus->dispatched->sort)->toBe('name');
+    expect($bus->dispatched->sortDir)->toBe('asc');
 });

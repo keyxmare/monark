@@ -93,9 +93,16 @@ describe('CreateOutdatedDependencyTasksListener', function () {
         ));
 
         expect($syncTaskRepo->saved)->toHaveCount(1);
-        expect($syncTaskRepo->saved[0]->getType())->toBe(SyncTaskType::OutdatedDependency);
-        expect($syncTaskRepo->saved[0]->getMetadata()['dependencyName'])->toBe('symfony/framework-bundle');
-        expect($syncTaskRepo->saved[0]->getSeverity())->toBe(SyncTaskSeverity::High);
+        $task = $syncTaskRepo->saved[0];
+        expect($task->getType())->toBe(SyncTaskType::OutdatedDependency);
+        expect($task->getSeverity())->toBe(SyncTaskSeverity::High);
+        expect($task->getMetadata()['dependencyName'])->toBe('symfony/framework-bundle');
+        expect($task->getMetadata()['currentVersion'])->toBe('6.0.0');
+        expect($task->getMetadata()['latestVersion'])->toBe('7.2.0');
+        expect($task->getMetadata()['packageManager'])->toBe('composer');
+        expect($task->getTitle())->toContain('symfony/framework-bundle');
+        expect($task->getDescription())->toContain('6.0.0');
+        expect($task->getDescription())->toContain('7.2.0');
     });
 
     it('skips non-outdated dependencies', function () {
@@ -183,5 +190,55 @@ describe('CreateOutdatedDependencyTasksListener', function () {
         ));
 
         expect($syncTaskRepo->saved[0]->getSeverity())->toBe(SyncTaskSeverity::Critical);
+    });
+
+    it('assigns medium severity for 5+ minor versions behind', function () {
+        $project = createTestProject();
+        $dep = Dependency::create(
+            name: 'pinia',
+            currentVersion: '2.0.0',
+            latestVersion: '2.5.0',
+            ltsVersion: '2.5.0',
+            packageManager: PackageManager::Npm,
+            type: DependencyType::Runtime,
+            isOutdated: true,
+            project: $project,
+        );
+
+        $depRepo = stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = spySyncTaskRepo();
+
+        $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $project->getId()->toRfc4122(),
+            scanResult: new ScanResult(stacks: [], dependencies: []),
+        ));
+
+        expect($syncTaskRepo->saved[0]->getSeverity())->toBe(SyncTaskSeverity::Medium);
+    });
+
+    it('assigns low severity for small version gap', function () {
+        $project = createTestProject();
+        $dep = Dependency::create(
+            name: 'lodash',
+            currentVersion: '4.17.0',
+            latestVersion: '4.18.0',
+            ltsVersion: '4.18.0',
+            packageManager: PackageManager::Npm,
+            type: DependencyType::Runtime,
+            isOutdated: true,
+            project: $project,
+        );
+
+        $depRepo = stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = spySyncTaskRepo();
+
+        $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $project->getId()->toRfc4122(),
+            scanResult: new ScanResult(stacks: [], dependencies: []),
+        ));
+
+        expect($syncTaskRepo->saved[0]->getSeverity())->toBe(SyncTaskSeverity::Low);
     });
 });

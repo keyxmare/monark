@@ -141,6 +141,8 @@ it('lists users with pagination', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListUsersQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('creates a team and returns 201', function () {
@@ -195,6 +197,8 @@ it('lists teams with pagination', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListTeamsQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('creates an access token and returns 201', function () {
@@ -240,4 +244,6 @@ it('lists access tokens with pagination', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListAccessTokensQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });

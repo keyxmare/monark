@@ -103,6 +103,8 @@ it('lists pipelines with filters', function () {
     expect($bus->dispatched)->toBeInstanceOf(ListPipelinesQuery::class);
     expect($bus->dispatched->projectId)->toBe('proj-1');
     expect($bus->dispatched->ref)->toBe('main');
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('creates a tech stack and returns 201', function () {
@@ -155,6 +157,8 @@ it('lists tech stacks with project filter', function () {
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListTechStacksQuery::class);
     expect($bus->dispatched->projectId)->toBe('proj-1');
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('gets a merge request and returns 200', function () {
@@ -180,4 +184,6 @@ it('lists merge requests with filters', function () {
     expect($bus->dispatched->projectId)->toBe('proj-1');
     expect($bus->dispatched->status)->toBe('open');
     expect($bus->dispatched->author)->toBe('jdoe');
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });

@@ -113,6 +113,8 @@ it('lists dependencies with project filter', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListDependenciesQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });
 
 it('creates a vulnerability and returns 201', function () use ($ts, $uuid) {
@@ -158,4 +160,6 @@ it('lists vulnerabilities', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListVulnerabilitiesQuery::class);
+    expect($bus->dispatched->page)->toBe(1);
+    expect($bus->dispatched->perPage)->toBe(20);
 });

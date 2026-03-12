@@ -48,7 +48,13 @@ describe('CreateStackUpgradeTasksListener', function () {
 
         expect($syncTaskRepo->saved)->toHaveCount(1);
         expect($syncTaskRepo->saved[0]->getType())->toBe(SyncTaskType::StackUpgrade);
+        expect($syncTaskRepo->saved[0]->getSeverity())->toBe(SyncTaskSeverity::Medium);
         expect($syncTaskRepo->saved[0]->getMetadata()['language'])->toBe('PHP');
+        expect($syncTaskRepo->saved[0]->getMetadata()['framework'])->toBe('Symfony');
+        expect($syncTaskRepo->saved[0]->getMetadata()['version'])->toBe('7.4');
+        expect($syncTaskRepo->saved[0]->getMetadata()['frameworkVersion'])->toBe('5.4');
+        expect($syncTaskRepo->saved[0]->getTitle())->toContain('PHP');
+        expect($syncTaskRepo->saved[0]->getDescription())->toContain('7.4');
     });
 
     it('skips current version stacks', function () {
@@ -103,6 +109,118 @@ describe('CreateStackUpgradeTasksListener', function () {
         ));
 
         expect($syncTaskRepo->saved)->toHaveCount(0);
+    });
+
+    it('creates sync task for outdated Node version', function () {
+        $projectId = Uuid::v7()->toRfc4122();
+        $syncTaskRepo = spyStackSyncTaskRepo();
+
+        $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $projectId,
+            scanResult: new ScanResult(
+                stacks: [
+                    new DetectedStack(language: 'Node', framework: 'none', version: '18.0', frameworkVersion: ''),
+                ],
+                dependencies: [],
+            ),
+        ));
+
+        expect($syncTaskRepo->saved)->toHaveCount(1);
+        expect($syncTaskRepo->saved[0]->getMetadata()['language'])->toBe('Node');
+        expect($syncTaskRepo->saved[0]->getMetadata()['version'])->toBe('18.0');
+    });
+
+    it('skips Node at current major version (22)', function () {
+        $projectId = Uuid::v7()->toRfc4122();
+        $syncTaskRepo = spyStackSyncTaskRepo();
+
+        $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $projectId,
+            scanResult: new ScanResult(
+                stacks: [
+                    new DetectedStack(language: 'Node', framework: 'none', version: '22.0', frameworkVersion: ''),
+                ],
+                dependencies: [],
+            ),
+        ));
+
+        expect($syncTaskRepo->saved)->toHaveCount(0);
+    });
+
+    it('creates task for Node version 21 (one behind)', function () {
+        $projectId = Uuid::v7()->toRfc4122();
+        $syncTaskRepo = spyStackSyncTaskRepo();
+
+        $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $projectId,
+            scanResult: new ScanResult(
+                stacks: [
+                    new DetectedStack(language: 'Node', framework: 'none', version: '21.0', frameworkVersion: ''),
+                ],
+                dependencies: [],
+            ),
+        ));
+
+        expect($syncTaskRepo->saved)->toHaveCount(1);
+    });
+
+    it('creates task for outdated TypeScript version', function () {
+        $projectId = Uuid::v7()->toRfc4122();
+        $syncTaskRepo = spyStackSyncTaskRepo();
+
+        $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $projectId,
+            scanResult: new ScanResult(
+                stacks: [
+                    new DetectedStack(language: 'TypeScript', framework: 'Vue', version: '4.9', frameworkVersion: '3.5'),
+                ],
+                dependencies: [],
+            ),
+        ));
+
+        expect($syncTaskRepo->saved)->toHaveCount(1);
+        expect($syncTaskRepo->saved[0]->getMetadata()['language'])->toBe('TypeScript');
+    });
+
+    it('skips TypeScript at current major version (5)', function () {
+        $projectId = Uuid::v7()->toRfc4122();
+        $syncTaskRepo = spyStackSyncTaskRepo();
+
+        $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $projectId,
+            scanResult: new ScanResult(
+                stacks: [
+                    new DetectedStack(language: 'TypeScript', framework: 'Vue', version: '5.7', frameworkVersion: '3.5'),
+                ],
+                dependencies: [],
+            ),
+        ));
+
+        expect($syncTaskRepo->saved)->toHaveCount(0);
+    });
+
+    it('creates tasks for multiple outdated stacks', function () {
+        $projectId = Uuid::v7()->toRfc4122();
+        $syncTaskRepo = spyStackSyncTaskRepo();
+
+        $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
+        $listener(new ProjectScannedEvent(
+            projectId: $projectId,
+            scanResult: new ScanResult(
+                stacks: [
+                    new DetectedStack(language: 'PHP', framework: 'Symfony', version: '7.4', frameworkVersion: '5.4'),
+                    new DetectedStack(language: 'TypeScript', framework: 'Vue', version: '4.0', frameworkVersion: '3.5'),
+                ],
+                dependencies: [],
+            ),
+        ));
+
+        expect($syncTaskRepo->saved)->toHaveCount(2);
     });
 
     it('updates existing task instead of creating duplicate', function () {

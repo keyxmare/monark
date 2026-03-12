@@ -149,11 +149,21 @@ describe('SyncMergeRequestsHandler', function () {
         expect($mrRepo->saved)->toHaveCount(2);
         expect($mrRepo->saved[0]->getExternalId())->toBe('1');
         expect($mrRepo->saved[0]->getStatus())->toBe(MergeRequestStatus::Open);
+        expect($mrRepo->saved[0]->getTitle())->toBe('MR Title');
+        expect($mrRepo->saved[0]->getDescription())->toBe('Description');
+        expect($mrRepo->saved[0]->getSourceBranch())->toBe('feature/test');
+        expect($mrRepo->saved[0]->getTargetBranch())->toBe('main');
+        expect($mrRepo->saved[0]->getAuthor())->toBe('dev');
+        expect($mrRepo->saved[0]->getAdditions())->toBe(10);
+        expect($mrRepo->saved[0]->getDeletions())->toBe(5);
+        expect($mrRepo->saved[0]->getReviewers())->toBe(['alice']);
+        expect($mrRepo->saved[0]->getLabels())->toBe(['feature']);
         expect($mrRepo->saved[1]->getExternalId())->toBe('2');
         expect($mrRepo->saved[1]->getStatus())->toBe(MergeRequestStatus::Draft);
 
         expect($eventBus->dispatched)->toHaveCount(1);
         expect($eventBus->dispatched[0])->toBeInstanceOf(MergeRequestsSyncedEvent::class);
+        expect($eventBus->dispatched[0]->projectId)->toBe($project->getId()->toRfc4122());
         expect($eventBus->dispatched[0]->created)->toBe(2);
         expect($eventBus->dispatched[0]->updated)->toBe(0);
     });
@@ -212,12 +222,39 @@ describe('SyncMergeRequestsHandler', function () {
         $handler(new SyncMergeRequestsCommand($project->getId()->toRfc4122()));
 
         expect($existingMR->getTitle())->toBe('Updated title');
+        expect($existingMR->getDescription())->toBe('Now with description');
         expect($existingMR->getStatus())->toBe(MergeRequestStatus::Merged);
         expect($existingMR->getAdditions())->toBe(50);
+        expect($existingMR->getDeletions())->toBe(10);
         expect($existingMR->getReviewers())->toBe(['alice']);
+        expect($existingMR->getLabels())->toBe(['done']);
 
         expect($eventBus->dispatched[0]->created)->toBe(0);
         expect($eventBus->dispatched[0]->updated)->toBe(1);
+    });
+
+    it('dispatches ProjectSyncCompletedEvent when syncJobId is set', function () {
+        $provider = ProviderFactory::create();
+        $project = createSyncMRProject($provider);
+        $remoteMRs = [makeRemoteMR('1')];
+
+        $mrRepo = stubSyncMRRepo();
+        $eventBus = spySyncMREventBus();
+
+        $handler = new SyncMergeRequestsHandler(
+            stubSyncMRProjectRepo($project),
+            $mrRepo,
+            stubSyncMRGitFactory($remoteMRs),
+            $eventBus,
+        );
+
+        $syncJobId = Uuid::v7()->toRfc4122();
+        $handler(new SyncMergeRequestsCommand($project->getId()->toRfc4122(), syncJobId: $syncJobId));
+
+        expect($eventBus->dispatched)->toHaveCount(2);
+        expect($eventBus->dispatched[0])->toBeInstanceOf(MergeRequestsSyncedEvent::class);
+        expect($eventBus->dispatched[1])->toBeInstanceOf(\App\Catalog\Domain\Event\ProjectSyncCompletedEvent::class);
+        expect($eventBus->dispatched[1]->syncJobId)->toBe($syncJobId);
     });
 
     it('ignores project without provider', function () {

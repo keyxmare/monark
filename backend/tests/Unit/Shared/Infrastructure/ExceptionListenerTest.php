@@ -121,6 +121,83 @@ it('handles ValidationFailedException with 422', function () {
     expect($data['error']['message'])->toBe('Validation failed');
 });
 
+it('handles DomainException with duplicate slug for team', function () {
+    $listener = new ExceptionListener(stubTranslator());
+    $exception = new class ('A team with this slug already exists.') extends DomainException {};
+    $event = createExceptionEvent($exception);
+
+    $listener($event);
+
+    $response = $event->getResponse();
+    expect($response->getStatusCode())->toBe(422);
+    $data = \json_decode((string) $response->getContent(), true);
+    expect($data['error']['message'])->toBe('Slug already exists');
+});
+
+it('handles DomainException with duplicate slug for project', function () {
+    $listener = new ExceptionListener(stubTranslator());
+    $exception = new class ('A project with this slug already exists.') extends DomainException {};
+    $event = createExceptionEvent($exception);
+
+    $listener($event);
+
+    $response = $event->getResponse();
+    expect($response->getStatusCode())->toBe(422);
+    $data = \json_decode((string) $response->getContent(), true);
+    expect($data['error']['message'])->toBe('Slug already exists');
+});
+
+it('handles DomainException with duplicate slug for quiz', function () {
+    $listener = new ExceptionListener(stubTranslator());
+    $exception = new class ('A quiz with this slug already exists.') extends DomainException {};
+    $event = createExceptionEvent($exception);
+
+    $listener($event);
+
+    $response = $event->getResponse();
+    expect($response->getStatusCode())->toBe(422);
+    $data = \json_decode((string) $response->getContent(), true);
+    expect($data['error']['message'])->toBe('Slug already exists');
+});
+
+it('handles DomainException with invalid credentials', function () {
+    $listener = new ExceptionListener(stubTranslator());
+    $exception = new class ('Invalid credentials.') extends DomainException {};
+    $event = createExceptionEvent($exception);
+
+    $listener($event);
+
+    $response = $event->getResponse();
+    expect($response->getStatusCode())->toBe(422);
+    $data = \json_decode((string) $response->getContent(), true);
+    expect($data['error']['message'])->toBe('Invalid credentials');
+});
+
+it('includes entity details in NotFoundException response', function () {
+    $listener = new ExceptionListener(stubTranslator());
+    $event = createExceptionEvent(NotFoundException::forEntity('Project', 'p-42'));
+
+    $listener($event);
+
+    $data = \json_decode((string) $event->getResponse()->getContent(), true);
+    expect($data['error']['message'])->toContain('Project');
+    expect($data['error']['message'])->toContain('p-42');
+    expect($data['error']['code'])->toBe(404);
+});
+
+it('includes status code in HttpException response body', function () {
+    $listener = new ExceptionListener(stubTranslator());
+    $event = createExceptionEvent(new HttpException(429, 'Too many requests'));
+
+    $listener($event);
+
+    $response = $event->getResponse();
+    expect($response->getStatusCode())->toBe(429);
+    $data = \json_decode((string) $response->getContent(), true);
+    expect($data['error']['message'])->toBe('Too many requests');
+    expect($data['error']['code'])->toBe(429);
+});
+
 it('does not handle generic exceptions', function () {
     $listener = new ExceptionListener(stubTranslator());
     $event = createExceptionEvent(new \RuntimeException('Unexpected'));

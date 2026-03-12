@@ -132,6 +132,110 @@ describe('ImportProjectsHandler', function () {
         expect($result[0]->name)->toBe('New Project');
     });
 
+    it('normalizes slug with special characters', function () {
+        $provider = ProviderFactory::create();
+        $providerRepo = stubImportProviderRepo($provider);
+        $projectRepo = stubImportProjectRepo();
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $ownerId = Uuid::v7()->toRfc4122();
+
+        $input = new ImportProjectsInput(
+            projects: [
+                new ImportProjectItem(
+                    externalId: '1',
+                    name: 'Test',
+                    slug: 'team/my--app',
+                    repositoryUrl: 'https://test.com',
+                ),
+            ],
+        );
+
+        $result = $handler(new ImportProjectsCommand($provider->getId()->toRfc4122(), $input, $ownerId));
+
+        expect($result)->toHaveCount(1);
+        expect($result[0]->slug)->toBe('team-my-app');
+    });
+
+    it('maps internal visibility to public', function () {
+        $provider = ProviderFactory::create();
+        $providerRepo = stubImportProviderRepo($provider);
+        $projectRepo = stubImportProjectRepo();
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $ownerId = Uuid::v7()->toRfc4122();
+
+        $input = new ImportProjectsInput(
+            projects: [
+                new ImportProjectItem(
+                    externalId: '1',
+                    name: 'Internal Project',
+                    slug: 'internal-proj',
+                    repositoryUrl: 'https://test.com',
+                    visibility: 'internal',
+                ),
+            ],
+        );
+
+        $result = $handler(new ImportProjectsCommand($provider->getId()->toRfc4122(), $input, $ownerId));
+
+        expect($result)->toHaveCount(1);
+        expect($result[0]->visibility)->toBe('public');
+    });
+
+    it('appends suffix on slug collision', function () {
+        $provider = ProviderFactory::create();
+        $providerRepo = stubImportProviderRepo($provider);
+        $projectRepo = stubImportProjectRepo(existingSlugs: ['my-app']);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $ownerId = Uuid::v7()->toRfc4122();
+
+        $input = new ImportProjectsInput(
+            projects: [
+                new ImportProjectItem(
+                    externalId: '1',
+                    name: 'My App',
+                    slug: 'my-app',
+                    repositoryUrl: 'https://test.com',
+                ),
+            ],
+        );
+
+        $result = $handler(new ImportProjectsCommand($provider->getId()->toRfc4122(), $input, $ownerId));
+
+        expect($result)->toHaveCount(1);
+        expect($result[0]->slug)->toBe('my-app-1');
+    });
+
+    it('sets default branch and description from input', function () {
+        $provider = ProviderFactory::create();
+        $providerRepo = stubImportProviderRepo($provider);
+        $projectRepo = stubImportProjectRepo();
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $ownerId = Uuid::v7()->toRfc4122();
+
+        $input = new ImportProjectsInput(
+            projects: [
+                new ImportProjectItem(
+                    externalId: '50',
+                    name: 'Detailed',
+                    slug: 'detailed',
+                    description: 'Full description',
+                    repositoryUrl: 'https://test.com/detailed.git',
+                    defaultBranch: 'develop',
+                    visibility: 'public',
+                ),
+            ],
+        );
+
+        $result = $handler(new ImportProjectsCommand($provider->getId()->toRfc4122(), $input, $ownerId));
+
+        expect($result)->toHaveCount(1);
+        expect($result[0]->description)->toBe('Full description');
+        expect($result[0]->defaultBranch)->toBe('develop');
+        expect($result[0]->repositoryUrl)->toBe('https://test.com/detailed.git');
+        expect($result[0]->visibility)->toBe('public');
+        expect($result[0]->ownerId)->toBe($ownerId);
+    });
+
     it('throws not found for unknown provider', function () {
         $providerRepo = stubImportProviderRepo(null);
         $projectRepo = stubImportProjectRepo();
