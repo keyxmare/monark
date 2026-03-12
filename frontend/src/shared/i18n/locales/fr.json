@@ -277,6 +277,14 @@
         "public": "Public",
         "private": "Privé",
         "internal": "Interne"
+      },
+      "health": {
+        "status": "Statut",
+        "syncAge": "Fraîcheur sync",
+        "latency": "Latence API",
+        "fresh": "Récent",
+        "recent": "Moyen",
+        "stale": "Ancien"
       }
     },
     "techStacks": {

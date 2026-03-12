@@ -22,7 +22,16 @@ const toastStore = useToastStore()
 const { track } = useSyncProgress()
 
 const MIN_SEARCH_LENGTH = 3
+const apiLatency = ref<null | number>(null)
 const providerId = computed(() => route.params.id as string)
+const syncFreshness = computed(() => {
+  if (!providerStore.selected?.lastSyncAt) return 'stale'
+  const diff = Date.now() - new Date(providerStore.selected.lastSyncAt).getTime()
+  const hours = diff / (1000 * 60 * 60)
+  if (hours < 1) return 'fresh'
+  if (hours < 24) return 'recent'
+  return 'stale'
+})
 const displayedProjects = computed(() => {
   let projects = providerStore.remoteProjects
   if (searchQuery.value && searchQuery.value.length < MIN_SEARCH_LENGTH) {
@@ -134,7 +143,9 @@ async function handleSyncAll() {
 
 async function handleTestConnection() {
   testingConnection.value = true
+  const start = performance.now()
   const connected = await providerStore.testConnection(providerId.value)
+  apiLatency.value = Math.round(performance.now() - start)
   testingConnection.value = false
   toastStore.addToast({
     title: connected
@@ -372,6 +383,61 @@ function toggleSort(field: SortField) {
               </div>
             </div>
           </dl>
+        </div>
+
+        <div
+          class="mb-6 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4"
+          data-testid="provider-health-stats"
+        >
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div
+              :class="{
+                'text-green-600': providerStore.selected.status === 'connected',
+                'text-yellow-600': providerStore.selected.status === 'pending',
+                'text-red-600': providerStore.selected.status === 'error',
+              }"
+              class="text-lg font-bold"
+            >
+              {{ t(`catalog.providers.statuses.${providerStore.selected.status}`) }}
+            </div>
+            <p class="text-xs text-text-muted">
+              {{ t('catalog.providers.health.status') }}
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div class="text-lg font-bold tabular-nums text-text">
+              {{ providerStore.selected.projectsCount }}
+            </div>
+            <p class="text-xs text-text-muted">
+              {{ t('catalog.providers.projects') }}
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div
+              :class="{
+                'text-green-600': syncFreshness === 'fresh',
+                'text-yellow-600': syncFreshness === 'recent',
+                'text-red-600': syncFreshness === 'stale',
+              }"
+              class="text-lg font-bold"
+            >
+              {{ t(`catalog.providers.health.${syncFreshness}`) }}
+            </div>
+            <p class="text-xs text-text-muted">
+              {{ t('catalog.providers.health.syncAge') }}
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div class="text-lg font-bold tabular-nums text-text">
+              {{ apiLatency !== null ? `${apiLatency}ms` : '—' }}
+            </div>
+            <p class="text-xs text-text-muted">
+              {{ t('catalog.providers.health.latency') }}
+            </p>
+          </div>
         </div>
 
         <div class="mt-8">
