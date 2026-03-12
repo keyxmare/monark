@@ -39,6 +39,7 @@ export interface RemoteProject {
   visibility: string
   avatarUrl: string | null
   alreadyImported: boolean
+  localProjectId: string | null
 }
 
 export interface ImportProjectsInput {

@@ -36,13 +36,13 @@ final readonly class ListRemoteProjectsHandler
         $remoteProjects = $client->listProjects($provider, $query->page, $query->perPage, $query->search, $query->visibility, $query->sort, $query->sortDir);
         $total = $client->countProjects($provider, $query->search, $query->visibility);
 
-        $importedExternalIds = $this->projectRepository->findExternalIdsByProvider($provider->getId());
-        $importedSet = \array_flip($importedExternalIds);
+        $importedMap = $this->projectRepository->findExternalIdMapByProvider($provider->getId());
 
         $items = \array_map(
             static fn ($remote) => RemoteProjectOutput::fromRemoteProject(
                 $remote,
-                isset($importedSet[$remote->externalId]),
+                isset($importedMap[$remote->externalId]),
+                $importedMap[$remote->externalId] ?? null,
             ),
             $remoteProjects,
         );

@@ -15,8 +15,8 @@ interface ProjectRepositoryInterface
 
     public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project;
 
-    /** @return list<string> */
-    public function findExternalIdsByProvider(Uuid $providerId): array;
+    /** @return array<string, string> Map of externalId → local project UUID */
+    public function findExternalIdMapByProvider(Uuid $providerId): array;
 
     /** @return list<Project> */
     public function findAll(int $page = 1, int $perPage = 20): array;

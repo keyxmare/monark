@@ -45,6 +45,8 @@ const someSelected = computed(() =>
 
 const filterVisibility = ref('all')
 const importing = ref(false)
+const initialLoaded = ref(false)
+const searching = ref(false)
 const searchQuery = ref('')
 const selectedIds = ref<string[]>([])
 const showDeleteConfirm = ref(false)
@@ -54,14 +56,16 @@ const syncing = ref(false)
 const testingConnection = ref(false)
 let searchDebounce: null | ReturnType<typeof setTimeout> = null
 
-function fetchFilteredProjects(page = 1) {
+async function fetchFilteredProjects(page = 1) {
   selectedIds.value = []
-  providerStore.fetchRemoteProjects(providerId.value, page, 20, {
+  searching.value = true
+  await providerStore.fetchRemoteProjects(providerId.value, page, 20, {
     search: searchQuery.value.length >= MIN_SEARCH_LENGTH ? searchQuery.value : undefined,
     sort: sortField.value,
     sortDir: sortDir.value,
     visibility: filterVisibility.value !== 'all' ? filterVisibility.value : undefined,
   })
+  searching.value = false
 }
 
 watch(searchQuery, () => {
@@ -76,6 +80,7 @@ watch([filterVisibility, sortField, sortDir], () => {
 onMounted(async () => {
   await providerStore.fetchOne(providerId.value)
   await providerStore.fetchRemoteProjects(providerId.value)
+  initialLoaded.value = true
 })
 
 function getSelectedRemoteProjects(): RemoteProject[] {
@@ -396,7 +401,7 @@ function toggleSort(field: SortField) {
           </div>
 
           <div
-            v-if="providerStore.loading"
+            v-if="!initialLoaded"
             class="py-8 text-center text-text-muted"
             data-testid="remote-projects-loading"
           >
@@ -427,9 +432,30 @@ function toggleSort(field: SortField) {
                   type="search"
                   :aria-label="t('catalog.providers.searchProjects')"
                   :placeholder="t('catalog.providers.searchProjects')"
-                  class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
+                  class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-9 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
                   data-testid="remote-projects-search"
                 >
+                <svg
+                  v-if="searching"
+                  class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-primary"
+                  data-testid="search-spinner"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    fill="currentColor"
+                  />
+                </svg>
               </div>
               <select
                 v-model="filterVisibility"
@@ -518,8 +544,16 @@ function toggleSort(field: SortField) {
                       </p>
                     </div>
                   </div>
+                  <RouterLink
+                    v-if="project.alreadyImported && project.localProjectId"
+                    :to="{ name: 'catalog-projects-detail', params: { id: project.localProjectId } }"
+                    class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 transition-colors hover:bg-green-200"
+                    data-testid="remote-project-imported-badge"
+                  >
+                    {{ t('catalog.providers.imported') }} &rarr;
+                  </RouterLink>
                   <span
-                    v-if="project.alreadyImported"
+                    v-else-if="project.alreadyImported"
                     class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
                     data-testid="remote-project-imported-badge"
                   >

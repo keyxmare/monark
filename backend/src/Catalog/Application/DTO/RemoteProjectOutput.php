@@ -18,10 +18,11 @@ final readonly class RemoteProjectOutput
         public string $visibility,
         public ?string $avatarUrl,
         public bool $alreadyImported,
+        public ?string $localProjectId = null,
     ) {
     }
 
-    public static function fromRemoteProject(RemoteProject $remote, bool $alreadyImported): self
+    public static function fromRemoteProject(RemoteProject $remote, bool $alreadyImported, ?string $localProjectId = null): self
     {
         return new self(
             externalId: $remote->externalId,
@@ -33,6 +34,7 @@ final readonly class RemoteProjectOutput
             visibility: $remote->visibility,
             avatarUrl: $remote->avatarUrl,
             alreadyImported: $alreadyImported,
+            localProjectId: $localProjectId,
         );
     }
 }

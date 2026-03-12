@@ -32,19 +32,24 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
             ->findOneBy(['externalId' => $externalId, 'provider' => $providerId]);
     }
 
-    /** @return list<string> */
-    public function findExternalIdsByProvider(Uuid $providerId): array
+    /** @return array<string, string> */
+    public function findExternalIdMapByProvider(Uuid $providerId): array
     {
         $results = $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
-            ->select('p.externalId')
+            ->select('p.externalId', 'p.id')
             ->where('p.provider = :providerId')
             ->andWhere('p.externalId IS NOT NULL')
             ->setParameter('providerId', $providerId)
             ->getQuery()
-            ->getSingleColumnResult();
+            ->getResult();
 
-        return \array_values(\array_filter($results));
+        $map = [];
+        foreach ($results as $row) {
+            $map[(string) $row['externalId']] = (string) $row['id'];
+        }
+
+        return $map;
     }
 
     /** @return list<Project> */
