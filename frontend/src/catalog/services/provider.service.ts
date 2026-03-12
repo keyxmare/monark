@@ -63,8 +63,8 @@ export const providerService = {
     return api.delete<void>(`${BASE_URL}/${id}`)
   },
 
-  testConnection(id: string): Promise<ApiResponse<{ connected: boolean }>> {
-    return api.post<ApiResponse<{ connected: boolean }>>(`${BASE_URL}/${id}/test`, {})
+  testConnection(id: string): Promise<ApiResponse<Provider>> {
+    return api.post<ApiResponse<Provider>>(`${BASE_URL}/${id}/test`, {})
   },
 
   listRemoteProjects(id: string, page = 1, perPage = 20): Promise<ApiResponse<PaginatedRemoteProjects>> {

@@ -110,14 +110,16 @@ export const useProviderStore = defineStore('catalog-provider', () => {
 
     try {
       const response = await providerService.testConnection(id)
+      const updatedProvider = response.data
+      const connected = updatedProvider.status === 'connected'
       if (selected.value && selected.value.id === id) {
-        selected.value.status = response.data.connected ? 'connected' : 'error'
+        selected.value.status = updatedProvider.status
       }
       const index = providers.value.findIndex(p => p.id === id)
       if (index !== -1) {
-        providers.value[index].status = response.data.connected ? 'connected' : 'error'
+        providers.value[index].status = updatedProvider.status
       }
-      return response.data.connected
+      return connected
     } catch {
       error.value = t('common.errors.failedToTestConnection')
       return false
