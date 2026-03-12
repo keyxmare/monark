@@ -21,7 +21,7 @@ const { track } = useSyncProgress()
 
 const providerId = computed(() => route.params.id as string)
 const selectableProjects = computed(() =>
-  providerStore.remoteProjects.filter(rp => !rp.alreadyImported),
+  filteredProjects.value.filter(rp => !rp.alreadyImported),
 )
 const allSelected = computed(() =>
   selectableProjects.value.length > 0 && selectedIds.value.length === selectableProjects.value.length,
@@ -29,11 +29,24 @@ const allSelected = computed(() =>
 const someSelected = computed(() =>
   selectedIds.value.length > 0 && selectedIds.value.length < selectableProjects.value.length,
 )
-const selectedIds = ref<string[]>([])
-const testingConnection = ref(false)
+const filterVisibility = ref('all')
 const importing = ref(false)
-const syncing = ref(false)
+const searchQuery = ref('')
+const selectedIds = ref<string[]>([])
 const showDeleteConfirm = ref(false)
+const syncing = ref(false)
+const testingConnection = ref(false)
+const filteredProjects = computed(() => {
+  let projects = providerStore.remoteProjects
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    projects = projects.filter(rp => rp.name.toLowerCase().includes(q) || rp.slug.toLowerCase().includes(q))
+  }
+  if (filterVisibility.value !== 'all') {
+    projects = projects.filter(rp => rp.visibility === filterVisibility.value)
+  }
+  return projects
+})
 
 onMounted(async () => {
   await providerStore.fetchOne(providerId.value)
@@ -359,6 +372,54 @@ function toggleSelectAll() {
 
           <template v-else>
             <div
+              class="mb-4 flex flex-wrap items-center gap-3"
+              data-testid="remote-projects-filters"
+            >
+              <div class="relative flex-1">
+                <svg
+                  class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                  />
+                </svg>
+                <input
+                  v-model="searchQuery"
+                  type="search"
+                  :aria-label="t('catalog.providers.searchProjects')"
+                  :placeholder="t('catalog.providers.searchProjects')"
+                  class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
+                  data-testid="remote-projects-search"
+                >
+              </div>
+              <select
+                v-model="filterVisibility"
+                :aria-label="t('catalog.providers.allVisibilities')"
+                class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+                data-testid="remote-projects-filter-visibility"
+              >
+                <option value="all">
+                  {{ t('catalog.providers.allVisibilities') }}
+                </option>
+                <option value="public">
+                  {{ t('catalog.providers.visibility.public') }}
+                </option>
+                <option value="private">
+                  {{ t('catalog.providers.visibility.private') }}
+                </option>
+                <option value="internal">
+                  {{ t('catalog.providers.visibility.internal') }}
+                </option>
+              </select>
+            </div>
+
+            <div
               v-if="selectableProjects.length > 0"
               class="mb-4 flex items-center gap-3"
               data-testid="select-all-header"
@@ -377,12 +438,12 @@ function toggleSelectAll() {
             </div>
 
             <div
-              v-if="providerStore.remoteProjects.length > 0"
+              v-if="filteredProjects.length > 0"
               class="grid grid-cols-1 gap-4 sm:grid-cols-2"
               data-testid="remote-projects-list"
             >
               <div
-                v-for="project in providerStore.remoteProjects"
+                v-for="project in filteredProjects"
                 :key="project.externalId"
                 class="rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-md"
                 data-testid="remote-project-card"

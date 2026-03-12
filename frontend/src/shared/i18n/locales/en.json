@@ -236,6 +236,8 @@
       "remoteProjects": "Remote Projects",
       "loadingRemote": "Loading remote projects…",
       "imported": "Imported",
+      "allVisibilities": "All visibilities",
+      "searchProjects": "Search projects…",
       "noRemoteProjects": "No remote projects found",
       "noRemoteProjectsHint": "Check the provider configuration or sync projects.",
       "importSelected": "Import Selected ({count})",

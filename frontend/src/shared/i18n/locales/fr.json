@@ -236,6 +236,8 @@
       "remoteProjects": "Projets distants",
       "loadingRemote": "Chargement des projets distants…",
       "imported": "Importé",
+      "allVisibilities": "Toutes les visibilités",
+      "searchProjects": "Rechercher un projet…",
       "noRemoteProjects": "Aucun projet distant trouvé",
       "noRemoteProjectsHint": "Vérifiez la configuration du fournisseur ou synchronisez les projets.",
       "importSelected": "Importer la sélection ({count})",
