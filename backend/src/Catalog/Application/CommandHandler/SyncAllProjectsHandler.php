@@ -42,6 +42,14 @@ final readonly class SyncAllProjectsHandler
             $projects = $this->projectRepository->findAllWithProvider();
         }
 
+        if ($command->projectIds !== null) {
+            $allowed = \array_flip($command->projectIds);
+            $projects = \array_values(\array_filter(
+                $projects,
+                static fn ($p) => isset($allowed[$p->getId()->toRfc4122()]),
+            ));
+        }
+
         $providerId = $command->providerId !== null ? Uuid::fromString($command->providerId) : null;
         $syncJob = SyncJob::create(\count($projects), $providerId);
         $this->syncJobRepository->save($syncJob);

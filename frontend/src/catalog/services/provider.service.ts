@@ -80,9 +80,10 @@ export const providerService = {
     return api.post<ApiResponse<Project[]>>(`${BASE_URL}/${id}/import`, data)
   },
 
-  syncAll(id: string, force = false): Promise<ApiResponse<SyncJobResponse>> {
+  syncAll(id: string, force = false, projectIds?: string[]): Promise<ApiResponse<SyncJobResponse>> {
     const params = force ? '?force=1' : ''
-    return api.post<ApiResponse<SyncJobResponse>>(`${BASE_URL}/${id}/sync-all${params}`, {})
+    const body = projectIds ? { projectIds } : {}
+    return api.post<ApiResponse<SyncJobResponse>>(`${BASE_URL}/${id}/sync-all${params}`, body)
   },
 
   syncAllGlobal(force = false): Promise<ApiResponse<SyncJobResponse>> {

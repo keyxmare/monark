@@ -42,14 +42,17 @@ const displayedProjects = computed(() => {
   const dir = sortDir.value === 'asc' ? 1 : -1
   return [...projects].sort((a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase()) * dir)
 })
-const selectableProjects = computed(() =>
-  displayedProjects.value.filter(rp => !rp.alreadyImported),
-)
 const allSelected = computed(() =>
-  selectableProjects.value.length > 0 && selectedIds.value.length === selectableProjects.value.length,
+  displayedProjects.value.length > 0 && selectedIds.value.length === displayedProjects.value.length,
+)
+const selectedImportable = computed(() =>
+  selectedIds.value.filter(id => displayedProjects.value.some(rp => rp.externalId === id && !rp.alreadyImported)),
+)
+const selectedSyncable = computed(() =>
+  selectedIds.value.filter(id => displayedProjects.value.some(rp => rp.externalId === id && rp.alreadyImported && rp.localProjectId)),
 )
 const someSelected = computed(() =>
-  selectedIds.value.length > 0 && selectedIds.value.length < selectableProjects.value.length,
+  selectedIds.value.length > 0 && selectedIds.value.length < displayedProjects.value.length,
 )
 
 const filterVisibility = ref('all')
@@ -103,7 +106,7 @@ async function handleDelete() {
 }
 
 async function handleImport() {
-  const selected = getSelectedRemoteProjects()
+  const selected = getSelectedRemoteProjects().filter(rp => !rp.alreadyImported)
   if (selected.length === 0) return
 
   importing.value = true
@@ -141,6 +144,24 @@ async function handleSyncAll() {
   }
 }
 
+async function handleSyncSelected() {
+  const localIds = selectedSyncable.value
+    .map(externalId => displayedProjects.value.find(rp => rp.externalId === externalId)?.localProjectId)
+    .filter((id): id is string => id != null)
+  if (localIds.length === 0) return
+
+  syncing.value = true
+  try {
+    const result = await providerStore.syncAll(providerId.value, false, localIds)
+    track(result.id, result.projectsCount)
+    selectedIds.value = []
+  } catch {
+    // error handled by store
+  } finally {
+    syncing.value = false
+  }
+}
+
 async function handleTestConnection() {
   testingConnection.value = true
   const start = performance.now()
@@ -159,7 +180,7 @@ function toggleSelectAll() {
   if (allSelected.value) {
     selectedIds.value = []
   } else {
-    selectedIds.value = selectableProjects.value.map(rp => rp.externalId)
+    selectedIds.value = displayedProjects.value.map(rp => rp.externalId)
   }
 }
 
@@ -455,13 +476,22 @@ function toggleSort(field: SortField) {
                 {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
               </button>
               <button
-                v-if="selectedIds.length > 0"
+                v-if="selectedImportable.length > 0"
                 :disabled="importing"
                 class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
                 data-testid="provider-import-selected"
                 @click="handleImport"
               >
-                {{ importing ? t('catalog.providers.importing') : t('catalog.providers.importSelected', { count: selectedIds.length }) }}
+                {{ importing ? t('catalog.providers.importing') : t('catalog.providers.importSelected', { count: selectedImportable.length }) }}
+              </button>
+              <button
+                v-if="selectedSyncable.length > 0"
+                :disabled="syncing"
+                class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
+                data-testid="provider-sync-selected"
+                @click="handleSyncSelected"
+              >
+                {{ t('catalog.providers.syncSelected', { count: selectedSyncable.length }) }}
               </button>
             </div>
           </div>
@@ -563,7 +593,7 @@ function toggleSort(field: SortField) {
             </div>
 
             <div
-              v-if="selectableProjects.length > 0"
+              v-if="displayedProjects.length > 0"
               class="mb-4 flex items-center gap-3"
               data-testid="select-all-header"
             >
@@ -594,7 +624,6 @@ function toggleSort(field: SortField) {
                 <div class="mb-2 flex items-start justify-between">
                   <div class="flex items-center gap-3">
                     <input
-                      v-if="!project.alreadyImported"
                       v-model="selectedIds"
                       type="checkbox"
                       :value="project.externalId"

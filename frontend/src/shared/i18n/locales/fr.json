@@ -257,6 +257,7 @@
       "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "tokenKeepCurrent": "Laisser vide pour conserver l'actuel",
       "syncAll": "Tout synchroniser",
+      "syncSelected": "Synchro sélection ({count})",
       "syncing": "Synchronisation…",
       "syncStarted": "Synchronisation lancée pour {count} projet(s)",
       "confirmDeleteTitle": "Supprimer le fournisseur",

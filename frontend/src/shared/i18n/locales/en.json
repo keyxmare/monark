@@ -257,6 +257,7 @@
       "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "tokenKeepCurrent": "Leave empty to keep current",
       "syncAll": "Sync All",
+      "syncSelected": "Sync Selected ({count})",
       "syncing": "Syncing…",
       "syncStarted": "Sync started for {count} project(s)",
       "confirmDeleteTitle": "Delete Provider",

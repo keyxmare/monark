@@ -33,7 +33,11 @@ final readonly class SyncAllProjectsController
     public function syncByProvider(string $id, Request $request): JsonResponse
     {
         $force = $request->query->getBoolean('force', false);
-        $envelope = $this->commandBus->dispatch(new SyncAllProjectsCommand($id, $force));
+        $body = $request->toArray();
+        /** @var list<string>|null $projectIds */
+        $projectIds = isset($body['projectIds']) && \is_array($body['projectIds']) ? $body['projectIds'] : null;
+
+        $envelope = $this->commandBus->dispatch(new SyncAllProjectsCommand($id, $force, $projectIds));
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result)->toArray(), 202);
