@@ -187,11 +187,16 @@ async function handlePageChange(page: number) {
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('catalog.providers.url') }}
               </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="provider-detail-url"
-              >
-                {{ providerStore.selected.url }}
+              <dd class="mt-1">
+                <a
+                  :href="providerStore.selected.url"
+                  class="text-primary hover:underline"
+                  data-testid="provider-detail-url"
+                  rel="noopener"
+                  target="_blank"
+                >
+                  {{ providerStore.selected.url }}
+                </a>
               </dd>
             </div>
             <div v-if="providerStore.selected.username">

@@ -177,8 +177,19 @@ function requestDelete(provider: { id: string; name: string }) {
                   {{ t(`catalog.providers.types.${provider.type}`) }}
                 </span>
               </td>
-              <td class="px-4 py-3 text-sm text-text-muted">
-                {{ provider.url }}
+              <td
+                class="px-4 py-3 text-sm"
+                @click.stop
+              >
+                <a
+                  :href="provider.url"
+                  class="text-primary hover:underline"
+                  data-testid="provider-url-link"
+                  rel="noopener"
+                  target="_blank"
+                >
+                  {{ provider.url }}
+                </a>
               </td>
               <td class="px-4 py-3">
                 <span
