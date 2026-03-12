@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\Presentation\Controller;
 
+use App\Identity\Application\DTO\TeamListOutput;
 use App\Identity\Application\Query\ListTeamsQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,6 +27,7 @@ final readonly class ListTeamsController
         $perPage = $request->query->getInt('per_page', 20);
 
         $envelope = $this->queryBus->dispatch(new ListTeamsQuery($page, $perPage));
+        /** @var TeamListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

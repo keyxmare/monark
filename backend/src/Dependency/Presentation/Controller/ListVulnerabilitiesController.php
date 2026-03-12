@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dependency\Presentation\Controller;
 
+use App\Dependency\Application\DTO\VulnerabilityListOutput;
 use App\Dependency\Application\Query\ListVulnerabilitiesQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,6 +27,7 @@ final readonly class ListVulnerabilitiesController
         $perPage = $request->query->getInt('per_page', 20);
 
         $envelope = $this->queryBus->dispatch(new ListVulnerabilitiesQuery($page, $perPage));
+        /** @var VulnerabilityListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

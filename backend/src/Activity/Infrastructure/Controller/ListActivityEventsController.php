@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Activity\Infrastructure\Controller;
 
+use App\Activity\Application\DTO\ActivityEventListOutput;
 use App\Activity\Application\Query\ListActivityEventsQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,6 +27,7 @@ final readonly class ListActivityEventsController
         $perPage = $request->query->getInt('per_page', 20);
 
         $envelope = $this->queryBus->dispatch(new ListActivityEventsQuery($page, $perPage));
+        /** @var ActivityEventListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

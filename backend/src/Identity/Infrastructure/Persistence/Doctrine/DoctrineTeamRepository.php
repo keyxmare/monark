@@ -29,6 +29,7 @@ final readonly class DoctrineTeamRepository implements TeamRepositoryInterface
     /** @return list<Team> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Team> */
         return $this->entityManager->getRepository(Team::class)
             ->createQueryBuilder('t')
             ->orderBy('t.createdAt', 'DESC')

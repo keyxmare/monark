@@ -24,6 +24,7 @@ final readonly class DoctrineNotificationRepository implements NotificationRepos
     /** @return list<Notification> */
     public function findByUser(string $userId, int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Notification> */
         return $this->entityManager->getRepository(Notification::class)
             ->createQueryBuilder('n')
             ->where('n.userId = :userId')

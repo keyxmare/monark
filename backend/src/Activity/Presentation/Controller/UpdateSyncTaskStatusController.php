@@ -22,6 +22,7 @@ final readonly class UpdateSyncTaskStatusController
 
     public function __invoke(string $id, Request $request): JsonResponse
     {
+        /** @var array{status?: string} $data */
         $data = \json_decode($request->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $envelope = $this->commandBus->dispatch(

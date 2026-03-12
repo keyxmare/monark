@@ -24,6 +24,7 @@ final readonly class DoctrineAnswerRepository implements AnswerRepositoryInterfa
     /** @return list<Answer> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Answer> */
         return $this->entityManager->getRepository(Answer::class)
             ->createQueryBuilder('a')
             ->orderBy('a.position', 'ASC')
@@ -36,6 +37,7 @@ final readonly class DoctrineAnswerRepository implements AnswerRepositoryInterfa
     /** @return list<Answer> */
     public function findByQuestionId(Uuid $questionId, int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Answer> */
         return $this->entityManager->getRepository(Answer::class)
             ->createQueryBuilder('a')
             ->where('a.question = :questionId')

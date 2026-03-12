@@ -24,6 +24,7 @@ final readonly class DoctrineAttemptRepository implements AttemptRepositoryInter
     /** @return list<Attempt> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Attempt> */
         return $this->entityManager->getRepository(Attempt::class)
             ->createQueryBuilder('a')
             ->orderBy('a.createdAt', 'DESC')

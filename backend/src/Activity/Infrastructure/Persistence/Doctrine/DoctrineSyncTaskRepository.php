@@ -39,6 +39,7 @@ final readonly class DoctrineSyncTaskRepository implements SyncTaskRepositoryInt
 
         $this->applyFilters($qb, $status, $type, $severity, $projectId);
 
+        /** @var list<SyncTask> */
         return $qb
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)
@@ -63,6 +64,7 @@ final readonly class DoctrineSyncTaskRepository implements SyncTaskRepositoryInt
 
     public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask
     {
+        /** @var list<SyncTask> */
         $results = $this->entityManager->getRepository(SyncTask::class)
             ->createQueryBuilder('st')
             ->where('st.projectId = :projectId')
@@ -110,6 +112,7 @@ final readonly class DoctrineSyncTaskRepository implements SyncTaskRepositoryInt
     /** @return list<array{label: string, count: int}> */
     private function countGroupedBy(string $field): array
     {
+        /** @var list<array{label: string, count: int}> */
         $results = $this->entityManager->getRepository(SyncTask::class)
             ->createQueryBuilder('st')
             ->select(\sprintf('%s AS label, COUNT(st.id) AS count', $field))

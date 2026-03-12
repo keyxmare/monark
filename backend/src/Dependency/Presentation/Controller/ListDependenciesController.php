@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dependency\Presentation\Controller;
 
+use App\Dependency\Application\DTO\DependencyListOutput;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,6 +28,7 @@ final readonly class ListDependenciesController
         $projectId = $request->query->get('project_id');
 
         $envelope = $this->queryBus->dispatch(new ListDependenciesQuery($page, $perPage, $projectId));
+        /** @var DependencyListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

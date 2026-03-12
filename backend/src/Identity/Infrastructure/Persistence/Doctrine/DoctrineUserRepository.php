@@ -29,6 +29,7 @@ final readonly class DoctrineUserRepository implements UserRepositoryInterface
     /** @return list<User> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<User> */
         return $this->entityManager->getRepository(User::class)
             ->createQueryBuilder('u')
             ->orderBy('u.createdAt', 'DESC')

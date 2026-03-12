@@ -24,6 +24,7 @@ final readonly class DoctrineAccessTokenRepository implements AccessTokenReposit
     /** @return list<AccessToken> */
     public function findByUser(Uuid $userId, int $page = 1, int $perPage = 20): array
     {
+        /** @var list<AccessToken> */
         return $this->entityManager->getRepository(AccessToken::class)
             ->createQueryBuilder('t')
             ->where('t.user = :userId')

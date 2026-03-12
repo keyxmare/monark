@@ -35,6 +35,7 @@ final class AccessToken
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    /** @param list<string> $scopes */
     private function __construct(
         Uuid $id,
         TokenProvider $provider,
@@ -52,6 +53,7 @@ final class AccessToken
         $this->createdAt = new \DateTimeImmutable();
     }
 
+    /** @param list<string> $scopes */
     public static function create(
         TokenProvider $provider,
         string $token,

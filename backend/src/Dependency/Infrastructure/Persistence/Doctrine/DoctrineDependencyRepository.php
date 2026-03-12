@@ -24,6 +24,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
     /** @return list<Dependency> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Dependency> */
         return $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
             ->orderBy('d.createdAt', 'DESC')
@@ -51,6 +52,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
     /** @return list<Dependency> */
     public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Dependency> */
         return $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
             ->where('d.project = :projectId')

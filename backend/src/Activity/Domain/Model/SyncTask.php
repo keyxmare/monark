@@ -47,6 +47,7 @@ final class SyncTask
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
 
+    /** @param array<string, mixed> $metadata */
     private function __construct(
         Uuid $id,
         SyncTaskType $type,
@@ -91,6 +92,7 @@ final class SyncTask
         );
     }
 
+    /** @param array<string, mixed> $metadata */
     public function updateInfo(
         SyncTaskSeverity $severity,
         string $title,
@@ -178,10 +180,17 @@ final class SyncTask
     public function getMetadataKey(): string
     {
         return match ($this->type) {
-            SyncTaskType::OutdatedDependency, SyncTaskType::NewDependency => $this->metadata['dependencyName'] ?? '',
-            SyncTaskType::Vulnerability => $this->metadata['cveId'] ?? '',
-            SyncTaskType::StackUpgrade => ($this->metadata['language'] ?? '') . ':' . ($this->metadata['framework'] ?? ''),
-            SyncTaskType::StalePr => $this->metadata['externalId'] ?? '',
+            SyncTaskType::OutdatedDependency, SyncTaskType::NewDependency => $this->metadataString('dependencyName'),
+            SyncTaskType::Vulnerability => $this->metadataString('cveId'),
+            SyncTaskType::StackUpgrade => $this->metadataString('language') . ':' . $this->metadataString('framework'),
+            SyncTaskType::StalePr => $this->metadataString('externalId'),
         };
+    }
+
+    private function metadataString(string $key): string
+    {
+        $value = $this->metadata[$key] ?? '';
+
+        return \is_string($value) ? $value : '';
     }
 }

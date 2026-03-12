@@ -22,6 +22,7 @@ final readonly class GetMessengerStatsController
     public function __invoke(): JsonResponse
     {
         $envelope = $this->queryBus->dispatch(new GetMessengerStatsQuery());
+        /** @var \App\Activity\Application\DTO\MessengerStatsOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->toArray())->toArray());

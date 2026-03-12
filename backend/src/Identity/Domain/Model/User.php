@@ -53,6 +53,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
 
+    /** @param list<string> $roles */
     private function __construct(
         Uuid $id,
         string $email,
@@ -75,6 +76,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    /** @param list<string> $roles */
     public static function create(
         string $email,
         string $hashedPassword,
@@ -155,8 +157,11 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->updatedAt;
     }
 
+    /** @return non-empty-string */
     public function getUserIdentifier(): string
     {
+        \assert($this->email !== '');
+
         return $this->email;
     }
 

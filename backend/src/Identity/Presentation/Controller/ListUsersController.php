@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\Presentation\Controller;
 
+use App\Identity\Application\DTO\UserListOutput;
 use App\Identity\Application\Query\ListUsersQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,6 +27,7 @@ final readonly class ListUsersController
         $perPage = $request->query->getInt('per_page', 20);
 
         $envelope = $this->queryBus->dispatch(new ListUsersQuery($page, $perPage));
+        /** @var UserListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\Presentation\Controller;
 
+use App\Identity\Application\DTO\AccessTokenListOutput;
 use App\Identity\Application\Query\ListAccessTokensQuery;
 use App\Identity\Domain\Model\User;
 use App\Shared\Application\DTO\ApiResponse;
@@ -30,6 +31,7 @@ final readonly class ListAccessTokensController
         $envelope = $this->queryBus->dispatch(
             new ListAccessTokensQuery($user->getId()->toRfc4122(), $page, $perPage),
         );
+        /** @var AccessTokenListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

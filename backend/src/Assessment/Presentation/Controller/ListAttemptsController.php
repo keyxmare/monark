@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Assessment\Presentation\Controller;
 
+use App\Assessment\Application\DTO\AttemptListOutput;
 use App\Assessment\Application\Query\ListAttemptsQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,6 +27,7 @@ final readonly class ListAttemptsController
         $perPage = $request->query->getInt('per_page', 20);
 
         $envelope = $this->queryBus->dispatch(new ListAttemptsQuery($page, $perPage));
+        /** @var AttemptListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

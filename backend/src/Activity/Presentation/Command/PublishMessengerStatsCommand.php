@@ -33,7 +33,7 @@ final class PublishMessengerStatsCommand extends Command
 
         $lastHash = '';
 
-        while (true) {
+        while (true) { // @phpstan-ignore while.alwaysTrue
             try {
                 $queues = $this->monitor->getQueues();
                 $workers = $this->monitor->getWorkers();
@@ -41,7 +41,7 @@ final class PublishMessengerStatsCommand extends Command
                 $payload = \json_encode([
                     'queues' => $queues,
                     'workers' => $workers,
-                ]);
+                ], \JSON_THROW_ON_ERROR);
 
                 $hash = \md5($payload);
                 if ($hash !== $lastHash) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Assessment\Presentation\Controller;
 
+use App\Assessment\Application\DTO\AnswerListOutput;
 use App\Assessment\Application\Query\ListAnswersQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,6 +28,7 @@ final readonly class ListAnswersController
         $questionId = $request->query->get('question_id');
 
         $envelope = $this->queryBus->dispatch(new ListAnswersQuery($page, $perPage, $questionId));
+        /** @var AnswerListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

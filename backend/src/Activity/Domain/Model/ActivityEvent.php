@@ -34,6 +34,7 @@ final class ActivityEvent
     #[ORM\Column(type: 'string', length: 255)]
     private string $userId;
 
+    /** @param array<string, mixed> $payload */
     private function __construct(
         Uuid $id,
         string $type,

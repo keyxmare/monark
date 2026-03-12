@@ -77,8 +77,8 @@ final readonly class CreateOutdatedDependencyTasksListener
         $currentParts = \explode('.', $current);
         $latestParts = \explode('.', $latest);
 
-        $currentMajor = (int) ($currentParts[0] ?? 0);
-        $latestMajor = (int) ($latestParts[0] ?? 0);
+        $currentMajor = (int) $currentParts[0];
+        $latestMajor = (int) $latestParts[0];
 
         if ($latestMajor - $currentMajor >= 2) {
             return SyncTaskSeverity::Critical;

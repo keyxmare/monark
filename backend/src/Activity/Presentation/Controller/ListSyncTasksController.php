@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Activity\Presentation\Controller;
 
+use App\Activity\Application\DTO\SyncTaskListOutput;
 use App\Activity\Application\Query\ListSyncTasksQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,6 +33,7 @@ final readonly class ListSyncTasksController
                 perPage: $request->query->getInt('per_page', 20),
             ),
         );
+        /** @var SyncTaskListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

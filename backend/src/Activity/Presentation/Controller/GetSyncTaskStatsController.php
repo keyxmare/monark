@@ -22,6 +22,7 @@ final readonly class GetSyncTaskStatsController
     public function __invoke(): JsonResponse
     {
         $envelope = $this->queryBus->dispatch(new GetSyncTaskStatsQuery());
+        /** @var \App\Activity\Application\DTO\SyncTaskStatsOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->toArray())->toArray());

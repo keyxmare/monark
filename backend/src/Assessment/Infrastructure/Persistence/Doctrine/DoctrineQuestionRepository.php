@@ -24,6 +24,7 @@ final readonly class DoctrineQuestionRepository implements QuestionRepositoryInt
     /** @return list<Question> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Question> */
         return $this->entityManager->getRepository(Question::class)
             ->createQueryBuilder('q')
             ->orderBy('q.position', 'ASC')
@@ -36,6 +37,7 @@ final readonly class DoctrineQuestionRepository implements QuestionRepositoryInt
     /** @return list<Question> */
     public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Question> */
         return $this->entityManager->getRepository(Question::class)
             ->createQueryBuilder('q')
             ->where('q.quiz = :quizId')

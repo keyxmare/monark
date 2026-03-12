@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Activity\Infrastructure\Controller;
 
+use App\Activity\Application\DTO\NotificationListOutput;
 use App\Activity\Application\Query\ListNotificationsQuery;
 use App\Identity\Domain\Model\User;
 use App\Shared\Application\DTO\ApiResponse;
@@ -30,6 +31,7 @@ final readonly class ListNotificationsController
         $envelope = $this->queryBus->dispatch(
             new ListNotificationsQuery($user->getId()->toRfc4122(), $page, $perPage),
         );
+        /** @var NotificationListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

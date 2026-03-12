@@ -24,6 +24,7 @@ final readonly class DoctrineActivityEventRepository implements ActivityEventRep
     /** @return list<ActivityEvent> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<ActivityEvent> */
         return $this->entityManager->getRepository(ActivityEvent::class)
             ->createQueryBuilder('e')
             ->orderBy('e.occurredAt', 'DESC')

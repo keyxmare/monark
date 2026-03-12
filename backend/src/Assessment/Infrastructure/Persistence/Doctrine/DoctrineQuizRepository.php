@@ -29,6 +29,7 @@ final readonly class DoctrineQuizRepository implements QuizRepositoryInterface
     /** @return list<Quiz> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Quiz> */
         return $this->entityManager->getRepository(Quiz::class)
             ->createQueryBuilder('q')
             ->orderBy('q.createdAt', 'DESC')
