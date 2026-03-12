@@ -124,77 +124,41 @@ function requestDelete(provider: { id: string; name: string }) {
         {{ providerStore.error }}
       </div>
 
-      <div
-        v-else
-        class="rounded-xl border border-border bg-surface"
-      >
-        <table
-          class="w-full"
-          data-testid="provider-list-table"
+      <template v-else>
+        <div
+          v-if="providerStore.providers.length > 0"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          data-testid="provider-list-grid"
         >
-          <thead>
-            <tr class="border-b border-border bg-surface-muted">
-              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                {{ t('catalog.providers.name') }}
-              </th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                {{ t('catalog.providers.type') }}
-              </th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                {{ t('catalog.providers.url') }}
-              </th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                {{ t('catalog.providers.status') }}
-              </th>
-              <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                {{ t('catalog.providers.projects') }}
-              </th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                {{ t('catalog.providers.lastSync') }}
-              </th>
-              <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                {{ t('common.table.actions') }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="provider in providerStore.providers"
-              :key="provider.id"
-              class="cursor-pointer border-b border-border last:border-0 hover:bg-background/50"
-              data-testid="provider-list-row"
-              @click="navigateToDetail(provider.id)"
-            >
-              <td class="px-4 py-3 text-sm font-medium text-text">
-                {{ provider.name }}
-              </td>
-              <td class="px-4 py-3">
-                <span
-                  class="inline-flex items-center gap-1.5 text-sm"
-                  data-testid="provider-type-badge"
-                >
-                  <ProviderIcon
-                    :type="provider.type"
-                    :size="16"
-                  />
-                  {{ t(`catalog.providers.types.${provider.type}`) }}
-                </span>
-              </td>
-              <td
-                class="px-4 py-3 text-sm"
+          <div
+            v-for="provider in providerStore.providers"
+            :key="provider.id"
+            class="cursor-pointer rounded-xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
+            data-testid="provider-list-card"
+            role="link"
+            tabindex="0"
+            @click="navigateToDetail(provider.id)"
+            @keydown.enter="navigateToDetail(provider.id)"
+          >
+            <div class="mb-3 flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <ProviderIcon
+                  :type="provider.type"
+                  :size="24"
+                />
+                <div>
+                  <h3 class="text-sm font-semibold text-text">
+                    {{ provider.name }}
+                  </h3>
+                  <p class="text-xs text-text-muted">
+                    {{ t(`catalog.providers.types.${provider.type}`) }}
+                  </p>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-2"
                 @click.stop
               >
-                <a
-                  :href="provider.url"
-                  class="text-primary hover:underline"
-                  data-testid="provider-url-link"
-                  rel="noopener"
-                  target="_blank"
-                >
-                  {{ provider.url }}
-                </a>
-              </td>
-              <td class="px-4 py-3">
                 <span
                   :class="{
                     'bg-green-100 text-green-800': provider.status === 'connected',
@@ -206,32 +170,54 @@ function requestDelete(provider: { id: string; name: string }) {
                 >
                   {{ t(`catalog.providers.statuses.${provider.status}`) }}
                 </span>
-              </td>
-              <td
-                class="px-4 py-3 text-right text-sm tabular-nums text-text"
-                data-testid="provider-projects-count"
-              >
-                {{ provider.projectsCount }}
-              </td>
-              <td class="px-4 py-3 text-sm text-text-muted">
-                {{ provider.lastSyncAt ? d(new Date(provider.lastSyncAt), 'short') : '—' }}
-              </td>
-              <td
-                class="px-4 py-3 text-right"
-                @click.stop
-              >
                 <DropdownMenu
                   :items="getDropdownItems(provider)"
                   @select="handleDropdownAction($event, provider)"
                 />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+
+            <div
+              class="mb-3"
+              @click.stop
+            >
+              <a
+                :href="provider.url"
+                class="truncate text-xs text-primary hover:underline"
+                data-testid="provider-url-link"
+                rel="noopener"
+                target="_blank"
+              >
+                {{ provider.url }}
+              </a>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-border pt-3">
+              <div class="flex items-center gap-4">
+                <div data-testid="provider-projects-count">
+                  <p class="text-lg font-bold tabular-nums text-text">
+                    {{ provider.projectsCount }}
+                  </p>
+                  <p class="text-xs text-text-muted">
+                    {{ t('catalog.providers.projects') }}
+                  </p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-text-muted">
+                  {{ t('catalog.providers.lastSync') }}
+                </p>
+                <p class="text-xs text-text-muted">
+                  {{ provider.lastSyncAt ? d(new Date(provider.lastSyncAt), 'short') : '—' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div
-          v-if="providerStore.providers.length === 0"
-          class="flex flex-col items-center py-12"
+          v-else
+          class="flex flex-col items-center rounded-xl border border-border bg-surface py-12"
           data-testid="provider-list-empty"
         >
           <svg
@@ -261,7 +247,7 @@ function requestDelete(provider: { id: string; name: string }) {
             {{ t('catalog.providers.createProvider') }}
           </RouterLink>
         </div>
-      </div>
+      </template>
       <ConfirmDialog
         :open="deleteTarget !== null"
         :title="t('catalog.providers.confirmDeleteTitle')"
