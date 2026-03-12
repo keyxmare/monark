@@ -24,17 +24,17 @@ final readonly class ListMergeRequestsHandler
     public function __invoke(ListMergeRequestsQuery $query): MergeRequestListOutput
     {
         $projectId = Uuid::fromString($query->projectId);
-        $status = $query->status !== null ? MergeRequestStatus::tryFrom($query->status) : null;
+        $statuses = self::resolveStatuses($query->status);
 
         $mergeRequests = $this->mergeRequestRepository->findByProjectId(
             $projectId,
             $query->page,
             $query->perPage,
-            $status,
+            $statuses,
             $query->author,
         );
 
-        $total = $this->mergeRequestRepository->countByProjectId($projectId, $status, $query->author);
+        $total = $this->mergeRequestRepository->countByProjectId($projectId, $statuses, $query->author);
 
         $items = \array_map(
             static fn ($mr) => MergeRequestOutput::fromEntity($mr),
@@ -49,5 +49,27 @@ final readonly class ListMergeRequestsHandler
                 perPage: $query->perPage,
             ),
         );
+    }
+
+    /** @return list<MergeRequestStatus> */
+    private static function resolveStatuses(?string $status): array
+    {
+        if ($status === null || $status === '') {
+            return [];
+        }
+
+        if ($status === 'active') {
+            return [MergeRequestStatus::Open, MergeRequestStatus::Draft];
+        }
+
+        $statuses = [];
+        foreach (\explode(',', $status) as $s) {
+            $resolved = MergeRequestStatus::tryFrom(\trim($s));
+            if ($resolved !== null) {
+                $statuses[] = $resolved;
+            }
+        }
+
+        return $statuses;
     }
 }

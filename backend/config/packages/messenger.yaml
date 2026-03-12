@@ -18,6 +18,7 @@ framework:
                     exchange:
                         name: monark
                         type: topic
+                        default_publish_routing_key: default
                     queues:
                         monark_default:
                             binding_keys: ['default']
@@ -27,9 +28,17 @@ framework:
                     multiplier: 2
 
             failed:
-                dsn: 'doctrine://default?queue_name=failed'
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: monark_failed
+                        type: fanout
+                    queues:
+                        monark_failed: ~
 
         failure_transport: failed
 
         routing:
             App\Catalog\Application\Command\ScanProjectCommand: async
+            App\Catalog\Application\Command\SyncProjectMetadataCommand: async
+            App\Catalog\Application\Command\SyncMergeRequestsCommand: async

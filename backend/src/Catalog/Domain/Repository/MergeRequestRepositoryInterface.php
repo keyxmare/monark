@@ -12,12 +12,16 @@ interface MergeRequestRepositoryInterface
 {
     public function findById(Uuid $id): ?MergeRequest;
 
-    /** @return list<MergeRequest> */
-    public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, ?MergeRequestStatus $status = null, ?string $author = null): array;
+    /**
+     * @param list<MergeRequestStatus> $statuses
+     * @return list<MergeRequest>
+     */
+    public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array;
 
     public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest;
 
-    public function countByProjectId(Uuid $projectId, ?MergeRequestStatus $status = null, ?string $author = null): int;
+    /** @param list<MergeRequestStatus> $statuses */
+    public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int;
 
     /** @return list<MergeRequest> */
     public function findAll(int $page = 1, int $perPage = 20): array;

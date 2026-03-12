@@ -27,7 +27,7 @@ onMounted(async () => {
     techStackStore.fetchAll(1, 20, projectId.value),
     pipelineStore.fetchAll(1, 10, projectId.value, projectStore.selected?.defaultBranch),
     dependencyStore.fetchAll(1, 100, projectId.value),
-    mergeRequestStore.fetchAll(projectId.value),
+    mergeRequestStore.fetchAll(projectId.value, 1, 20, 'active'),
   ])
 })
 

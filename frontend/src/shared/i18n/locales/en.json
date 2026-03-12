@@ -265,6 +265,7 @@
       "title": "Merge Requests",
       "mrTitle": "Title",
       "status": "Status",
+      "statusActive": "Active",
       "statusOpen": "Open",
       "statusMerged": "Merged",
       "statusClosed": "Closed",

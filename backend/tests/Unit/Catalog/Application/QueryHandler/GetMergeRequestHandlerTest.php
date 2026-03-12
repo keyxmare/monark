@@ -17,9 +17,9 @@ function stubGetMRRepo(?MergeRequest $mr = null): MergeRequestRepositoryInterfac
     return new class ($mr) implements MergeRequestRepositoryInterface {
         public function __construct(private readonly ?MergeRequest $mr) {}
         public function findById(Uuid $id): ?MergeRequest { return $this->mr; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, ?MergeRequestStatus $status = null, ?string $author = null): array { return []; }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array { return []; }
         public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest { return null; }
-        public function countByProjectId(Uuid $projectId, ?MergeRequestStatus $status = null, ?string $author = null): int { return 0; }
+        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int { return 0; }
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
         public function count(): int { return 0; }
         public function save(MergeRequest $mergeRequest): void {}

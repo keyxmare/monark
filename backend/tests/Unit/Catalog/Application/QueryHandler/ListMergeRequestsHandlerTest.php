@@ -20,9 +20,9 @@ function stubListMRRepo(array $items = [], int $count = 0): MergeRequestReposito
             private readonly int $count,
         ) {}
         public function findById(Uuid $id): ?MergeRequest { return null; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, ?MergeRequestStatus $status = null, ?string $author = null): array { return $this->items; }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array { return $this->items; }
         public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest { return null; }
-        public function countByProjectId(Uuid $projectId, ?MergeRequestStatus $status = null, ?string $author = null): int { return $this->count; }
+        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int { return $this->count; }
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
         public function count(): int { return 0; }
         public function save(MergeRequest $mergeRequest): void {}

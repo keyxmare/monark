@@ -11,14 +11,26 @@ const { t, d } = useI18n()
 const store = useMergeRequestStore()
 
 const projectId = computed(() => route.params.projectId as string)
-const statusFilter = ref<string>('')
+const STORAGE_KEY = 'monark:mr-status-filter'
+const savedFilter = localStorage.getItem(STORAGE_KEY) ?? 'active'
+const statusFilter = ref<string>(savedFilter)
 const authorFilter = ref('')
 
+const statusOptions = [
+  { value: 'active', label: t('catalog.mergeRequests.statusActive') },
+  { value: 'open', label: t('catalog.mergeRequests.statusOpen') },
+  { value: 'draft', label: t('catalog.mergeRequests.statusDraft') },
+  { value: 'merged', label: t('catalog.mergeRequests.statusMerged') },
+  { value: 'closed', label: t('catalog.mergeRequests.statusClosed') },
+  { value: '', label: t('catalog.mergeRequests.allStatuses') },
+]
+
 onMounted(() => {
-  store.fetchAll(projectId.value)
+  store.fetchAll(projectId.value, 1, 20, statusFilter.value || undefined, authorFilter.value || undefined)
 })
 
 watch([statusFilter, authorFilter], () => {
+  localStorage.setItem(STORAGE_KEY, statusFilter.value)
   store.fetchAll(projectId.value, 1, 20, statusFilter.value || undefined, authorFilter.value || undefined)
 })
 
@@ -39,28 +51,26 @@ const statusBadgeClass: Record<string, string> = {
         </h1>
       </div>
 
-      <div class="mb-4 flex gap-4">
-        <select
-          v-model="statusFilter"
-          class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text"
+      <div class="mb-4 flex items-center gap-4">
+        <div
+          class="flex rounded-lg border border-border"
           data-testid="mr-status-filter"
         >
-          <option value="">
-            {{ t('catalog.mergeRequests.allStatuses') }}
-          </option>
-          <option value="open">
-            {{ t('catalog.mergeRequests.statusOpen') }}
-          </option>
-          <option value="merged">
-            {{ t('catalog.mergeRequests.statusMerged') }}
-          </option>
-          <option value="closed">
-            {{ t('catalog.mergeRequests.statusClosed') }}
-          </option>
-          <option value="draft">
-            {{ t('catalog.mergeRequests.statusDraft') }}
-          </option>
-        </select>
+          <button
+            v-for="opt in statusOptions"
+            :key="opt.value"
+            :class="[
+              'px-3 py-1.5 text-sm font-medium transition-colors first:rounded-l-lg last:rounded-r-lg',
+              statusFilter === opt.value
+                ? 'bg-primary text-white'
+                : 'bg-surface text-text-muted hover:text-text',
+            ]"
+            :data-testid="`mr-filter-${opt.value || 'all'}`"
+            @click="statusFilter = opt.value"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
         <input
           v-model="authorFilter"
           :placeholder="t('catalog.mergeRequests.filterByAuthor')"

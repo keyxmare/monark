@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 #[AsCommand(name: 'app:sync-merge-requests', description: 'Sync merge requests for a project')]
 final class SyncMergeRequestsConsoleCommand extends Command
@@ -34,7 +33,7 @@ final class SyncMergeRequestsConsoleCommand extends Command
 
         $this->commandBus->dispatch(new SyncMergeRequestsCommand($projectId));
 
-        $output->writeln('Done.');
+        $output->writeln('Done — dispatched to async worker.');
 
         return Command::SUCCESS;
     }

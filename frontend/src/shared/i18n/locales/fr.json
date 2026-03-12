@@ -265,6 +265,7 @@
       "title": "Merge Requests",
       "mrTitle": "Titre",
       "status": "Statut",
+      "statusActive": "Actives",
       "statusOpen": "Ouverte",
       "statusMerged": "Fusionnée",
       "statusClosed": "Fermée",

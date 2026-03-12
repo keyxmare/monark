@@ -31,10 +31,11 @@ final readonly class CreateStalePrTasksListener
         $projectId = Uuid::fromString($event->projectId);
         $now = new \DateTimeImmutable();
 
-        $openMRs = $this->mergeRequestRepository->findByProjectId($projectId, 1, 100, MergeRequestStatus::Open);
-        $draftMRs = $this->mergeRequestRepository->findByProjectId($projectId, 1, 100, MergeRequestStatus::Draft);
+        $activeMRs = $this->mergeRequestRepository->findByProjectId(
+            $projectId, 1, 100, [MergeRequestStatus::Open, MergeRequestStatus::Draft],
+        );
 
-        foreach ([...$openMRs, ...$draftMRs] as $mr) {
+        foreach ($activeMRs as $mr) {
             $daysSinceUpdate = $now->diff($mr->getUpdatedAt())->days;
 
             if ($daysSinceUpdate < self::STALE_DAYS) {

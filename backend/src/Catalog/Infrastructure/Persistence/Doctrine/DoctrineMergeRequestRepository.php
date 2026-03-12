@@ -23,7 +23,7 @@ final readonly class DoctrineMergeRequestRepository implements MergeRequestRepos
     }
 
     /** @return list<MergeRequest> */
-    public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, ?MergeRequestStatus $status = null, ?string $author = null): array
+    public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array
     {
         $qb = $this->entityManager->getRepository(MergeRequest::class)
             ->createQueryBuilder('mr')
@@ -33,9 +33,9 @@ final readonly class DoctrineMergeRequestRepository implements MergeRequestRepos
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage);
 
-        if ($status !== null) {
-            $qb->andWhere('mr.status = :status')
-                ->setParameter('status', $status->value);
+        if ($statuses !== []) {
+            $qb->andWhere('mr.status IN (:statuses)')
+                ->setParameter('statuses', \array_map(static fn (MergeRequestStatus $s) => $s->value, $statuses));
         }
 
         if ($author !== null) {
@@ -55,7 +55,7 @@ final readonly class DoctrineMergeRequestRepository implements MergeRequestRepos
             ]);
     }
 
-    public function countByProjectId(Uuid $projectId, ?MergeRequestStatus $status = null, ?string $author = null): int
+    public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int
     {
         $qb = $this->entityManager->getRepository(MergeRequest::class)
             ->createQueryBuilder('mr')
@@ -63,9 +63,9 @@ final readonly class DoctrineMergeRequestRepository implements MergeRequestRepos
             ->where('mr.project = :projectId')
             ->setParameter('projectId', $projectId);
 
-        if ($status !== null) {
-            $qb->andWhere('mr.status = :status')
-                ->setParameter('status', $status->value);
+        if ($statuses !== []) {
+            $qb->andWhere('mr.status IN (:statuses)')
+                ->setParameter('statuses', \array_map(static fn (MergeRequestStatus $s) => $s->value, $statuses));
         }
 
         if ($author !== null) {
