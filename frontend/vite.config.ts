@@ -17,6 +17,10 @@ export default defineConfig({
         target: 'http://backend:8000',
         changeOrigin: true,
       },
+      '/.well-known/mercure': {
+        target: 'http://mercure',
+        changeOrigin: true,
+      },
     },
   },
 })
