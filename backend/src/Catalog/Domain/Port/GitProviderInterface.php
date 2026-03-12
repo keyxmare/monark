@@ -11,9 +11,9 @@ use App\Catalog\Domain\Model\RemoteProject;
 interface GitProviderInterface
 {
     /** @return list<RemoteProject> */
-    public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array;
+    public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array;
 
-    public function countProjects(Provider $provider): int;
+    public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int;
 
     public function testConnection(Provider $provider): bool;
 

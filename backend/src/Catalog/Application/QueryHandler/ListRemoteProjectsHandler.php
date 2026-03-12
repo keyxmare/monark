@@ -33,8 +33,8 @@ final readonly class ListRemoteProjectsHandler
         }
 
         $client = $this->gitProviderFactory->create($provider);
-        $remoteProjects = $client->listProjects($provider, $query->page, $query->perPage);
-        $total = $client->countProjects($provider);
+        $remoteProjects = $client->listProjects($provider, $query->page, $query->perPage, $query->search, $query->visibility, $query->sort, $query->sortDir);
+        $total = $client->countProjects($provider, $query->search, $query->visibility);
 
         $importedExternalIds = $this->projectRepository->findExternalIdsByProvider($provider->getId());
         $importedSet = \array_flip($importedExternalIds);

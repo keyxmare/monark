@@ -19,17 +19,32 @@ final readonly class GitLabClient implements GitProviderInterface
     }
 
     /** @return list<RemoteProject> */
-    public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array
+    public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
     {
+        $orderBy = match ($sort) {
+            'visibility', 'defaultBranch' => 'name',
+            default => 'name',
+        };
+
+        $query = [
+            'membership' => 'true',
+            'page' => $page,
+            'per_page' => $perPage,
+            'order_by' => $orderBy,
+            'sort' => $sortDir,
+        ];
+
+        if ($search !== null && $search !== '') {
+            $query['search'] = $search;
+        }
+
+        if ($visibility !== null && $visibility !== '') {
+            $query['visibility'] = $visibility;
+        }
+
         $response = $this->httpClient->request('GET', $provider->getUrl() . '/api/v4/projects', [
             'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
-            'query' => [
-                'membership' => 'true',
-                'page' => $page,
-                'per_page' => $perPage,
-                'order_by' => 'last_activity_at',
-                'sort' => 'desc',
-            ],
+            'query' => $query,
         ]);
 
         $projects = $response->toArray();
@@ -49,11 +64,21 @@ final readonly class GitLabClient implements GitProviderInterface
         );
     }
 
-    public function countProjects(Provider $provider): int
+    public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int
     {
+        $query = ['membership' => 'true', 'per_page' => 1];
+
+        if ($search !== null && $search !== '') {
+            $query['search'] = $search;
+        }
+
+        if ($visibility !== null && $visibility !== '') {
+            $query['visibility'] = $visibility;
+        }
+
         $response = $this->httpClient->request('GET', $provider->getUrl() . '/api/v4/projects', [
             'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
-            'query' => ['membership' => 'true', 'per_page' => 1],
+            'query' => $query,
         ]);
 
         return (int) ($response->getHeaders()['x-total'][0] ?? 0);

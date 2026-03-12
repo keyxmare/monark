@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
@@ -12,6 +12,8 @@ import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
 
+type SortField = 'defaultBranch' | 'name' | 'visibility'
+
 const route = useRoute()
 const router = useRouter()
 const { d, t } = useI18n()
@@ -21,7 +23,7 @@ const { track } = useSyncProgress()
 
 const providerId = computed(() => route.params.id as string)
 const selectableProjects = computed(() =>
-  filteredProjects.value.filter(rp => !rp.alreadyImported),
+  providerStore.remoteProjects.filter(rp => !rp.alreadyImported),
 )
 const allSelected = computed(() =>
   selectableProjects.value.length > 0 && selectedIds.value.length === selectableProjects.value.length,
@@ -29,7 +31,6 @@ const allSelected = computed(() =>
 const someSelected = computed(() =>
   selectedIds.value.length > 0 && selectedIds.value.length < selectableProjects.value.length,
 )
-type SortField = 'defaultBranch' | 'name' | 'visibility'
 
 const filterVisibility = ref('all')
 const importing = ref(false)
@@ -40,18 +41,25 @@ const sortDir = ref<'asc' | 'desc'>('asc')
 const sortField = ref<SortField>('name')
 const syncing = ref(false)
 const testingConnection = ref(false)
-const filteredProjects = computed(() => {
-  let projects = providerStore.remoteProjects
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    projects = projects.filter(rp => rp.name.toLowerCase().includes(q) || rp.slug.toLowerCase().includes(q))
-  }
-  if (filterVisibility.value !== 'all') {
-    projects = projects.filter(rp => rp.visibility === filterVisibility.value)
-  }
-  const dir = sortDir.value === 'asc' ? 1 : -1
-  const field = sortField.value
-  return [...projects].sort((a, b) => a[field].localeCompare(b[field]) * dir)
+let searchDebounce: null | ReturnType<typeof setTimeout> = null
+
+function fetchFilteredProjects(page = 1) {
+  selectedIds.value = []
+  providerStore.fetchRemoteProjects(providerId.value, page, 20, {
+    search: searchQuery.value || undefined,
+    sort: sortField.value,
+    sortDir: sortDir.value,
+    visibility: filterVisibility.value !== 'all' ? filterVisibility.value : undefined,
+  })
+}
+
+watch(searchQuery, () => {
+  if (searchDebounce) clearTimeout(searchDebounce)
+  searchDebounce = setTimeout(() => fetchFilteredProjects(), 300)
+})
+
+watch([filterVisibility, sortField, sortDir], () => {
+  fetchFilteredProjects()
 })
 
 onMounted(async () => {
@@ -93,8 +101,7 @@ async function handleImport() {
 }
 
 async function handlePageChange(page: number) {
-  selectedIds.value = []
-  await providerStore.fetchRemoteProjects(providerId.value, page)
+  fetchFilteredProjects(page)
 }
 
 async function handleSyncAll() {
@@ -471,12 +478,12 @@ function toggleSort(field: SortField) {
             </div>
 
             <div
-              v-if="filteredProjects.length > 0"
+              v-if="providerStore.remoteProjects.length > 0"
               class="grid grid-cols-1 gap-4 sm:grid-cols-2"
               data-testid="remote-projects-list"
             >
               <div
-                v-for="project in filteredProjects"
+                v-for="project in providerStore.remoteProjects"
                 :key="project.externalId"
                 class="rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-md"
                 data-testid="remote-project-card"

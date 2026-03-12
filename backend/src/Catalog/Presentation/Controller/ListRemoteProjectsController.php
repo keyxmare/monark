@@ -24,8 +24,12 @@ final readonly class ListRemoteProjectsController
     {
         $page = $request->query->getInt('page', 1);
         $perPage = $request->query->getInt('per_page', 20);
+        $search = $request->query->getString('search') ?: null;
+        $visibility = $request->query->getString('visibility') ?: null;
+        $sort = $request->query->getString('sort') ?: 'name';
+        $sortDir = $request->query->getString('sort_dir') ?: 'asc';
 
-        $envelope = $this->queryBus->dispatch(new ListRemoteProjectsQuery($id, $page, $perPage));
+        $envelope = $this->queryBus->dispatch(new ListRemoteProjectsQuery($id, $page, $perPage, $search, $visibility, $sort, $sortDir));
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

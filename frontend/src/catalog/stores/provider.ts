@@ -128,12 +128,12 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     }
   }
 
-  async function fetchRemoteProjects(id: string, page = 1, perPage = 20): Promise<void> {
+  async function fetchRemoteProjects(id: string, page = 1, perPage = 20, params?: { search?: string; sort?: string; sortDir?: string; visibility?: string }): Promise<void> {
     loading.value = true
     error.value = null
 
     try {
-      const response = await providerService.listRemoteProjects(id, page, perPage)
+      const response = await providerService.listRemoteProjects(id, page, perPage, params)
       const data = response.data
       remoteProjects.value = data.items
       remoteProjectsTotalPages.value = data.total_pages

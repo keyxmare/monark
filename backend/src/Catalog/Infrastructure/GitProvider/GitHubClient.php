@@ -24,16 +24,28 @@ final readonly class GitHubClient implements GitProviderInterface
     }
 
     /** @return list<RemoteProject> */
-    public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array
+    public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
     {
         $perPage = \min($perPage, 100);
 
+        if ($search !== null && $search !== '') {
+            return $this->searchProjects($provider, $search, $visibility, $sort, $sortDir, $page, $perPage);
+        }
+
+        $ghSort = match ($sort) {
+            'name' => 'full_name',
+            default => 'updated',
+        };
+
         if ($this->isAuthenticated($provider)) {
             $url = $this->baseUrl($provider) . '/user/repos';
-            $query = ['type' => 'owner', 'sort' => 'updated', 'direction' => 'desc', 'page' => $page, 'per_page' => $perPage];
+            $query = ['type' => 'owner', 'sort' => $ghSort, 'direction' => $sortDir, 'page' => $page, 'per_page' => $perPage];
+            if ($visibility !== null && $visibility !== '') {
+                $query['visibility'] = $visibility;
+            }
         } else {
             $url = \sprintf('%s/users/%s/repos', $this->baseUrl($provider), $provider->getUsername());
-            $query = ['sort' => 'updated', 'direction' => 'desc', 'page' => $page, 'per_page' => $perPage];
+            $query = ['sort' => $ghSort, 'direction' => $sortDir, 'page' => $page, 'per_page' => $perPage];
         }
 
         $response = $this->httpClient->request('GET', $url, [
@@ -45,27 +57,40 @@ final readonly class GitHubClient implements GitProviderInterface
         $projects = $response->toArray();
 
         return \array_map(
-            static fn (array $p): RemoteProject => new RemoteProject(
-                externalId: (string) $p['full_name'],
-                name: (string) $p['name'],
-                slug: (string) $p['full_name'],
-                description: isset($p['description']) ? (string) $p['description'] : null,
-                repositoryUrl: (string) ($p['clone_url'] ?? $p['html_url']),
-                defaultBranch: (string) ($p['default_branch'] ?? 'main'),
-                visibility: (bool) ($p['private'] ?? false) ? 'private' : 'public',
-                avatarUrl: isset($p['owner']) && \is_array($p['owner']) ? (string) ($p['owner']['avatar_url'] ?? '') : null,
-            ),
+            static fn (array $p): RemoteProject => self::mapProject($p),
             $projects,
         );
     }
 
-    public function countProjects(Provider $provider): int
+    public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int
     {
+        if ($search !== null && $search !== '') {
+            $qualifier = $this->isAuthenticated($provider) ? 'user:@me' : \sprintf('user:%s', $provider->getUsername());
+            $q = $search . ' ' . $qualifier;
+            if ($visibility !== null && $visibility !== '') {
+                $q .= ' is:' . $visibility;
+            }
+
+            $response = $this->httpClient->request('GET', $this->baseUrl($provider) . '/search/repositories', [
+                'headers' => $this->headers($provider),
+                'query' => ['q' => $q, 'per_page' => 1],
+            ]);
+
+            return (int) ($response->toArray()['total_count'] ?? 0);
+        }
+
         if ($this->isAuthenticated($provider)) {
             $response = $this->httpClient->request('GET', $this->baseUrl($provider) . '/user', [
                 'headers' => $this->headers($provider),
             ]);
             $data = $response->toArray();
+
+            if ($visibility === 'private') {
+                return (int) ($data['owned_private_repos'] ?? 0);
+            }
+            if ($visibility === 'public') {
+                return (int) ($data['public_repos'] ?? 0);
+            }
 
             return (int) ($data['public_repos'] ?? 0) + (int) ($data['owned_private_repos'] ?? 0);
         }
@@ -106,18 +131,7 @@ final readonly class GitHubClient implements GitProviderInterface
             'headers' => $this->headers($provider),
         ]);
 
-        $p = $response->toArray();
-
-        return new RemoteProject(
-            externalId: (string) $p['full_name'],
-            name: (string) $p['name'],
-            slug: (string) $p['full_name'],
-            description: isset($p['description']) ? (string) $p['description'] : null,
-            repositoryUrl: (string) ($p['clone_url'] ?? $p['html_url']),
-            defaultBranch: (string) ($p['default_branch'] ?? 'main'),
-            visibility: (bool) ($p['private'] ?? false) ? 'private' : 'public',
-            avatarUrl: isset($p['owner']) && \is_array($p['owner']) ? (string) ($p['owner']['avatar_url'] ?? '') : null,
-        );
+        return self::mapProject($response->toArray());
     }
 
     public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
@@ -259,6 +273,48 @@ final readonly class GitHubClient implements GitProviderInterface
         } catch (ClientExceptionInterface) {
             return [];
         }
+    }
+
+    /** @return list<RemoteProject> */
+    private function searchProjects(Provider $provider, string $search, ?string $visibility, string $sort, string $sortDir, int $page, int $perPage): array
+    {
+        $qualifier = $this->isAuthenticated($provider) ? 'user:@me' : \sprintf('user:%s', $provider->getUsername());
+        $q = $search . ' ' . $qualifier;
+        if ($visibility !== null && $visibility !== '') {
+            $q .= ' is:' . $visibility;
+        }
+
+        $ghSort = match ($sort) {
+            'name' => 'stars',
+            default => 'updated',
+        };
+
+        $response = $this->httpClient->request('GET', $this->baseUrl($provider) . '/search/repositories', [
+            'headers' => $this->headers($provider),
+            'query' => ['q' => $q, 'sort' => $ghSort, 'order' => $sortDir, 'page' => $page, 'per_page' => $perPage],
+        ]);
+
+        /** @var list<array<string, mixed>> $items */
+        $items = $response->toArray()['items'] ?? [];
+
+        return \array_map(
+            static fn (array $p): RemoteProject => self::mapProject($p),
+            $items,
+        );
+    }
+
+    private static function mapProject(array $p): RemoteProject
+    {
+        return new RemoteProject(
+            externalId: (string) ($p['full_name'] ?? $p['name']),
+            name: (string) $p['name'],
+            slug: (string) ($p['full_name'] ?? $p['name']),
+            description: isset($p['description']) ? (string) $p['description'] : null,
+            repositoryUrl: (string) ($p['clone_url'] ?? $p['html_url']),
+            defaultBranch: (string) ($p['default_branch'] ?? 'main'),
+            visibility: (bool) ($p['private'] ?? false) ? 'private' : 'public',
+            avatarUrl: isset($p['owner']) && \is_array($p['owner']) ? (string) ($p['owner']['avatar_url'] ?? '') : null,
+        );
     }
 
     private function isAuthenticated(Provider $provider): bool

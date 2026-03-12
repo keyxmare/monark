@@ -67,8 +67,13 @@ export const providerService = {
     return api.post<ApiResponse<Provider>>(`${BASE_URL}/${id}/test`, {})
   },
 
-  listRemoteProjects(id: string, page = 1, perPage = 20): Promise<ApiResponse<PaginatedRemoteProjects>> {
-    return api.get<ApiResponse<PaginatedRemoteProjects>>(`${BASE_URL}/${id}/remote-projects?page=${page}&per_page=${perPage}`)
+  listRemoteProjects(id: string, page = 1, perPage = 20, params?: { search?: string; sort?: string; sortDir?: string; visibility?: string }): Promise<ApiResponse<PaginatedRemoteProjects>> {
+    const query = new URLSearchParams({ page: String(page), per_page: String(perPage) })
+    if (params?.search) query.set('search', params.search)
+    if (params?.visibility && params.visibility !== 'all') query.set('visibility', params.visibility)
+    if (params?.sort) query.set('sort', params.sort)
+    if (params?.sortDir) query.set('sort_dir', params.sortDir)
+    return api.get<ApiResponse<PaginatedRemoteProjects>>(`${BASE_URL}/${id}/remote-projects?${query.toString()}`)
   },
 
   importProjects(id: string, data: ImportProjectsInput): Promise<ApiResponse<Project[]>> {
