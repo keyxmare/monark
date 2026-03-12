@@ -251,7 +251,22 @@
       "confirmDeleteTitle": "Supprimer le fournisseur",
       "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer « {name} » ? Cette action est irréversible.",
       "connectionSuccess": "Connexion à « {name} » réussie",
-      "connectionFailed": "Impossible de se connecter à « {name} »"
+      "connectionFailed": "Impossible de se connecter à « {name} »",
+      "types": {
+        "gitlab": "GitLab",
+        "github": "GitHub",
+        "bitbucket": "Bitbucket"
+      },
+      "statuses": {
+        "connected": "Connecté",
+        "pending": "En attente",
+        "error": "Erreur"
+      },
+      "visibility": {
+        "public": "Public",
+        "private": "Privé",
+        "internal": "Interne"
+      }
     },
     "techStacks": {
       "title": "Stacks techniques",

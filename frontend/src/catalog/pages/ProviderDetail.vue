@@ -160,7 +160,7 @@ async function handlePageChange(page: number) {
               class="rounded-full px-2 py-0.5 text-xs font-medium"
               data-testid="provider-detail-status"
             >
-              {{ providerStore.selected.status }}
+              {{ t(`catalog.providers.statuses.${providerStore.selected.status}`) }}
             </span>
           </div>
 
@@ -179,7 +179,7 @@ async function handlePageChange(page: number) {
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
                   data-testid="provider-detail-type"
                 >
-                  {{ providerStore.selected.type }}
+                  {{ t(`catalog.providers.types.${providerStore.selected.type}`) }}
                 </span>
               </dd>
             </div>
@@ -309,7 +309,7 @@ async function handlePageChange(page: number) {
                 </p>
               </div>
               <span class="text-sm text-text-muted">
-                {{ project.visibility }}
+                {{ t(`catalog.providers.visibility.${project.visibility}`) }}
               </span>
               <span class="text-sm text-text-muted">
                 {{ project.defaultBranch }}

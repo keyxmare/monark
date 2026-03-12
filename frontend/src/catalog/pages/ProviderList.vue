@@ -149,7 +149,7 @@ async function handleSyncAll() {
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
                   data-testid="provider-type-badge"
                 >
-                  {{ provider.type }}
+                  {{ t(`catalog.providers.types.${provider.type}`) }}
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
@@ -165,7 +165,7 @@ async function handleSyncAll() {
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
                   data-testid="provider-status-badge"
                 >
-                  {{ provider.status }}
+                  {{ t(`catalog.providers.statuses.${provider.status}`) }}
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">

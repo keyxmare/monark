@@ -251,7 +251,22 @@
       "confirmDeleteTitle": "Delete Provider",
       "confirmDeleteMessage": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
       "connectionSuccess": "Successfully connected to \"{name}\"",
-      "connectionFailed": "Failed to connect to \"{name}\""
+      "connectionFailed": "Failed to connect to \"{name}\"",
+      "types": {
+        "gitlab": "GitLab",
+        "github": "GitHub",
+        "bitbucket": "Bitbucket"
+      },
+      "statuses": {
+        "connected": "Connected",
+        "pending": "Pending",
+        "error": "Error"
+      },
+      "visibility": {
+        "public": "Public",
+        "private": "Private",
+        "internal": "Internal"
+      }
     },
     "techStacks": {
       "title": "Tech Stacks",
