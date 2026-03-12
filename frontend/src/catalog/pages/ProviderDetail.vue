@@ -21,9 +21,20 @@ const providerStore = useProviderStore()
 const toastStore = useToastStore()
 const { track } = useSyncProgress()
 
+const MIN_SEARCH_LENGTH = 3
 const providerId = computed(() => route.params.id as string)
+const displayedProjects = computed(() => {
+  let projects = providerStore.remoteProjects
+  if (searchQuery.value && searchQuery.value.length < MIN_SEARCH_LENGTH) {
+    const q = searchQuery.value.toLowerCase()
+    projects = projects.filter(rp => rp.name.toLowerCase().includes(q) || rp.slug.toLowerCase().includes(q))
+  }
+  const field = sortField.value
+  const dir = sortDir.value === 'asc' ? 1 : -1
+  return [...projects].sort((a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase()) * dir)
+})
 const selectableProjects = computed(() =>
-  providerStore.remoteProjects.filter(rp => !rp.alreadyImported),
+  displayedProjects.value.filter(rp => !rp.alreadyImported),
 )
 const allSelected = computed(() =>
   selectableProjects.value.length > 0 && selectedIds.value.length === selectableProjects.value.length,
@@ -46,7 +57,7 @@ let searchDebounce: null | ReturnType<typeof setTimeout> = null
 function fetchFilteredProjects(page = 1) {
   selectedIds.value = []
   providerStore.fetchRemoteProjects(providerId.value, page, 20, {
-    search: searchQuery.value || undefined,
+    search: searchQuery.value.length >= MIN_SEARCH_LENGTH ? searchQuery.value : undefined,
     sort: sortField.value,
     sortDir: sortDir.value,
     visibility: filterVisibility.value !== 'all' ? filterVisibility.value : undefined,
@@ -478,12 +489,12 @@ function toggleSort(field: SortField) {
             </div>
 
             <div
-              v-if="providerStore.remoteProjects.length > 0"
+              v-if="displayedProjects.length > 0"
               class="grid grid-cols-1 gap-4 sm:grid-cols-2"
               data-testid="remote-projects-list"
             >
               <div
-                v-for="project in providerStore.remoteProjects"
+                v-for="project in displayedProjects"
                 :key="project.externalId"
                 class="rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-md"
                 data-testid="remote-project-card"
