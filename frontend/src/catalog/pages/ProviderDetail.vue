@@ -5,6 +5,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import type { RemoteProject } from '@/catalog/types/provider'
 
+import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
@@ -12,13 +13,13 @@ const route = useRoute()
 const router = useRouter()
 const { t, d } = useI18n()
 const providerStore = useProviderStore()
+const { track } = useSyncProgress()
 
 const providerId = computed(() => route.params.id as string)
 const selectedIds = ref<string[]>([])
 const testingConnection = ref(false)
 const importing = ref(false)
 const syncing = ref(false)
-const syncMessage = ref<string | null>(null)
 
 onMounted(async () => {
   await providerStore.fetchOne(providerId.value)
@@ -65,12 +66,11 @@ async function handleTestConnection() {
 
 async function handleSyncAll() {
   syncing.value = true
-  syncMessage.value = null
   try {
-    const count = await providerStore.syncAll(providerId.value)
-    syncMessage.value = t('catalog.providers.syncStarted', { count })
+    const result = await providerStore.syncAll(providerId.value)
+    track(result.id, result.projectsCount)
   } catch {
-    syncMessage.value = t('common.errors.failedToSync')
+    // error handled by store
   } finally {
     syncing.value = false
   }
@@ -254,15 +254,6 @@ async function handlePageChange(page: number) {
                 {{ importing ? t('catalog.providers.importing') : t('catalog.providers.importSelected', { count: selectedIds.length }) }}
               </button>
             </div>
-          </div>
-
-          <div
-            v-if="syncMessage"
-            class="mb-4 rounded-lg px-4 py-3 text-sm"
-            :class="syncMessage === t('common.errors.failedToSync') ? 'bg-danger/10 text-danger' : 'bg-green-100 text-green-800'"
-            data-testid="provider-sync-message"
-          >
-            {{ syncMessage }}
           </div>
 
           <div

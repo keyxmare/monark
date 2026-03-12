@@ -9,6 +9,7 @@ final readonly class SyncMergeRequestsCommand
     public function __construct(
         public string $projectId,
         public bool $force = false,
+        public ?string $syncJobId = null,
     ) {
     }
 }

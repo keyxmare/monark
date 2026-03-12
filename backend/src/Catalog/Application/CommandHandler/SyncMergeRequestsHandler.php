@@ -6,6 +6,7 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\SyncMergeRequestsCommand;
 use App\Catalog\Domain\Event\MergeRequestsSyncedEvent;
+use App\Catalog\Domain\Event\ProjectSyncCompletedEvent;
 use App\Catalog\Domain\Model\MergeRequest;
 use App\Catalog\Domain\Model\MergeRequestStatus;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
@@ -121,5 +122,12 @@ final readonly class SyncMergeRequestsHandler
             created: $created,
             updated: $updated,
         ));
+
+        if ($command->syncJobId !== null) {
+            $this->eventBus->dispatch(new ProjectSyncCompletedEvent(
+                projectId: $command->projectId,
+                syncJobId: $command->syncJobId,
+            ));
+        }
     }
 }

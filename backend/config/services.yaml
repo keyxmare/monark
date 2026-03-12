@@ -51,6 +51,9 @@ services:
     App\Catalog\Domain\Repository\MergeRequestRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineMergeRequestRepository
 
+    App\Catalog\Domain\Repository\SyncJobRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineSyncJobRepository
+
     App\Catalog\Domain\Port\GitProviderInterface:
         alias: App\Catalog\Infrastructure\GitProvider\GitLabClient
 
@@ -100,6 +103,10 @@ services:
     App\Catalog\Application\CommandHandler\SyncAllProjectsHandler:
         arguments:
             $commandBus: '@command.bus'
+
+    App\Catalog\Application\CommandHandler\SyncProjectMetadataHandler:
+        arguments:
+            $eventBus: '@event.bus'
 
     App\Identity\Infrastructure\Security\ApiTokenHandler:
         arguments:

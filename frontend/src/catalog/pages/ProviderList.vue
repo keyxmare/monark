@@ -3,14 +3,15 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
+import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const { t, d } = useI18n()
 const providerStore = useProviderStore()
+const { track } = useSyncProgress()
 const testingId = ref<null | string>(null)
 const syncing = ref(false)
-const syncMessage = ref<{ text: string, success: boolean } | null>(null)
 
 onMounted(() => {
   providerStore.fetchAll()
@@ -28,12 +29,11 @@ async function handleTestConnection(id: string) {
 
 async function handleSyncAll() {
   syncing.value = true
-  syncMessage.value = null
   try {
-    const count = await providerStore.syncAllGlobal()
-    syncMessage.value = { text: t('catalog.providers.syncStarted', { count }), success: true }
+    const result = await providerStore.syncAllGlobal()
+    track(result.id, result.projectsCount)
   } catch {
-    syncMessage.value = { text: t('common.errors.failedToSync'), success: false }
+    // error handled by store
   } finally {
     syncing.value = false
   }
@@ -64,15 +64,6 @@ async function handleSyncAll() {
             {{ t('catalog.providers.createProvider') }}
           </RouterLink>
         </div>
-      </div>
-
-      <div
-        v-if="syncMessage"
-        class="mb-4 rounded-lg px-4 py-3 text-sm"
-        :class="syncMessage.success ? 'bg-green-100 text-green-800' : 'bg-danger/10 text-danger'"
-        data-testid="provider-sync-message"
-      >
-        {{ syncMessage.text }}
       </div>
 
       <div

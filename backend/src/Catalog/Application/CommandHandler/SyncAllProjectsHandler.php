@@ -9,8 +9,10 @@ use App\Catalog\Application\Command\SyncAllProjectsCommand;
 use App\Catalog\Application\Command\SyncMergeRequestsCommand;
 use App\Catalog\Application\Command\SyncProjectMetadataCommand;
 use App\Catalog\Application\DTO\SyncJobOutput;
+use App\Catalog\Domain\Model\SyncJob;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
+use App\Catalog\Domain\Repository\SyncJobRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -23,6 +25,7 @@ final readonly class SyncAllProjectsHandler
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
         private ProviderRepositoryInterface $providerRepository,
+        private SyncJobRepositoryInterface $syncJobRepository,
         private MessageBusInterface $commandBus,
     ) {
     }
@@ -39,7 +42,10 @@ final readonly class SyncAllProjectsHandler
             $projects = $this->projectRepository->findAllWithProvider();
         }
 
-        $startedAt = new \DateTimeImmutable();
+        $providerId = $command->providerId !== null ? Uuid::fromString($command->providerId) : null;
+        $syncJob = SyncJob::create(\count($projects), $providerId);
+        $this->syncJobRepository->save($syncJob);
+        $syncJobId = $syncJob->getId()->toRfc4122();
 
         foreach ($projects as $project) {
             $projectId = $project->getId()->toRfc4122();
@@ -55,14 +61,15 @@ final readonly class SyncAllProjectsHandler
             );
 
             $this->commandBus->dispatch(
-                new SyncMergeRequestsCommand($projectId, $command->force),
+                new SyncMergeRequestsCommand($projectId, $command->force, $syncJobId),
                 [new DispatchAfterCurrentBusStamp()],
             );
         }
 
         return new SyncJobOutput(
+            id: $syncJobId,
             projectsCount: \count($projects),
-            startedAt: $startedAt->format(\DateTimeInterface::ATOM),
+            startedAt: $syncJob->getCreatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 }

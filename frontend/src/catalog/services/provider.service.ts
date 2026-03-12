@@ -25,6 +25,21 @@ interface PaginatedRemoteProjects {
   total_pages: number
 }
 
+export interface SyncJobResponse {
+  id: string
+  projectsCount: number
+  startedAt: string
+}
+
+export interface SyncJobProgress {
+  id: string
+  totalProjects: number
+  completedProjects: number
+  status: 'running' | 'completed' | 'failed'
+  createdAt: string
+  completedAt: string | null
+}
+
 const BASE_URL = '/catalog/providers'
 
 export const providerService = {
@@ -60,13 +75,17 @@ export const providerService = {
     return api.post<ApiResponse<Project[]>>(`${BASE_URL}/${id}/import`, data)
   },
 
-  syncAll(id: string, force = false): Promise<ApiResponse<{ projectsCount: number, startedAt: string }>> {
+  syncAll(id: string, force = false): Promise<ApiResponse<SyncJobResponse>> {
     const params = force ? '?force=1' : ''
-    return api.post<ApiResponse<{ projectsCount: number, startedAt: string }>>(`${BASE_URL}/${id}/sync-all${params}`, {})
+    return api.post<ApiResponse<SyncJobResponse>>(`${BASE_URL}/${id}/sync-all${params}`, {})
   },
 
-  syncAllGlobal(force = false): Promise<ApiResponse<{ projectsCount: number, startedAt: string }>> {
+  syncAllGlobal(force = false): Promise<ApiResponse<SyncJobResponse>> {
     const params = force ? '?force=1' : ''
-    return api.post<ApiResponse<{ projectsCount: number, startedAt: string }>>(`/catalog/sync-all${params}`, {})
+    return api.post<ApiResponse<SyncJobResponse>>(`/catalog/sync-all${params}`, {})
+  },
+
+  getSyncJob(id: string): Promise<ApiResponse<SyncJobProgress>> {
+    return api.get<ApiResponse<SyncJobProgress>>(`/catalog/sync-jobs/${id}`)
   },
 }

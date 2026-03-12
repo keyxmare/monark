@@ -164,14 +164,14 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     }
   }
 
-  async function syncAll(id: string, force = false): Promise<number> {
+  async function syncAll(id: string, force = false): Promise<{ id: string, projectsCount: number }> {
     const response = await providerService.syncAll(id, force)
-    return response.data.projectsCount
+    return { id: response.data.id, projectsCount: response.data.projectsCount }
   }
 
-  async function syncAllGlobal(force = false): Promise<number> {
+  async function syncAllGlobal(force = false): Promise<{ id: string, projectsCount: number }> {
     const response = await providerService.syncAllGlobal(force)
-    return response.data.projectsCount
+    return { id: response.data.id, projectsCount: response.data.projectsCount }
   }
 
   return {
