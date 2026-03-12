@@ -169,6 +169,11 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     return response.data.projectsCount
   }
 
+  async function syncAllGlobal(force = false): Promise<number> {
+    const response = await providerService.syncAllGlobal(force)
+    return response.data.projectsCount
+  }
+
   return {
     providers,
     selected,
@@ -190,5 +195,6 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     fetchRemoteProjects,
     importProjects,
     syncAll,
+    syncAllGlobal,
   }
 })

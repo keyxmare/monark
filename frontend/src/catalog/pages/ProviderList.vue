@@ -9,6 +9,8 @@ import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 const { t, d } = useI18n()
 const providerStore = useProviderStore()
 const testingId = ref<null | string>(null)
+const syncing = ref(false)
+const syncMessage = ref<{ text: string, success: boolean } | null>(null)
 
 onMounted(() => {
   providerStore.fetchAll()
@@ -23,6 +25,19 @@ async function handleTestConnection(id: string) {
   await providerStore.testConnection(id)
   testingId.value = null
 }
+
+async function handleSyncAll() {
+  syncing.value = true
+  syncMessage.value = null
+  try {
+    const count = await providerStore.syncAllGlobal()
+    syncMessage.value = { text: t('catalog.providers.syncStarted', { count }), success: true }
+  } catch {
+    syncMessage.value = { text: t('common.errors.failedToSync'), success: false }
+  } finally {
+    syncing.value = false
+  }
+}
 </script>
 
 <template>
@@ -32,13 +47,32 @@ async function handleTestConnection(id: string) {
         <h2 class="text-2xl font-bold text-text">
           {{ t('catalog.providers.title') }}
         </h2>
-        <RouterLink
-          :to="{ name: 'catalog-providers-create' }"
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-          data-testid="provider-create-link"
-        >
-          {{ t('catalog.providers.createProvider') }}
-        </RouterLink>
+        <div class="flex items-center gap-3">
+          <button
+            :disabled="syncing"
+            class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
+            data-testid="provider-sync-all-global"
+            @click="handleSyncAll"
+          >
+            {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
+          </button>
+          <RouterLink
+            :to="{ name: 'catalog-providers-create' }"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+            data-testid="provider-create-link"
+          >
+            {{ t('catalog.providers.createProvider') }}
+          </RouterLink>
+        </div>
+      </div>
+
+      <div
+        v-if="syncMessage"
+        class="mb-4 rounded-lg px-4 py-3 text-sm"
+        :class="syncMessage.success ? 'bg-green-100 text-green-800' : 'bg-danger/10 text-danger'"
+        data-testid="provider-sync-message"
+      >
+        {{ syncMessage.text }}
       </div>
 
       <div

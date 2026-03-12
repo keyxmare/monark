@@ -64,4 +64,9 @@ export const providerService = {
     const params = force ? '?force=1' : ''
     return api.post<ApiResponse<{ projectsCount: number, startedAt: string }>>(`${BASE_URL}/${id}/sync-all${params}`, {})
   },
+
+  syncAllGlobal(force = false): Promise<ApiResponse<{ projectsCount: number, startedAt: string }>> {
+    const params = force ? '?force=1' : ''
+    return api.post<ApiResponse<{ projectsCount: number, startedAt: string }>>(`/catalog/sync-all${params}`, {})
+  },
 }
