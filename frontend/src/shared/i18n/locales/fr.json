@@ -249,7 +249,9 @@
       "syncing": "Synchronisation…",
       "syncStarted": "Synchronisation lancée pour {count} projet(s)",
       "confirmDeleteTitle": "Supprimer le fournisseur",
-      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer « {name} » ? Cette action est irréversible."
+      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer « {name} » ? Cette action est irréversible.",
+      "connectionSuccess": "Connexion à « {name} » réussie",
+      "connectionFailed": "Impossible de se connecter à « {name} »"
     },
     "techStacks": {
       "title": "Stacks techniques",

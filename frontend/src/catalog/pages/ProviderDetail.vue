@@ -9,11 +9,13 @@ import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useToastStore } from '@/shared/stores/toast'
 
 const route = useRoute()
 const router = useRouter()
 const { t, d } = useI18n()
 const providerStore = useProviderStore()
+const toastStore = useToastStore()
 const { track } = useSyncProgress()
 
 const providerId = computed(() => route.params.id as string)
@@ -63,8 +65,14 @@ async function handleImport() {
 
 async function handleTestConnection() {
   testingConnection.value = true
-  await providerStore.testConnection(providerId.value)
+  const connected = await providerStore.testConnection(providerId.value)
   testingConnection.value = false
+  toastStore.addToast({
+    title: connected
+      ? t('catalog.providers.connectionSuccess', { name: providerStore.selected?.name ?? '' })
+      : t('catalog.providers.connectionFailed', { name: providerStore.selected?.name ?? '' }),
+    variant: connected ? 'success' : 'error',
+  })
 }
 
 async function handleSyncAll() {

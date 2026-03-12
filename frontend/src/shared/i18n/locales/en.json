@@ -249,7 +249,9 @@
       "syncing": "Syncing…",
       "syncStarted": "Sync started for {count} project(s)",
       "confirmDeleteTitle": "Delete Provider",
-      "confirmDeleteMessage": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
+      "confirmDeleteMessage": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "connectionSuccess": "Successfully connected to \"{name}\"",
+      "connectionFailed": "Failed to connect to \"{name}\""
     },
     "techStacks": {
       "title": "Tech Stacks",

@@ -7,9 +7,11 @@ import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useToastStore } from '@/shared/stores/toast'
 
 const { t, d } = useI18n()
 const providerStore = useProviderStore()
+const toastStore = useToastStore()
 const { track } = useSyncProgress()
 const testingId = ref<null | string>(null)
 const syncing = ref(false)
@@ -29,10 +31,16 @@ async function confirmDelete() {
   deleteTarget.value = null
 }
 
-async function handleTestConnection(id: string) {
-  testingId.value = id
-  await providerStore.testConnection(id)
+async function handleTestConnection(provider: { id: string; name: string }) {
+  testingId.value = provider.id
+  const connected = await providerStore.testConnection(provider.id)
   testingId.value = null
+  toastStore.addToast({
+    title: connected
+      ? t('catalog.providers.connectionSuccess', { name: provider.name })
+      : t('catalog.providers.connectionFailed', { name: provider.name }),
+    variant: connected ? 'success' : 'error',
+  })
 }
 
 async function handleSyncAll() {
@@ -168,7 +176,7 @@ async function handleSyncAll() {
                   :disabled="testingId === provider.id"
                   class="text-sm text-primary hover:text-primary-dark disabled:opacity-50"
                   data-testid="provider-test-connection"
-                  @click="handleTestConnection(provider.id)"
+                  @click="handleTestConnection(provider)"
                 >
                   {{ testingId === provider.id ? t('catalog.providers.testing') : t('catalog.providers.test') }}
                 </button>
