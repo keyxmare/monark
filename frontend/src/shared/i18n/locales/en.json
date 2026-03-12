@@ -79,7 +79,8 @@
       "dashboard": "dashboard",
       "remoteProjects": "remote projects",
       "syncTasks": "sync tasks",
-      "mergeRequests": "merge requests"
+      "mergeRequests": "merge requests",
+      "messenger": "messenger queues"
     },
     "notSet": "Not set",
     "none": "None",
@@ -114,6 +115,7 @@
     "accessTokens": "Access Tokens",
     "teams": "Teams",
     "syncTasks": "Sync Tasks",
+    "messenger": "Messenger",
     "logout": "Logout"
   },
   "identity": {
@@ -458,6 +460,32 @@
       "markAsRead": "Mark as read",
       "readAt": "Read At",
       "noNotifications": "No notifications found."
+    },
+    "messenger": {
+      "title": "Messenger Monitor",
+      "queuesCount": "Queues",
+      "totalMessages": "Total Messages",
+      "totalConsumers": "Consumers",
+      "queueName": "Queue",
+      "health": "Health",
+      "messages": "Messages",
+      "ready": "Ready",
+      "unacked": "Unacked",
+      "consumers": "Consumers",
+      "publishRate": "Publish Rate",
+      "deliverRate": "Deliver Rate",
+      "healthy": "Healthy",
+      "moderate": "Moderate",
+      "highBacklog": "High Backlog",
+      "noConsumer": "No Consumer",
+      "noQueues": "No queues found.",
+      "workers": "Workers",
+      "workersTitle": "Active Workers",
+      "noWorker": "No Worker",
+      "noWorkerWarning": "No active worker detected — messages will not be processed. Check that the messenger-consumer service is running.",
+      "queuesTitle": "Queues",
+      "autoRefreshOn": "Auto-refresh ON",
+      "autoRefreshOff": "Auto-refresh OFF"
     },
     "syncTasks": {
       "title": "Sync Tasks",

@@ -105,6 +105,13 @@ services:
         arguments:
             $appSecret: '%kernel.secret%'
 
+    App\Activity\Domain\Port\MessageQueueMonitorInterface:
+        alias: App\Activity\Infrastructure\Adapter\RabbitMqMonitor
+
+    App\Activity\Infrastructure\Adapter\RabbitMqMonitor:
+        arguments:
+            $managementUrl: '%env(RABBITMQ_MANAGEMENT_URL)%'
+
     App\Shared\Infrastructure\EventListener\ExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }

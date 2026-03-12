@@ -79,7 +79,8 @@
       "dashboard": "le tableau de bord",
       "remoteProjects": "les projets distants",
       "syncTasks": "les tâches de sync",
-      "mergeRequests": "les merge requests"
+      "mergeRequests": "les merge requests",
+      "messenger": "les files messenger"
     },
     "notSet": "Non défini",
     "none": "Aucun",
@@ -114,6 +115,7 @@
     "accessTokens": "Jetons d'accès",
     "teams": "Équipes",
     "syncTasks": "Tâches de sync",
+    "messenger": "Messenger",
     "logout": "Déconnexion"
   },
   "identity": {
@@ -458,6 +460,32 @@
       "markAsRead": "Marquer comme lu",
       "readAt": "Lu le",
       "noNotifications": "Aucune notification trouvée."
+    },
+    "messenger": {
+      "title": "Monitoring Messenger",
+      "queuesCount": "Files",
+      "totalMessages": "Messages totaux",
+      "totalConsumers": "Consumers",
+      "queueName": "File",
+      "health": "Santé",
+      "messages": "Messages",
+      "ready": "Prêts",
+      "unacked": "Non acquittés",
+      "consumers": "Consumers",
+      "publishRate": "Taux publication",
+      "deliverRate": "Taux livraison",
+      "healthy": "OK",
+      "moderate": "Modéré",
+      "highBacklog": "Backlog élevé",
+      "noConsumer": "Pas de consumer",
+      "noQueues": "Aucune file trouvée.",
+      "workers": "Workers",
+      "workersTitle": "Workers actifs",
+      "noWorker": "Pas de worker",
+      "noWorkerWarning": "Aucun worker actif détecté — les messages ne seront pas traités. Vérifiez que le service messenger-consumer est démarré.",
+      "queuesTitle": "Files",
+      "autoRefreshOn": "Auto-refresh ON",
+      "autoRefreshOff": "Auto-refresh OFF"
     },
     "syncTasks": {
       "title": "Tâches de synchronisation",

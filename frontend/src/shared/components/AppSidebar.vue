@@ -48,6 +48,7 @@ const navSections = computed<NavSection[]>(() => [
       { icon: '⚡', labelKey: 'nav.activityEvents', to: '/activity/events' },
       { icon: '🔔', labelKey: 'nav.notifications', to: '/activity/notifications' },
       { icon: '🔄', labelKey: 'nav.syncTasks', to: '/activity/sync-tasks' },
+      { icon: '📨', labelKey: 'nav.messenger', to: '/activity/messenger' },
     ],
   },
   {

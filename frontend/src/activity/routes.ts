@@ -32,4 +32,9 @@ export const activityRoutes: RouteRecordRaw[] = [
     name: 'activity-sync-tasks-list',
     path: '/activity/sync-tasks',
   },
+  {
+    component: () => import('@/activity/pages/MessengerMonitor.vue'),
+    name: 'activity-messenger',
+    path: '/activity/messenger',
+  },
 ]
