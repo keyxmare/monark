@@ -240,6 +240,7 @@
       "noRemoteProjectsHint": "Vérifiez la configuration du fournisseur ou synchronisez les projets.",
       "importSelected": "Importer la sélection ({count})",
       "importing": "Import en cours…",
+      "selectAll": "Tout sélectionner",
       "selectProject": "Sélectionner {name}",
       "username": "Nom d'utilisateur GitHub",
       "usernameHint": "Permet de lister les projets publics sans jeton API",

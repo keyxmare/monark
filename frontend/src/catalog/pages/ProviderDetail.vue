@@ -14,12 +14,21 @@ import { useToastStore } from '@/shared/stores/toast'
 
 const route = useRoute()
 const router = useRouter()
-const { t, d } = useI18n()
+const { d, t } = useI18n()
 const providerStore = useProviderStore()
 const toastStore = useToastStore()
 const { track } = useSyncProgress()
 
 const providerId = computed(() => route.params.id as string)
+const selectableProjects = computed(() =>
+  providerStore.remoteProjects.filter(rp => !rp.alreadyImported),
+)
+const allSelected = computed(() =>
+  selectableProjects.value.length > 0 && selectedIds.value.length === selectableProjects.value.length,
+)
+const someSelected = computed(() =>
+  selectedIds.value.length > 0 && selectedIds.value.length < selectableProjects.value.length,
+)
 const selectedIds = ref<string[]>([])
 const testingConnection = ref(false)
 const importing = ref(false)
@@ -91,6 +100,14 @@ async function handleTestConnection() {
       : t('catalog.providers.connectionFailed', { name: providerStore.selected?.name ?? '' }),
     variant: connected ? 'success' : 'error',
   })
+}
+
+function toggleSelectAll() {
+  if (allSelected.value) {
+    selectedIds.value = []
+  } else {
+    selectedIds.value = selectableProjects.value.map(rp => rp.externalId)
+  }
 }
 </script>
 
@@ -340,50 +357,97 @@ async function handleTestConnection() {
             {{ t('catalog.providers.loadingRemote') }}
           </div>
 
-          <div
-            v-else
-            class="rounded-xl border border-border bg-surface"
-            data-testid="remote-projects-list"
-          >
+          <template v-else>
             <div
-              v-for="project in providerStore.remoteProjects"
-              :key="project.externalId"
-              class="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+              v-if="selectableProjects.length > 0"
+              class="mb-4 flex items-center gap-3"
+              data-testid="select-all-header"
             >
               <input
-                v-if="!project.alreadyImported"
-                v-model="selectedIds"
                 type="checkbox"
-                :value="project.externalId"
-                :aria-label="t('catalog.providers.selectProject', { name: project.name })"
-                :data-testid="`select-${project.externalId}`"
+                :checked="allSelected"
+                :indeterminate="someSelected"
+                :aria-label="t('catalog.providers.selectAll')"
+                data-testid="select-all-checkbox"
+                @change="toggleSelectAll"
               >
-              <span
-                v-else
-                class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800"
-                data-testid="remote-project-imported-badge"
-              >
-                {{ t('catalog.providers.imported') }}
-              </span>
-              <div class="flex-1">
-                <p class="font-medium text-text">
-                  {{ project.name }}
-                </p>
-                <p class="text-sm text-text-muted">
-                  {{ project.slug }}
-                </p>
-              </div>
               <span class="text-sm text-text-muted">
-                {{ t(`catalog.providers.visibility.${project.visibility}`) }}
-              </span>
-              <span class="text-sm text-text-muted">
-                {{ project.defaultBranch }}
+                {{ t('catalog.providers.selectAll') }}
               </span>
             </div>
 
             <div
-              v-if="providerStore.remoteProjects.length === 0"
-              class="flex flex-col items-center py-12"
+              v-if="providerStore.remoteProjects.length > 0"
+              class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+              data-testid="remote-projects-list"
+            >
+              <div
+                v-for="project in providerStore.remoteProjects"
+                :key="project.externalId"
+                class="rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-md"
+                data-testid="remote-project-card"
+              >
+                <div class="mb-2 flex items-start justify-between">
+                  <div class="flex items-center gap-3">
+                    <input
+                      v-if="!project.alreadyImported"
+                      v-model="selectedIds"
+                      type="checkbox"
+                      :value="project.externalId"
+                      :aria-label="t('catalog.providers.selectProject', { name: project.name })"
+                      :data-testid="`select-${project.externalId}`"
+                    >
+                    <div>
+                      <p class="font-medium text-text">
+                        {{ project.name }}
+                      </p>
+                      <p class="text-xs text-text-muted">
+                        {{ project.slug }}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    v-if="project.alreadyImported"
+                    class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+                    data-testid="remote-project-imported-badge"
+                  >
+                    {{ t('catalog.providers.imported') }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-3 border-t border-border pt-2">
+                  <span
+                    :class="{
+                      'bg-blue-100 text-blue-800': project.visibility === 'public',
+                      'bg-gray-100 text-gray-800': project.visibility === 'private',
+                      'bg-yellow-100 text-yellow-800': project.visibility === 'internal',
+                    }"
+                    class="rounded-full px-2 py-0.5 text-xs font-medium"
+                  >
+                    {{ t(`catalog.providers.visibility.${project.visibility}`) }}
+                  </span>
+                  <span class="flex items-center gap-1 text-xs text-text-muted">
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
+                      />
+                    </svg>
+                    {{ project.defaultBranch }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-else
+              class="flex flex-col items-center rounded-xl border border-border bg-surface py-12"
               data-testid="remote-projects-empty"
             >
               <svg
@@ -406,7 +470,7 @@ async function handleTestConnection() {
                 {{ t('catalog.providers.noRemoteProjectsHint') }}
               </p>
             </div>
-          </div>
+          </template>
 
           <div
             v-if="providerStore.remoteProjectsTotalPages > 1"

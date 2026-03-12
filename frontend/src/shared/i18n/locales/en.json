@@ -240,6 +240,7 @@
       "noRemoteProjectsHint": "Check the provider configuration or sync projects.",
       "importSelected": "Import Selected ({count})",
       "importing": "Importing…",
+      "selectAll": "Select all",
       "selectProject": "Select {name}",
       "username": "GitHub Username",
       "usernameHint": "Allows listing public projects without an API token",
