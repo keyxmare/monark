@@ -24,6 +24,7 @@ final readonly class DoctrinePipelineRepository implements PipelineRepositoryInt
     /** @return list<Pipeline> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Pipeline> */
         return $this->entityManager->getRepository(Pipeline::class)
             ->createQueryBuilder('p')
             ->orderBy('p.createdAt', 'DESC')
@@ -49,6 +50,7 @@ final readonly class DoctrinePipelineRepository implements PipelineRepositoryInt
                 ->setParameter('ref', $ref);
         }
 
+        /** @var list<Pipeline> */
         return $qb->getQuery()->getResult();
     }
 

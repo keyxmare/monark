@@ -153,6 +153,10 @@ final class MergeRequest
         );
     }
 
+    /**
+     * @param list<string>|null $reviewers
+     * @param list<string>|null $labels
+     */
     public function update(
         ?string $title = null,
         ?string $description = null,

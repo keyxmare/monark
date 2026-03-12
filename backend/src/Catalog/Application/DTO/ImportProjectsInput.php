@@ -13,6 +13,7 @@ final readonly class ImportProjectsInput
     #[Assert\Valid]
     public array $projects;
 
+    /** @param list<ImportProjectItem|array{externalId: string, name: string, slug: string, description?: string|null, repositoryUrl?: string, defaultBranch?: string, visibility?: string}> $projects */
     public function __construct(array $projects)
     {
         $this->projects = \array_map(

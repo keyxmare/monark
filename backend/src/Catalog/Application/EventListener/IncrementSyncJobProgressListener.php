@@ -32,7 +32,7 @@ final readonly class IncrementSyncJobProgressListener
 
         $this->mercureHub->publish(new Update(
             \sprintf('/sync-jobs/%s', $event->syncJobId),
-            \json_encode([
+            (string) \json_encode([
                 'id' => $event->syncJobId,
                 'completedProjects' => $syncJob->getCompletedProjects(),
                 'totalProjects' => $syncJob->getTotalProjects(),

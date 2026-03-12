@@ -24,6 +24,7 @@ final readonly class DoctrineProviderRepository implements ProviderRepositoryInt
     /** @return list<Provider> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Provider> */
         return $this->entityManager->getRepository(Provider::class)
             ->createQueryBuilder('p')
             ->orderBy('p.createdAt', 'DESC')

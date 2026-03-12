@@ -28,6 +28,7 @@ final class SyncMergeRequestsConsoleCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var string $projectId */
         $projectId = $input->getArgument('projectId');
         $output->writeln(\sprintf('Syncing merge requests for project %s...', $projectId));
 

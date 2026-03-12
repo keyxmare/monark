@@ -45,7 +45,9 @@ class ProjectScanner
         $gitProvider = $this->gitProviderFactory->create($provider);
         $searchPaths = $this->discoverSearchPaths($gitProvider, $project);
 
+        /** @var list<DetectedStack|null> $stacks */
         $stacks = [];
+        /** @var list<DetectedDependency> $dependencies */
         $dependencies = [];
 
         foreach ($searchPaths as $basePath) {
@@ -55,6 +57,7 @@ class ProjectScanner
             if ($composerJson !== null) {
                 $data = \json_decode($composerJson, true);
                 if (\is_array($data)) {
+                    /** @var array<string, mixed> $data */
                     $stacks[] = $this->detectPhpStack($data);
                     \array_push($dependencies, ...$this->extractComposerDeps($data));
                 }
@@ -64,6 +67,7 @@ class ProjectScanner
             if ($composerLock !== null && $composerJson !== null) {
                 $lockData = \json_decode($composerLock, true);
                 if (\is_array($lockData)) {
+                    /** @var array<string, mixed> $lockData */
                     $dependencies = $this->enrichComposerVersions($dependencies, $lockData);
                     $dependencies = $this->enrichComposerUrls($dependencies, $lockData);
                     $stacks = $this->enrichPhpStackVersions($stacks, $lockData);
@@ -74,6 +78,7 @@ class ProjectScanner
             if ($packageJson !== null) {
                 $data = \json_decode($packageJson, true);
                 if (\is_array($data)) {
+                    /** @var array<string, mixed> $data */
                     $stacks[] = $this->detectJsStack($data);
                     \array_push($dependencies, ...$this->extractNpmDeps($data));
                 }
@@ -124,6 +129,10 @@ class ProjectScanner
         $externalId = $project->getExternalId();
         $ref = $project->getDefaultBranch();
 
+        if ($provider === null || $externalId === null) {
+            return [''];
+        }
+
         $paths = [''];
 
         $rootEntries = $gitProvider->listDirectory($provider, $externalId, '', $ref);
@@ -159,15 +168,31 @@ class ProjectScanner
         'Yii2' => 'yiisoft/yii2',
     ];
 
-    /** @return list<DetectedStack> */
+    /**
+     * @param list<DetectedStack|null> $stacks
+     * @param array<string, mixed> $lockData
+     * @return list<DetectedStack|null>
+     */
     private function enrichPhpStackVersions(array $stacks, array $lockData): array
     {
+        /** @var list<array{name?: string, version?: string}> $packages */
+        $packages = \array_merge(
+            \is_array($lockData['packages'] ?? null) ? $lockData['packages'] : [],
+            \is_array($lockData['packages-dev'] ?? null) ? $lockData['packages-dev'] : [],
+        );
+
         $lockVersions = [];
-        foreach (\array_merge($lockData['packages'] ?? [], $lockData['packages-dev'] ?? []) as $pkg) {
-            $lockVersions[$pkg['name']] = \ltrim($pkg['version'] ?? '', 'v');
+        foreach ($packages as $pkg) {
+            if (isset($pkg['name'])) {
+                $lockVersions[$pkg['name']] = \ltrim($pkg['version'] ?? '', 'v');
+            }
         }
 
-        $phpVersion = $lockData['platform']['php'] ?? $lockData['platform-overrides']['php'] ?? null;
+        /** @var array<string, string>|null $platform */
+        $platform = \is_array($lockData['platform'] ?? null) ? $lockData['platform'] : null;
+        /** @var array<string, string>|null $platformOverrides */
+        $platformOverrides = \is_array($lockData['platform-overrides'] ?? null) ? $lockData['platform-overrides'] : null;
+        $phpVersion = $platform['php'] ?? $platformOverrides['php'] ?? null;
 
         return \array_map(
             static function (?DetectedStack $stack) use ($lockVersions, $phpVersion): ?DetectedStack {
@@ -194,10 +219,12 @@ class ProjectScanner
         );
     }
 
+    /** @param array<string, mixed> $data */
     private function detectPhpStack(array $data): DetectedStack
     {
-        $phpVersion = $this->cleanVersion($data['require']['php'] ?? '');
-        $require = $data['require'] ?? [];
+        /** @var array<string, string> $require */
+        $require = \is_array($data['require'] ?? null) ? $data['require'] : [];
+        $phpVersion = $this->cleanVersion((string) ($require['php'] ?? ''));
         $framework = 'none';
         $frameworkVersion = '';
 
@@ -206,7 +233,7 @@ class ProjectScanner
         foreach ($flipped as $pkg => $name) {
             if (isset($require[$pkg])) {
                 $framework = $name;
-                $frameworkVersion = $this->cleanVersion($require[$pkg]);
+                $frameworkVersion = $this->cleanVersion((string) $require[$pkg]);
                 break;
             }
         }
@@ -229,12 +256,17 @@ class ProjectScanner
         return new DetectedStack(language: 'PHP', framework: $framework, version: $phpVersion, frameworkVersion: $frameworkVersion);
     }
 
-    /** @return list<DetectedDependency> */
+    /**
+     * @param array<string, mixed> $data
+     * @return list<DetectedDependency>
+     */
     private function extractComposerDeps(array $data): array
     {
         $deps = [];
 
-        foreach ($data['require'] ?? [] as $name => $version) {
+        /** @var array<string, string> $require */
+        $require = \is_array($data['require'] ?? null) ? $data['require'] : [];
+        foreach ($require as $name => $version) {
             if ($name === 'php' || \str_starts_with($name, 'ext-')) {
                 continue;
             }
@@ -246,7 +278,9 @@ class ProjectScanner
             );
         }
 
-        foreach ($data['require-dev'] ?? [] as $name => $version) {
+        /** @var array<string, string> $requireDev */
+        $requireDev = \is_array($data['require-dev'] ?? null) ? $data['require-dev'] : [];
+        foreach ($requireDev as $name => $version) {
             $deps[] = new DetectedDependency(
                 name: $name,
                 currentVersion: $this->cleanVersion($version),
@@ -258,12 +292,24 @@ class ProjectScanner
         return $deps;
     }
 
-    /** @return list<DetectedDependency> */
+    /**
+     * @param list<DetectedDependency> $dependencies
+     * @param array<string, mixed> $lockData
+     * @return list<DetectedDependency>
+     */
     private function enrichComposerVersions(array $dependencies, array $lockData): array
     {
+        /** @var list<array{name?: string, version?: string}> $packages */
+        $packages = \array_merge(
+            \is_array($lockData['packages'] ?? null) ? $lockData['packages'] : [],
+            \is_array($lockData['packages-dev'] ?? null) ? $lockData['packages-dev'] : [],
+        );
+
         $lockVersions = [];
-        foreach (\array_merge($lockData['packages'] ?? [], $lockData['packages-dev'] ?? []) as $pkg) {
-            $lockVersions[$pkg['name']] = \ltrim($pkg['version'] ?? '', 'v');
+        foreach ($packages as $pkg) {
+            if (isset($pkg['name'])) {
+                $lockVersions[$pkg['name']] = \ltrim($pkg['version'] ?? '', 'v');
+            }
         }
 
         return \array_map(
@@ -288,13 +334,23 @@ class ProjectScanner
         );
     }
 
-    /** @return list<DetectedDependency> */
+    /**
+     * @param list<DetectedDependency> $dependencies
+     * @param array<string, mixed> $lockData
+     * @return list<DetectedDependency>
+     */
     private function enrichComposerUrls(array $dependencies, array $lockData): array
     {
+        /** @var list<array{name?: string, source?: array{url?: string}, homepage?: string}> $packages */
+        $packages = \array_merge(
+            \is_array($lockData['packages'] ?? null) ? $lockData['packages'] : [],
+            \is_array($lockData['packages-dev'] ?? null) ? $lockData['packages-dev'] : [],
+        );
+
         $lockUrls = [];
-        foreach (\array_merge($lockData['packages'] ?? [], $lockData['packages-dev'] ?? []) as $pkg) {
-            $url = $pkg['source']['url'] ?? $pkg['homepage'] ?? null;
-            if ($url !== null) {
+        foreach ($packages as $pkg) {
+            $url = ($pkg['source']['url'] ?? null) ?? ($pkg['homepage'] ?? null);
+            if ($url !== null && isset($pkg['name'])) {
                 $lockUrls[$pkg['name']] = \rtrim(\str_replace('.git', '', $url), '/');
             }
         }
@@ -327,10 +383,14 @@ class ProjectScanner
         return \sprintf('https://www.npmjs.com/package/%s', $name);
     }
 
+    /** @param array<string, mixed> $data */
     private function detectJsStack(array $data): DetectedStack
     {
-        $deps = $data['dependencies'] ?? [];
-        $devDeps = $data['devDependencies'] ?? [];
+        /** @var array<string, string> $deps */
+        $deps = \is_array($data['dependencies'] ?? null) ? $data['dependencies'] : [];
+        /** @var array<string, string> $devDeps */
+        $devDeps = \is_array($data['devDependencies'] ?? null) ? $data['devDependencies'] : [];
+        /** @var array<string, string> $allDeps */
         $allDeps = \array_merge($deps, $devDeps);
         $allDepsKeys = \array_keys($allDeps);
 
@@ -338,7 +398,8 @@ class ProjectScanner
         $framework = 'none';
         $frameworkVersion = '';
 
-        $engines = $data['engines'] ?? [];
+        /** @var array<string, string> $engines */
+        $engines = \is_array($data['engines'] ?? null) ? $data['engines'] : [];
         $version = isset($engines['node']) ? $this->cleanVersion($engines['node']) : '';
 
         $frameworkMap = [
@@ -364,12 +425,17 @@ class ProjectScanner
         return new DetectedStack(language: $language, framework: $framework, version: $version, frameworkVersion: $frameworkVersion);
     }
 
-    /** @return list<DetectedDependency> */
+    /**
+     * @param array<string, mixed> $data
+     * @return list<DetectedDependency>
+     */
     private function extractNpmDeps(array $data): array
     {
         $deps = [];
 
-        foreach ($data['dependencies'] ?? [] as $name => $version) {
+        /** @var array<string, string> $runtimeDeps */
+        $runtimeDeps = \is_array($data['dependencies'] ?? null) ? $data['dependencies'] : [];
+        foreach ($runtimeDeps as $name => $version) {
             $deps[] = new DetectedDependency(
                 name: $name,
                 currentVersion: $this->cleanVersion($version),
@@ -379,7 +445,9 @@ class ProjectScanner
             );
         }
 
-        foreach ($data['devDependencies'] ?? [] as $name => $version) {
+        /** @var array<string, string> $devDeps */
+        $devDeps = \is_array($data['devDependencies'] ?? null) ? $data['devDependencies'] : [];
+        foreach ($devDeps as $name => $version) {
             $deps[] = new DetectedDependency(
                 name: $name,
                 currentVersion: $this->cleanVersion($version),
@@ -525,7 +593,10 @@ class ProjectScanner
         return \ltrim(\trim($version), '^~>=<! ');
     }
 
-    /** @return list<DetectedDependency> */
+    /**
+     * @param list<DetectedDependency> $dependencies
+     * @return list<DetectedDependency>
+     */
     private function deduplicateDependencies(array $dependencies): array
     {
         $seen = [];

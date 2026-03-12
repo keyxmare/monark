@@ -8,7 +8,10 @@ use App\Catalog\Domain\Model\MergeRequest;
 
 final readonly class MergeRequestOutput
 {
-    /** @param list<string> $reviewers @param list<string> $labels */
+    /**
+     * @param list<string> $reviewers
+     * @param list<string> $labels
+     */
     public function __construct(
         public string $id,
         public string $externalId,

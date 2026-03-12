@@ -43,6 +43,7 @@ final readonly class DoctrineMergeRequestRepository implements MergeRequestRepos
                 ->setParameter('author', $author);
         }
 
+        /** @var list<MergeRequest> */
         return $qb->getQuery()->getResult();
     }
 
@@ -79,6 +80,7 @@ final readonly class DoctrineMergeRequestRepository implements MergeRequestRepos
     /** @return list<MergeRequest> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<MergeRequest> */
         return $this->entityManager->getRepository(MergeRequest::class)
             ->createQueryBuilder('mr')
             ->orderBy('mr.createdAt', 'DESC')

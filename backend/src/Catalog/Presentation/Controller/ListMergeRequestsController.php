@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Presentation\Controller;
 
+use App\Catalog\Application\DTO\MergeRequestListOutput;
 use App\Catalog\Application\Query\ListMergeRequestsQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,6 +29,7 @@ final readonly class ListMergeRequestsController
         $author = $request->query->get('author');
 
         $envelope = $this->queryBus->dispatch(new ListMergeRequestsQuery($projectId, $page, $perPage, $status, $author));
+        /** @var MergeRequestListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

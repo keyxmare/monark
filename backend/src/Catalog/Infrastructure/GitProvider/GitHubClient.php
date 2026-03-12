@@ -53,7 +53,7 @@ final readonly class GitHubClient implements GitProviderInterface
             'query' => $query,
         ]);
 
-        /** @var list<array<string, mixed>> $projects */
+        /** @var list<array{full_name?: string, name: string, description?: string|null, clone_url?: string, html_url?: string, default_branch?: string, private?: bool, owner?: array{avatar_url?: string}}> $projects */
         $projects = $response->toArray();
 
         return \array_map(
@@ -76,32 +76,39 @@ final readonly class GitHubClient implements GitProviderInterface
                 'query' => ['q' => $q, 'per_page' => 1],
             ]);
 
-            return (int) ($response->toArray()['total_count'] ?? 0);
+            /** @var array{total_count?: int} $data */
+            $data = $response->toArray();
+
+            return $data['total_count'] ?? 0;
         }
 
         if ($this->isAuthenticated($provider)) {
             $response = $this->httpClient->request('GET', $this->baseUrl($provider) . '/user', [
                 'headers' => $this->headers($provider),
             ]);
+
+            /** @var array{public_repos?: int, owned_private_repos?: int} $data */
             $data = $response->toArray();
 
             if ($visibility === 'private') {
-                return (int) ($data['owned_private_repos'] ?? 0);
+                return $data['owned_private_repos'] ?? 0;
             }
             if ($visibility === 'public') {
-                return (int) ($data['public_repos'] ?? 0);
+                return $data['public_repos'] ?? 0;
             }
 
-            return (int) ($data['public_repos'] ?? 0) + (int) ($data['owned_private_repos'] ?? 0);
+            return ($data['public_repos'] ?? 0) + ($data['owned_private_repos'] ?? 0);
         }
 
         $url = \sprintf('%s/users/%s', $this->baseUrl($provider), $provider->getUsername());
         $response = $this->httpClient->request('GET', $url, [
             'headers' => $this->headers($provider),
         ]);
+
+        /** @var array{public_repos?: int} $data */
         $data = $response->toArray();
 
-        return (int) ($data['public_repos'] ?? 0);
+        return $data['public_repos'] ?? 0;
     }
 
     public function testConnection(Provider $provider): bool
@@ -131,7 +138,10 @@ final readonly class GitHubClient implements GitProviderInterface
             'headers' => $this->headers($provider),
         ]);
 
-        return self::mapProject($response->toArray());
+        /** @var array{full_name?: string, name: string, description?: string|null, clone_url?: string, html_url?: string, default_branch?: string, private?: bool, owner?: array{avatar_url?: string}} $data */
+        $data = $response->toArray();
+
+        return self::mapProject($data);
     }
 
     public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
@@ -144,9 +154,10 @@ final readonly class GitHubClient implements GitProviderInterface
                 'query' => ['ref' => $ref],
             ]);
 
+            /** @var array{content?: string} $data */
             $data = $response->toArray();
 
-            return \base64_decode((string) $data['content']);
+            return \base64_decode($data['content'] ?? '');
         } catch (ClientExceptionInterface $e) {
             if ($e->getResponse()->getStatusCode() === 404) {
                 return null;
@@ -188,16 +199,20 @@ final readonly class GitHubClient implements GitProviderInterface
             'query' => $query,
         ]);
 
+        /** @var list<array{state?: string, draft?: bool, merged_at?: string|null, number: int|string, title: string, body?: string|null, head?: array{ref: string}, base?: array{ref: string}, user?: array{login: string}, html_url?: string, additions?: int, deletions?: int, requested_reviewers?: list<array{login: string}>, labels?: list<array{name: string}>, created_at?: string, updated_at?: string, closed_at?: string|null}> $items */
+        $items = $response->toArray();
+
         return \array_map(
             static fn (array $pr): RemoteMergeRequest => self::mapGitHubPullRequest($pr),
-            $response->toArray(),
+            $items,
         );
     }
 
+    /** @param array{state?: string, draft?: bool, merged_at?: string|null, number: int|string, title: string, body?: string|null, head?: array{ref: string}, base?: array{ref: string}, user?: array{login: string}, html_url?: string, additions?: int, deletions?: int, requested_reviewers?: list<array{login: string}>, labels?: list<array{name: string}>, created_at?: string, updated_at?: string, closed_at?: string|null} $pr */
     private static function mapGitHubPullRequest(array $pr): RemoteMergeRequest
     {
-        $ghState = (string) ($pr['state'] ?? 'open');
-        $isDraft = (bool) ($pr['draft'] ?? false);
+        $ghState = $pr['state'] ?? 'open';
+        $isDraft = $pr['draft'] ?? false;
         $mergedAt = $pr['merged_at'] ?? null;
 
         if ($isDraft) {
@@ -211,32 +226,32 @@ final readonly class GitHubClient implements GitProviderInterface
         }
 
         $reviewers = \array_map(
-            static fn (array $r): string => (string) $r['login'],
-            \is_array($pr['requested_reviewers'] ?? null) ? $pr['requested_reviewers'] : [],
+            static fn (array $r): string => $r['login'],
+            $pr['requested_reviewers'] ?? [],
         );
 
         $labels = \array_map(
-            static fn (array $l): string => (string) $l['name'],
-            \is_array($pr['labels'] ?? null) ? $pr['labels'] : [],
+            static fn (array $l): string => $l['name'],
+            $pr['labels'] ?? [],
         );
 
         return new RemoteMergeRequest(
-            externalId: (string) ($pr['number'] ?? ''),
-            title: (string) ($pr['title'] ?? ''),
-            description: isset($pr['body']) ? (string) $pr['body'] : null,
-            sourceBranch: (string) ($pr['head']['ref'] ?? ''),
-            targetBranch: (string) ($pr['base']['ref'] ?? ''),
+            externalId: (string) $pr['number'],
+            title: $pr['title'],
+            description: $pr['body'] ?? null,
+            sourceBranch: ($pr['head'] ?? ['ref' => ''])['ref'],
+            targetBranch: ($pr['base'] ?? ['ref' => ''])['ref'],
             status: $status,
-            author: (string) ($pr['user']['login'] ?? ''),
-            url: (string) ($pr['html_url'] ?? ''),
-            additions: isset($pr['additions']) ? (int) $pr['additions'] : null,
-            deletions: isset($pr['deletions']) ? (int) $pr['deletions'] : null,
+            author: ($pr['user'] ?? ['login' => ''])['login'],
+            url: $pr['html_url'] ?? '',
+            additions: $pr['additions'] ?? null,
+            deletions: $pr['deletions'] ?? null,
             reviewers: $reviewers,
             labels: $labels,
-            createdAt: isset($pr['created_at']) ? (string) $pr['created_at'] : null,
-            updatedAt: isset($pr['updated_at']) ? (string) $pr['updated_at'] : null,
-            mergedAt: $mergedAt !== null ? (string) $mergedAt : null,
-            closedAt: isset($pr['closed_at']) ? (string) $pr['closed_at'] : null,
+            createdAt: $pr['created_at'] ?? null,
+            updatedAt: $pr['updated_at'] ?? null,
+            mergedAt: $mergedAt,
+            closedAt: $pr['closed_at'] ?? null,
         );
     }
 
@@ -251,24 +266,25 @@ final readonly class GitHubClient implements GitProviderInterface
                 'query' => ['ref' => $ref],
             ]);
 
-            $items = $response->toArray();
+            $rawData = $response->toArray();
 
-            if (isset($items['name'])) {
-                return [['name' => (string) $items['name'], 'type' => (string) $items['type'], 'path' => (string) $items['path']]];
+            if (!$this->isListResponse($rawData)) {
+                /** @var array{name: string, type: string, path: string} $rawData */
+                return [['name' => $rawData['name'], 'type' => $rawData['type'], 'path' => $rawData['path']]];
             }
 
-            /** @var list<array<string, mixed>> $items */
+            /** @var list<array{name: string, type: string, path: string}> $rawData */
             return \array_map(
                 static fn (array $item): array => [
-                    'name' => (string) $item['name'],
-                    'type' => match ((string) $item['type']) {
+                    'name' => $item['name'],
+                    'type' => match ($item['type']) {
                         'dir' => 'tree',
                         'file' => 'blob',
-                        default => (string) $item['type'],
+                        default => $item['type'],
                     },
-                    'path' => (string) $item['path'],
+                    'path' => $item['path'],
                 ],
-                $items,
+                $rawData,
             );
         } catch (ClientExceptionInterface) {
             return [];
@@ -294,27 +310,34 @@ final readonly class GitHubClient implements GitProviderInterface
             'query' => ['q' => $q, 'sort' => $ghSort, 'order' => $sortDir, 'page' => $page, 'per_page' => $perPage],
         ]);
 
-        /** @var list<array<string, mixed>> $items */
-        $items = $response->toArray()['items'] ?? [];
+        /** @var array{items?: list<array{full_name?: string, name: string, description?: string|null, clone_url?: string, html_url?: string, default_branch?: string, private?: bool, owner?: array{avatar_url?: string}}>} $responseData */
+        $responseData = $response->toArray();
 
         return \array_map(
             static fn (array $p): RemoteProject => self::mapProject($p),
-            $items,
+            $responseData['items'] ?? [],
         );
     }
 
+    /** @param array{full_name?: string, name: string, description?: string|null, clone_url?: string, html_url?: string, default_branch?: string, private?: bool, owner?: array{avatar_url?: string}} $p */
     private static function mapProject(array $p): RemoteProject
     {
         return new RemoteProject(
-            externalId: (string) ($p['full_name'] ?? $p['name']),
-            name: (string) $p['name'],
-            slug: (string) ($p['full_name'] ?? $p['name']),
-            description: isset($p['description']) ? (string) $p['description'] : null,
-            repositoryUrl: (string) ($p['clone_url'] ?? $p['html_url']),
-            defaultBranch: (string) ($p['default_branch'] ?? 'main'),
-            visibility: (bool) ($p['private'] ?? false) ? 'private' : 'public',
-            avatarUrl: isset($p['owner']) && \is_array($p['owner']) ? (string) ($p['owner']['avatar_url'] ?? '') : null,
+            externalId: $p['full_name'] ?? $p['name'],
+            name: $p['name'],
+            slug: $p['full_name'] ?? $p['name'],
+            description: $p['description'] ?? null,
+            repositoryUrl: $p['clone_url'] ?? $p['html_url'] ?? '',
+            defaultBranch: $p['default_branch'] ?? 'main',
+            visibility: ($p['private'] ?? false) ? 'private' : 'public',
+            avatarUrl: isset($p['owner']) ? ($p['owner']['avatar_url'] ?? '') : null,
         );
+    }
+
+    /** @param array<mixed> $data */
+    private function isListResponse(array $data): bool
+    {
+        return \array_is_list($data);
     }
 
     private function isAuthenticated(Provider $provider): bool

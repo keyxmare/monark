@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Presentation\Controller;
 
+use App\Catalog\Application\DTO\RemoteProjectListOutput;
 use App\Catalog\Application\Query\ListRemoteProjectsQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,6 +31,7 @@ final readonly class ListRemoteProjectsController
         $sortDir = $request->query->getString('sort_dir') ?: 'asc';
 
         $envelope = $this->queryBus->dispatch(new ListRemoteProjectsQuery($id, $page, $perPage, $search, $visibility, $sort, $sortDir));
+        /** @var RemoteProjectListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

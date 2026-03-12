@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Presentation\Controller;
 
+use App\Catalog\Application\DTO\PipelineListOutput;
 use App\Catalog\Application\Query\ListPipelinesQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,6 +29,7 @@ final readonly class ListPipelinesController
         $ref = $request->query->get('ref');
 
         $envelope = $this->queryBus->dispatch(new ListPipelinesQuery($projectId, $page, $perPage, $ref));
+        /** @var PipelineListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());

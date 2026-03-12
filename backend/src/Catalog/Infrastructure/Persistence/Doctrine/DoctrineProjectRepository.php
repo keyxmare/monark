@@ -35,6 +35,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
     /** @return array<string, string> */
     public function findExternalIdMapByProvider(Uuid $providerId): array
     {
+        /** @var list<array{externalId: string, id: \Symfony\Component\Uid\Uuid}> $results */
         $results = $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
             ->select('p.externalId', 'p.id')
@@ -46,7 +47,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
 
         $map = [];
         foreach ($results as $row) {
-            $map[(string) $row['externalId']] = (string) $row['id'];
+            $map[$row['externalId']] = (string) $row['id'];
         }
 
         return $map;
@@ -55,6 +56,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
     /** @return list<Project> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<Project> */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
             ->orderBy('p.createdAt', 'DESC')
@@ -67,6 +69,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
     /** @return list<Project> */
     public function findByProviderId(Uuid $providerId): array
     {
+        /** @var list<Project> */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
             ->where('p.provider = :providerId')
@@ -78,6 +81,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
     /** @return list<Project> */
     public function findAllWithProvider(): array
     {
+        /** @var list<Project> */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
             ->where('p.provider IS NOT NULL')

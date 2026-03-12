@@ -47,19 +47,11 @@ final readonly class GitLabClient implements GitProviderInterface
             'query' => $query,
         ]);
 
+        /** @var list<array{id: int|string, name: string, path_with_namespace: string, description?: string|null, http_url_to_repo?: string, web_url?: string, default_branch?: string, visibility?: string, avatar_url?: string|null}> $projects */
         $projects = $response->toArray();
 
         return \array_map(
-            static fn (array $p) => new RemoteProject(
-                externalId: (string) $p['id'],
-                name: $p['name'],
-                slug: $p['path_with_namespace'],
-                description: $p['description'] ?? null,
-                repositoryUrl: $p['http_url_to_repo'] ?? $p['web_url'],
-                defaultBranch: $p['default_branch'] ?? 'main',
-                visibility: $p['visibility'] ?? 'private',
-                avatarUrl: $p['avatar_url'] ?? null,
-            ),
+            static fn (array $p): RemoteProject => self::mapProject($p),
             $projects,
         );
     }
@@ -105,18 +97,10 @@ final readonly class GitLabClient implements GitProviderInterface
             'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
         ]);
 
+        /** @var array{id: int|string, name: string, path_with_namespace: string, description?: string|null, http_url_to_repo?: string, web_url?: string, default_branch?: string, visibility?: string, avatar_url?: string|null} $p */
         $p = $response->toArray();
 
-        return new RemoteProject(
-            externalId: (string) $p['id'],
-            name: $p['name'],
-            slug: $p['path_with_namespace'],
-            description: $p['description'] ?? null,
-            repositoryUrl: $p['http_url_to_repo'] ?? $p['web_url'],
-            defaultBranch: $p['default_branch'] ?? 'main',
-            visibility: $p['visibility'] ?? 'private',
-            avatarUrl: $p['avatar_url'] ?? null,
-        );
+        return self::mapProject($p);
     }
 
     /** @return list<RemoteMergeRequest> */
@@ -151,16 +135,20 @@ final readonly class GitLabClient implements GitProviderInterface
             'query' => $query,
         ]);
 
+        /** @var list<array{state?: string, draft?: bool, iid: int|string, title: string, description?: string|null, source_branch: string, target_branch: string, author?: array{username: string}, web_url?: string, reviewers?: list<array{username: string}>, labels?: list<string>, created_at?: string, updated_at?: string, merged_at?: string|null, closed_at?: string|null}> $items */
+        $items = $response->toArray();
+
         return \array_map(
             static fn (array $mr): RemoteMergeRequest => self::mapGitLabMergeRequest($mr),
-            $response->toArray(),
+            $items,
         );
     }
 
+    /** @param array{state?: string, draft?: bool, iid: int|string, title: string, description?: string|null, source_branch: string, target_branch: string, author?: array{username: string}, web_url?: string, reviewers?: list<array{username: string}>, labels?: list<string>, created_at?: string, updated_at?: string, merged_at?: string|null, closed_at?: string|null} $mr */
     private static function mapGitLabMergeRequest(array $mr): RemoteMergeRequest
     {
         $state = (string) ($mr['state'] ?? 'opened');
-        $isDraft = (bool) ($mr['draft'] ?? false);
+        $isDraft = $mr['draft'] ?? false;
 
         if ($isDraft && $state === 'opened') {
             $status = 'draft';
@@ -174,32 +162,29 @@ final readonly class GitLabClient implements GitProviderInterface
         }
 
         $reviewers = \array_map(
-            static fn (array $r): string => (string) $r['username'],
-            \is_array($mr['reviewers'] ?? null) ? $mr['reviewers'] : [],
+            static fn (array $r): string => $r['username'],
+            $mr['reviewers'] ?? [],
         );
 
-        $labels = \array_map(
-            static fn (mixed $l): string => (string) $l,
-            \is_array($mr['labels'] ?? null) ? $mr['labels'] : [],
-        );
+        $labels = $mr['labels'] ?? [];
 
         return new RemoteMergeRequest(
             externalId: (string) $mr['iid'],
-            title: (string) $mr['title'],
-            description: isset($mr['description']) ? (string) $mr['description'] : null,
-            sourceBranch: (string) $mr['source_branch'],
-            targetBranch: (string) $mr['target_branch'],
+            title: $mr['title'],
+            description: $mr['description'] ?? null,
+            sourceBranch: $mr['source_branch'],
+            targetBranch: $mr['target_branch'],
             status: $status,
-            author: (string) ($mr['author']['username'] ?? ''),
-            url: (string) ($mr['web_url'] ?? ''),
+            author: ($mr['author'] ?? ['username' => ''])['username'],
+            url: $mr['web_url'] ?? '',
             additions: null,
             deletions: null,
             reviewers: $reviewers,
             labels: $labels,
-            createdAt: isset($mr['created_at']) ? (string) $mr['created_at'] : null,
-            updatedAt: isset($mr['updated_at']) ? (string) $mr['updated_at'] : null,
-            mergedAt: isset($mr['merged_at']) ? (string) $mr['merged_at'] : null,
-            closedAt: isset($mr['closed_at']) ? (string) $mr['closed_at'] : null,
+            createdAt: $mr['created_at'] ?? null,
+            updatedAt: $mr['updated_at'] ?? null,
+            mergedAt: $mr['merged_at'] ?? null,
+            closedAt: $mr['closed_at'] ?? null,
         );
     }
 
@@ -219,13 +204,16 @@ final readonly class GitLabClient implements GitProviderInterface
                 'query' => $query,
             ]);
 
+            /** @var list<array{name: string, type: string, path: string}> $items */
+            $items = $response->toArray();
+
             return \array_map(
                 static fn (array $item): array => [
                     'name' => $item['name'],
                     'type' => $item['type'],
                     'path' => $item['path'],
                 ],
-                $response->toArray(),
+                $items,
             );
         } catch (ClientExceptionInterface) {
             return [];
@@ -243,6 +231,7 @@ final readonly class GitLabClient implements GitProviderInterface
                 'query' => ['ref' => $ref],
             ]);
 
+            /** @var array{content: string} $data */
             $data = $response->toArray();
 
             return \base64_decode($data['content']);
@@ -253,5 +242,20 @@ final readonly class GitLabClient implements GitProviderInterface
 
             throw $e;
         }
+    }
+
+    /** @param array{id: int|string, name: string, path_with_namespace: string, description?: string|null, http_url_to_repo?: string, web_url?: string, default_branch?: string, visibility?: string, avatar_url?: string|null} $p */
+    private static function mapProject(array $p): RemoteProject
+    {
+        return new RemoteProject(
+            externalId: (string) $p['id'],
+            name: $p['name'],
+            slug: $p['path_with_namespace'],
+            description: $p['description'] ?? null,
+            repositoryUrl: $p['http_url_to_repo'] ?? $p['web_url'] ?? '',
+            defaultBranch: $p['default_branch'] ?? 'main',
+            visibility: $p['visibility'] ?? 'private',
+            avatarUrl: $p['avatar_url'] ?? null,
+        );
     }
 }

@@ -24,6 +24,7 @@ final readonly class DoctrineTechStackRepository implements TechStackRepositoryI
     /** @return list<TechStack> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
+        /** @var list<TechStack> */
         return $this->entityManager->getRepository(TechStack::class)
             ->createQueryBuilder('ts')
             ->orderBy('ts.createdAt', 'DESC')
@@ -36,6 +37,7 @@ final readonly class DoctrineTechStackRepository implements TechStackRepositoryI
     /** @return list<TechStack> */
     public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
     {
+        /** @var list<TechStack> */
         return $this->entityManager->getRepository(TechStack::class)
             ->createQueryBuilder('ts')
             ->where('ts.project = :projectId')

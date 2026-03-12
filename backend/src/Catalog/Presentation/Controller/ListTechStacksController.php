@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Presentation\Controller;
 
+use App\Catalog\Application\DTO\TechStackListOutput;
 use App\Catalog\Application\Query\ListTechStacksQuery;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,6 +28,7 @@ final readonly class ListTechStacksController
         $projectId = $request->query->get('project_id');
 
         $envelope = $this->queryBus->dispatch(new ListTechStacksQuery($projectId, $page, $perPage));
+        /** @var TechStackListOutput $result */
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse(ApiResponse::success($result->pagination->toArray())->toArray());
