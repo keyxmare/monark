@@ -7,6 +7,7 @@ import type { RemoteProject } from '@/catalog/types/provider'
 
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
@@ -20,6 +21,7 @@ const selectedIds = ref<string[]>([])
 const testingConnection = ref(false)
 const importing = ref(false)
 const syncing = ref(false)
+const showDeleteConfirm = ref(false)
 
 onMounted(async () => {
   await providerStore.fetchOne(providerId.value)
@@ -31,6 +33,7 @@ function getSelectedRemoteProjects(): RemoteProject[] {
 }
 
 async function handleDelete() {
+  showDeleteConfirm.value = false
   await providerStore.remove(providerId.value)
   router.push({ name: 'catalog-providers-list' })
 }
@@ -107,7 +110,7 @@ async function handlePageChange(page: number) {
           <button
             class="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-danger/80"
             data-testid="provider-detail-delete"
-            @click="handleDelete"
+            @click="showDeleteConfirm = true"
           >
             {{ t('common.actions.delete') }}
           </button>
@@ -344,6 +347,15 @@ async function handlePageChange(page: number) {
           </div>
         </div>
       </template>
+      <ConfirmDialog
+        :open="showDeleteConfirm"
+        :title="t('catalog.providers.confirmDeleteTitle')"
+        :message="t('catalog.providers.confirmDeleteMessage', { name: providerStore.selected?.name ?? '' })"
+        :confirm-label="t('common.actions.delete')"
+        variant="danger"
+        @confirm="handleDelete"
+        @cancel="showDeleteConfirm = false"
+      />
     </div>
   </DashboardLayout>
 </template>

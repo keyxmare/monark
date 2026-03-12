@@ -247,7 +247,9 @@
       "tokenKeepCurrent": "Laisser vide pour conserver l'actuel",
       "syncAll": "Tout synchroniser",
       "syncing": "Synchronisation…",
-      "syncStarted": "Synchronisation lancée pour {count} projet(s)"
+      "syncStarted": "Synchronisation lancée pour {count} projet(s)",
+      "confirmDeleteTitle": "Supprimer le fournisseur",
+      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer « {name} » ? Cette action est irréversible."
     },
     "techStacks": {
       "title": "Stacks techniques",

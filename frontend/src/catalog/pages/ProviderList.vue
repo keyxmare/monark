@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router'
 
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const { t, d } = useI18n()
@@ -12,13 +13,20 @@ const providerStore = useProviderStore()
 const { track } = useSyncProgress()
 const testingId = ref<null | string>(null)
 const syncing = ref(false)
+const deleteTarget = ref<null | { id: string; name: string }>(null)
 
 onMounted(() => {
   providerStore.fetchAll()
 })
 
-async function handleDelete(id: string) {
-  await providerStore.remove(id)
+function requestDelete(provider: { id: string; name: string }) {
+  deleteTarget.value = provider
+}
+
+async function confirmDelete() {
+  if (!deleteTarget.value) return
+  await providerStore.remove(deleteTarget.value.id)
+  deleteTarget.value = null
 }
 
 async function handleTestConnection(id: string) {
@@ -181,7 +189,7 @@ async function handleSyncAll() {
                 <button
                   class="text-sm text-danger hover:text-danger/80"
                   data-testid="provider-delete"
-                  @click="handleDelete(provider.id)"
+                  @click="requestDelete(provider)"
                 >
                   {{ t('common.actions.delete') }}
                 </button>
@@ -198,6 +206,15 @@ async function handleSyncAll() {
           {{ t('catalog.providers.noProviders') }}
         </div>
       </div>
+      <ConfirmDialog
+        :open="deleteTarget !== null"
+        :title="t('catalog.providers.confirmDeleteTitle')"
+        :message="t('catalog.providers.confirmDeleteMessage', { name: deleteTarget?.name ?? '' })"
+        :confirm-label="t('common.actions.delete')"
+        variant="danger"
+        @confirm="confirmDelete"
+        @cancel="deleteTarget = null"
+      />
     </div>
   </DashboardLayout>
 </template>

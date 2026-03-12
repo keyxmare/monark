@@ -247,7 +247,9 @@
       "tokenKeepCurrent": "Leave empty to keep current",
       "syncAll": "Sync All",
       "syncing": "Syncing…",
-      "syncStarted": "Sync started for {count} project(s)"
+      "syncStarted": "Sync started for {count} project(s)",
+      "confirmDeleteTitle": "Delete Provider",
+      "confirmDeleteMessage": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
     },
     "techStacks": {
       "title": "Tech Stacks",
