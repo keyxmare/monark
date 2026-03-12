@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Infrastructure\GitProvider;
 
 use App\Catalog\Domain\Model\Provider;
+use App\Catalog\Domain\Model\RemoteMergeRequest;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -69,6 +70,108 @@ final readonly class GitLabClient implements GitProviderInterface
         } catch (\Throwable) {
             return false;
         }
+    }
+
+    public function getProject(Provider $provider, string $externalId): RemoteProject
+    {
+        $url = \sprintf('%s/api/v4/projects/%s', $provider->getUrl(), \rawurlencode($externalId));
+
+        $response = $this->httpClient->request('GET', $url, [
+            'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
+        ]);
+
+        $p = $response->toArray();
+
+        return new RemoteProject(
+            externalId: (string) $p['id'],
+            name: $p['name'],
+            slug: $p['path_with_namespace'],
+            description: $p['description'] ?? null,
+            repositoryUrl: $p['http_url_to_repo'] ?? $p['web_url'],
+            defaultBranch: $p['default_branch'] ?? 'main',
+            visibility: $p['visibility'] ?? 'private',
+            avatarUrl: $p['avatar_url'] ?? null,
+        );
+    }
+
+    /** @return list<RemoteMergeRequest> */
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array
+    {
+        $url = \sprintf('%s/api/v4/projects/%s/merge_requests', $provider->getUrl(), \rawurlencode($externalProjectId));
+
+        $query = [
+            'page' => $page,
+            'per_page' => $perPage,
+            'order_by' => 'updated_at',
+            'sort' => 'desc',
+        ];
+
+        if ($state !== null) {
+            $query['state'] = match ($state) {
+                'open' => 'opened',
+                'merged' => 'merged',
+                'closed' => 'closed',
+                default => 'all',
+            };
+        } else {
+            $query['state'] = 'all';
+        }
+
+        $response = $this->httpClient->request('GET', $url, [
+            'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
+            'query' => $query,
+        ]);
+
+        return \array_map(
+            static fn (array $mr): RemoteMergeRequest => self::mapGitLabMergeRequest($mr),
+            $response->toArray(),
+        );
+    }
+
+    private static function mapGitLabMergeRequest(array $mr): RemoteMergeRequest
+    {
+        $state = (string) ($mr['state'] ?? 'opened');
+        $isDraft = (bool) ($mr['draft'] ?? false);
+
+        if ($isDraft && $state === 'opened') {
+            $status = 'draft';
+        } else {
+            $status = match ($state) {
+                'opened' => 'open',
+                'merged' => 'merged',
+                'closed' => 'closed',
+                default => 'open',
+            };
+        }
+
+        $reviewers = \array_map(
+            static fn (array $r): string => (string) $r['username'],
+            \is_array($mr['reviewers'] ?? null) ? $mr['reviewers'] : [],
+        );
+
+        $labels = \array_map(
+            static fn (mixed $l): string => (string) $l,
+            \is_array($mr['labels'] ?? null) ? $mr['labels'] : [],
+        );
+
+        return new RemoteMergeRequest(
+            externalId: (string) $mr['iid'],
+            title: (string) $mr['title'],
+            description: isset($mr['description']) ? (string) $mr['description'] : null,
+            sourceBranch: (string) $mr['source_branch'],
+            targetBranch: (string) $mr['target_branch'],
+            status: $status,
+            author: (string) ($mr['author']['username'] ?? ''),
+            url: (string) ($mr['web_url'] ?? ''),
+            additions: null,
+            deletions: null,
+            reviewers: $reviewers,
+            labels: $labels,
+            createdAt: isset($mr['created_at']) ? (string) $mr['created_at'] : null,
+            updatedAt: isset($mr['updated_at']) ? (string) $mr['updated_at'] : null,
+            mergedAt: isset($mr['merged_at']) ? (string) $mr['merged_at'] : null,
+            closedAt: isset($mr['closed_at']) ? (string) $mr['closed_at'] : null,
+        );
     }
 
     /** @return list<array{name: string, type: string, path: string}> */

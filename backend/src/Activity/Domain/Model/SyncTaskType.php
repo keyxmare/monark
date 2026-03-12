@@ -10,4 +10,5 @@ enum SyncTaskType: string
     case Vulnerability = 'vulnerability';
     case StackUpgrade = 'stack_upgrade';
     case NewDependency = 'new_dependency';
+    case StalePr = 'stale_pr';
 }

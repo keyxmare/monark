@@ -8,6 +8,7 @@ use App\Catalog\Application\DTO\CreateProviderInput;
 use App\Catalog\Application\DTO\ProviderOutput;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\ProviderType;
+use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Catalog\Infrastructure\GitProvider\GitLabClient;
@@ -33,8 +34,10 @@ function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactory
         public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array { return []; }
         public function countProjects(Provider $provider): int { return 0; }
         public function testConnection(Provider $provider): bool { return $this->success; }
+        public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
         public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string { return null; }
         public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array { return []; }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array { return []; }
     };
 
     $factory = new class ($gitClient) extends GitProviderFactory {

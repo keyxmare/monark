@@ -6,6 +6,8 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\Command\SyncAllProjectsCommand;
+use App\Catalog\Application\Command\SyncMergeRequestsCommand;
+use App\Catalog\Application\Command\SyncProjectMetadataCommand;
 use App\Catalog\Application\DTO\SyncJobOutput;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
@@ -40,8 +42,20 @@ final readonly class SyncAllProjectsHandler
         $startedAt = new \DateTimeImmutable();
 
         foreach ($projects as $project) {
+            $projectId = $project->getId()->toRfc4122();
+
             $this->commandBus->dispatch(
-                new ScanProjectCommand($project->getId()->toRfc4122()),
+                new ScanProjectCommand($projectId),
+                [new DispatchAfterCurrentBusStamp()],
+            );
+
+            $this->commandBus->dispatch(
+                new SyncProjectMetadataCommand($projectId),
+                [new DispatchAfterCurrentBusStamp()],
+            );
+
+            $this->commandBus->dispatch(
+                new SyncMergeRequestsCommand($projectId),
                 [new DispatchAfterCurrentBusStamp()],
             );
         }

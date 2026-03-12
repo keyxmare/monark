@@ -57,7 +57,8 @@
       "failedToScan": "Failed to scan {entity}",
       "failedToTestConnection": "Failed to test connection",
       "failedToImportProjects": "Failed to import projects",
-      "failedToMarkAsRead": "Failed to mark as read"
+      "failedToMarkAsRead": "Failed to mark as read",
+      "failedToSync": "Failed to start sync"
     },
     "entities": {
       "users": "users",
@@ -76,7 +77,9 @@
       "activityEvents": "activity events",
       "notifications": "notifications",
       "dashboard": "dashboard",
-      "remoteProjects": "remote projects"
+      "remoteProjects": "remote projects",
+      "syncTasks": "sync tasks",
+      "mergeRequests": "merge requests"
     },
     "notSet": "Not set",
     "none": "None",
@@ -110,6 +113,7 @@
     "users": "Users",
     "accessTokens": "Access Tokens",
     "teams": "Teams",
+    "syncTasks": "Sync Tasks",
     "logout": "Logout"
   },
   "identity": {
@@ -204,7 +208,9 @@
       "noTechStacks": "No tech stacks detected.",
       "noPipelines": "No pipelines found.",
       "noDependencies": "No dependencies found. Run a scan to detect dependencies.",
-      "repoLink": "Repo"
+      "repoLink": "Repo",
+      "mergeRequestsCount": "Merge Requests ({count})",
+      "noMergeRequests": "No merge requests found."
     },
     "providers": {
       "title": "Providers",
@@ -236,7 +242,10 @@
       "showToken": "Show",
       "hideToken": "Hide",
       "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
-      "tokenKeepCurrent": "Leave empty to keep current"
+      "tokenKeepCurrent": "Leave empty to keep current",
+      "syncAll": "Sync All",
+      "syncing": "Syncing…",
+      "syncStarted": "Sync started for {count} project(s)"
     },
     "techStacks": {
       "title": "Tech Stacks",
@@ -251,6 +260,23 @@
       "detectedAt": "Detected At",
       "noTechStacks": "No tech stacks found.",
       "createFailed": "Failed to create tech stack"
+    },
+    "mergeRequests": {
+      "title": "Merge Requests",
+      "mrTitle": "Title",
+      "status": "Status",
+      "statusOpen": "Open",
+      "statusMerged": "Merged",
+      "statusClosed": "Closed",
+      "statusDraft": "Draft",
+      "author": "Author",
+      "branches": "Branches",
+      "changes": "Changes",
+      "updatedAt": "Updated At",
+      "allStatuses": "All statuses",
+      "filterByAuthor": "Filter by author…",
+      "noMergeRequests": "No merge requests found.",
+      "viewExternal": "View"
     },
     "pipelines": {
       "title": "Pipelines",
@@ -431,6 +457,43 @@
       "markAsRead": "Mark as read",
       "readAt": "Read At",
       "noNotifications": "No notifications found."
+    },
+    "syncTasks": {
+      "title": "Sync Tasks",
+      "taskTitle": "Title",
+      "typeLabel": "Type",
+      "severityLabel": "Severity",
+      "statusLabel": "Status",
+      "date": "Date",
+      "noTasks": "No sync tasks found.",
+      "allStatuses": "All statuses",
+      "allTypes": "All types",
+      "allSeverities": "All severities",
+      "acknowledge": "Acknowledge",
+      "resolve": "Resolve",
+      "dismiss": "Dismiss",
+      "type": {
+        "outdated_dependency": "Outdated Dep",
+        "vulnerability": "Vulnerability",
+        "stack_upgrade": "Stack Upgrade",
+        "new_dependency": "New Dep",
+        "stale_pr": "Stale PR"
+      },
+      "severity": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "info": "Info"
+      },
+      "status": {
+        "open": "Open",
+        "acknowledged": "Acknowledged",
+        "resolved": "Resolved",
+        "dismissed": "Dismissed"
+      },
+      "urgentWidget": "{count} critical/high sync task(s)",
+      "urgentWidgetHint": "Review these tasks that require attention"
     }
   },
   "aria": {

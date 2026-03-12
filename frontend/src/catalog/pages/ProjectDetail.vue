@@ -8,6 +8,7 @@ import { useProjectStore } from '@/catalog/stores/project'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { usePipelineStore } from '@/catalog/stores/pipeline'
 import { useDependencyStore } from '@/dependency/stores/dependency'
+import { useMergeRequestStore } from '@/catalog/stores/merge-request'
 
 const route = useRoute()
 const { t, d } = useI18n()
@@ -15,8 +16,9 @@ const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
 const pipelineStore = usePipelineStore()
 const dependencyStore = useDependencyStore()
+const mergeRequestStore = useMergeRequestStore()
 
-const activeTab = ref<'tech-stacks' | 'pipelines' | 'dependencies'>('tech-stacks')
+const activeTab = ref<'tech-stacks' | 'pipelines' | 'dependencies' | 'merge-requests'>('tech-stacks')
 const projectId = computed(() => route.params.id as string)
 
 onMounted(async () => {
@@ -25,6 +27,7 @@ onMounted(async () => {
     techStackStore.fetchAll(1, 20, projectId.value),
     pipelineStore.fetchAll(1, 10, projectId.value, projectStore.selected?.defaultBranch),
     dependencyStore.fetchAll(1, 100, projectId.value),
+    mergeRequestStore.fetchAll(projectId.value),
   ])
 })
 
@@ -222,6 +225,18 @@ async function handleScan() {
             @click="activeTab = 'dependencies'"
           >
             {{ t('catalog.projects.dependenciesCount', { count: dependencyStore.total }) }}
+          </button>
+          <button
+            :class="[
+              'px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === 'merge-requests'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-text-muted hover:text-text',
+            ]"
+            data-testid="tab-merge-requests"
+            @click="activeTab = 'merge-requests'"
+          >
+            {{ t('catalog.projects.mergeRequestsCount', { count: mergeRequestStore.total }) }}
           </button>
         </div>
 
@@ -451,6 +466,92 @@ async function handleScan() {
             data-testid="dependencies-empty"
           >
             {{ t('catalog.projects.noDependencies') }}
+          </div>
+        </div>
+        <div
+          v-if="activeTab === 'merge-requests'"
+          class="overflow-hidden rounded-xl border border-border bg-surface"
+          data-testid="merge-requests-panel"
+        >
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-border bg-surface-muted">
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  {{ t('catalog.mergeRequests.mrTitle') }}
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  {{ t('catalog.mergeRequests.status') }}
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  {{ t('catalog.mergeRequests.author') }}
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  {{ t('catalog.mergeRequests.branches') }}
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  {{ t('catalog.mergeRequests.updatedAt') }}
+                </th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
+                  {{ t('common.table.actions') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="mr in mergeRequestStore.mergeRequests"
+                :key="mr.id"
+                class="border-b border-border last:border-0"
+                data-testid="mr-row"
+              >
+                <td class="px-4 py-3 text-sm text-text">
+                  <span class="text-text-muted">#{{ mr.externalId }}</span>
+                  {{ mr.title }}
+                </td>
+                <td class="px-4 py-3">
+                  <span
+                    :class="[
+                      'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                      {
+                        'bg-success/10 text-success': mr.status === 'open',
+                        'bg-info/10 text-info': mr.status === 'merged',
+                        'bg-danger/10 text-danger': mr.status === 'closed',
+                        'bg-warning/10 text-warning': mr.status === 'draft',
+                      },
+                    ]"
+                    data-testid="mr-status-badge"
+                  >
+                    {{ mr.status }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ mr.author }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ mr.sourceBranch }} → {{ mr.targetBranch }}
+                </td>
+                <td class="px-4 py-3 text-sm text-text-muted">
+                  {{ d(new Date(mr.updatedAt), 'short') }}
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <a
+                    :href="mr.url"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-sm text-primary hover:text-primary-dark"
+                    data-testid="mr-external-link"
+                  >
+                    {{ t('catalog.mergeRequests.viewExternal') }} ↗
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div
+            v-if="mergeRequestStore.mergeRequests.length === 0"
+            class="py-8 text-center text-text-muted"
+            data-testid="merge-requests-empty"
+          >
+            {{ t('catalog.mergeRequests.noMergeRequests') }}
           </div>
         </div>
       </template>

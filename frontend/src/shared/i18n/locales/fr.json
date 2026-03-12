@@ -57,7 +57,8 @@
       "failedToScan": "Impossible de scanner {entity}",
       "failedToTestConnection": "Impossible de tester la connexion",
       "failedToImportProjects": "Impossible d'importer les projets",
-      "failedToMarkAsRead": "Impossible de marquer comme lu"
+      "failedToMarkAsRead": "Impossible de marquer comme lu",
+      "failedToSync": "Impossible de lancer la synchronisation"
     },
     "entities": {
       "users": "les utilisateurs",
@@ -76,7 +77,9 @@
       "activityEvents": "les événements",
       "notifications": "les notifications",
       "dashboard": "le tableau de bord",
-      "remoteProjects": "les projets distants"
+      "remoteProjects": "les projets distants",
+      "syncTasks": "les tâches de sync",
+      "mergeRequests": "les merge requests"
     },
     "notSet": "Non défini",
     "none": "Aucun",
@@ -110,6 +113,7 @@
     "users": "Utilisateurs",
     "accessTokens": "Jetons d'accès",
     "teams": "Équipes",
+    "syncTasks": "Tâches de sync",
     "logout": "Déconnexion"
   },
   "identity": {
@@ -204,7 +208,9 @@
       "noTechStacks": "Aucune stack technique détectée.",
       "noPipelines": "Aucun pipeline trouvé.",
       "noDependencies": "Aucune dépendance trouvée. Lancez un scan pour détecter les dépendances.",
-      "repoLink": "Dépôt"
+      "repoLink": "Dépôt",
+      "mergeRequestsCount": "Merge Requests ({count})",
+      "noMergeRequests": "Aucune merge request trouvée."
     },
     "providers": {
       "title": "Fournisseurs",
@@ -236,7 +242,10 @@
       "showToken": "Afficher",
       "hideToken": "Masquer",
       "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
-      "tokenKeepCurrent": "Laisser vide pour conserver l'actuel"
+      "tokenKeepCurrent": "Laisser vide pour conserver l'actuel",
+      "syncAll": "Tout synchroniser",
+      "syncing": "Synchronisation…",
+      "syncStarted": "Synchronisation lancée pour {count} projet(s)"
     },
     "techStacks": {
       "title": "Stacks techniques",
@@ -251,6 +260,23 @@
       "detectedAt": "Détecté le",
       "noTechStacks": "Aucune stack technique trouvée.",
       "createFailed": "Échec de la création de la stack"
+    },
+    "mergeRequests": {
+      "title": "Merge Requests",
+      "mrTitle": "Titre",
+      "status": "Statut",
+      "statusOpen": "Ouverte",
+      "statusMerged": "Fusionnée",
+      "statusClosed": "Fermée",
+      "statusDraft": "Brouillon",
+      "author": "Auteur",
+      "branches": "Branches",
+      "changes": "Modifications",
+      "updatedAt": "Mis à jour le",
+      "allStatuses": "Tous les statuts",
+      "filterByAuthor": "Filtrer par auteur…",
+      "noMergeRequests": "Aucune merge request trouvée.",
+      "viewExternal": "Voir"
     },
     "pipelines": {
       "title": "Pipelines",
@@ -431,6 +457,43 @@
       "markAsRead": "Marquer comme lu",
       "readAt": "Lu le",
       "noNotifications": "Aucune notification trouvée."
+    },
+    "syncTasks": {
+      "title": "Tâches de synchronisation",
+      "taskTitle": "Titre",
+      "typeLabel": "Type",
+      "severityLabel": "Sévérité",
+      "statusLabel": "Statut",
+      "date": "Date",
+      "noTasks": "Aucune tâche de synchronisation trouvée.",
+      "allStatuses": "Tous les statuts",
+      "allTypes": "Tous les types",
+      "allSeverities": "Toutes les sévérités",
+      "acknowledge": "Prendre en compte",
+      "resolve": "Résoudre",
+      "dismiss": "Ignorer",
+      "type": {
+        "outdated_dependency": "Dép. obsolète",
+        "vulnerability": "Vulnérabilité",
+        "stack_upgrade": "Mise à jour stack",
+        "new_dependency": "Nouvelle dép.",
+        "stale_pr": "PR inactive"
+      },
+      "severity": {
+        "critical": "Critique",
+        "high": "Élevée",
+        "medium": "Moyenne",
+        "low": "Faible",
+        "info": "Info"
+      },
+      "status": {
+        "open": "Ouvert",
+        "acknowledged": "Pris en compte",
+        "resolved": "Résolu",
+        "dismissed": "Ignoré"
+      },
+      "urgentWidget": "{count} tâche(s) critique(s)/élevée(s)",
+      "urgentWidgetHint": "Ces tâches nécessitent votre attention"
     }
   },
   "aria": {

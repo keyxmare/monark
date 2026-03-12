@@ -59,6 +59,10 @@ final class Project
     #[ORM\OneToMany(targetEntity: Dependency::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $dependencies;
 
+    /** @var Collection<int, MergeRequest> */
+    #[ORM\OneToMany(targetEntity: MergeRequest::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $mergeRequests;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -90,6 +94,7 @@ final class Project
         $this->techStacks = new ArrayCollection();
         $this->pipelines = new ArrayCollection();
         $this->dependencies = new ArrayCollection();
+        $this->mergeRequests = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -185,6 +190,12 @@ final class Project
     public function getDependencies(): Collection
     {
         return $this->dependencies;
+    }
+
+    /** @return Collection<int, MergeRequest> */
+    public function getMergeRequests(): Collection
+    {
+        return $this->mergeRequests;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

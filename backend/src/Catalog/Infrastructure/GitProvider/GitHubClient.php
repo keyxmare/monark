@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Infrastructure\GitProvider;
 
 use App\Catalog\Domain\Model\Provider;
+use App\Catalog\Domain\Model\RemoteMergeRequest;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -97,6 +98,28 @@ final readonly class GitHubClient implements GitProviderInterface
         }
     }
 
+    public function getProject(Provider $provider, string $externalId): RemoteProject
+    {
+        $url = \sprintf('%s/repos/%s', $this->baseUrl($provider), $externalId);
+
+        $response = $this->httpClient->request('GET', $url, [
+            'headers' => $this->headers($provider),
+        ]);
+
+        $p = $response->toArray();
+
+        return new RemoteProject(
+            externalId: (string) $p['full_name'],
+            name: (string) $p['name'],
+            slug: (string) $p['full_name'],
+            description: isset($p['description']) ? (string) $p['description'] : null,
+            repositoryUrl: (string) ($p['clone_url'] ?? $p['html_url']),
+            defaultBranch: (string) ($p['default_branch'] ?? 'main'),
+            visibility: (bool) ($p['private'] ?? false) ? 'private' : 'public',
+            avatarUrl: isset($p['owner']) && \is_array($p['owner']) ? (string) ($p['owner']['avatar_url'] ?? '') : null,
+        );
+    }
+
     public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
     {
         $url = \sprintf('%s/repos/%s/contents/%s', $this->baseUrl($provider), $externalProjectId, $filePath);
@@ -117,6 +140,86 @@ final readonly class GitHubClient implements GitProviderInterface
 
             throw $e;
         }
+    }
+
+    /** @return list<RemoteMergeRequest> */
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array
+    {
+        $perPage = \min($perPage, 100);
+        $url = \sprintf('%s/repos/%s/pulls', $this->baseUrl($provider), $externalProjectId);
+
+        $query = [
+            'page' => $page,
+            'per_page' => $perPage,
+            'sort' => 'updated',
+            'direction' => 'desc',
+        ];
+
+        if ($state !== null && $state !== 'all') {
+            $query['state'] = match ($state) {
+                'open', 'draft' => 'open',
+                'merged', 'closed' => 'closed',
+                default => 'all',
+            };
+        } else {
+            $query['state'] = 'all';
+        }
+
+        $response = $this->httpClient->request('GET', $url, [
+            'headers' => $this->headers($provider),
+            'query' => $query,
+        ]);
+
+        return \array_map(
+            static fn (array $pr): RemoteMergeRequest => self::mapGitHubPullRequest($pr),
+            $response->toArray(),
+        );
+    }
+
+    private static function mapGitHubPullRequest(array $pr): RemoteMergeRequest
+    {
+        $ghState = (string) ($pr['state'] ?? 'open');
+        $isDraft = (bool) ($pr['draft'] ?? false);
+        $mergedAt = $pr['merged_at'] ?? null;
+
+        if ($isDraft) {
+            $status = 'draft';
+        } elseif ($mergedAt !== null) {
+            $status = 'merged';
+        } elseif ($ghState === 'closed') {
+            $status = 'closed';
+        } else {
+            $status = 'open';
+        }
+
+        $reviewers = \array_map(
+            static fn (array $r): string => (string) $r['login'],
+            \is_array($pr['requested_reviewers'] ?? null) ? $pr['requested_reviewers'] : [],
+        );
+
+        $labels = \array_map(
+            static fn (array $l): string => (string) $l['name'],
+            \is_array($pr['labels'] ?? null) ? $pr['labels'] : [],
+        );
+
+        return new RemoteMergeRequest(
+            externalId: (string) ($pr['number'] ?? ''),
+            title: (string) ($pr['title'] ?? ''),
+            description: isset($pr['body']) ? (string) $pr['body'] : null,
+            sourceBranch: (string) ($pr['head']['ref'] ?? ''),
+            targetBranch: (string) ($pr['base']['ref'] ?? ''),
+            status: $status,
+            author: (string) ($pr['user']['login'] ?? ''),
+            url: (string) ($pr['html_url'] ?? ''),
+            additions: isset($pr['additions']) ? (int) $pr['additions'] : null,
+            deletions: isset($pr['deletions']) ? (int) $pr['deletions'] : null,
+            reviewers: $reviewers,
+            labels: $labels,
+            createdAt: isset($pr['created_at']) ? (string) $pr['created_at'] : null,
+            updatedAt: isset($pr['updated_at']) ? (string) $pr['updated_at'] : null,
+            mergedAt: $mergedAt !== null ? (string) $mergedAt : null,
+            closedAt: isset($pr['closed_at']) ? (string) $pr['closed_at'] : null,
+        );
     }
 
     /** @return list<array{name: string, type: string, path: string}> */

@@ -97,6 +97,9 @@ services:
     App\Catalog\Domain\Repository\ProviderRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
 
+    App\Catalog\Domain\Repository\MergeRequestRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineMergeRequestRepository
+
     App\Catalog\Domain\Port\GitProviderInterface:
         alias: App\Catalog\Infrastructure\GitProvider\GitLabClient
 
@@ -136,6 +139,10 @@ services:
             $eventBus: '@event.bus'
 
     App\Catalog\Application\CommandHandler\ScanProjectHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\CommandHandler\SyncMergeRequestsHandler:
         arguments:
             $eventBus: '@event.bus'
 

@@ -25,6 +25,7 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
         public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array { return []; }
         public function countProjects(Provider $provider): int { return 0; }
         public function testConnection(Provider $provider): bool { return true; }
+        public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
 
         public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
         {
@@ -35,6 +36,8 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
         {
             return $this->tree[$path] ?? [];
         }
+
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array { return []; }
     };
 }
 

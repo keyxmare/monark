@@ -73,4 +73,10 @@ export const catalogRoutes: RouteRecordRaw[] = [
     name: 'catalog-pipelines-detail',
     path: '/catalog/pipelines/:id',
   },
+  {
+    component: () => import('@/catalog/pages/MergeRequestList.vue'),
+    meta: { layout: 'dashboard' },
+    name: 'catalog-merge-requests-list',
+    path: '/catalog/projects/:projectId/merge-requests',
+  },
 ]

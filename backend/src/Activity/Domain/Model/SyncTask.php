@@ -181,6 +181,7 @@ final class SyncTask
             SyncTaskType::OutdatedDependency, SyncTaskType::NewDependency => $this->metadata['dependencyName'] ?? '',
             SyncTaskType::Vulnerability => $this->metadata['cveId'] ?? '',
             SyncTaskType::StackUpgrade => ($this->metadata['language'] ?? '') . ':' . ($this->metadata['framework'] ?? ''),
+            SyncTaskType::StalePr => $this->metadata['externalId'] ?? '',
         };
     }
 }
