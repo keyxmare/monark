@@ -484,8 +484,8 @@
       "noWorker": "No Worker",
       "noWorkerWarning": "No active worker detected — messages will not be processed. Check that the messenger-consumer service is running.",
       "queuesTitle": "Queues",
-      "autoRefreshOn": "Auto-refresh ON",
-      "autoRefreshOff": "Auto-refresh OFF"
+      "liveUpdates": "Live updates",
+      "reconnecting": "Reconnecting…"
     },
     "syncTasks": {
       "title": "Sync Tasks",

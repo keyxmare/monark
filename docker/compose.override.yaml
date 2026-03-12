@@ -31,6 +31,12 @@ services:
     ports:
       - "5432:5432"
 
+  messenger-stats-publisher:
+    volumes:
+      - ../backend:/app
+    environment:
+      APP_ENV: dev
+
   messenger-consumer:
     volumes:
       - ../backend:/app

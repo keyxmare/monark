@@ -484,8 +484,8 @@
       "noWorker": "Pas de worker",
       "noWorkerWarning": "Aucun worker actif détecté — les messages ne seront pas traités. Vérifiez que le service messenger-consumer est démarré.",
       "queuesTitle": "Files",
-      "autoRefreshOn": "Auto-refresh ON",
-      "autoRefreshOff": "Auto-refresh OFF"
+      "liveUpdates": "Temps réel",
+      "reconnecting": "Reconnexion…"
     },
     "syncTasks": {
       "title": "Tâches de synchronisation",

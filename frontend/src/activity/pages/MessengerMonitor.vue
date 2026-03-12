@@ -1,42 +1,27 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { MessengerStats } from '@/activity/types/messenger'
 import { useMessengerStore } from '@/activity/stores/messenger'
+import { useMercure } from '@/shared/composables/useMercure'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const { t } = useI18n()
 const messengerStore = useMessengerStore()
 
-const autoRefresh = ref(true)
-let intervalId: ReturnType<typeof setInterval> | null = null
+const { data: liveStats, connected } = useMercure<MessengerStats>('/messenger/stats')
+
+watch(liveStats, (stats) => {
+  if (stats) {
+    messengerStore.queues = stats.queues
+    messengerStore.workers = stats.workers
+  }
+})
 
 const totalMessages = computed(() =>
   messengerStore.queues.reduce((sum, q) => sum + q.messages, 0),
 )
-
-function startAutoRefresh() {
-  stopAutoRefresh()
-  intervalId = setInterval(() => {
-    messengerStore.fetchStats()
-  }, 5000)
-}
-
-function stopAutoRefresh() {
-  if (intervalId) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
-}
-
-function toggleAutoRefresh() {
-  autoRefresh.value = !autoRefresh.value
-  if (autoRefresh.value) {
-    startAutoRefresh()
-  } else {
-    stopAutoRefresh()
-  }
-}
 
 function queueHealthClass(queue: { messages: number }): string {
   const hasWorkers = messengerStore.workers.length > 0
@@ -58,15 +43,8 @@ function workerStateClass(state: string): string {
   return state === 'running' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
 }
 
-onMounted(async () => {
-  await messengerStore.fetchStats()
-  if (autoRefresh.value) {
-    startAutoRefresh()
-  }
-})
-
-onUnmounted(() => {
-  stopAutoRefresh()
+onMounted(() => {
+  messengerStore.fetchStats()
 })
 </script>
 
@@ -81,24 +59,22 @@ onUnmounted(() => {
           {{ t('activity.messenger.title') }}
         </h2>
         <div class="flex items-center gap-3">
+          <span
+            class="flex items-center gap-2 text-sm"
+            data-testid="sse-status"
+          >
+            <span
+              class="inline-block h-2 w-2 rounded-full"
+              :class="connected ? 'bg-green-500' : 'bg-red-500'"
+            />
+            {{ connected ? t('activity.messenger.liveUpdates') : t('activity.messenger.reconnecting') }}
+          </span>
           <button
             class="rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-text hover:bg-background"
             data-testid="refresh-btn"
             @click="messengerStore.fetchStats()"
           >
             {{ t('common.actions.refresh') }}
-          </button>
-          <button
-            :class="[
-              'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-              autoRefresh
-                ? 'bg-primary text-white'
-                : 'border border-border bg-surface text-text hover:bg-background',
-            ]"
-            data-testid="auto-refresh-btn"
-            @click="toggleAutoRefresh"
-          >
-            {{ autoRefresh ? t('activity.messenger.autoRefreshOn') : t('activity.messenger.autoRefreshOff') }}
           </button>
         </div>
       </div>
