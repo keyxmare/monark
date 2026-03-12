@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Catalog\Application\DTO\RemoteProjectListOutput;
 use App\Catalog\Application\Query\ListRemoteProjectsQuery;
 use App\Catalog\Application\QueryHandler\ListRemoteProjectsHandler;
 use App\Catalog\Domain\Model\Project;
@@ -34,7 +35,7 @@ function stubRemoteProjectRepo(array $importedExternalIds = []): ProjectReposito
         public function findById(Uuid $id): ?Project { return null; }
         public function findBySlug(string $slug): ?Project { return null; }
         public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdsByProvider(Uuid $providerId): array { return $this->importedExternalIds; }
+        public function findExternalIdMapByProvider(Uuid $providerId): array { return $this->importedExternalIds; }
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
         public function findByProviderId(Uuid $providerId): array { return []; }
         public function findAllWithProvider(): array { return []; }
@@ -48,13 +49,13 @@ function stubRemoteGitFactory(array $remoteProjects): GitProviderFactory
 {
     $gitClient = new class ($remoteProjects) implements GitProviderInterface {
         public function __construct(private readonly array $projects) {}
-        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array { return $this->projects; }
-        public function countProjects(Provider $provider): int { return \count($this->projects); }
+        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array { return $this->projects; }
+        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int { return \count($this->projects); }
         public function testConnection(Provider $provider): bool { return true; }
         public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
         public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string { return null; }
         public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array { return []; }
-        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array { return []; }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array { return []; }
     };
 
     return new class ($gitClient) extends GitProviderFactory {
@@ -67,6 +68,8 @@ function stubRemoteGitFactory(array $remoteProjects): GitProviderFactory
 describe('ListRemoteProjectsHandler', function () {
     it('returns remote projects with already-imported flag', function () {
         $provider = ProviderFactory::create();
+        $localUuidA = Uuid::v7()->toRfc4122();
+        $localUuidC = Uuid::v7()->toRfc4122();
         $remoteProjects = [
             new RemoteProject('10', 'Project A', 'team/project-a', 'Desc A', 'https://gl.com/a.git', 'main', 'public', null),
             new RemoteProject('20', 'Project B', 'team/project-b', null, 'https://gl.com/b.git', 'develop', 'private', null),
@@ -74,19 +77,24 @@ describe('ListRemoteProjectsHandler', function () {
         ];
 
         $providerRepo = stubRemoteProviderRepo($provider);
-        $projectRepo = stubRemoteProjectRepo(['10', '30']);
+        $projectRepo = stubRemoteProjectRepo(['10' => $localUuidA, '30' => $localUuidC]);
         $factory = stubRemoteGitFactory($remoteProjects);
 
         $handler = new ListRemoteProjectsHandler($providerRepo, $projectRepo, $factory);
         $result = $handler(new ListRemoteProjectsQuery($provider->getId()->toRfc4122()));
 
-        expect($result)->toHaveCount(3);
-        expect($result[0]->externalId)->toBe('10');
-        expect($result[0]->alreadyImported)->toBeTrue();
-        expect($result[1]->externalId)->toBe('20');
-        expect($result[1]->alreadyImported)->toBeFalse();
-        expect($result[2]->externalId)->toBe('30');
-        expect($result[2]->alreadyImported)->toBeTrue();
+        expect($result)->toBeInstanceOf(RemoteProjectListOutput::class);
+        $items = $result->pagination->items;
+        expect($items)->toHaveCount(3);
+        expect($items[0]->externalId)->toBe('10');
+        expect($items[0]->alreadyImported)->toBeTrue();
+        expect($items[0]->localProjectId)->toBe($localUuidA);
+        expect($items[1]->externalId)->toBe('20');
+        expect($items[1]->alreadyImported)->toBeFalse();
+        expect($items[1]->localProjectId)->toBeNull();
+        expect($items[2]->externalId)->toBe('30');
+        expect($items[2]->alreadyImported)->toBeTrue();
+        expect($items[2]->localProjectId)->toBe($localUuidC);
     });
 
     it('throws not found for unknown provider', function () {

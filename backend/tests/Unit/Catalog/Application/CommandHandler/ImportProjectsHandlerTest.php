@@ -54,7 +54,7 @@ function stubImportProjectRepo(array $existingExternalIds = [], array $existingS
                 ownerId: Uuid::v7(),
             ) : null;
         }
-        public function findExternalIdsByProvider(Uuid $providerId): array { return $this->existingExternalIds; }
+        public function findExternalIdMapByProvider(Uuid $providerId): array { return $this->existingExternalIds; }
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
         public function findByProviderId(Uuid $providerId): array { return []; }
         public function findAllWithProvider(): array { return []; }

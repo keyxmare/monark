@@ -28,7 +28,7 @@ function stubSyncMRProjectRepo(?Project $project = null): ProjectRepositoryInter
         public function findById(Uuid $id): ?Project { return $this->project; }
         public function findBySlug(string $slug): ?Project { return null; }
         public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdsByProvider(Uuid $providerId): array { return []; }
+        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
         public function findByProviderId(Uuid $providerId): array { return []; }
         public function findAllWithProvider(): array { return []; }
@@ -62,13 +62,13 @@ function stubSyncMRGitFactory(array $remoteMRs = []): GitProviderFactory
 {
     $client = new class ($remoteMRs) implements GitProviderInterface {
         public function __construct(private readonly array $mrs) {}
-        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array { return []; }
-        public function countProjects(Provider $provider): int { return 0; }
+        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array { return []; }
+        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int { return 0; }
         public function testConnection(Provider $provider): bool { return true; }
         public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
         public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string { return null; }
         public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array { return []; }
-        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array { return $this->mrs; }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array { return $this->mrs; }
     };
 
     return new class ($client) extends GitProviderFactory {

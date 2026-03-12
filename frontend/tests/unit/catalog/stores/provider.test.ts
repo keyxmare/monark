@@ -123,7 +123,18 @@ describe('Provider Store', () => {
 
   it('tests connection successfully', async () => {
     vi.mocked(providerService.testConnection).mockResolvedValue({
-      data: { connected: true },
+      data: {
+        id: 'prov-123',
+        name: 'GitLab Corp',
+        type: 'gitlab' as const,
+        url: 'https://gitlab.example.com',
+        username: null,
+        status: 'connected' as const,
+        projectsCount: 0,
+        lastSyncAt: null,
+        createdAt: '2026-01-01T00:00:00+00:00',
+        updatedAt: '2026-01-01T00:00:00+00:00',
+      },
       status: 200,
     })
 
@@ -140,7 +151,18 @@ describe('Provider Store', () => {
 
   it('tests connection with failure', async () => {
     vi.mocked(providerService.testConnection).mockResolvedValue({
-      data: { connected: false },
+      data: {
+        id: 'prov-123',
+        name: 'GitLab Corp',
+        type: 'gitlab' as const,
+        url: 'https://gitlab.example.com',
+        username: null,
+        status: 'error' as const,
+        projectsCount: 0,
+        lastSyncAt: null,
+        createdAt: '2026-01-01T00:00:00+00:00',
+        updatedAt: '2026-01-01T00:00:00+00:00',
+      },
       status: 200,
     })
 

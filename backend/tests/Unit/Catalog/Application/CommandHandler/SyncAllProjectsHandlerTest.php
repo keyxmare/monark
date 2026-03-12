@@ -11,8 +11,10 @@ use App\Catalog\Application\DTO\SyncJobOutput;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
 use App\Catalog\Domain\Model\Provider;
+use App\Catalog\Domain\Model\SyncJob;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
+use App\Catalog\Domain\Repository\SyncJobRepositoryInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -28,7 +30,7 @@ function stubSyncProjectRepo(array $byProvider = [], array $allWithProvider = []
         public function findById(Uuid $id): ?Project { return null; }
         public function findBySlug(string $slug): ?Project { return null; }
         public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdsByProvider(Uuid $providerId): array { return []; }
+        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
         public function findAll(int $page = 1, int $perPage = 20): array { return []; }
         public function findByProviderId(Uuid $providerId): array { return $this->byProvider; }
         public function findAllWithProvider(): array { return $this->allWithProvider; }
@@ -47,6 +49,15 @@ function stubSyncProviderRepo(?Provider $provider = null): ProviderRepositoryInt
         public function count(): int { return 0; }
         public function save(Provider $provider): void {}
         public function remove(Provider $provider): void {}
+    };
+}
+
+function stubSyncJobRepo(): SyncJobRepositoryInterface
+{
+    return new class implements SyncJobRepositoryInterface {
+        public ?SyncJob $saved = null;
+        public function findById(Uuid $id): ?SyncJob { return null; }
+        public function save(SyncJob $syncJob): void { $this->saved = $syncJob; }
     };
 }
 
@@ -90,7 +101,7 @@ describe('SyncAllProjectsHandler', function () {
         $providerRepo = stubSyncProviderRepo($provider);
         $bus = spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand($provider->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(SyncJobOutput::class);
@@ -113,7 +124,7 @@ describe('SyncAllProjectsHandler', function () {
         $providerRepo = stubSyncProviderRepo();
         $bus = spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand());
 
         expect($result->projectsCount)->toBe(2);
@@ -126,7 +137,7 @@ describe('SyncAllProjectsHandler', function () {
         $providerRepo = stubSyncProviderRepo($provider);
         $bus = spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand($provider->getId()->toRfc4122()));
 
         expect($result->projectsCount)->toBe(0);
@@ -138,7 +149,7 @@ describe('SyncAllProjectsHandler', function () {
         $providerRepo = stubSyncProviderRepo(null);
         $bus = spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
         $handler(new SyncAllProjectsCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
 
@@ -147,7 +158,7 @@ describe('SyncAllProjectsHandler', function () {
         $providerRepo = stubSyncProviderRepo();
         $bus = spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand());
 
         expect($result->startedAt)->not->toBeEmpty();

@@ -31,13 +31,13 @@ function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactory
 {
     $gitClient = new class ($connectionSuccess) implements GitProviderInterface {
         public function __construct(private readonly bool $success) {}
-        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20): array { return []; }
-        public function countProjects(Provider $provider): int { return 0; }
+        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array { return []; }
+        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int { return 0; }
         public function testConnection(Provider $provider): bool { return $this->success; }
         public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
         public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string { return null; }
         public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array { return []; }
-        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20): array { return []; }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array { return []; }
     };
 
     $factory = new class ($gitClient) extends GitProviderFactory {
