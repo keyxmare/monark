@@ -59,4 +59,8 @@ export const providerService = {
   importProjects(id: string, data: ImportProjectsInput): Promise<ApiResponse<Project[]>> {
     return api.post<ApiResponse<Project[]>>(`${BASE_URL}/${id}/import`, data)
   },
+
+  syncAll(id: string): Promise<ApiResponse<{ projectsCount: number, startedAt: string }>> {
+    return api.post<ApiResponse<{ projectsCount: number, startedAt: string }>>(`${BASE_URL}/${id}/sync-all`, {})
+  },
 }

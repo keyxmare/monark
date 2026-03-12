@@ -27,4 +27,9 @@ export const activityRoutes: RouteRecordRaw[] = [
     name: 'activity-notifications-detail',
     path: '/activity/notifications/:id',
   },
+  {
+    component: () => import('@/activity/pages/SyncTaskList.vue'),
+    name: 'activity-sync-tasks-list',
+    path: '/activity/sync-tasks',
+  },
 ]

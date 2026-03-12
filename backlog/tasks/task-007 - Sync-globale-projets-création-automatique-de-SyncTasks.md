@@ -1,10 +1,10 @@
 ---
 id: TASK-007
 title: Sync globale projets & création automatique de SyncTasks
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-03-11 19:57'
-updated_date: '2026-03-11 20:34'
+updated_date: '2026-03-12 07:48'
 labels:
   - feature
   - catalog
@@ -45,3 +45,9 @@ Permettre de lancer une synchronisation sur l'ensemble des projets importés (pa
 <!-- DOD:BEGIN -->
 - [ ] #1 Les tests doivent passer; Coverage 80% minimum; Mutation 80% minimum; Documentation mise à jour;
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Toutes les sous-tâches complétées : 007.02 (SyncTask entity+listeners), 007.03 (SyncProjectMetadata backend), 007.04 (Frontend UI sync+list)
+<!-- SECTION:NOTES:END -->

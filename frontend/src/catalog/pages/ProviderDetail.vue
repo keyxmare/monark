@@ -17,6 +17,8 @@ const providerId = computed(() => route.params.id as string)
 const selectedIds = ref<string[]>([])
 const testingConnection = ref(false)
 const importing = ref(false)
+const syncing = ref(false)
+const syncMessage = ref<string | null>(null)
 
 onMounted(async () => {
   await providerStore.fetchOne(providerId.value)
@@ -59,6 +61,17 @@ async function handleTestConnection() {
   testingConnection.value = true
   await providerStore.testConnection(providerId.value)
   testingConnection.value = false
+}
+
+async function handleSyncAll() {
+  syncing.value = true
+  syncMessage.value = null
+  try {
+    const count = await providerStore.syncAll(providerId.value)
+    syncMessage.value = t('catalog.providers.syncStarted', { count })
+  } finally {
+    syncing.value = false
+  }
 }
 </script>
 
@@ -198,7 +211,7 @@ async function handleTestConnection() {
             </div>
           </dl>
 
-          <div class="mt-6">
+          <div class="mt-6 flex items-center gap-3">
             <button
               :disabled="testingConnection"
               class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
@@ -207,6 +220,21 @@ async function handleTestConnection() {
             >
               {{ testingConnection ? t('catalog.providers.testing') : t('catalog.providers.testConnection') }}
             </button>
+            <button
+              :disabled="syncing"
+              class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+              data-testid="provider-sync-all"
+              @click="handleSyncAll"
+            >
+              {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
+            </button>
+          </div>
+          <div
+            v-if="syncMessage"
+            class="mt-3 rounded-lg bg-green-100 px-4 py-2 text-sm text-green-800"
+            data-testid="provider-sync-message"
+          >
+            {{ syncMessage }}
           </div>
         </div>
 

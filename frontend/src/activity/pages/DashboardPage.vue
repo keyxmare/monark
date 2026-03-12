@@ -1,19 +1,32 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { RouterLink } from 'vue-router'
 
 import { useDashboardStore } from '@/activity/stores/dashboard'
+import { useSyncTaskStore } from '@/activity/stores/sync-task'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const { t } = useI18n()
 const dashboardStore = useDashboardStore()
+const syncTaskStore = useSyncTaskStore()
 
-onMounted(() => {
-  dashboardStore.load()
+onMounted(async () => {
+  await Promise.all([
+    dashboardStore.load(),
+    syncTaskStore.fetchStats(),
+  ])
 })
 
 const metrics = computed(() => dashboardStore.metrics)
 const loading = computed(() => dashboardStore.loading)
+
+const urgentTaskCount = computed(() => {
+  if (!syncTaskStore.stats) return 0
+  return syncTaskStore.stats.bySeverity
+    .filter(e => e.label === 'critical' || e.label === 'high')
+    .reduce((sum, e) => sum + e.count, 0)
+})
 </script>
 
 <template>
@@ -60,6 +73,29 @@ const loading = computed(() => dashboardStore.loading)
           >
             {{ metric.change >= 0 ? '+' : '' }}{{ metric.change }}%
           </p>
+        </div>
+      </div>
+      <div
+        v-if="urgentTaskCount > 0"
+        class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4"
+        data-testid="dashboard-sync-tasks-widget"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-medium text-red-800">
+              {{ t('activity.syncTasks.urgentWidget', { count: urgentTaskCount }) }}
+            </p>
+            <p class="mt-1 text-sm text-red-600">
+              {{ t('activity.syncTasks.urgentWidgetHint') }}
+            </p>
+          </div>
+          <RouterLink
+            :to="{ name: 'activity-sync-tasks-list' }"
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+            data-testid="dashboard-sync-tasks-link"
+          >
+            {{ t('common.actions.view') }}
+          </RouterLink>
         </div>
       </div>
     </div>

@@ -171,6 +171,18 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     }
   }
 
+  async function syncAll(id: string): Promise<number> {
+    error.value = null
+
+    try {
+      const response = await providerService.syncAll(id)
+      return response.data.projectsCount
+    } catch {
+      error.value = t('common.errors.failedToSync')
+      throw new Error(error.value)
+    }
+  }
+
   return {
     providers,
     selected,
@@ -191,5 +203,6 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     testConnection,
     fetchRemoteProjects,
     importProjects,
+    syncAll,
   }
 })
