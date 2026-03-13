@@ -1,9 +1,10 @@
 ---
 id: TASK-021
 title: Fix CI workflow — branch name mismatch (main vs master)
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-13 07:38'
+updated_date: '2026-03-13 07:46'
 labels: []
 dependencies: []
 priority: high
