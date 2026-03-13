@@ -1,9 +1,10 @@
 ---
 id: TASK-024
 title: 'Refonte ProjectForm — validation inline, breadcrumb, sidebar, auto-slug'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-13 12:08'
+updated_date: '2026-03-13 12:35'
 labels:
   - frontend
   - catalog
