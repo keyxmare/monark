@@ -15,11 +15,11 @@ permissions:
   pull-requests: write
 
 env:
-  DC: docker compose -f docker/compose.yaml -f docker/compose.override.yaml
+  DC: docker compose -f docker/compose.yaml -f docker/compose.override.yaml -f docker/compose.ci.yaml
 
 jobs:
-  lint-backend:
-    name: Lint Backend
+  backend:
+    name: Backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,32 +27,12 @@ jobs:
       - run: ${{ env.DC }} build backend
       - run: ${{ env.DC }} up -d backend
       - run: ${{ env.DC }} exec -T backend composer install --no-interaction
-      - run: ${{ env.DC }} exec -T backend php vendor/bin/php-cs-fixer fix --dry-run --diff
-      - run: ${{ env.DC }} exec -T backend php vendor/bin/phpstan analyse
-
-  lint-frontend:
-    name: Lint Frontend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: cp docker/.env.example docker/.env
-      - run: ${{ env.DC }} build frontend
-      - run: ${{ env.DC }} up -d frontend
-      - run: ${{ env.DC }} exec -T frontend pnpm install
-      - run: ${{ env.DC }} exec -T frontend pnpm lint
-      - run: ${{ env.DC }} exec -T frontend pnpm format:check
-
-  test-backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: cp docker/.env.example docker/.env
-      - run: ${{ env.DC }} build
-      - run: ${{ env.DC }} up -d
-      - run: ${{ env.DC }} exec -T backend composer install --no-interaction
+      - name: CS Fixer
+        run: ${{ env.DC }} exec -T backend php vendor/bin/php-cs-fixer fix --dry-run --diff
+      - name: PHPStan
+        run: ${{ env.DC }} exec -T backend php vendor/bin/phpstan analyse
       - run: ${{ env.DC }} exec -T backend php bin/console doctrine:migrations:migrate --no-interaction
-      - name: Run tests with coverage
+      - name: Tests with coverage
         run: >
           ${{ env.DC }} exec -T backend
           php vendor/bin/pest --coverage --coverage-clover coverage/clover.xml --min=80
@@ -72,9 +52,13 @@ jobs:
           name: backend-coverage
           path: backend/coverage/clover.xml
           retention-days: 7
+      - name: Deptrac
+        run: ${{ env.DC }} exec -T backend php vendor/bin/deptrac analyse
+      - name: Composer audit
+        run: ${{ env.DC }} exec -T backend composer audit
 
-  test-frontend:
-    name: Test Frontend
+  frontend:
+    name: Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -82,7 +66,11 @@ jobs:
       - run: ${{ env.DC }} build frontend
       - run: ${{ env.DC }} up -d frontend
       - run: ${{ env.DC }} exec -T frontend pnpm install
-      - name: Run tests with coverage
+      - name: Lint
+        run: ${{ env.DC }} exec -T frontend pnpm lint
+      - name: Format check
+        run: ${{ env.DC }} exec -T frontend pnpm format:check
+      - name: Tests with coverage
         run: >
           ${{ env.DC }} exec -T frontend
           pnpm vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary
@@ -100,11 +88,13 @@ jobs:
           name: frontend-coverage
           path: frontend/coverage/coverage-summary.json
           retention-days: 7
+      - name: pnpm audit
+        run: ${{ env.DC }} exec -T frontend pnpm audit
 
   coverage-report:
     name: Coverage Report
     if: github.event_name == 'pull_request'
-    needs: [test-backend, test-frontend]
+    needs: [backend, frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -175,34 +165,10 @@ jobs:
             gh pr comment ${PR} --body "${{ steps.coverage.outputs.COMMENT }}"
           fi
 
-  architecture:
-    name: Architecture
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: cp docker/.env.example docker/.env
-      - run: ${{ env.DC }} build backend
-      - run: ${{ env.DC }} up -d backend
-      - run: ${{ env.DC }} exec -T backend composer install --no-interaction
-      - run: ${{ env.DC }} exec -T backend php vendor/bin/deptrac analyse
-
-  security:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: cp docker/.env.example docker/.env
-      - run: ${{ env.DC }} build
-      - run: ${{ env.DC }} up -d
-      - run: ${{ env.DC }} exec -T backend composer install --no-interaction
-      - run: ${{ env.DC }} exec -T backend composer audit
-      - run: ${{ env.DC }} exec -T frontend pnpm install
-      - run: ${{ env.DC }} exec -T frontend pnpm audit
-
   report-metrics:
     name: Report Build Metrics
     if: github.event_name == 'push'
-    needs: [test-backend, test-frontend]
+    needs: [backend, frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

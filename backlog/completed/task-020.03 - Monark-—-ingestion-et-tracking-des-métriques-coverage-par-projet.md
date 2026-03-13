@@ -1,9 +1,10 @@
 ---
 id: TASK-020.03
 title: Monark — ingestion et tracking des métriques coverage par projet
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-13 07:24'
+updated_date: '2026-03-13 07:53'
 labels:
   - feature
   - activity
@@ -62,6 +63,12 @@ Permettre à Monark de recevoir, stocker et afficher les métriques de coverage 
 - [ ] #6 Les tests unitaires couvrent le handler, le controller et l'entité
 - [ ] #7 La migration Doctrine est générée et appliquée
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+BuildMetric entity + full DDD/CQRS stack (command/query handlers, controllers, Doctrine repo, migration). CI `report-metrics` job posts coverage to Monark API on push. 10 tests, 82.1% coverage, PHPStan clean.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

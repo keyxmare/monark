@@ -1,0 +1,18 @@
+services:
+  backend:
+    command: ["sleep", "infinity"]
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+
+  frontend:
+    command: ["sleep", "infinity"]
+    depends_on: []
+    healthcheck:
+      disable: true
+
+  database:
+    tmpfs:
+      - /var/lib/postgresql/data

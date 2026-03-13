@@ -1,9 +1,10 @@
 ---
 id: TASK-020
 title: Coverage reporting — CI visibility + intégration Monark
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-13 07:24'
+updated_date: '2026-03-13 07:53'
 labels:
   - ci
   - quality
@@ -44,3 +45,9 @@ Rendre les métriques de coverage (backend + frontend + mutation) visibles dans 
 - [ ] #2 Chaque PR reçoit un commentaire automatique avec le tableau des métriques coverage
 - [ ] #3 Monark peut ingérer et afficher les métriques coverage par projet dans le temps
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Toutes les sous-tâches complétées : 020.01 (coverage artifacts + PR comment), 020.02 (report-metrics CI job), 020.03 (BuildMetric entity + API + ingestion). CI complète avec coverage tracking end-to-end.
+<!-- SECTION:FINAL_SUMMARY:END -->
