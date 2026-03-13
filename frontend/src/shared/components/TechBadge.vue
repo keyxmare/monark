@@ -8,47 +8,76 @@ const props = withDefaults(defineProps<{
   size: 'sm',
 })
 
-const TECH_COLORS: Record<string, string> = {
-  php: '#4F5D95',
-  javascript: '#f1e05a',
-  typescript: '#3178c6',
-  python: '#3572A5',
-  go: '#00ADD8',
-  rust: '#dea584',
-  java: '#b07219',
-  ruby: '#701516',
-  'c#': '#178600',
-  swift: '#F05138',
-  kotlin: '#A97BFF',
-  symfony: '#000000',
-  laravel: '#FF2D20',
-  vue: '#41b883',
-  'vue.js': '#41b883',
-  react: '#61dafb',
-  angular: '#dd0031',
-  'next.js': '#000000',
-  nuxt: '#00DC82',
-  django: '#092E20',
-  rails: '#CC0000',
-  spring: '#6DB33F',
-  express: '#000000',
+const DEVICON_MAP: Record<string, string> = {
+  php: 'php/php-original',
+  javascript: 'javascript/javascript-original',
+  typescript: 'typescript/typescript-original',
+  python: 'python/python-original',
+  go: 'go/go-original-wordmark',
+  rust: 'rust/rust-original',
+  java: 'java/java-original',
+  ruby: 'ruby/ruby-original',
+  'c#': 'csharp/csharp-original',
+  swift: 'swift/swift-original',
+  kotlin: 'kotlin/kotlin-original',
+  symfony: 'symfony/symfony-original',
+  laravel: 'laravel/laravel-original',
+  vue: 'vuejs/vuejs-original',
+  'vue.js': 'vuejs/vuejs-original',
+  react: 'react/react-original',
+  angular: 'angular/angular-original',
+  'next.js': 'nextjs/nextjs-original',
+  nextjs: 'nextjs/nextjs-original',
+  nuxt: 'nuxtjs/nuxtjs-original',
+  'nuxt.js': 'nuxtjs/nuxtjs-original',
+  django: 'django/django-plain',
+  rails: 'rails/rails-plain',
+  'ruby on rails': 'rails/rails-plain',
+  spring: 'spring/spring-original',
+  express: 'express/express-original',
+  nest: 'nestjs/nestjs-original',
+  nestjs: 'nestjs/nestjs-original',
+  flask: 'flask/flask-original',
+  fastapi: 'fastapi/fastapi-original',
+  tailwind: 'tailwindcss/tailwindcss-original',
+  tailwindcss: 'tailwindcss/tailwindcss-original',
+  docker: 'docker/docker-original',
+  nodejs: 'nodejs/nodejs-original',
+  'node.js': 'nodejs/nodejs-original',
+  postgresql: 'postgresql/postgresql-original',
+  mysql: 'mysql/mysql-original',
+  mongodb: 'mongodb/mongodb-original',
+  redis: 'redis/redis-original',
 }
 
-const DEFAULT_COLOR = '#6b7280'
+const DEVICON_BASE = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons'
 
-const color = computed(() => TECH_COLORS[props.name.toLowerCase()] ?? DEFAULT_COLOR)
-const sizeClass = computed(() => (props.size === 'sm' ? 'text-xs' : 'text-sm'))
+const iconUrl = computed(() => {
+  const key = props.name.toLowerCase()
+  const path = DEVICON_MAP[key]
+  return path ? `${DEVICON_BASE}/${path}.svg` : null
+})
+
+const sizeClass = computed(() => (props.size === 'sm' ? 'h-5 w-5' : 'h-6 w-6'))
+const textClass = computed(() => (props.size === 'sm' ? 'text-xs' : 'text-sm'))
 </script>
 
 <template>
   <span
     class="inline-flex items-center gap-1.5"
+    :title="name"
     :data-testid="`tech-badge-${name}`"
   >
+    <img
+      v-if="iconUrl"
+      :src="iconUrl"
+      :alt="name"
+      :class="sizeClass"
+    >
     <span
-      class="h-2.5 w-2.5 rounded-full"
-      :style="{ backgroundColor: color }"
-    />
-    <span :class="sizeClass">{{ name }}</span>
+      v-else
+      :class="textClass"
+      class="font-medium text-text-muted"
+    >{{ name }}</span>
   </span>
 </template>
