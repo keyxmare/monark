@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -17,6 +17,18 @@ const { t } = useI18n()
 const projectStore = useProjectStore()
 const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
 
+const search = ref('')
+const visibilityFilter = ref('')
+
+const filteredProjects = computed(() => {
+  return projectStore.projects.filter((p) => {
+    if (search.value && !p.name.toLowerCase().includes(search.value.toLowerCase())) return false
+    if (visibilityFilter.value && p.visibility !== visibilityFilter.value) return false
+    return true
+  })
+})
+
+const hasActiveFilters = computed(() => search.value !== '' || visibilityFilter.value !== '')
 const hasPagination = computed(() => projectStore.totalPages > 1)
 
 onMounted(() => {
@@ -91,11 +103,57 @@ function changePage(page: number) {
       <template v-else>
         <div
           v-if="projectStore.projects.length > 0"
+          class="mb-4 flex flex-wrap items-center gap-3"
+          data-testid="project-list-filters"
+        >
+          <div class="relative flex-1">
+            <svg
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
+            <input
+              v-model="search"
+              type="search"
+              :aria-label="t('catalog.projects.searchProjects')"
+              :placeholder="t('catalog.projects.searchProjects')"
+              class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
+              data-testid="project-search"
+            >
+          </div>
+          <select
+            v-model="visibilityFilter"
+            :aria-label="t('catalog.projects.allVisibilities')"
+            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+            data-testid="project-filter-visibility"
+          >
+            <option value="">
+              {{ t('catalog.projects.allVisibilities') }}
+            </option>
+            <option value="public">
+              {{ t('catalog.projects.visibilityPublic') }}
+            </option>
+            <option value="private">
+              {{ t('catalog.projects.visibilityPrivate') }}
+            </option>
+          </select>
+        </div>
+
+        <div
+          v-if="filteredProjects.length > 0"
           class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
           data-testid="project-list-grid"
         >
           <div
-            v-for="project in projectStore.projects"
+            v-for="project in filteredProjects"
             :key="project.id"
             class="cursor-pointer rounded-xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
             data-testid="project-list-card"
@@ -156,6 +214,16 @@ function changePage(page: number) {
               </div>
             </div>
           </div>
+        </div>
+
+        <div
+          v-if="hasActiveFilters && filteredProjects.length === 0"
+          class="flex flex-col items-center rounded-xl border border-border bg-surface py-12"
+          data-testid="project-list-no-match"
+        >
+          <p class="text-sm text-text-muted">
+            {{ t('catalog.projects.noMatchingProjects') }}
+          </p>
         </div>
 
         <Pagination

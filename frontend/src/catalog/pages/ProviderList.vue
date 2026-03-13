@@ -1,27 +1,40 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
 import type { Provider } from '@/catalog/types/provider'
 
-import ProviderIcon from '@/catalog/components/ProviderIcon.vue'
+import ProviderCard from '@/catalog/components/ProviderCard.vue'
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
-import DropdownMenu from '@/shared/components/DropdownMenu.vue'
 import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
 
 const router = useRouter()
-const { d, t } = useI18n()
+const { t } = useI18n()
 const providerStore = useProviderStore()
 const toastStore = useToastStore()
 const { track } = useSyncProgress()
 const testingId = ref<null | string>(null)
 const syncing = ref(false)
+const search = ref('')
+const typeFilter = ref('')
+const statusFilter = ref('')
 const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
+
+const filteredProviders = computed(() => {
+  return providerStore.providers.filter((p) => {
+    if (search.value && !p.name.toLowerCase().includes(search.value.toLowerCase())) return false
+    if (typeFilter.value && p.type !== typeFilter.value) return false
+    if (statusFilter.value && p.status !== statusFilter.value) return false
+    return true
+  })
+})
+
+const hasActiveFilters = computed(() => search.value !== '' || typeFilter.value !== '' || statusFilter.value !== '')
 
 onMounted(() => {
   providerStore.fetchAll()
@@ -127,96 +140,99 @@ function navigateToDetail(id: string) {
       <template v-else>
         <div
           v-if="providerStore.providers.length > 0"
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          data-testid="provider-list-grid"
+          class="mb-4 flex flex-wrap items-center gap-3"
+          data-testid="provider-list-filters"
         >
-          <div
-            v-for="provider in providerStore.providers"
-            :key="provider.id"
-            class="cursor-pointer rounded-xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
-            data-testid="provider-list-card"
-            role="link"
-            tabindex="0"
-            @click="navigateToDetail(provider.id)"
-            @keydown.enter="navigateToDetail(provider.id)"
-          >
-            <div class="mb-3 flex items-start justify-between">
-              <div class="flex items-center gap-3">
-                <ProviderIcon
-                  :type="provider.type"
-                  :size="24"
-                />
-                <div>
-                  <h3 class="text-sm font-semibold text-text">
-                    {{ provider.name }}
-                  </h3>
-                  <p class="text-xs text-text-muted">
-                    {{ t(`catalog.providers.types.${provider.type}`) }}
-                  </p>
-                </div>
-              </div>
-              <div
-                class="flex items-center gap-2"
-                @click.stop
-              >
-                <span
-                  :class="{
-                    'bg-green-100 text-green-800': provider.status === 'connected',
-                    'bg-yellow-100 text-yellow-800': provider.status === 'pending',
-                    'bg-red-100 text-red-800': provider.status === 'error',
-                  }"
-                  class="rounded-full px-2 py-0.5 text-xs font-medium"
-                  data-testid="provider-status-badge"
-                >
-                  {{ t(`catalog.providers.statuses.${provider.status}`) }}
-                </span>
-                <DropdownMenu
-                  :items="getDropdownItems(provider)"
-                  @select="handleDropdownAction($event, provider)"
-                />
-              </div>
-            </div>
-
-            <div
-              class="mb-3"
-              @click.stop
+          <div class="relative flex-1">
+            <svg
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
             >
-              <a
-                :href="provider.url"
-                class="truncate text-xs text-primary hover:underline"
-                data-testid="provider-url-link"
-                rel="noopener"
-                target="_blank"
-              >
-                {{ provider.url }}
-              </a>
-            </div>
-
-            <div class="flex items-center justify-between border-t border-border pt-3">
-              <div class="flex items-center gap-4">
-                <div data-testid="provider-projects-count">
-                  <p class="text-lg font-bold tabular-nums text-text">
-                    {{ provider.projectsCount }}
-                  </p>
-                  <p class="text-xs text-text-muted">
-                    {{ t('catalog.providers.projects') }}
-                  </p>
-                </div>
-              </div>
-              <div class="text-right">
-                <p class="text-xs text-text-muted">
-                  {{ t('catalog.providers.lastSync') }}
-                </p>
-                <p class="text-xs text-text-muted">
-                  {{ provider.lastSyncAt ? d(new Date(provider.lastSyncAt), 'short') : '—' }}
-                </p>
-              </div>
-            </div>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
+            <input
+              v-model="search"
+              type="search"
+              :aria-label="t('catalog.providers.searchProviders')"
+              :placeholder="t('catalog.providers.searchProviders')"
+              class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
+              data-testid="provider-search"
+            >
           </div>
+          <select
+            v-model="typeFilter"
+            :aria-label="t('catalog.providers.allTypes')"
+            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+            data-testid="provider-filter-type"
+          >
+            <option value="">
+              {{ t('catalog.providers.allTypes') }}
+            </option>
+            <option value="gitlab">
+              {{ t('catalog.providers.types.gitlab') }}
+            </option>
+            <option value="github">
+              {{ t('catalog.providers.types.github') }}
+            </option>
+            <option value="bitbucket">
+              {{ t('catalog.providers.types.bitbucket') }}
+            </option>
+          </select>
+          <select
+            v-model="statusFilter"
+            :aria-label="t('catalog.providers.allStatuses')"
+            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+            data-testid="provider-filter-status"
+          >
+            <option value="">
+              {{ t('catalog.providers.allStatuses') }}
+            </option>
+            <option value="connected">
+              {{ t('catalog.providers.statuses.connected') }}
+            </option>
+            <option value="pending">
+              {{ t('catalog.providers.statuses.pending') }}
+            </option>
+            <option value="error">
+              {{ t('catalog.providers.statuses.error') }}
+            </option>
+          </select>
         </div>
 
         <div
-          v-else
+          v-if="filteredProviders.length > 0"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          data-testid="provider-list-grid"
+        >
+          <ProviderCard
+            v-for="provider in filteredProviders"
+            :key="provider.id"
+            :provider="provider"
+            :items="getDropdownItems(provider)"
+            @navigate="navigateToDetail(provider.id)"
+            @dropdown-action="handleDropdownAction($event, provider)"
+          />
+        </div>
+
+        <div
+          v-if="hasActiveFilters && filteredProviders.length === 0"
+          class="flex flex-col items-center rounded-xl border border-border bg-surface py-12"
+          data-testid="provider-list-no-match"
+        >
+          <p class="text-sm text-text-muted">
+            {{ t('catalog.providers.noMatchingProviders') }}
+          </p>
+        </div>
+
+        <div
+          v-if="providerStore.providers.length === 0"
           class="flex flex-col items-center rounded-xl border border-border bg-surface py-12"
           data-testid="provider-list-empty"
         >
