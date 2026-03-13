@@ -113,7 +113,10 @@ class ProjectScanner implements ProjectScannerInterface
 
             $dockerfile = $gitProvider->getFileContent($provider, $externalId, $prefix . 'Dockerfile', $ref);
             if ($dockerfile !== null) {
-                $stacks[] = $this->detectDockerStack($dockerfile);
+                $dockerStack = $this->detectDockerStack($dockerfile);
+                if ($dockerStack !== null) {
+                    $stacks[] = $dockerStack;
+                }
             }
         }
 
@@ -579,14 +582,40 @@ class ProjectScanner implements ProjectScannerInterface
         return new DetectedStack(language: 'Ruby', framework: $framework, version: $version, frameworkVersion: '');
     }
 
-    private function detectDockerStack(string $content): DetectedStack
+    private function detectDockerStack(string $content): ?DetectedStack
     {
-        $image = 'unknown';
-        if (\preg_match('/^FROM\s+([^\s]+)/im', $content, $m)) {
-            $image = $m[1];
+        if (!\preg_match('/^FROM\s+([^\s]+)/im', $content, $m)) {
+            return null;
         }
 
-        return new DetectedStack(language: 'Docker', framework: $image, version: '', frameworkVersion: '');
+        $image = \strtolower(\explode(':', $m[1])[0]);
+        $image = \explode('/', $image);
+        $base = \end($image);
+
+        $langMap = [
+            'php' => 'PHP',
+            'node' => 'Node.js',
+            'python' => 'Python',
+            'golang' => 'Go',
+            'rust' => 'Rust',
+            'ruby' => 'Ruby',
+            'openjdk' => 'Java',
+            'eclipse-temurin' => 'Java',
+            'amazoncorretto' => 'Java',
+            'dotnet' => 'C#',
+        ];
+
+        $language = $langMap[$base] ?? null;
+        if ($language === null) {
+            return null;
+        }
+
+        $version = '';
+        if (\preg_match('/^FROM\s+[^:]+:(\d+(?:\.\d+)*)/im', $content, $vm)) {
+            $version = $vm[1];
+        }
+
+        return new DetectedStack(language: $language, framework: 'none', version: $version, frameworkVersion: '');
     }
 
     private function cleanVersion(string $version): string

@@ -45,7 +45,8 @@ const scanFreshness = computed(() => {
 const uniqueTechNames = computed(() => {
   const names = new Set<string>()
   for (const ts of techStackStore.techStacks) {
-    names.add(ts.framework || ts.language)
+    const name = ts.framework && ts.framework !== 'none' ? ts.framework : null
+    if (name) names.add(name)
   }
   return [...names]
 })

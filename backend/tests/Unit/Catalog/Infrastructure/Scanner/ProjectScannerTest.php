@@ -329,7 +329,7 @@ describe('ProjectScanner', function () {
         expect($result->stacks[0]->version)->toBe('3.3.0');
     });
 
-    it('detects Docker stack from Dockerfile', function () {
+    it('detects language from Dockerfile base image', function () {
         $dockerfile = "FROM php:8.4-fpm\nRUN apt-get update";
 
         $client = \stubScannerGitClient(
@@ -341,9 +341,23 @@ describe('ProjectScanner', function () {
         $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
-        expect($result->stacks[0]->language)->toBe('Docker');
-        expect($result->stacks[0]->framework)->toBe('php:8.4-fpm');
-        expect($result->stacks[0]->version)->toBe('');
+        expect($result->stacks[0]->language)->toBe('PHP');
+        expect($result->stacks[0]->framework)->toBe('none');
+        expect($result->stacks[0]->version)->toBe('8.4');
+    });
+
+    it('ignores Dockerfile with unknown base image', function () {
+        $dockerfile = "FROM nginx:alpine\nEXPOSE 80";
+
+        $client = \stubScannerGitClient(
+            files: ['Dockerfile' => $dockerfile],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toHaveCount(0);
     });
 
     it('detects Python from pyproject.toml with requires-python', function () {

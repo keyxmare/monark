@@ -43,12 +43,14 @@ final readonly class ProjectOutput
             providerId: $project->getProvider()?->getId()->toRfc4122(),
             externalId: $project->getExternalId(),
             techStacksCount: $project->getTechStacks()->count(),
-            techStacks: $project->getTechStacks()->map(
+            techStacks: \array_values($project->getTechStacks()->filter(
+                static fn (TechStack $ts) => $ts->getFramework() !== '' && $ts->getFramework() !== 'none',
+            )->map(
                 static fn (TechStack $ts) => new TechStackSummaryDTO(
                     language: $ts->getLanguage(),
-                    framework: $ts->getFramework() !== '' ? $ts->getFramework() : null,
+                    framework: $ts->getFramework(),
                 )
-            )->toArray(),
+            )->toArray()),
             createdAt: $project->getCreatedAt()->format(DateTimeInterface::ATOM),
             updatedAt: $project->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
