@@ -59,8 +59,7 @@ const MAX_BADGES = 5
 function getUniqueTechNames(project: Project): string[] {
   const names = new Set<string>()
   for (const ts of project.techStacks ?? []) {
-    names.add(ts.language)
-    if (ts.framework) names.add(ts.framework)
+    names.add(ts.framework || ts.language)
   }
   return [...names]
 }
