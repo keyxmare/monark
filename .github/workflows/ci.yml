@@ -24,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: cp docker/.env.example docker/.env
+      - run: chmod -R a+w backend
       - run: ${{ env.DC }} build backend
       - run: ${{ env.DC }} up -d backend
       - run: ${{ env.DC }} exec -T backend composer install --no-interaction
@@ -63,6 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: cp docker/.env.example docker/.env
+      - run: chmod -R a+w frontend
       - run: ${{ env.DC }} build frontend
       - run: ${{ env.DC }} up -d frontend
       - run: ${{ env.DC }} exec -T frontend pnpm install
