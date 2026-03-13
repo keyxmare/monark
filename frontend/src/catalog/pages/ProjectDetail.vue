@@ -8,6 +8,8 @@ import { useProjectStore } from '@/catalog/stores/project'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
+import Pagination from '@/shared/components/Pagination.vue'
+import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
 
@@ -20,10 +22,10 @@ const techStackStore = useTechStackStore()
 const dependencyStore = useDependencyStore()
 const mergeRequestStore = useMergeRequestStore()
 const toastStore = useToastStore()
+const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
 
 const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-stacks')
 const projectId = computed(() => route.params.id as string)
-const deleteTarget = ref<null | { id: string; name: string }>(null)
 const depSearch = ref('')
 const depFilterPm = ref('all')
 
@@ -71,16 +73,6 @@ watch(activeTab, (tab) => {
     mergeRequestStore.fetchAll(projectId.value, 1, PER_PAGE, 'active')
   }
 })
-
-function requestDeleteTechStack(id: string, name: string) {
-  deleteTarget.value = { id, name }
-}
-
-async function confirmDeleteTechStack() {
-  if (!deleteTarget.value) return
-  await techStackStore.remove(deleteTarget.value.id)
-  deleteTarget.value = null
-}
 
 async function handleScan() {
   await projectStore.scan(projectId.value)
@@ -352,7 +344,7 @@ function changeMergeRequestPage(page: number) {
                     <button
                       class="text-sm text-danger hover:text-danger/80"
                       data-testid="tech-stack-delete"
-                      @click="requestDeleteTechStack(ts.id, `${ts.language} ${ts.framework}`)"
+                      @click="requestDelete({ id: ts.id, name: `${ts.language} ${ts.framework}` })"
                     >
                       {{ t('common.actions.delete') }}
                     </button>
@@ -368,29 +360,13 @@ function changeMergeRequestPage(page: number) {
               {{ t('catalog.projects.noTechStacks') }}
             </div>
           </div>
-          <div
+          <Pagination
             v-if="techStackStore.totalPages > 1"
-            class="mt-4 flex items-center justify-center gap-2"
+            :page="techStackStore.currentPage"
+            :total-pages="techStackStore.totalPages"
             data-testid="tech-stacks-pagination"
-          >
-            <button
-              :disabled="techStackStore.currentPage <= 1"
-              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-              @click="changeTechStackPage(techStackStore.currentPage - 1)"
-            >
-              {{ t('common.pagination.previous') }}
-            </button>
-            <span class="text-sm text-text-muted">
-              {{ t('common.pagination.page', { current: techStackStore.currentPage, total: techStackStore.totalPages }) }}
-            </span>
-            <button
-              :disabled="techStackStore.currentPage >= techStackStore.totalPages"
-              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-              @click="changeTechStackPage(techStackStore.currentPage + 1)"
-            >
-              {{ t('common.pagination.next') }}
-            </button>
-          </div>
+            @update:page="changeTechStackPage"
+          />
         </div>
 
         <!-- Dependencies Tab -->
@@ -513,29 +489,13 @@ function changeMergeRequestPage(page: number) {
               {{ depSearch || depFilterPm !== 'all' ? t('catalog.projects.noMatchingDependencies') : t('catalog.projects.noDependencies') }}
             </div>
           </div>
-          <div
+          <Pagination
             v-if="dependencyStore.totalPages > 1"
-            class="mt-4 flex items-center justify-center gap-2"
+            :page="dependencyStore.currentPage"
+            :total-pages="dependencyStore.totalPages"
             data-testid="dependencies-pagination"
-          >
-            <button
-              :disabled="dependencyStore.currentPage <= 1"
-              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-              @click="changeDependencyPage(dependencyStore.currentPage - 1)"
-            >
-              {{ t('common.pagination.previous') }}
-            </button>
-            <span class="text-sm text-text-muted">
-              {{ t('common.pagination.page', { current: dependencyStore.currentPage, total: dependencyStore.totalPages }) }}
-            </span>
-            <button
-              :disabled="dependencyStore.currentPage >= dependencyStore.totalPages"
-              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-              @click="changeDependencyPage(dependencyStore.currentPage + 1)"
-            >
-              {{ t('common.pagination.next') }}
-            </button>
-          </div>
+            @update:page="changeDependencyPage"
+          />
         </div>
 
         <!-- Merge Requests Tab -->
@@ -625,40 +585,24 @@ function changeMergeRequestPage(page: number) {
               {{ t('catalog.mergeRequests.noMergeRequests') }}
             </div>
           </div>
-          <div
+          <Pagination
             v-if="mergeRequestStore.totalPages > 1"
-            class="mt-4 flex items-center justify-center gap-2"
+            :page="mergeRequestStore.currentPage"
+            :total-pages="mergeRequestStore.totalPages"
             data-testid="merge-requests-pagination"
-          >
-            <button
-              :disabled="mergeRequestStore.currentPage <= 1"
-              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-              @click="changeMergeRequestPage(mergeRequestStore.currentPage - 1)"
-            >
-              {{ t('common.pagination.previous') }}
-            </button>
-            <span class="text-sm text-text-muted">
-              {{ t('common.pagination.page', { current: mergeRequestStore.currentPage, total: mergeRequestStore.totalPages }) }}
-            </span>
-            <button
-              :disabled="mergeRequestStore.currentPage >= mergeRequestStore.totalPages"
-              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-              @click="changeMergeRequestPage(mergeRequestStore.currentPage + 1)"
-            >
-              {{ t('common.pagination.next') }}
-            </button>
-          </div>
+            @update:page="changeMergeRequestPage"
+          />
         </div>
       </template>
 
       <ConfirmDialog
-        :open="deleteTarget !== null"
+        :open="deleteOpen"
         :title="t('catalog.projects.confirmDeleteStackTitle')"
         :message="t('catalog.projects.confirmDeleteStackMessage', { name: deleteTarget?.name ?? '' })"
         :confirm-label="t('common.actions.delete')"
         variant="danger"
-        @confirm="confirmDeleteTechStack"
-        @cancel="deleteTarget = null"
+        @confirm="confirmDelete(() => techStackStore.remove(deleteTarget!.id))"
+        @cancel="cancelDelete"
       />
     </div>
   </DashboardLayout>

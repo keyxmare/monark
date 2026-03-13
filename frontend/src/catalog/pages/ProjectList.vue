@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -8,12 +8,14 @@ import type { Project } from '@/catalog/types/project'
 import { useProjectStore } from '@/catalog/stores/project'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DropdownMenu from '@/shared/components/DropdownMenu.vue'
+import Pagination from '@/shared/components/Pagination.vue'
+import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const router = useRouter()
 const { t } = useI18n()
 const projectStore = useProjectStore()
-const deleteTarget = ref<null | { id: string; name: string }>(null)
+const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
 
 const hasPagination = computed(() => projectStore.totalPages > 1)
 
@@ -32,13 +34,7 @@ function getDropdownItems() {
 function handleDropdownAction(action: string, project: Project) {
   if (action === 'view') router.push({ name: 'catalog-projects-detail', params: { id: project.id } })
   else if (action === 'edit') router.push({ name: 'catalog-projects-edit', params: { id: project.id } })
-  else if (action === 'delete') deleteTarget.value = { id: project.id, name: project.name }
-}
-
-async function confirmDelete() {
-  if (!deleteTarget.value) return
-  await projectStore.remove(deleteTarget.value.id)
-  deleteTarget.value = null
+  else if (action === 'delete') requestDelete({ id: project.id, name: project.name })
 }
 
 function navigateToDetail(id: string) {
@@ -53,6 +49,15 @@ function changePage(page: number) {
 <template>
   <DashboardLayout>
     <div data-testid="project-list-page">
+      <nav
+        class="mb-6 flex items-center gap-1 text-sm text-text-muted"
+        data-testid="project-list-breadcrumb"
+      >
+        <span class="font-medium text-text">
+          {{ t('catalog.projects.title') }}
+        </span>
+      </nav>
+
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
           {{ t('catalog.projects.title') }}
@@ -153,31 +158,13 @@ function changePage(page: number) {
           </div>
         </div>
 
-        <div
+        <Pagination
           v-if="hasPagination"
-          class="mt-6 flex items-center justify-center gap-2"
+          :page="projectStore.currentPage"
+          :total-pages="projectStore.totalPages"
           data-testid="project-list-pagination"
-        >
-          <button
-            :disabled="projectStore.currentPage <= 1"
-            class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-            data-testid="pagination-prev"
-            @click="changePage(projectStore.currentPage - 1)"
-          >
-            {{ t('common.pagination.previous') }}
-          </button>
-          <span class="text-sm text-text-muted">
-            {{ t('common.pagination.page', { current: projectStore.currentPage, total: projectStore.totalPages }) }}
-          </span>
-          <button
-            :disabled="projectStore.currentPage >= projectStore.totalPages"
-            class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
-            data-testid="pagination-next"
-            @click="changePage(projectStore.currentPage + 1)"
-          >
-            {{ t('common.pagination.next') }}
-          </button>
-        </div>
+          @update:page="changePage"
+        />
 
         <div
           v-if="projectStore.projects.length === 0"
@@ -214,13 +201,13 @@ function changePage(page: number) {
       </template>
 
       <ConfirmDialog
-        :open="deleteTarget !== null"
+        :open="deleteOpen"
         :title="t('catalog.projects.confirmDeleteTitle')"
         :message="t('catalog.projects.confirmDeleteMessage', { name: deleteTarget?.name ?? '' })"
         :confirm-label="t('common.actions.delete')"
         variant="danger"
-        @confirm="confirmDelete"
-        @cancel="deleteTarget = null"
+        @confirm="confirmDelete(() => projectStore.remove(deleteTarget!.id))"
+        @cancel="cancelDelete"
       />
     </div>
   </DashboardLayout>

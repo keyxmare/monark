@@ -10,6 +10,7 @@ import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DropdownMenu from '@/shared/components/DropdownMenu.vue'
+import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
 
@@ -20,17 +21,11 @@ const toastStore = useToastStore()
 const { track } = useSyncProgress()
 const testingId = ref<null | string>(null)
 const syncing = ref(false)
-const deleteTarget = ref<null | { id: string; name: string }>(null)
+const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
 
 onMounted(() => {
   providerStore.fetchAll()
 })
-
-async function confirmDelete() {
-  if (!deleteTarget.value) return
-  await providerStore.remove(deleteTarget.value.id)
-  deleteTarget.value = null
-}
 
 function getDropdownItems(provider: Provider) {
   return [
@@ -75,15 +70,20 @@ async function handleTestConnection(provider: { id: string; name: string }) {
 function navigateToDetail(id: string) {
   router.push({ name: 'catalog-providers-detail', params: { id } })
 }
-
-function requestDelete(provider: { id: string; name: string }) {
-  deleteTarget.value = provider
-}
 </script>
 
 <template>
   <DashboardLayout>
     <div data-testid="provider-list-page">
+      <nav
+        class="mb-6 flex items-center gap-1 text-sm text-text-muted"
+        data-testid="provider-list-breadcrumb"
+      >
+        <span class="font-medium text-text">
+          {{ t('catalog.providers.title') }}
+        </span>
+      </nav>
+
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
           {{ t('catalog.providers.title') }}
@@ -249,13 +249,13 @@ function requestDelete(provider: { id: string; name: string }) {
         </div>
       </template>
       <ConfirmDialog
-        :open="deleteTarget !== null"
+        :open="deleteOpen"
         :title="t('catalog.providers.confirmDeleteTitle')"
         :message="t('catalog.providers.confirmDeleteMessage', { name: deleteTarget?.name ?? '' })"
         :confirm-label="t('common.actions.delete')"
         variant="danger"
-        @confirm="confirmDelete"
-        @cancel="deleteTarget = null"
+        @confirm="confirmDelete(() => providerStore.remove(deleteTarget!.id))"
+        @cancel="cancelDelete"
       />
     </div>
   </DashboardLayout>

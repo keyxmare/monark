@@ -31,7 +31,8 @@
       "next": "Suivant",
       "page": "Page {current} sur {total}",
       "showing": "Affichage de {from} à {to} sur {total} résultats",
-      "perPage": "Par page"
+      "perPage": "Par page",
+      "items": "éléments"
     },
     "table": {
       "noData": "Aucune donnée disponible",

@@ -9,6 +9,7 @@ import ProviderIcon from '@/catalog/components/ProviderIcon.vue'
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
 import { useProviderStore } from '@/catalog/stores/provider'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
+import Pagination from '@/shared/components/Pagination.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
 
@@ -197,14 +198,27 @@ function toggleSort(field: SortField) {
 <template>
   <DashboardLayout>
     <div data-testid="provider-detail-page">
-      <div class="mb-6 flex items-center justify-between">
+      <nav
+        class="mb-6 flex items-center gap-1 text-sm text-text-muted"
+        data-testid="provider-detail-breadcrumb"
+      >
         <RouterLink
           :to="{ name: 'catalog-providers-list' }"
-          class="text-sm text-primary hover:text-primary-dark"
-          data-testid="provider-detail-back"
+          class="text-primary hover:text-primary-dark"
         >
-          &larr; {{ t('common.backTo', { page: t('catalog.providers.title').toLowerCase() }) }}
+          {{ t('catalog.providers.title') }}
         </RouterLink>
+        <span>/</span>
+        <span
+          v-if="providerStore.selected"
+          class="font-medium text-text"
+        >
+          {{ providerStore.selected.name }}
+        </span>
+      </nav>
+
+      <div class="mb-6 flex items-end justify-between">
+        <div />
         <div
           v-if="providerStore.selected"
           class="flex items-center gap-3"
@@ -713,34 +727,13 @@ function toggleSort(field: SortField) {
             </div>
           </template>
 
-          <div
+          <Pagination
             v-if="providerStore.remoteProjectsTotalPages > 1"
-            class="mt-4 flex items-center justify-between"
+            :page="providerStore.remoteProjectsCurrentPage"
+            :total-pages="providerStore.remoteProjectsTotalPages"
             data-testid="remote-projects-pagination"
-          >
-            <button
-              :disabled="providerStore.remoteProjectsCurrentPage <= 1 || providerStore.loading"
-              class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
-              data-testid="remote-projects-prev"
-              @click="handlePageChange(providerStore.remoteProjectsCurrentPage - 1)"
-            >
-              {{ t('common.pagination.previous') }}
-            </button>
-            <span
-              class="text-sm text-text-muted"
-              data-testid="remote-projects-page-indicator"
-            >
-              {{ t('common.pagination.page', { current: providerStore.remoteProjectsCurrentPage, total: providerStore.remoteProjectsTotalPages }) }}
-            </span>
-            <button
-              :disabled="providerStore.remoteProjectsCurrentPage >= providerStore.remoteProjectsTotalPages || providerStore.loading"
-              class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
-              data-testid="remote-projects-next"
-              @click="handlePageChange(providerStore.remoteProjectsCurrentPage + 1)"
-            >
-              {{ t('common.pagination.next') }}
-            </button>
-          </div>
+            @update:page="handlePageChange"
+          />
         </div>
       </template>
       <ConfirmDialog
