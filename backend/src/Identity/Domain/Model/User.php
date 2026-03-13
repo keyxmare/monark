@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -48,10 +49,10 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $teams;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     /** @param list<string> $roles */
     private function __construct(
@@ -72,8 +73,8 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles = $roles;
         $this->accessTokens = new ArrayCollection();
         $this->teams = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     /** @param list<string> $roles */
@@ -147,12 +148,12 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->teams;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -187,12 +188,12 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($email !== null) {
             $this->email = $email;
         }
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function updatePassword(string $hashedPassword): void
     {
         $this->password = $hashedPassword;
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 }

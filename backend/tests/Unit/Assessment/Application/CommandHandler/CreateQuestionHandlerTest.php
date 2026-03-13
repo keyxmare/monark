@@ -17,27 +17,65 @@ use Symfony\Component\Uid\Uuid;
 function stubCreateQuestionQuizRepo(?Quiz $quiz = null): QuizRepositoryInterface
 {
     return new class ($quiz) implements QuizRepositoryInterface {
-        public function __construct(private readonly ?Quiz $quiz) {}
-        public function findById(Uuid $id): ?Quiz { return $this->quiz; }
-        public function findBySlug(string $slug): ?Quiz { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Quiz $quiz): void {}
-        public function delete(Quiz $quiz): void {}
+        public function __construct(private readonly ?Quiz $quiz)
+        {
+        }
+        public function findById(Uuid $id): ?Quiz
+        {
+            return $this->quiz;
+        }
+        public function findBySlug(string $slug): ?Quiz
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Quiz $quiz): void
+        {
+        }
+        public function delete(Quiz $quiz): void
+        {
+        }
     };
 }
 
 function stubCreateQuestionRepo(): QuestionRepositoryInterface
 {
-    return new class implements QuestionRepositoryInterface {
+    return new class () implements QuestionRepositoryInterface {
         public ?Question $saved = null;
-        public function findById(Uuid $id): ?Question { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function countByQuizId(Uuid $quizId): int { return 0; }
-        public function save(Question $question): void { $this->saved = $question; }
-        public function delete(Question $question): void {}
+        public function findById(Uuid $id): ?Question
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function countByQuizId(Uuid $quizId): int
+        {
+            return 0;
+        }
+        public function save(Question $question): void
+        {
+            $this->saved = $question;
+        }
+        public function delete(Question $question): void
+        {
+        }
     };
 }
 
@@ -50,8 +88,8 @@ describe('CreateQuestionHandler', function () {
             type: QuizType::Quiz,
         );
 
-        $questionRepo = stubCreateQuestionRepo();
-        $handler = new CreateQuestionHandler($questionRepo, stubCreateQuestionQuizRepo($quiz));
+        $questionRepo = \stubCreateQuestionRepo();
+        $handler = new CreateQuestionHandler($questionRepo, \stubCreateQuestionQuizRepo($quiz));
 
         $input = new CreateQuestionInput(
             type: 'single_choice',
@@ -71,7 +109,7 @@ describe('CreateQuestionHandler', function () {
     });
 
     it('throws not found when quiz does not exist', function () {
-        $handler = new CreateQuestionHandler(stubCreateQuestionRepo(), stubCreateQuestionQuizRepo(null));
+        $handler = new CreateQuestionHandler(\stubCreateQuestionRepo(), \stubCreateQuestionQuizRepo(null));
 
         $input = new CreateQuestionInput(
             type: 'single_choice',

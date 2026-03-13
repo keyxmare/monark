@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Assessment\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -34,10 +35,10 @@ final class Quiz
     private QuizStatus $status;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $startsAt;
+    private ?DateTimeImmutable $startsAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $endsAt;
+    private ?DateTimeImmutable $endsAt;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $timeLimit;
@@ -50,10 +51,10 @@ final class Quiz
     private Collection $questions;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     private function __construct(
         Uuid $id,
@@ -62,8 +63,8 @@ final class Quiz
         string $description,
         QuizType $type,
         QuizStatus $status,
-        ?\DateTimeImmutable $startsAt,
-        ?\DateTimeImmutable $endsAt,
+        ?DateTimeImmutable $startsAt,
+        ?DateTimeImmutable $endsAt,
         ?int $timeLimit,
         string $authorId,
     ) {
@@ -78,8 +79,8 @@ final class Quiz
         $this->timeLimit = $timeLimit;
         $this->authorId = $authorId;
         $this->questions = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -88,8 +89,8 @@ final class Quiz
         string $description,
         QuizType $type,
         QuizStatus $status = QuizStatus::Draft,
-        ?\DateTimeImmutable $startsAt = null,
-        ?\DateTimeImmutable $endsAt = null,
+        ?DateTimeImmutable $startsAt = null,
+        ?DateTimeImmutable $endsAt = null,
         ?int $timeLimit = null,
         string $authorId = '',
     ): self {
@@ -137,12 +138,12 @@ final class Quiz
         return $this->status;
     }
 
-    public function getStartsAt(): ?\DateTimeImmutable
+    public function getStartsAt(): ?DateTimeImmutable
     {
         return $this->startsAt;
     }
 
-    public function getEndsAt(): ?\DateTimeImmutable
+    public function getEndsAt(): ?DateTimeImmutable
     {
         return $this->endsAt;
     }
@@ -168,12 +169,12 @@ final class Quiz
         return $this->questions->count();
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -184,8 +185,8 @@ final class Quiz
         ?string $description = null,
         ?QuizType $type = null,
         ?QuizStatus $status = null,
-        ?\DateTimeImmutable $startsAt = null,
-        ?\DateTimeImmutable $endsAt = null,
+        ?DateTimeImmutable $startsAt = null,
+        ?DateTimeImmutable $endsAt = null,
         ?int $timeLimit = null,
     ): void {
         if ($title !== null) {
@@ -212,7 +213,7 @@ final class Quiz
         if ($timeLimit !== null) {
             $this->timeLimit = $timeLimit;
         }
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function addQuestion(Question $question): void

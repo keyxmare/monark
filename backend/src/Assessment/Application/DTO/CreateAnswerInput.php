@@ -11,12 +11,9 @@ final readonly class CreateAnswerInput
     public function __construct(
         #[Assert\NotBlank]
         public string $content,
-
         public bool $isCorrect,
-
         #[Assert\PositiveOrZero]
         public int $position,
-
         #[Assert\NotBlank]
         #[Assert\Uuid]
         public string $questionId,

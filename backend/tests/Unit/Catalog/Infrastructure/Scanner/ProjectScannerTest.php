@@ -20,12 +20,25 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
         public function __construct(
             private readonly array $files,
             private readonly array $tree,
-        ) {}
+        ) {
+        }
 
-        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array { return []; }
-        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int { return 0; }
-        public function testConnection(Provider $provider): bool { return true; }
-        public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
+        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
+        {
+            return [];
+        }
+        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int
+        {
+            return 0;
+        }
+        public function testConnection(Provider $provider): bool
+        {
+            return true;
+        }
+        public function getProject(Provider $provider, string $externalId): RemoteProject
+        {
+            throw new \RuntimeException('Not implemented');
+        }
 
         public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
         {
@@ -37,7 +50,10 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
             return $this->tree[$path] ?? [];
         }
 
-        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array { return []; }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
+        {
+            return [];
+        }
     };
 }
 
@@ -45,8 +61,14 @@ function stubScannerFactory(GitProviderInterface $client): GitProviderFactory
 {
     return new class ($client) extends GitProviderFactory {
         private GitProviderInterface $client;
-        public function __construct(GitProviderInterface $client) { $this->client = $client; }
-        public function create(Provider $provider): GitProviderInterface { return $this->client; }
+        public function __construct(GitProviderInterface $client)
+        {
+            $this->client = $client;
+        }
+        public function create(Provider $provider): GitProviderInterface
+        {
+            return $this->client;
+        }
     };
 }
 
@@ -78,13 +100,13 @@ describe('ProjectScanner', function () {
             ],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['composer.json' => $composerJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('PHP');
@@ -117,13 +139,13 @@ describe('ProjectScanner', function () {
             ],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('TypeScript');
@@ -149,7 +171,7 @@ describe('ProjectScanner', function () {
             'devDependencies' => ['typescript' => '^5.7.0'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: [
                 'backend/composer.json' => $composerJson,
                 'frontend/package.json' => $packageJson,
@@ -171,8 +193,8 @@ describe('ProjectScanner', function () {
             ],
         );
 
-        $scanner = new ProjectScanner(stubScannerFactory($client));
-        $result = $scanner->scan(createLinkedProject());
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(2);
 
@@ -194,16 +216,16 @@ describe('ProjectScanner', function () {
             'packages-dev' => [],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: [
                 'composer.json' => $composerJson,
                 'composer.lock' => $composerLock,
             ],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->dependencies[0]->currentVersion)->toBe('8.0.3');
     });
@@ -219,8 +241,8 @@ describe('ProjectScanner', function () {
             ownerId: Uuid::v7(),
         );
 
-        $client = stubScannerGitClient();
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $client = \stubScannerGitClient();
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
         $result = $scanner->scan($project);
 
@@ -231,13 +253,13 @@ describe('ProjectScanner', function () {
     it('extracts pip dependencies from requirements.txt', function () {
         $requirements = "django==4.2.0\ncelery>=5.3.0\n# comment\nredis\n";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['requirements.txt' => $requirements],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('Python');
@@ -257,13 +279,13 @@ describe('ProjectScanner', function () {
     it('detects Go + Gin from go.mod', function () {
         $goMod = "module github.com/example/app\n\ngo 1.22\n\nrequire (\n\tgithub.com/gin-gonic/gin v1.10.0\n)";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['go.mod' => $goMod],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('Go');
@@ -275,13 +297,13 @@ describe('ProjectScanner', function () {
     it('detects Rust + Actix from Cargo.toml', function () {
         $cargoToml = "[package]\nname = \"my-app\"\nversion = \"0.5.0\"\n\n[dependencies]\nactix-web = \"4\"";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['Cargo.toml' => $cargoToml],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('Rust');
@@ -293,13 +315,13 @@ describe('ProjectScanner', function () {
     it('detects Ruby + Rails from Gemfile', function () {
         $gemfile = "source 'https://rubygems.org'\nruby '3.3.0'\ngem 'rails', '~> 7.1'";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['Gemfile' => $gemfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('Ruby');
@@ -310,13 +332,13 @@ describe('ProjectScanner', function () {
     it('detects Docker stack from Dockerfile', function () {
         $dockerfile = "FROM php:8.4-fpm\nRUN apt-get update";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['Dockerfile' => $dockerfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('Docker');
@@ -327,13 +349,13 @@ describe('ProjectScanner', function () {
     it('detects Python from pyproject.toml with requires-python', function () {
         $pyproject = "[project]\nname = \"my-app\"\nrequires-python = \">=3.12\"\ndependencies = [\"fastapi\"]";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['pyproject.toml' => $pyproject],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(1);
         expect($result->stacks[0]->language)->toBe('Python');
@@ -356,13 +378,13 @@ describe('ProjectScanner', function () {
             'packages-dev' => [],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->dependencies[0]->currentVersion)->toBe('3.8.0');
         expect($result->dependencies[0]->repositoryUrl)->toBe('https://github.com/Seldaek/monolog');
@@ -374,13 +396,13 @@ describe('ProjectScanner', function () {
             'devDependencies' => ['typescript' => '^5.7.0'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->framework)->toBe('Nuxt');
         expect($result->stacks[0]->frameworkVersion)->toBe('3.15.0');
@@ -392,13 +414,13 @@ describe('ProjectScanner', function () {
             'dependencies' => ['react' => '^18.0.0'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->language)->toBe('JavaScript');
         expect($result->stacks[0]->framework)->toBe('React');
@@ -410,13 +432,13 @@ describe('ProjectScanner', function () {
             'dependencies' => ['vue' => '^3.5.0'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->dependencies[0]->repositoryUrl)->toBe('https://www.npmjs.com/package/vue');
     });
@@ -424,13 +446,13 @@ describe('ProjectScanner', function () {
     it('detects Go without framework', function () {
         $goMod = "module example.com/app\n\ngo 1.21\n\nrequire golang.org/x/text v0.14.0\n";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['go.mod' => $goMod],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->framework)->toBe('none');
         expect($result->stacks[0]->version)->toBe('1.21');
@@ -446,13 +468,13 @@ describe('ProjectScanner', function () {
             ],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['composer.json' => $composerJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->dependencies)->toHaveCount(1);
         expect($result->dependencies[0]->name)->toBe('doctrine/orm');
@@ -466,13 +488,13 @@ describe('ProjectScanner', function () {
             ],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['composer.json' => $composerJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->framework)->toBe('Symfony');
         expect($result->stacks[0]->frameworkVersion)->toBe('7.0');
@@ -490,13 +512,13 @@ describe('ProjectScanner', function () {
             'platform' => ['php' => '8.4.2'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->version)->toBe('8.4.2');
         expect($result->stacks[0]->frameworkVersion)->toBe('7.2.5');
@@ -516,7 +538,7 @@ describe('ProjectScanner', function () {
             'dependencies' => ['vue' => '^3.5.0'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: [
                 'backend/composer.json' => $composerJson,
                 'backend/composer.lock' => $composerLock,
@@ -537,8 +559,8 @@ describe('ProjectScanner', function () {
             ],
         );
 
-        $scanner = new ProjectScanner(stubScannerFactory($client));
-        $result = $scanner->scan(createLinkedProject());
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(2);
         $jsStack = \array_values(\array_filter($result->stacks, fn ($s) => $s->language !== 'PHP'))[0];
@@ -554,13 +576,13 @@ describe('ProjectScanner', function () {
             'dependencies' => ['monolog' => '^1.0'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['composer.json' => $composerJson, 'package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         $monologs = \array_filter($result->dependencies, fn ($d) => \str_contains($d->name, 'monolog'));
         expect(\count($monologs))->toBe(2);
@@ -569,13 +591,13 @@ describe('ProjectScanner', function () {
     it('extracts pip deps with various version formats', function () {
         $requirements = "requests>=2.28.0\nflask~=3.0\nnumpy<2.0\nblack==24.1.0\nsetuptools\n";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['requirements.txt' => $requirements],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->dependencies)->toHaveCount(5);
         expect($result->dependencies[0]->name)->toBe('requests');
@@ -594,13 +616,13 @@ describe('ProjectScanner', function () {
     it('detects Python without framework from requirements.txt', function () {
         $requirements = "requests>=2.28.0\n";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['requirements.txt' => $requirements],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->language)->toBe('Python');
         expect($result->stacks[0]->framework)->toBe('none');
@@ -611,13 +633,13 @@ describe('ProjectScanner', function () {
     it('detects Go Fiber framework', function () {
         $goMod = "module app\n\ngo 1.22\n\nrequire github.com/gofiber/fiber/v2 v2.52.0\n";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['go.mod' => $goMod],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->framework)->toBe('Fiber');
     });
@@ -625,13 +647,13 @@ describe('ProjectScanner', function () {
     it('detects Rust Axum framework', function () {
         $cargoToml = "[package]\nname = \"api\"\nversion = \"1.0.0\"\n\n[dependencies]\naxum = \"0.7\"";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['Cargo.toml' => $cargoToml],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->framework)->toBe('Axum');
     });
@@ -639,13 +661,13 @@ describe('ProjectScanner', function () {
     it('detects Ruby Sinatra framework', function () {
         $gemfile = "source 'https://rubygems.org'\ngem 'sinatra'";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['Gemfile' => $gemfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks[0]->framework)->toBe('Sinatra');
     });
@@ -654,13 +676,13 @@ describe('ProjectScanner', function () {
         $requirements = "django==4.2\n";
         $pyproject = "[project]\nname = \"x\"\nrequires-python = \">=3.11\"";
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['requirements.txt' => $requirements, 'pyproject.toml' => $pyproject],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         $pyStacks = \array_filter($result->stacks, fn ($s) => $s->language === 'Python');
         expect(\count($pyStacks))->toBe(1);
@@ -677,13 +699,13 @@ describe('ProjectScanner', function () {
             'packages-dev' => [],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
 
-        $result = $scanner->scan(createLinkedProject());
+        $result = $scanner->scan(\createLinkedProject());
 
         expect($result->dependencies[0]->repositoryUrl)->toBe('https://example.com/some-lib');
     });
@@ -693,7 +715,7 @@ describe('ProjectScanner', function () {
             'dependencies' => ['vue' => '^3.5.0'],
         ]);
 
-        $client = stubScannerGitClient(
+        $client = \stubScannerGitClient(
             files: [
                 'package.json' => $packageJson,
                 'frontend/package.json' => $packageJson,
@@ -708,8 +730,8 @@ describe('ProjectScanner', function () {
             ],
         );
 
-        $scanner = new ProjectScanner(stubScannerFactory($client));
-        $result = $scanner->scan(createLinkedProject());
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $result = $scanner->scan(\createLinkedProject());
 
         $vueCount = \count(\array_filter($result->dependencies, fn ($d) => $d->name === 'vue'));
         expect($vueCount)->toBe(1);

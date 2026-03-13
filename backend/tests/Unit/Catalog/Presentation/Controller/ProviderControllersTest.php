@@ -60,7 +60,7 @@ function stubProviderBus(mixed $result = null): MessageBusInterface&stdClass
 
 it('creates a provider and returns 201', function () {
     $output = new ProviderOutput('prov-1', 'My GitLab', 'gitlab', 'https://gitlab.com', null, 'active', 0, null, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubProviderBus($output);
+    $bus = \stubProviderBus($output);
     $controller = new CreateProviderController($bus);
 
     $input = new CreateProviderInput(name: 'My GitLab', type: ProviderType::GitLab, url: 'https://gitlab.com');
@@ -74,7 +74,7 @@ it('creates a provider and returns 201', function () {
 
 it('gets a provider and returns 200', function () {
     $output = new ProviderOutput('prov-1', 'My GitLab', 'gitlab', 'https://gitlab.com', null, 'active', 0, null, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubProviderBus($output);
+    $bus = \stubProviderBus($output);
     $controller = new GetProviderController($bus);
 
     $response = $controller('prov-1');
@@ -85,7 +85,7 @@ it('gets a provider and returns 200', function () {
 
 it('updates a provider and returns 200', function () {
     $output = new ProviderOutput('prov-1', 'Updated', 'gitlab', 'https://gitlab.com', null, 'active', 0, null, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubProviderBus($output);
+    $bus = \stubProviderBus($output);
     $controller = new UpdateProviderController($bus);
 
     $input = new UpdateProviderInput(name: 'Updated');
@@ -96,7 +96,7 @@ it('updates a provider and returns 200', function () {
 });
 
 it('deletes a provider and returns 204', function () {
-    $bus = stubProviderBus();
+    $bus = \stubProviderBus();
     $controller = new DeleteProviderController($bus);
 
     $response = $controller('prov-1');
@@ -107,7 +107,7 @@ it('deletes a provider and returns 204', function () {
 
 it('lists providers with pagination', function () {
     $listOutput = new ProviderListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubProviderBus($listOutput);
+    $bus = \stubProviderBus($listOutput);
     $controller = new ListProvidersController($bus);
 
     $request = Request::create('/api/catalog/providers', 'GET', ['page' => 1, 'per_page' => 20]);
@@ -122,7 +122,7 @@ it('lists providers with pagination', function () {
 });
 
 it('tests provider connection and returns 200', function () {
-    $bus = stubProviderBus(['connected' => true]);
+    $bus = \stubProviderBus(['connected' => true]);
     $controller = new TestProviderConnectionController($bus);
 
     $response = $controller('prov-1');
@@ -132,7 +132,7 @@ it('tests provider connection and returns 200', function () {
 });
 
 it('imports projects and returns 201', function () {
-    $bus = stubProviderBus(['imported' => 2]);
+    $bus = \stubProviderBus(['imported' => 2]);
     $user = \App\Tests\Factory\Identity\UserFactory::create();
 
     $security = $this->createMock(Security::class);
@@ -151,7 +151,7 @@ it('imports projects and returns 201', function () {
 
 it('syncs all projects globally and returns 202', function () {
     $output = new SyncJobOutput('job-1', 5, '2026-01-01T00:00:00+00:00');
-    $bus = stubProviderBus($output);
+    $bus = \stubProviderBus($output);
     $controller = new SyncAllProjectsController($bus);
 
     $request = Request::create('/api/catalog/sync-all?force=1', 'POST');
@@ -165,7 +165,7 @@ it('syncs all projects globally and returns 202', function () {
 
 it('syncs projects by provider and returns 202', function () {
     $output = new SyncJobOutput('job-1', 3, '2026-01-01T00:00:00+00:00');
-    $bus = stubProviderBus($output);
+    $bus = \stubProviderBus($output);
     $controller = new SyncAllProjectsController($bus);
 
     $request = Request::create('/api/catalog/providers/prov-1/sync-all', 'POST', [], [], [], [], \json_encode(['projectIds' => ['p1', 'p2']]));
@@ -179,7 +179,7 @@ it('syncs projects by provider and returns 202', function () {
 
 it('lists remote projects with filters', function () {
     $listOutput = new RemoteProjectListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubProviderBus($listOutput);
+    $bus = \stubProviderBus($listOutput);
     $controller = new ListRemoteProjectsController($bus);
 
     $request = Request::create('/api/catalog/providers/prov-1/remote-projects', 'GET', [
@@ -206,7 +206,7 @@ it('lists remote projects with filters', function () {
 
 it('lists remote projects with default pagination', function () {
     $listOutput = new RemoteProjectListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubProviderBus($listOutput);
+    $bus = \stubProviderBus($listOutput);
     $controller = new ListRemoteProjectsController($bus);
 
     $request = Request::create('/api/catalog/providers/prov-1/remote-projects', 'GET');

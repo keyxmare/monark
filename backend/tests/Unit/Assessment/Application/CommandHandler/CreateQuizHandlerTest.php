@@ -14,19 +14,38 @@ function stubCreateQuizRepo(?Quiz $findBySlugResult = null): QuizRepositoryInter
 {
     return new class ($findBySlugResult) implements QuizRepositoryInterface {
         public ?Quiz $saved = null;
-        public function __construct(private readonly ?Quiz $findBySlugResult) {}
-        public function findById(Uuid $id): ?Quiz { return null; }
-        public function findBySlug(string $slug): ?Quiz { return $this->findBySlugResult; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Quiz $quiz): void { $this->saved = $quiz; }
-        public function delete(Quiz $quiz): void {}
+        public function __construct(private readonly ?Quiz $findBySlugResult)
+        {
+        }
+        public function findById(Uuid $id): ?Quiz
+        {
+            return null;
+        }
+        public function findBySlug(string $slug): ?Quiz
+        {
+            return $this->findBySlugResult;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Quiz $quiz): void
+        {
+            $this->saved = $quiz;
+        }
+        public function delete(Quiz $quiz): void
+        {
+        }
     };
 }
 
 describe('CreateQuizHandler', function () {
     it('creates a quiz successfully', function () {
-        $repo = stubCreateQuizRepo(null);
+        $repo = \stubCreateQuizRepo(null);
         $handler = new CreateQuizHandler($repo);
 
         $input = new CreateQuizInput(
@@ -54,7 +73,7 @@ describe('CreateQuizHandler', function () {
             description: 'Existing quiz',
             type: \App\Assessment\Domain\Model\QuizType::Quiz,
         );
-        $handler = new CreateQuizHandler(stubCreateQuizRepo($existing));
+        $handler = new CreateQuizHandler(\stubCreateQuizRepo($existing));
 
         $input = new CreateQuizInput(
             title: 'PHP Fundamentals',

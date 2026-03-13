@@ -59,7 +59,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $projects = $client->listProjects(githubProvider(), 1, 20);
+            $projects = $client->listProjects(\githubProvider(), 1, 20);
 
             expect($projects)->toHaveCount(2);
             expect($projects[0]->externalId)->toBe('keyxmare/monark');
@@ -79,7 +79,7 @@ describe('GitHubClient', function () {
             $mockResponse = new MockResponse(\json_encode([]));
             $client = new GitHubClient(new MockHttpClient($mockResponse));
 
-            $client->listProjects(githubProvider(), 2, 50);
+            $client->listProjects(\githubProvider(), 2, 50);
 
             $url = $mockResponse->getRequestUrl();
             expect($url)->toContain('/user/repos');
@@ -94,7 +94,7 @@ describe('GitHubClient', function () {
             $mockResponse = new MockResponse(\json_encode([]));
             $client = new GitHubClient(new MockHttpClient($mockResponse));
 
-            $client->listProjects(githubProvider(), 1, 200);
+            $client->listProjects(\githubProvider(), 1, 200);
 
             expect($mockResponse->getRequestUrl())->toContain('per_page=100');
         });
@@ -117,7 +117,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $projects = $client->listProjects(githubProviderPublicOnly());
+            $projects = $client->listProjects(\githubProviderPublicOnly());
 
             expect($projects)->toHaveCount(1);
             expect($projects[0]->name)->toBe('open-source');
@@ -142,7 +142,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $count = $client->countProjects(githubProvider());
+            $count = $client->countProjects(\githubProvider());
 
             expect($count)->toBe(17);
             expect($mockResponse->getRequestUrl())->toContain('/user');
@@ -156,7 +156,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $count = $client->countProjects(githubProvider(), null, 'private');
+            $count = $client->countProjects(\githubProvider(), null, 'private');
 
             expect($count)->toBe(5);
         });
@@ -169,7 +169,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $count = $client->countProjects(githubProvider(), null, 'public');
+            $count = $client->countProjects(\githubProvider(), null, 'public');
 
             expect($count)->toBe(12);
         });
@@ -181,7 +181,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $count = $client->countProjects(githubProvider(), 'monark');
+            $count = $client->countProjects(\githubProvider(), 'monark');
 
             expect($count)->toBe(3);
             $url = $mockResponse->getRequestUrl();
@@ -197,7 +197,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $count = $client->countProjects(githubProvider(), 'monark', 'private');
+            $count = $client->countProjects(\githubProvider(), 'monark', 'private');
 
             expect($count)->toBe(2);
             $url = $mockResponse->getRequestUrl();
@@ -211,7 +211,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $count = $client->countProjects(githubProviderPublicOnly());
+            $count = $client->countProjects(\githubProviderPublicOnly());
 
             expect($count)->toBe(8);
             expect($mockResponse->getRequestUrl())->toContain('/users/keyxmare');
@@ -224,7 +224,7 @@ describe('GitHubClient', function () {
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
 
-            expect($client->testConnection(githubProvider()))->toBeTrue();
+            expect($client->testConnection(\githubProvider()))->toBeTrue();
         });
 
         it('verifies username exists when no token', function () {
@@ -232,7 +232,7 @@ describe('GitHubClient', function () {
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
 
-            expect($client->testConnection(githubProviderPublicOnly()))->toBeTrue();
+            expect($client->testConnection(\githubProviderPublicOnly()))->toBeTrue();
             expect($mockResponse->getRequestUrl())->toContain('/users/keyxmare');
         });
 
@@ -241,7 +241,7 @@ describe('GitHubClient', function () {
                 throw new \RuntimeException('Unauthorized');
             }));
 
-            expect($client->testConnection(githubProvider()))->toBeFalse();
+            expect($client->testConnection(\githubProvider()))->toBeFalse();
         });
     });
 
@@ -254,7 +254,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $result = $client->getFileContent(githubProviderPublicOnly(), 'keyxmare/monark', 'README.md');
+            $result = $client->getFileContent(\githubProviderPublicOnly(), 'keyxmare/monark', 'README.md');
 
             expect($result)->toBe('Hello World');
             expect($mockResponse->getRequestUrl())->toContain('/repos/keyxmare/monark/contents/README.md');
@@ -265,7 +265,7 @@ describe('GitHubClient', function () {
             $mockResponse = new MockResponse('', ['http_code' => 404]);
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $result = $client->getFileContent(githubProviderPublicOnly(), 'keyxmare/monark', 'nonexistent.txt');
+            $result = $client->getFileContent(\githubProviderPublicOnly(), 'keyxmare/monark', 'nonexistent.txt');
 
             expect($result)->toBeNull();
         });
@@ -286,7 +286,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $project = $client->getProject(githubProvider(), 'keyxmare/monark');
+            $project = $client->getProject(\githubProvider(), 'keyxmare/monark');
 
             expect($project->externalId)->toBe('keyxmare/monark');
             expect($project->name)->toBe('monark');
@@ -313,7 +313,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $project = $client->getProject(githubProvider(), 'keyxmare/secret');
+            $project = $client->getProject(\githubProvider(), 'keyxmare/secret');
 
             expect($project->visibility)->toBe('private');
             expect($project->defaultBranch)->toBe('develop');
@@ -329,7 +329,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $items = $client->listDirectory(githubProviderPublicOnly(), 'keyxmare/monark');
+            $items = $client->listDirectory(\githubProviderPublicOnly(), 'keyxmare/monark');
 
             expect($items)->toHaveCount(2);
             expect($items[0])->toBe(['name' => 'src', 'type' => 'tree', 'path' => 'src']);
@@ -344,7 +344,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $items = $client->listDirectory(githubProviderPublicOnly(), 'keyxmare/monark', 'src/main.ts');
+            $items = $client->listDirectory(\githubProviderPublicOnly(), 'keyxmare/monark', 'src/main.ts');
 
             expect($items)->toHaveCount(1);
             expect($items[0]['name'])->toBe('main.ts');
@@ -354,7 +354,7 @@ describe('GitHubClient', function () {
             $mockResponse = new MockResponse('', ['http_code' => 404]);
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $items = $client->listDirectory(githubProviderPublicOnly(), 'keyxmare/monark', 'nonexistent');
+            $items = $client->listDirectory(\githubProviderPublicOnly(), 'keyxmare/monark', 'nonexistent');
 
             expect($items)->toBeEmpty();
         });
@@ -385,7 +385,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+            $prs = $client->listMergeRequests(\githubProvider(), 'keyxmare/monark');
 
             expect($prs)->toHaveCount(1);
             expect($prs[0]->externalId)->toBe('42');
@@ -430,7 +430,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+            $prs = $client->listMergeRequests(\githubProvider(), 'keyxmare/monark');
 
             expect($prs[0]->status)->toBe('merged');
             expect($prs[0]->mergedAt)->toBe('2026-03-11T10:00:00Z');
@@ -458,7 +458,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+            $prs = $client->listMergeRequests(\githubProvider(), 'keyxmare/monark');
 
             expect($prs[0]->status)->toBe('draft');
         });
@@ -467,7 +467,7 @@ describe('GitHubClient', function () {
             $mockResponse = new MockResponse(\json_encode([]));
             $client = new GitHubClient(new MockHttpClient($mockResponse));
 
-            $client->listMergeRequests(githubProvider(), 'keyxmare/monark', 'open', 2, 10);
+            $client->listMergeRequests(\githubProvider(), 'keyxmare/monark', 'open', 2, 10);
 
             expect($mockResponse->getRequestUrl())->toContain('/repos/keyxmare/monark/pulls');
             expect($mockResponse->getRequestUrl())->toContain('state=open');
@@ -499,7 +499,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+            $prs = $client->listMergeRequests(\githubProvider(), 'keyxmare/monark');
 
             expect($prs[0]->status)->toBe('closed');
             expect($prs[0]->mergedAt)->toBeNull();
@@ -530,7 +530,7 @@ describe('GitHubClient', function () {
             ]));
 
             $client = new GitHubClient(new MockHttpClient($mockResponse));
-            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+            $prs = $client->listMergeRequests(\githubProvider(), 'keyxmare/monark');
 
             expect($prs[0]->description)->toBeNull();
             expect($prs[0]->additions)->toBeNull();
@@ -545,7 +545,7 @@ describe('GitHubClient', function () {
             $client = new GitHubClient(new MockHttpClient($mockResponse));
 
             $after = new \DateTimeImmutable('2026-03-10T10:00:00+00:00');
-            $client->listMergeRequests(githubProvider(), 'keyxmare/monark', null, 1, 20, $after);
+            $client->listMergeRequests(\githubProvider(), 'keyxmare/monark', null, 1, 20, $after);
 
             expect($mockResponse->getRequestUrl())->toContain('sort=updated');
             expect($mockResponse->getRequestUrl())->toContain('direction=desc');
@@ -555,7 +555,7 @@ describe('GitHubClient', function () {
             $mockResponse = new MockResponse(\json_encode([]));
             $client = new GitHubClient(new MockHttpClient($mockResponse));
 
-            $prs = $client->listMergeRequests(githubProvider(), 'keyxmare/monark');
+            $prs = $client->listMergeRequests(\githubProvider(), 'keyxmare/monark');
 
             expect($prs)->toBeEmpty();
         });

@@ -14,12 +14,28 @@ use Symfony\Component\Uid\Uuid;
 function stubGetNotificationRepo(?Notification $notification = null): NotificationRepositoryInterface
 {
     return new class ($notification) implements NotificationRepositoryInterface {
-        public function __construct(private readonly ?Notification $notification) {}
-        public function findById(Uuid $id): ?Notification { return $this->notification; }
-        public function findByUser(string $userId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByUser(string $userId): int { return 0; }
-        public function countUnreadByUser(string $userId): int { return 0; }
-        public function save(Notification $notification): void {}
+        public function __construct(private readonly ?Notification $notification)
+        {
+        }
+        public function findById(Uuid $id): ?Notification
+        {
+            return $this->notification;
+        }
+        public function findByUser(string $userId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByUser(string $userId): int
+        {
+            return 0;
+        }
+        public function countUnreadByUser(string $userId): int
+        {
+            return 0;
+        }
+        public function save(Notification $notification): void
+        {
+        }
     };
 }
 
@@ -32,7 +48,7 @@ describe('GetNotificationHandler', function () {
             userId: '00000000-0000-0000-0000-000000000001',
         );
 
-        $handler = new GetNotificationHandler(stubGetNotificationRepo($notification));
+        $handler = new GetNotificationHandler(\stubGetNotificationRepo($notification));
         $result = $handler(new GetNotificationQuery($notification->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(NotificationOutput::class);
@@ -41,7 +57,7 @@ describe('GetNotificationHandler', function () {
     });
 
     it('throws not found when notification does not exist', function () {
-        $handler = new GetNotificationHandler(stubGetNotificationRepo(null));
+        $handler = new GetNotificationHandler(\stubGetNotificationRepo(null));
         $handler(new GetNotificationQuery('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

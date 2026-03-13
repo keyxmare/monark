@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\DTO;
 
 use App\Catalog\Domain\Model\MergeRequest;
+use DateTimeInterface;
 
 final readonly class MergeRequestOutput
 {
@@ -50,11 +51,11 @@ final readonly class MergeRequestOutput
             deletions: $mr->getDeletions(),
             reviewers: $mr->getReviewers(),
             labels: $mr->getLabels(),
-            mergedAt: $mr->getMergedAt()?->format(\DateTimeInterface::ATOM),
-            closedAt: $mr->getClosedAt()?->format(\DateTimeInterface::ATOM),
+            mergedAt: $mr->getMergedAt()?->format(DateTimeInterface::ATOM),
+            closedAt: $mr->getClosedAt()?->format(DateTimeInterface::ATOM),
             projectId: $mr->getProject()->getId()->toRfc4122(),
-            createdAt: $mr->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $mr->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $mr->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $mr->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

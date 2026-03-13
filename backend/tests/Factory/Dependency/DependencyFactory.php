@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Factory\Dependency;
 
-use App\Catalog\Domain\Model\Project;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\DependencyType;
 use App\Dependency\Domain\Model\PackageManager;

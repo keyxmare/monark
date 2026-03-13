@@ -50,7 +50,7 @@ describe('RabbitMqMonitor', function () {
         $httpClient->expects($this->once())
             ->method('request')
             ->with('GET', 'http://rabbitmq:15672/api/queues/%2f')
-            ->willReturn(stubRabbitMqResponse([]));
+            ->willReturn(\stubRabbitMqResponse([]));
 
         $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
         $monitor->getQueues();
@@ -61,7 +61,7 @@ describe('RabbitMqMonitor', function () {
         $httpClient->expects($this->once())
             ->method('request')
             ->with('GET', 'http://rabbitmq:15672/api/channels')
-            ->willReturn(stubRabbitMqResponse([]));
+            ->willReturn(\stubRabbitMqResponse([]));
 
         $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
         $monitor->getWorkers();
@@ -69,7 +69,7 @@ describe('RabbitMqMonitor', function () {
 
     it('handles non-int/non-string values in queue stats', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             [
                 'name' => 12345,
                 'messages' => 'five',
@@ -98,7 +98,7 @@ describe('RabbitMqMonitor', function () {
 
     it('returns queue stats from management API', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             [
                 'name' => 'async',
                 'messages' => 5,
@@ -127,7 +127,7 @@ describe('RabbitMqMonitor', function () {
 
     it('handles empty queue stats gracefully', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             ['name' => 'test', 'messages' => 0],
         ]));
 
@@ -146,7 +146,7 @@ describe('RabbitMqMonitor', function () {
 
     it('skips non-array queue entries', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             'not-an-array',
             ['name' => 'real', 'messages' => 1],
         ]));
@@ -160,7 +160,7 @@ describe('RabbitMqMonitor', function () {
 
     it('handles non-array channel entries in getWorkers', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             'not-an-array',
             ['prefetch_count' => 5, 'connection_details' => ['peer_host' => '10.0.0.1'], 'state' => 'running'],
         ]));
@@ -175,7 +175,7 @@ describe('RabbitMqMonitor', function () {
 
     it('handles missing connection_details in worker', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             ['prefetch_count' => 3, 'state' => 'idle'],
         ]));
 
@@ -189,7 +189,7 @@ describe('RabbitMqMonitor', function () {
 
     it('returns worker stats from channels API', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             [
                 'prefetch_count' => 10,
                 'connection_details' => ['peer_host' => '172.18.0.5'],
@@ -208,7 +208,7 @@ describe('RabbitMqMonitor', function () {
 
     it('handles non-string values in worker data', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             [
                 'prefetch_count' => 5,
                 'connection_details' => ['peer_host' => 12345],
@@ -227,7 +227,7 @@ describe('RabbitMqMonitor', function () {
 
     it('handles non-int prefetch_count', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             ['prefetch_count' => 'ten', 'state' => 'running'],
         ]));
 
@@ -239,7 +239,7 @@ describe('RabbitMqMonitor', function () {
 
     it('skips channels with zero prefetch', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')->willReturn(stubRabbitMqResponse([
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             ['prefetch_count' => 0, 'state' => 'idle'],
         ]));
 

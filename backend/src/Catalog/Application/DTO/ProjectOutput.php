@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\DTO;
 
 use App\Catalog\Domain\Model\Project;
+use DateTimeInterface;
 
 final readonly class ProjectOutput
 {
@@ -41,8 +42,8 @@ final readonly class ProjectOutput
             externalId: $project->getExternalId(),
             techStacksCount: $project->getTechStacks()->count(),
             pipelinesCount: $project->getPipelines()->count(),
-            createdAt: $project->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $project->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $project->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $project->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

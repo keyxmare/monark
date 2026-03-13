@@ -12,6 +12,7 @@ use App\Catalog\Domain\Model\MergeRequestStatus;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -60,7 +61,7 @@ final readonly class SyncMergeRequestsHandler
 
             foreach ($remoteMRs as $remoteMR) {
                 if ($isIncremental && $remoteMR->updatedAt !== null) {
-                    $remoteUpdated = new \DateTimeImmutable($remoteMR->updatedAt);
+                    $remoteUpdated = new DateTimeImmutable($remoteMR->updatedAt);
                     if ($remoteUpdated < $lastSyncedAt) {
                         $shouldContinue = false;
                         break;
@@ -79,8 +80,8 @@ final readonly class SyncMergeRequestsHandler
                         deletions: $remoteMR->deletions,
                         reviewers: $remoteMR->reviewers,
                         labels: $remoteMR->labels,
-                        mergedAt: $remoteMR->mergedAt !== null ? new \DateTimeImmutable($remoteMR->mergedAt) : null,
-                        closedAt: $remoteMR->closedAt !== null ? new \DateTimeImmutable($remoteMR->closedAt) : null,
+                        mergedAt: $remoteMR->mergedAt !== null ? new DateTimeImmutable($remoteMR->mergedAt) : null,
+                        closedAt: $remoteMR->closedAt !== null ? new DateTimeImmutable($remoteMR->closedAt) : null,
                     );
                     $this->mergeRequestRepository->save($existing);
                     ++$updated;
@@ -98,8 +99,8 @@ final readonly class SyncMergeRequestsHandler
                         deletions: $remoteMR->deletions,
                         reviewers: $remoteMR->reviewers,
                         labels: $remoteMR->labels,
-                        mergedAt: $remoteMR->mergedAt !== null ? new \DateTimeImmutable($remoteMR->mergedAt) : null,
-                        closedAt: $remoteMR->closedAt !== null ? new \DateTimeImmutable($remoteMR->closedAt) : null,
+                        mergedAt: $remoteMR->mergedAt !== null ? new DateTimeImmutable($remoteMR->mergedAt) : null,
+                        closedAt: $remoteMR->closedAt !== null ? new DateTimeImmutable($remoteMR->closedAt) : null,
                         project: $project,
                     );
                     $this->mergeRequestRepository->save($mr);

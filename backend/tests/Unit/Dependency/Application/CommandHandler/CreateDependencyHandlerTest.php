@@ -18,39 +18,91 @@ function stubCreateDependencyRepo(): DependencyRepositoryInterface
 {
     return new class () implements DependencyRepositoryInterface {
         public ?Dependency $saved = null;
-        public function findById(Uuid $id): ?Dependency { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Dependency $dependency): void { $this->saved = $dependency; }
-        public function delete(Dependency $dependency): void {}
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function findById(Uuid $id): ?Dependency
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Dependency $dependency): void
+        {
+            $this->saved = $dependency;
+        }
+        public function delete(Dependency $dependency): void
+        {
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
 function stubCreateDependencyProjectRepo(?Project $project = null): ProjectRepositoryInterface
 {
     return new class ($project) implements ProjectRepositoryInterface {
-        public function __construct(private readonly ?Project $project) {}
-        public function findById(Uuid $id): ?Project { return $this->project; }
-        public function findBySlug(string $slug): ?Project { return null; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void {}
-        public function delete(Project $project): void {}
+        public function __construct(private readonly ?Project $project)
+        {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return $this->project;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return null;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 }
 
 describe('CreateDependencyHandler', function () {
     it('creates a dependency successfully', function () {
         $project = ProjectFactory::create();
-        $repo = stubCreateDependencyRepo();
-        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $repo = \stubCreateDependencyRepo();
+        $projectRepo = \stubCreateDependencyProjectRepo($project);
         $handler = new CreateDependencyHandler($repo, $projectRepo);
 
         $input = new CreateDependencyInput(
@@ -78,8 +130,8 @@ describe('CreateDependencyHandler', function () {
     });
 
     it('throws not found when project does not exist', function () {
-        $repo = stubCreateDependencyRepo();
-        $projectRepo = stubCreateDependencyProjectRepo(null);
+        $repo = \stubCreateDependencyRepo();
+        $projectRepo = \stubCreateDependencyProjectRepo(null);
         $handler = new CreateDependencyHandler($repo, $projectRepo);
 
         $input = new CreateDependencyInput(
@@ -98,8 +150,8 @@ describe('CreateDependencyHandler', function () {
 
     it('returns correct projectId in output', function () {
         $project = ProjectFactory::create();
-        $repo = stubCreateDependencyRepo();
-        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $repo = \stubCreateDependencyRepo();
+        $projectRepo = \stubCreateDependencyProjectRepo($project);
         $handler = new CreateDependencyHandler($repo, $projectRepo);
 
         $input = new CreateDependencyInput(
@@ -120,8 +172,8 @@ describe('CreateDependencyHandler', function () {
 
     it('creates a dependency with repositoryUrl', function () {
         $project = ProjectFactory::create();
-        $repo = stubCreateDependencyRepo();
-        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $repo = \stubCreateDependencyRepo();
+        $projectRepo = \stubCreateDependencyProjectRepo($project);
         $handler = new CreateDependencyHandler($repo, $projectRepo);
 
         $input = new CreateDependencyInput(
@@ -143,8 +195,8 @@ describe('CreateDependencyHandler', function () {
 
     it('creates a dependency without repositoryUrl', function () {
         $project = ProjectFactory::create();
-        $repo = stubCreateDependencyRepo();
-        $projectRepo = stubCreateDependencyProjectRepo($project);
+        $repo = \stubCreateDependencyRepo();
+        $projectRepo = \stubCreateDependencyProjectRepo($project);
         $handler = new CreateDependencyHandler($repo, $projectRepo);
 
         $input = new CreateDependencyInput(

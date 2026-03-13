@@ -14,6 +14,7 @@ use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Catalog\Domain\Repository\SyncJobRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use DateTimeInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
@@ -77,7 +78,7 @@ final readonly class SyncAllProjectsHandler
         return new SyncJobOutput(
             id: $syncJobId,
             projectsCount: \count($projects),
-            startedAt: $syncJob->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            startedAt: $syncJob->getCreatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

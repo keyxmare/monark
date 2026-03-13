@@ -58,7 +58,7 @@ function stubProviderHandlerRepo(?Provider $provider = null): ProviderRepository
 describe('DeleteProviderHandler', function () {
     it('deletes a provider', function () {
         $provider = Provider::create('GitLab', ProviderType::GitLab, 'https://gitlab.com', 'token');
-        $repo = stubProviderHandlerRepo($provider);
+        $repo = \stubProviderHandlerRepo($provider);
         $handler = new DeleteProviderHandler($repo);
 
         $handler(new DeleteProviderCommand($provider->getId()->toRfc4122()));
@@ -67,7 +67,7 @@ describe('DeleteProviderHandler', function () {
     });
 
     it('throws not found for unknown provider', function () {
-        $repo = stubProviderHandlerRepo(null);
+        $repo = \stubProviderHandlerRepo(null);
         $handler = new DeleteProviderHandler($repo);
 
         $handler(new DeleteProviderCommand('a0000000-0000-0000-0000-000000000001'));
@@ -77,7 +77,7 @@ describe('DeleteProviderHandler', function () {
 describe('UpdateProviderHandler', function () {
     it('updates a provider and returns output', function () {
         $provider = Provider::create('GitLab', ProviderType::GitLab, 'https://gitlab.com', 'token');
-        $repo = stubProviderHandlerRepo($provider);
+        $repo = \stubProviderHandlerRepo($provider);
         $handler = new UpdateProviderHandler($repo);
 
         $result = $handler(new UpdateProviderCommand(
@@ -91,7 +91,7 @@ describe('UpdateProviderHandler', function () {
     });
 
     it('throws not found for unknown provider', function () {
-        $repo = stubProviderHandlerRepo(null);
+        $repo = \stubProviderHandlerRepo(null);
         $handler = new UpdateProviderHandler($repo);
 
         $handler(new UpdateProviderCommand('a0000000-0000-0000-0000-000000000001', new UpdateProviderInput()));
@@ -101,7 +101,7 @@ describe('UpdateProviderHandler', function () {
 describe('TestProviderConnectionHandler', function () {
     it('marks provider connected on success', function () {
         $provider = Provider::create('GitLab', ProviderType::GitLab, 'https://gitlab.com', 'token');
-        $repo = stubProviderHandlerRepo($provider);
+        $repo = \stubProviderHandlerRepo($provider);
 
         $gitClient = $this->createMock(GitProviderInterface::class);
         $gitClient->method('testConnection')->willReturn(true);
@@ -119,7 +119,7 @@ describe('TestProviderConnectionHandler', function () {
 
     it('marks provider error on failure', function () {
         $provider = Provider::create('GitLab', ProviderType::GitLab, 'https://gitlab.com', 'token');
-        $repo = stubProviderHandlerRepo($provider);
+        $repo = \stubProviderHandlerRepo($provider);
 
         $gitClient = $this->createMock(GitProviderInterface::class);
         $gitClient->method('testConnection')->willReturn(false);
@@ -135,7 +135,7 @@ describe('TestProviderConnectionHandler', function () {
     });
 
     it('throws not found for unknown provider', function () {
-        $repo = stubProviderHandlerRepo(null);
+        $repo = \stubProviderHandlerRepo(null);
         $factory = $this->createMock(GitProviderFactory::class);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -55,20 +56,20 @@ final class MergeRequest
     private array $labels;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $mergedAt;
+    private ?DateTimeImmutable $mergedAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $closedAt;
+    private ?DateTimeImmutable $closedAt;
 
     #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'mergeRequests')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Project $project;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     /**
      * @param list<string> $reviewers
@@ -88,8 +89,8 @@ final class MergeRequest
         ?int $deletions,
         array $reviewers,
         array $labels,
-        ?\DateTimeImmutable $mergedAt,
-        ?\DateTimeImmutable $closedAt,
+        ?DateTimeImmutable $mergedAt,
+        ?DateTimeImmutable $closedAt,
         Project $project,
     ) {
         $this->id = $id;
@@ -108,8 +109,8 @@ final class MergeRequest
         $this->mergedAt = $mergedAt;
         $this->closedAt = $closedAt;
         $this->project = $project;
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     /**
@@ -129,8 +130,8 @@ final class MergeRequest
         ?int $deletions,
         array $reviewers,
         array $labels,
-        ?\DateTimeImmutable $mergedAt,
-        ?\DateTimeImmutable $closedAt,
+        ?DateTimeImmutable $mergedAt,
+        ?DateTimeImmutable $closedAt,
         Project $project,
     ): self {
         return new self(
@@ -165,8 +166,8 @@ final class MergeRequest
         ?int $deletions = null,
         ?array $reviewers = null,
         ?array $labels = null,
-        ?\DateTimeImmutable $mergedAt = null,
-        ?\DateTimeImmutable $closedAt = null,
+        ?DateTimeImmutable $mergedAt = null,
+        ?DateTimeImmutable $closedAt = null,
     ): void {
         if ($title !== null) {
             $this->title = $title;
@@ -195,7 +196,7 @@ final class MergeRequest
         if ($closedAt !== null) {
             $this->closedAt = $closedAt;
         }
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function getId(): Uuid
@@ -265,12 +266,12 @@ final class MergeRequest
         return $this->labels;
     }
 
-    public function getMergedAt(): ?\DateTimeImmutable
+    public function getMergedAt(): ?DateTimeImmutable
     {
         return $this->mergedAt;
     }
 
-    public function getClosedAt(): ?\DateTimeImmutable
+    public function getClosedAt(): ?DateTimeImmutable
     {
         return $this->closedAt;
     }
@@ -280,12 +281,12 @@ final class MergeRequest
         return $this->project;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }

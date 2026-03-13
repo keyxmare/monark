@@ -44,7 +44,7 @@ function stubActivityBus(mixed $result = null): MessageBusInterface&stdClass
 }
 
 it('gets a sync task by id', function () {
-    $bus = stubActivityBus(['id' => 'st-1', 'title' => 'Update PHP']);
+    $bus = \stubActivityBus(['id' => 'st-1', 'title' => 'Update PHP']);
     $controller = new \App\Activity\Presentation\Controller\GetSyncTaskController($bus);
 
     $response = $controller('st-1');
@@ -55,7 +55,7 @@ it('gets a sync task by id', function () {
 
 it('lists sync tasks with filters', function () {
     $listOutput = new SyncTaskListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubActivityBus($listOutput);
+    $bus = \stubActivityBus($listOutput);
     $controller = new ListSyncTasksController($bus);
 
     $request = Request::create('/api/activity/sync-tasks', 'GET', [
@@ -75,7 +75,7 @@ it('lists sync tasks with filters', function () {
 });
 
 it('updates sync task status via PATCH', function () {
-    $bus = stubActivityBus(['id' => 'st-1', 'status' => 'resolved']);
+    $bus = \stubActivityBus(['id' => 'st-1', 'status' => 'resolved']);
     $controller = new UpdateSyncTaskStatusController($bus);
 
     $request = Request::create('/api/activity/sync-tasks/st-1', 'PATCH', [], [], [], [], \json_encode(['status' => 'resolved']));
@@ -91,7 +91,7 @@ it('gets sync task stats', function () {
         bySeverity: [['label' => 'critical', 'count' => 1]],
         byStatus: [['label' => 'open', 'count' => 2]],
     );
-    $bus = stubActivityBus($stats);
+    $bus = \stubActivityBus($stats);
     $controller = new GetSyncTaskStatsController($bus);
 
     $response = $controller();
@@ -105,7 +105,7 @@ it('gets sync task stats', function () {
 
 it('gets messenger stats', function () {
     $stats = new MessengerStatsOutput(queues: [], workers: []);
-    $bus = stubActivityBus($stats);
+    $bus = \stubActivityBus($stats);
     $controller = new GetMessengerStatsController($bus);
 
     $response = $controller();

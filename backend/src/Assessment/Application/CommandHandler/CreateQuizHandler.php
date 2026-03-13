@@ -11,6 +11,7 @@ use App\Assessment\Domain\Model\QuizStatus;
 use App\Assessment\Domain\Model\QuizType;
 use App\Assessment\Domain\Repository\QuizRepositoryInterface;
 use App\Shared\Domain\Exception\DomainException;
+use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(bus: 'command.bus')]
@@ -36,8 +37,8 @@ final readonly class CreateQuizHandler
             description: $input->description,
             type: QuizType::from($input->type),
             status: QuizStatus::from($input->status),
-            startsAt: $input->startsAt !== null ? new \DateTimeImmutable($input->startsAt) : null,
-            endsAt: $input->endsAt !== null ? new \DateTimeImmutable($input->endsAt) : null,
+            startsAt: $input->startsAt !== null ? new DateTimeImmutable($input->startsAt) : null,
+            endsAt: $input->endsAt !== null ? new DateTimeImmutable($input->endsAt) : null,
             timeLimit: $input->timeLimit,
             authorId: $input->authorId,
         );

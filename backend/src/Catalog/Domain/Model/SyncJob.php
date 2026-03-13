@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -28,10 +29,10 @@ final class SyncJob
     private ?Uuid $providerId;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $completedAt;
+    private ?DateTimeImmutable $completedAt;
 
     private function __construct(
         Uuid $id,
@@ -43,7 +44,7 @@ final class SyncJob
         $this->completedProjects = 0;
         $this->status = SyncJobStatus::Running;
         $this->providerId = $providerId;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->completedAt = null;
     }
 
@@ -77,12 +78,12 @@ final class SyncJob
         return $this->providerId;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getCompletedAt(): ?\DateTimeImmutable
+    public function getCompletedAt(): ?DateTimeImmutable
     {
         return $this->completedAt;
     }
@@ -93,13 +94,13 @@ final class SyncJob
 
         if ($this->completedProjects >= $this->totalProjects) {
             $this->status = SyncJobStatus::Completed;
-            $this->completedAt = new \DateTimeImmutable();
+            $this->completedAt = new DateTimeImmutable();
         }
     }
 
     public function markFailed(): void
     {
         $this->status = SyncJobStatus::Failed;
-        $this->completedAt = new \DateTimeImmutable();
+        $this->completedAt = new DateTimeImmutable();
     }
 }

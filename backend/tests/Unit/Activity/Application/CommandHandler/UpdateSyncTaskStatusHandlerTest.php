@@ -16,15 +16,41 @@ function stubUpdateSyncTaskRepo(?SyncTask $task = null): object
 {
     return new class ($task) implements SyncTaskRepositoryInterface {
         public ?SyncTask $lastSaved = null;
-        public function __construct(private readonly ?SyncTask $task) {}
-        public function findById(Uuid $id): ?SyncTask { return $this->task; }
-        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array { return []; }
-        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int { return 0; }
-        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask { return null; }
-        public function countGroupedByType(): array { return []; }
-        public function countGroupedBySeverity(): array { return []; }
-        public function countGroupedByStatus(): array { return []; }
-        public function save(SyncTask $syncTask): void { $this->lastSaved = $syncTask; }
+        public function __construct(private readonly ?SyncTask $task)
+        {
+        }
+        public function findById(Uuid $id): ?SyncTask
+        {
+            return $this->task;
+        }
+        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int
+        {
+            return 0;
+        }
+        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask
+        {
+            return null;
+        }
+        public function countGroupedByType(): array
+        {
+            return [];
+        }
+        public function countGroupedBySeverity(): array
+        {
+            return [];
+        }
+        public function countGroupedByStatus(): array
+        {
+            return [];
+        }
+        public function save(SyncTask $syncTask): void
+        {
+            $this->lastSaved = $syncTask;
+        }
     };
 }
 
@@ -39,7 +65,7 @@ describe('UpdateSyncTaskStatusHandler', function () {
             projectId: Uuid::v7(),
         );
 
-        $repo = stubUpdateSyncTaskRepo($task);
+        $repo = \stubUpdateSyncTaskRepo($task);
         $handler = new UpdateSyncTaskStatusHandler($repo);
         $result = $handler(new UpdateSyncTaskStatusCommand($task->getId()->toRfc4122(), 'acknowledged'));
 
@@ -58,7 +84,7 @@ describe('UpdateSyncTaskStatusHandler', function () {
             projectId: Uuid::v7(),
         );
 
-        $repo = stubUpdateSyncTaskRepo($task);
+        $repo = \stubUpdateSyncTaskRepo($task);
         $handler = new UpdateSyncTaskStatusHandler($repo);
         $handler(new UpdateSyncTaskStatusCommand($task->getId()->toRfc4122(), 'resolved'));
 
@@ -67,7 +93,7 @@ describe('UpdateSyncTaskStatusHandler', function () {
     });
 
     it('throws not found for unknown task', function () {
-        $repo = stubUpdateSyncTaskRepo(null);
+        $repo = \stubUpdateSyncTaskRepo(null);
         $handler = new UpdateSyncTaskStatusHandler($repo);
 
         $handler(new UpdateSyncTaskStatusCommand(Uuid::v7()->toRfc4122(), 'acknowledged'));

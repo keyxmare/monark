@@ -11,6 +11,7 @@ use App\Identity\Domain\Model\TokenProvider;
 use App\Identity\Domain\Repository\AccessTokenRepositoryInterface;
 use App\Identity\Domain\Repository\UserRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 
@@ -33,7 +34,7 @@ final readonly class CreateAccessTokenHandler
         $input = $command->input;
 
         $expiresAt = $input->expiresAt !== null
-            ? new \DateTimeImmutable($input->expiresAt)
+            ? new DateTimeImmutable($input->expiresAt)
             : null;
 
         $accessToken = AccessToken::create(

@@ -14,16 +14,33 @@ function stubListPipelinesRepo(array $pipelines = [], int $count = 0): PipelineR
 {
     return new class ($pipelines, $count) implements PipelineRepositoryInterface {
         public ?string $lastRef = null;
-        public function __construct(private readonly array $pipelines, private readonly int $count) {}
-        public function findById(Uuid $id): ?Pipeline { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return $this->pipelines; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, ?string $ref = null): array {
+        public function __construct(private readonly array $pipelines, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?Pipeline
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return $this->pipelines;
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, ?string $ref = null): array
+        {
             $this->lastRef = $ref;
             return $this->pipelines;
         }
-        public function countByProjectId(Uuid $projectId, ?string $ref = null): int { return $this->count; }
-        public function count(): int { return $this->count; }
-        public function save(Pipeline $pipeline): void {}
+        public function countByProjectId(Uuid $projectId, ?string $ref = null): int
+        {
+            return $this->count;
+        }
+        public function count(): int
+        {
+            return $this->count;
+        }
+        public function save(Pipeline $pipeline): void
+        {
+        }
     };
 }
 
@@ -32,7 +49,7 @@ describe('ListPipelinesHandler', function () {
         $p1 = PipelineFactory::create(externalId: '111');
         $p2 = PipelineFactory::create(externalId: '222');
 
-        $handler = new ListPipelinesHandler(stubListPipelinesRepo([$p1, $p2], 2));
+        $handler = new ListPipelinesHandler(\stubListPipelinesRepo([$p1, $p2], 2));
         $result = $handler(new ListPipelinesQuery(null, 1, 20));
 
         expect($result)->toBeInstanceOf(PipelineListOutput::class);
@@ -41,7 +58,7 @@ describe('ListPipelinesHandler', function () {
     });
 
     it('returns empty list when no pipelines', function () {
-        $handler = new ListPipelinesHandler(stubListPipelinesRepo([], 0));
+        $handler = new ListPipelinesHandler(\stubListPipelinesRepo([], 0));
         $result = $handler(new ListPipelinesQuery());
 
         expect($result->pagination->items)->toBeEmpty();
@@ -49,7 +66,7 @@ describe('ListPipelinesHandler', function () {
     });
 
     it('passes ref filter to repository', function () {
-        $repo = stubListPipelinesRepo([], 0);
+        $repo = \stubListPipelinesRepo([], 0);
         $handler = new ListPipelinesHandler($repo);
         $projectId = Uuid::v7()->toRfc4122();
 

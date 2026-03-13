@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\DTO;
 
 use App\Catalog\Domain\Model\Provider;
+use DateTimeInterface;
 
 final readonly class ProviderOutput
 {
@@ -32,9 +33,9 @@ final readonly class ProviderOutput
             username: $provider->getUsername(),
             status: $provider->getStatus()->value,
             projectsCount: $provider->getProjects()->count(),
-            lastSyncAt: $provider->getLastSyncAt()?->format(\DateTimeInterface::ATOM),
-            createdAt: $provider->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $provider->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            lastSyncAt: $provider->getLastSyncAt()?->format(DateTimeInterface::ATOM),
+            createdAt: $provider->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $provider->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

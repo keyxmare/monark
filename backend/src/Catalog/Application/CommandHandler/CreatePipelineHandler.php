@@ -10,6 +10,7 @@ use App\Catalog\Domain\Model\Pipeline;
 use App\Catalog\Domain\Repository\PipelineRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 
@@ -36,8 +37,8 @@ final readonly class CreatePipelineHandler
             ref: $input->ref,
             status: $input->status,
             duration: $input->duration,
-            startedAt: new \DateTimeImmutable($input->startedAt),
-            finishedAt: $input->finishedAt !== null ? new \DateTimeImmutable($input->finishedAt) : null,
+            startedAt: new DateTimeImmutable($input->startedAt),
+            finishedAt: $input->finishedAt !== null ? new DateTimeImmutable($input->finishedAt) : null,
             project: $project,
         );
 

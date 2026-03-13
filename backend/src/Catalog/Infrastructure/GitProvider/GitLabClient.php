@@ -8,8 +8,11 @@ use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteMergeRequest;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Throwable;
 
 final readonly class GitLabClient implements GitProviderInterface
 {
@@ -84,7 +87,7 @@ final readonly class GitLabClient implements GitProviderInterface
             ]);
 
             return $response->getStatusCode() === 200;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -104,7 +107,7 @@ final readonly class GitLabClient implements GitProviderInterface
     }
 
     /** @return list<RemoteMergeRequest> */
-    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?DateTimeImmutable $updatedAfter = null): array
     {
         $url = \sprintf('%s/api/v4/projects/%s/merge_requests', $provider->getUrl(), \rawurlencode($externalProjectId));
 
@@ -127,7 +130,7 @@ final readonly class GitLabClient implements GitProviderInterface
         }
 
         if ($updatedAfter !== null) {
-            $query['updated_after'] = $updatedAfter->format(\DateTimeInterface::ATOM);
+            $query['updated_after'] = $updatedAfter->format(DateTimeInterface::ATOM);
         }
 
         $response = $this->httpClient->request('GET', $url, [
@@ -234,7 +237,7 @@ final readonly class GitLabClient implements GitProviderInterface
             /** @var array{content: string} $data */
             $data = $response->toArray();
 
-            return \base64_decode($data['content']);
+            return \base64_decode($data['content'], true) ?: null;
         } catch (ClientExceptionInterface $e) {
             if ($e->getResponse()->getStatusCode() === 404) {
                 return null;

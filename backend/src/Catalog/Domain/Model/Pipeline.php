@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -28,17 +29,17 @@ final class Pipeline
     private int $duration;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $startedAt;
+    private DateTimeImmutable $startedAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $finishedAt;
+    private ?DateTimeImmutable $finishedAt;
 
     #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'pipelines')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Project $project;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     private function __construct(
         Uuid $id,
@@ -46,8 +47,8 @@ final class Pipeline
         string $ref,
         PipelineStatus $status,
         int $duration,
-        \DateTimeImmutable $startedAt,
-        ?\DateTimeImmutable $finishedAt,
+        DateTimeImmutable $startedAt,
+        ?DateTimeImmutable $finishedAt,
         Project $project,
     ) {
         $this->id = $id;
@@ -58,7 +59,7 @@ final class Pipeline
         $this->startedAt = $startedAt;
         $this->finishedAt = $finishedAt;
         $this->project = $project;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -66,8 +67,8 @@ final class Pipeline
         string $ref,
         PipelineStatus $status,
         int $duration,
-        \DateTimeImmutable $startedAt,
-        ?\DateTimeImmutable $finishedAt,
+        DateTimeImmutable $startedAt,
+        ?DateTimeImmutable $finishedAt,
         Project $project,
     ): self {
         return new self(
@@ -107,12 +108,12 @@ final class Pipeline
         return $this->duration;
     }
 
-    public function getStartedAt(): \DateTimeImmutable
+    public function getStartedAt(): DateTimeImmutable
     {
         return $this->startedAt;
     }
 
-    public function getFinishedAt(): ?\DateTimeImmutable
+    public function getFinishedAt(): ?DateTimeImmutable
     {
         return $this->finishedAt;
     }
@@ -122,7 +123,7 @@ final class Pipeline
         return $this->project;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }

@@ -48,7 +48,7 @@ function stubProviderQueryRepo(?Provider $provider = null): ProviderRepositoryIn
 describe('GetProviderHandler', function () {
     it('returns provider output', function () {
         $provider = Provider::create('GitLab', ProviderType::GitLab, 'https://gitlab.com', 'token');
-        $handler = new GetProviderHandler(stubProviderQueryRepo($provider));
+        $handler = new GetProviderHandler(\stubProviderQueryRepo($provider));
 
         $result = $handler(new GetProviderQuery($provider->getId()->toRfc4122()));
 
@@ -57,7 +57,7 @@ describe('GetProviderHandler', function () {
     });
 
     it('throws not found for unknown provider', function () {
-        $handler = new GetProviderHandler(stubProviderQueryRepo(null));
+        $handler = new GetProviderHandler(\stubProviderQueryRepo(null));
 
         $handler(new GetProviderQuery('a0000000-0000-0000-0000-000000000001'));
     })->throws(NotFoundException::class);
@@ -66,7 +66,7 @@ describe('GetProviderHandler', function () {
 describe('ListProvidersHandler', function () {
     it('returns paginated providers', function () {
         $provider = Provider::create('GitLab', ProviderType::GitLab, 'https://gitlab.com', 'token');
-        $handler = new ListProvidersHandler(stubProviderQueryRepo($provider));
+        $handler = new ListProvidersHandler(\stubProviderQueryRepo($provider));
 
         $result = $handler(new ListProvidersQuery(1, 20));
 
@@ -76,7 +76,7 @@ describe('ListProvidersHandler', function () {
     });
 
     it('returns empty list', function () {
-        $handler = new ListProvidersHandler(stubProviderQueryRepo(null));
+        $handler = new ListProvidersHandler(\stubProviderQueryRepo(null));
 
         $result = $handler(new ListProvidersQuery(1, 20));
 

@@ -14,15 +14,38 @@ use Symfony\Component\Uid\Uuid;
 function stubListDependenciesRepo(array $dependencies = [], int $count = 0): DependencyRepositoryInterface
 {
     return new class ($dependencies, $count) implements DependencyRepositoryInterface {
-        public function __construct(private readonly array $dependencies, private readonly int $count) {}
-        public function findById(Uuid $id): ?Dependency { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return $this->dependencies; }
-        public function count(): int { return $this->count; }
-        public function save(Dependency $dependency): void {}
-        public function delete(Dependency $dependency): void {}
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function __construct(private readonly array $dependencies, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?Dependency
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return $this->dependencies;
+        }
+        public function count(): int
+        {
+            return $this->count;
+        }
+        public function save(Dependency $dependency): void
+        {
+        }
+        public function delete(Dependency $dependency): void
+        {
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
@@ -49,7 +72,7 @@ describe('ListDependenciesHandler', function () {
             project: Tests\Factory\Catalog\ProjectFactory::create(),
         );
 
-        $handler = new ListDependenciesHandler(stubListDependenciesRepo([$dep1, $dep2], 2));
+        $handler = new ListDependenciesHandler(\stubListDependenciesRepo([$dep1, $dep2], 2));
         $result = $handler(new ListDependenciesQuery(1, 20));
 
         expect($result)->toBeInstanceOf(DependencyListOutput::class);
@@ -58,7 +81,7 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('returns empty list when no dependencies', function () {
-        $handler = new ListDependenciesHandler(stubListDependenciesRepo([], 0));
+        $handler = new ListDependenciesHandler(\stubListDependenciesRepo([], 0));
         $result = $handler(new ListDependenciesQuery());
 
         expect($result->pagination->items)->toBeEmpty();

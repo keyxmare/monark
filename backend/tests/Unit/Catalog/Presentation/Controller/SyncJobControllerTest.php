@@ -28,7 +28,7 @@ function stubSyncJobControllerRepo(?SyncJob $result = null): SyncJobRepositoryIn
 
 it('returns sync job details when found', function () {
     $syncJob = SyncJob::create(5);
-    $repo = stubSyncJobControllerRepo($syncJob);
+    $repo = \stubSyncJobControllerRepo($syncJob);
     $controller = new GetSyncJobController($repo);
 
     $response = $controller($syncJob->getId()->toRfc4122());
@@ -42,7 +42,7 @@ it('returns sync job details when found', function () {
 });
 
 it('throws not found when sync job does not exist', function () {
-    $repo = stubSyncJobControllerRepo(null);
+    $repo = \stubSyncJobControllerRepo(null);
     $controller = new GetSyncJobController($repo);
 
     $controller(Uuid::v7()->toRfc4122());

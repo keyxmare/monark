@@ -12,13 +12,31 @@ use Symfony\Component\Uid\Uuid;
 function stubListTeamsRepo(array $teams = [], int $count = 0): TeamRepositoryInterface
 {
     return new class ($teams, $count) implements TeamRepositoryInterface {
-        public function __construct(private readonly array $teams, private readonly int $count) {}
-        public function findById(Uuid $id): ?Team { return null; }
-        public function findBySlug(string $slug): ?Team { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return $this->teams; }
-        public function count(): int { return $this->count; }
-        public function save(Team $team): void {}
-        public function delete(Team $team): void {}
+        public function __construct(private readonly array $teams, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?Team
+        {
+            return null;
+        }
+        public function findBySlug(string $slug): ?Team
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return $this->teams;
+        }
+        public function count(): int
+        {
+            return $this->count;
+        }
+        public function save(Team $team): void
+        {
+        }
+        public function delete(Team $team): void
+        {
+        }
     };
 }
 
@@ -27,7 +45,7 @@ describe('ListTeamsHandler', function () {
         $team1 = Team::create(name: 'Engineering', slug: 'engineering');
         $team2 = Team::create(name: 'Design', slug: 'design');
 
-        $handler = new ListTeamsHandler(stubListTeamsRepo([$team1, $team2], 2));
+        $handler = new ListTeamsHandler(\stubListTeamsRepo([$team1, $team2], 2));
         $result = $handler(new ListTeamsQuery(1, 20));
 
         expect($result)->toBeInstanceOf(TeamListOutput::class);
@@ -36,7 +54,7 @@ describe('ListTeamsHandler', function () {
     });
 
     it('returns empty list when no teams', function () {
-        $handler = new ListTeamsHandler(stubListTeamsRepo([], 0));
+        $handler = new ListTeamsHandler(\stubListTeamsRepo([], 0));
         $result = $handler(new ListTeamsQuery());
 
         expect($result->pagination->items)->toBeEmpty();

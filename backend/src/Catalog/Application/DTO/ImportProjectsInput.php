@@ -17,7 +17,7 @@ final readonly class ImportProjectsInput
     public function __construct(array $projects)
     {
         $this->projects = \array_map(
-            static fn(array|ImportProjectItem $item): ImportProjectItem => $item instanceof ImportProjectItem
+            static fn (array|ImportProjectItem $item): ImportProjectItem => $item instanceof ImportProjectItem
                 ? $item
                 : new ImportProjectItem(...$item),
             $projects,

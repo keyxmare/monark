@@ -12,11 +12,24 @@ use Symfony\Component\Uid\Uuid;
 function stubListActivityEventsRepo(array $events = [], int $count = 0): ActivityEventRepositoryInterface
 {
     return new class ($events, $count) implements ActivityEventRepositoryInterface {
-        public function __construct(private readonly array $events, private readonly int $count) {}
-        public function findById(Uuid $id): ?ActivityEvent { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return $this->events; }
-        public function count(): int { return $this->count; }
-        public function save(ActivityEvent $event): void {}
+        public function __construct(private readonly array $events, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?ActivityEvent
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return $this->events;
+        }
+        public function count(): int
+        {
+            return $this->count;
+        }
+        public function save(ActivityEvent $event): void
+        {
+        }
     };
 }
 
@@ -30,7 +43,7 @@ describe('ListActivityEventsHandler', function () {
             userId: '00000000-0000-0000-0000-000000000001',
         );
 
-        $handler = new ListActivityEventsHandler(stubListActivityEventsRepo([$event], 1));
+        $handler = new ListActivityEventsHandler(\stubListActivityEventsRepo([$event], 1));
         $result = $handler(new ListActivityEventsQuery());
 
         expect($result)->toBeInstanceOf(ActivityEventListOutput::class);
@@ -39,7 +52,7 @@ describe('ListActivityEventsHandler', function () {
     });
 
     it('returns empty list when no events', function () {
-        $handler = new ListActivityEventsHandler(stubListActivityEventsRepo([], 0));
+        $handler = new ListActivityEventsHandler(\stubListActivityEventsRepo([], 0));
         $result = $handler(new ListActivityEventsQuery());
 
         expect($result->pagination->items)->toHaveCount(0);

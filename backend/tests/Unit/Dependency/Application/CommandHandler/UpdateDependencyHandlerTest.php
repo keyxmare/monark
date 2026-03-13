@@ -17,15 +17,39 @@ function stubUpdateDependencyRepo(?Dependency $dependency = null): DependencyRep
 {
     return new class ($dependency) implements DependencyRepositoryInterface {
         public ?Dependency $saved = null;
-        public function __construct(private readonly ?Dependency $dependency) {}
-        public function findById(Uuid $id): ?Dependency { return $this->dependency; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Dependency $dependency): void { $this->saved = $dependency; }
-        public function delete(Dependency $dependency): void {}
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function __construct(private readonly ?Dependency $dependency)
+        {
+        }
+        public function findById(Uuid $id): ?Dependency
+        {
+            return $this->dependency;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Dependency $dependency): void
+        {
+            $this->saved = $dependency;
+        }
+        public function delete(Dependency $dependency): void
+        {
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
@@ -43,7 +67,7 @@ describe('UpdateDependencyHandler', function () {
         );
         $dependencyId = $dependency->getId()->toRfc4122();
 
-        $repo = stubUpdateDependencyRepo($dependency);
+        $repo = \stubUpdateDependencyRepo($dependency);
         $handler = new UpdateDependencyHandler($repo);
 
         $input = new UpdateDependencyInput(currentVersion: '8.0.0', isOutdated: false);
@@ -68,7 +92,7 @@ describe('UpdateDependencyHandler', function () {
         );
         $dependencyId = $dependency->getId()->toRfc4122();
 
-        $repo = stubUpdateDependencyRepo($dependency);
+        $repo = \stubUpdateDependencyRepo($dependency);
         $handler = new UpdateDependencyHandler($repo);
 
         $input = new UpdateDependencyInput(repositoryUrl: 'https://github.com/symfony/symfony');
@@ -91,7 +115,7 @@ describe('UpdateDependencyHandler', function () {
         );
         $dependencyId = $dependency->getId()->toRfc4122();
 
-        $repo = stubUpdateDependencyRepo($dependency);
+        $repo = \stubUpdateDependencyRepo($dependency);
         $handler = new UpdateDependencyHandler($repo);
 
         $input = new UpdateDependencyInput(currentVersion: '3.6.0');
@@ -102,7 +126,7 @@ describe('UpdateDependencyHandler', function () {
     });
 
     it('throws not found when dependency does not exist', function () {
-        $handler = new UpdateDependencyHandler(stubUpdateDependencyRepo(null));
+        $handler = new UpdateDependencyHandler(\stubUpdateDependencyRepo(null));
         $input = new UpdateDependencyInput(name: 'new-name');
         $handler(new UpdateDependencyCommand('00000000-0000-0000-0000-000000000000', $input));
     })->throws(NotFoundException::class);

@@ -7,6 +7,7 @@ namespace App\Catalog\Domain\Port;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteMergeRequest;
 use App\Catalog\Domain\Model\RemoteProject;
+use DateTimeImmutable;
 
 interface GitProviderInterface
 {
@@ -25,5 +26,5 @@ interface GitProviderInterface
     public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array;
 
     /** @return list<RemoteMergeRequest> */
-    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array;
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?DateTimeImmutable $updatedAfter = null): array;
 }

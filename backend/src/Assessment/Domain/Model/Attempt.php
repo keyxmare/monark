@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Assessment\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -22,10 +23,10 @@ final class Attempt
     private AttemptStatus $status;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $startedAt;
+    private DateTimeImmutable $startedAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $finishedAt;
+    private ?DateTimeImmutable $finishedAt;
 
     #[ORM\Column(length: 36)]
     private string $userId;
@@ -34,14 +35,14 @@ final class Attempt
     private string $quizId;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     private function __construct(
         Uuid $id,
         int $score,
         AttemptStatus $status,
-        \DateTimeImmutable $startedAt,
-        ?\DateTimeImmutable $finishedAt,
+        DateTimeImmutable $startedAt,
+        ?DateTimeImmutable $finishedAt,
         string $userId,
         string $quizId,
     ) {
@@ -52,7 +53,7 @@ final class Attempt
         $this->finishedAt = $finishedAt;
         $this->userId = $userId;
         $this->quizId = $quizId;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -60,14 +61,14 @@ final class Attempt
         string $quizId,
         int $score = 0,
         AttemptStatus $status = AttemptStatus::Started,
-        ?\DateTimeImmutable $startedAt = null,
-        ?\DateTimeImmutable $finishedAt = null,
+        ?DateTimeImmutable $startedAt = null,
+        ?DateTimeImmutable $finishedAt = null,
     ): self {
         return new self(
             id: Uuid::v7(),
             score: $score,
             status: $status,
-            startedAt: $startedAt ?? new \DateTimeImmutable(),
+            startedAt: $startedAt ?? new DateTimeImmutable(),
             finishedAt: $finishedAt,
             userId: $userId,
             quizId: $quizId,
@@ -89,12 +90,12 @@ final class Attempt
         return $this->status;
     }
 
-    public function getStartedAt(): \DateTimeImmutable
+    public function getStartedAt(): DateTimeImmutable
     {
         return $this->startedAt;
     }
 
-    public function getFinishedAt(): ?\DateTimeImmutable
+    public function getFinishedAt(): ?DateTimeImmutable
     {
         return $this->finishedAt;
     }
@@ -109,7 +110,7 @@ final class Attempt
         return $this->quizId;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }

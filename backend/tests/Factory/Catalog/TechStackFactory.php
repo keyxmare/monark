@@ -6,6 +6,7 @@ namespace Tests\Factory\Catalog;
 
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\TechStack;
+use DateTimeImmutable;
 
 final class TechStackFactory
 {
@@ -14,7 +15,7 @@ final class TechStackFactory
         string $framework = 'Symfony',
         string $version = '8.4',
         string $frameworkVersion = '8.0',
-        ?\DateTimeImmutable $detectedAt = null,
+        ?DateTimeImmutable $detectedAt = null,
         ?Project $project = null,
     ): TechStack {
         return TechStack::create(
@@ -22,7 +23,7 @@ final class TechStackFactory
             framework: $framework,
             version: $version,
             frameworkVersion: $frameworkVersion,
-            detectedAt: $detectedAt ?? new \DateTimeImmutable(),
+            detectedAt: $detectedAt ?? new DateTimeImmutable(),
             project: $project ?? ProjectFactory::create(),
         );
     }

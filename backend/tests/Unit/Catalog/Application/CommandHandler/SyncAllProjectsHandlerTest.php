@@ -26,44 +26,94 @@ function stubSyncProjectRepo(array $byProvider = [], array $allWithProvider = []
         public function __construct(
             private readonly array $byProvider,
             private readonly array $allWithProvider,
-        ) {}
-        public function findById(Uuid $id): ?Project { return null; }
-        public function findBySlug(string $slug): ?Project { return null; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return $this->byProvider; }
-        public function findAllWithProvider(): array { return $this->allWithProvider; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void {}
-        public function delete(Project $project): void {}
+        ) {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return null;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return null;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return $this->byProvider;
+        }
+        public function findAllWithProvider(): array
+        {
+            return $this->allWithProvider;
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 }
 
 function stubSyncProviderRepo(?Provider $provider = null): ProviderRepositoryInterface
 {
     return new class ($provider) implements ProviderRepositoryInterface {
-        public function __construct(private readonly ?Provider $provider) {}
-        public function findById(Uuid $id): ?Provider { return $this->provider; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Provider $provider): void {}
-        public function remove(Provider $provider): void {}
+        public function __construct(private readonly ?Provider $provider)
+        {
+        }
+        public function findById(Uuid $id): ?Provider
+        {
+            return $this->provider;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Provider $provider): void
+        {
+        }
+        public function remove(Provider $provider): void
+        {
+        }
     };
 }
 
 function stubSyncJobRepo(): SyncJobRepositoryInterface
 {
-    return new class implements SyncJobRepositoryInterface {
+    return new class () implements SyncJobRepositoryInterface {
         public ?SyncJob $saved = null;
-        public function findById(Uuid $id): ?SyncJob { return null; }
-        public function save(SyncJob $syncJob): void { $this->saved = $syncJob; }
+        public function findById(Uuid $id): ?SyncJob
+        {
+            return null;
+        }
+        public function save(SyncJob $syncJob): void
+        {
+            $this->saved = $syncJob;
+        }
     };
 }
 
 function spyCommandBus(): object
 {
-    return new class implements MessageBusInterface {
+    return new class () implements MessageBusInterface {
         /** @var list<object> */
         public array $dispatched = [];
         public function dispatch(object $message, array $stamps = []): Envelope
@@ -93,15 +143,15 @@ function createProjectWithProvider(Provider $provider, string $slug): Project
 describe('SyncAllProjectsHandler', function () {
     it('dispatches scan commands for all projects of a provider', function () {
         $provider = ProviderFactory::create();
-        $p1 = createProjectWithProvider($provider, 'proj-a');
-        $p2 = createProjectWithProvider($provider, 'proj-b');
-        $p3 = createProjectWithProvider($provider, 'proj-c');
+        $p1 = \createProjectWithProvider($provider, 'proj-a');
+        $p2 = \createProjectWithProvider($provider, 'proj-b');
+        $p3 = \createProjectWithProvider($provider, 'proj-c');
 
-        $projectRepo = stubSyncProjectRepo(byProvider: [$p1, $p2, $p3]);
-        $providerRepo = stubSyncProviderRepo($provider);
-        $bus = spyCommandBus();
+        $projectRepo = \stubSyncProjectRepo(byProvider: [$p1, $p2, $p3]);
+        $providerRepo = \stubSyncProviderRepo($provider);
+        $bus = \spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, \stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand($provider->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(SyncJobOutput::class);
@@ -117,14 +167,14 @@ describe('SyncAllProjectsHandler', function () {
 
     it('dispatches scan commands for all projects globally', function () {
         $provider = ProviderFactory::create();
-        $p1 = createProjectWithProvider($provider, 'proj-x');
-        $p2 = createProjectWithProvider($provider, 'proj-y');
+        $p1 = \createProjectWithProvider($provider, 'proj-x');
+        $p2 = \createProjectWithProvider($provider, 'proj-y');
 
-        $projectRepo = stubSyncProjectRepo(allWithProvider: [$p1, $p2]);
-        $providerRepo = stubSyncProviderRepo();
-        $bus = spyCommandBus();
+        $projectRepo = \stubSyncProjectRepo(allWithProvider: [$p1, $p2]);
+        $providerRepo = \stubSyncProviderRepo();
+        $bus = \spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, \stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand());
 
         expect($result->projectsCount)->toBe(2);
@@ -133,11 +183,11 @@ describe('SyncAllProjectsHandler', function () {
 
     it('returns zero when provider has no projects', function () {
         $provider = ProviderFactory::create();
-        $projectRepo = stubSyncProjectRepo(byProvider: []);
-        $providerRepo = stubSyncProviderRepo($provider);
-        $bus = spyCommandBus();
+        $projectRepo = \stubSyncProjectRepo(byProvider: []);
+        $providerRepo = \stubSyncProviderRepo($provider);
+        $bus = \spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, \stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand($provider->getId()->toRfc4122()));
 
         expect($result->projectsCount)->toBe(0);
@@ -145,20 +195,20 @@ describe('SyncAllProjectsHandler', function () {
     });
 
     it('throws not found for unknown provider', function () {
-        $projectRepo = stubSyncProjectRepo();
-        $providerRepo = stubSyncProviderRepo(null);
-        $bus = spyCommandBus();
+        $projectRepo = \stubSyncProjectRepo();
+        $providerRepo = \stubSyncProviderRepo(null);
+        $bus = \spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, \stubSyncJobRepo(), $bus);
         $handler(new SyncAllProjectsCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
 
     it('returns a valid startedAt timestamp', function () {
-        $projectRepo = stubSyncProjectRepo(allWithProvider: []);
-        $providerRepo = stubSyncProviderRepo();
-        $bus = spyCommandBus();
+        $projectRepo = \stubSyncProjectRepo(allWithProvider: []);
+        $providerRepo = \stubSyncProviderRepo();
+        $bus = \spyCommandBus();
 
-        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, stubSyncJobRepo(), $bus);
+        $handler = new SyncAllProjectsHandler($projectRepo, $providerRepo, \stubSyncJobRepo(), $bus);
         $result = $handler(new SyncAllProjectsCommand());
 
         expect($result->startedAt)->not->toBeEmpty();

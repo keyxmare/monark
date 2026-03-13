@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -28,14 +29,14 @@ final class TechStack
     private string $frameworkVersion;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $detectedAt;
+    private DateTimeImmutable $detectedAt;
 
     #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'techStacks')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Project $project;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     private function __construct(
         Uuid $id,
@@ -43,7 +44,7 @@ final class TechStack
         string $framework,
         string $version,
         string $frameworkVersion,
-        \DateTimeImmutable $detectedAt,
+        DateTimeImmutable $detectedAt,
         Project $project,
     ) {
         $this->id = $id;
@@ -53,7 +54,7 @@ final class TechStack
         $this->frameworkVersion = $frameworkVersion;
         $this->detectedAt = $detectedAt;
         $this->project = $project;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -61,7 +62,7 @@ final class TechStack
         string $framework,
         string $version,
         string $frameworkVersion,
-        \DateTimeImmutable $detectedAt,
+        DateTimeImmutable $detectedAt,
         Project $project,
     ): self {
         return new self(
@@ -100,7 +101,7 @@ final class TechStack
         return $this->frameworkVersion;
     }
 
-    public function getDetectedAt(): \DateTimeImmutable
+    public function getDetectedAt(): DateTimeImmutable
     {
         return $this->detectedAt;
     }
@@ -110,7 +111,7 @@ final class TechStack
         return $this->project;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }

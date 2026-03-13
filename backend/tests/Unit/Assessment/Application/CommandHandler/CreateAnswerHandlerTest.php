@@ -20,28 +20,69 @@ use Symfony\Component\Uid\Uuid;
 function stubCreateAnswerQuestionRepo(?Question $question = null): QuestionRepositoryInterface
 {
     return new class ($question) implements QuestionRepositoryInterface {
-        public function __construct(private readonly ?Question $question) {}
-        public function findById(Uuid $id): ?Question { return $this->question; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function countByQuizId(Uuid $quizId): int { return 0; }
-        public function save(Question $question): void {}
-        public function delete(Question $question): void {}
+        public function __construct(private readonly ?Question $question)
+        {
+        }
+        public function findById(Uuid $id): ?Question
+        {
+            return $this->question;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function countByQuizId(Uuid $quizId): int
+        {
+            return 0;
+        }
+        public function save(Question $question): void
+        {
+        }
+        public function delete(Question $question): void
+        {
+        }
     };
 }
 
 function stubCreateAnswerRepo(): AnswerRepositoryInterface
 {
-    return new class implements AnswerRepositoryInterface {
+    return new class () implements AnswerRepositoryInterface {
         public ?Answer $saved = null;
-        public function findById(Uuid $id): ?Answer { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByQuestionId(Uuid $questionId, int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function countByQuestionId(Uuid $questionId): int { return 0; }
-        public function save(Answer $answer): void { $this->saved = $answer; }
-        public function delete(Answer $answer): void {}
+        public function findById(Uuid $id): ?Answer
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByQuestionId(Uuid $questionId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function countByQuestionId(Uuid $questionId): int
+        {
+            return 0;
+        }
+        public function save(Answer $answer): void
+        {
+            $this->saved = $answer;
+        }
+        public function delete(Answer $answer): void
+        {
+        }
     };
 }
 
@@ -57,8 +98,8 @@ describe('CreateAnswerHandler', function () {
             quiz: $quiz,
         );
 
-        $answerRepo = stubCreateAnswerRepo();
-        $handler = new CreateAnswerHandler($answerRepo, stubCreateAnswerQuestionRepo($question));
+        $answerRepo = \stubCreateAnswerRepo();
+        $handler = new CreateAnswerHandler($answerRepo, \stubCreateAnswerQuestionRepo($question));
 
         $input = new CreateAnswerInput(
             content: 'A programming language',
@@ -76,7 +117,7 @@ describe('CreateAnswerHandler', function () {
     });
 
     it('throws not found when question does not exist', function () {
-        $handler = new CreateAnswerHandler(stubCreateAnswerRepo(), stubCreateAnswerQuestionRepo(null));
+        $handler = new CreateAnswerHandler(\stubCreateAnswerRepo(), \stubCreateAnswerQuestionRepo(null));
 
         $input = new CreateAnswerInput(
             content: 'Answer text',

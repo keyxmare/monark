@@ -13,7 +13,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 function stubTranslator(): TranslatorInterface
 {
-    return new class implements TranslatorInterface {
+    return new class () implements TranslatorInterface {
         public function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
         {
             return match ($id) {
@@ -36,7 +36,7 @@ function stubTranslator(): TranslatorInterface
 
 function createExceptionEvent(\Throwable $exception): ExceptionEvent
 {
-    $kernel = new class implements HttpKernelInterface {
+    $kernel = new class () implements HttpKernelInterface {
         public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): \Symfony\Component\HttpFoundation\Response
         {
             return new \Symfony\Component\HttpFoundation\Response();
@@ -47,8 +47,8 @@ function createExceptionEvent(\Throwable $exception): ExceptionEvent
 }
 
 it('handles NotFoundException with 404', function () {
-    $listener = new ExceptionListener(stubTranslator());
-    $event = createExceptionEvent(NotFoundException::forEntity('User', 'u-1'));
+    $listener = new ExceptionListener(\stubTranslator());
+    $event = \createExceptionEvent(NotFoundException::forEntity('User', 'u-1'));
 
     $listener($event);
 
@@ -60,9 +60,9 @@ it('handles NotFoundException with 404', function () {
 });
 
 it('handles DomainException with known translation key', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('A user with this email already exists.') extends DomainException {};
-    $event = createExceptionEvent($exception);
+    $event = \createExceptionEvent($exception);
 
     $listener($event);
 
@@ -73,9 +73,9 @@ it('handles DomainException with known translation key', function () {
 });
 
 it('handles DomainException with project not linked message', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('Project X is not linked to a provider') extends DomainException {};
-    $event = createExceptionEvent($exception);
+    $event = \createExceptionEvent($exception);
 
     $listener($event);
 
@@ -86,9 +86,9 @@ it('handles DomainException with project not linked message', function () {
 });
 
 it('handles DomainException with unknown message passthrough', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('Some unknown domain error') extends DomainException {};
-    $event = createExceptionEvent($exception);
+    $event = \createExceptionEvent($exception);
 
     $listener($event);
 
@@ -99,8 +99,8 @@ it('handles DomainException with unknown message passthrough', function () {
 });
 
 it('handles HttpException', function () {
-    $listener = new ExceptionListener(stubTranslator());
-    $event = createExceptionEvent(new HttpException(403, 'Forbidden'));
+    $listener = new ExceptionListener(\stubTranslator());
+    $event = \createExceptionEvent(new HttpException(403, 'Forbidden'));
 
     $listener($event);
 
@@ -109,9 +109,9 @@ it('handles HttpException', function () {
 });
 
 it('handles ValidationFailedException with 422', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $violations = new \Symfony\Component\Validator\ConstraintViolationList();
-    $event = createExceptionEvent(new \Symfony\Component\Validator\Exception\ValidationFailedException('value', $violations));
+    $event = \createExceptionEvent(new \Symfony\Component\Validator\Exception\ValidationFailedException('value', $violations));
 
     $listener($event);
 
@@ -122,9 +122,9 @@ it('handles ValidationFailedException with 422', function () {
 });
 
 it('handles DomainException with duplicate slug for team', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('A team with this slug already exists.') extends DomainException {};
-    $event = createExceptionEvent($exception);
+    $event = \createExceptionEvent($exception);
 
     $listener($event);
 
@@ -135,9 +135,9 @@ it('handles DomainException with duplicate slug for team', function () {
 });
 
 it('handles DomainException with duplicate slug for project', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('A project with this slug already exists.') extends DomainException {};
-    $event = createExceptionEvent($exception);
+    $event = \createExceptionEvent($exception);
 
     $listener($event);
 
@@ -148,9 +148,9 @@ it('handles DomainException with duplicate slug for project', function () {
 });
 
 it('handles DomainException with duplicate slug for quiz', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('A quiz with this slug already exists.') extends DomainException {};
-    $event = createExceptionEvent($exception);
+    $event = \createExceptionEvent($exception);
 
     $listener($event);
 
@@ -161,9 +161,9 @@ it('handles DomainException with duplicate slug for quiz', function () {
 });
 
 it('handles DomainException with invalid credentials', function () {
-    $listener = new ExceptionListener(stubTranslator());
+    $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('Invalid credentials.') extends DomainException {};
-    $event = createExceptionEvent($exception);
+    $event = \createExceptionEvent($exception);
 
     $listener($event);
 
@@ -174,8 +174,8 @@ it('handles DomainException with invalid credentials', function () {
 });
 
 it('includes entity details in NotFoundException response', function () {
-    $listener = new ExceptionListener(stubTranslator());
-    $event = createExceptionEvent(NotFoundException::forEntity('Project', 'p-42'));
+    $listener = new ExceptionListener(\stubTranslator());
+    $event = \createExceptionEvent(NotFoundException::forEntity('Project', 'p-42'));
 
     $listener($event);
 
@@ -186,8 +186,8 @@ it('includes entity details in NotFoundException response', function () {
 });
 
 it('includes status code in HttpException response body', function () {
-    $listener = new ExceptionListener(stubTranslator());
-    $event = createExceptionEvent(new HttpException(429, 'Too many requests'));
+    $listener = new ExceptionListener(\stubTranslator());
+    $event = \createExceptionEvent(new HttpException(429, 'Too many requests'));
 
     $listener($event);
 
@@ -199,8 +199,8 @@ it('includes status code in HttpException response body', function () {
 });
 
 it('does not handle generic exceptions', function () {
-    $listener = new ExceptionListener(stubTranslator());
-    $event = createExceptionEvent(new \RuntimeException('Unexpected'));
+    $listener = new ExceptionListener(\stubTranslator());
+    $event = \createExceptionEvent(new \RuntimeException('Unexpected'));
 
     $listener($event);
 

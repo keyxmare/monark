@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Domain\Model;
 
 use App\Dependency\Domain\Model\Dependency;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -64,13 +65,13 @@ final class Project
     private Collection $mergeRequests;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $lastSyncedAt;
+    private ?DateTimeImmutable $lastSyncedAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     private function __construct(
         Uuid $id,
@@ -99,8 +100,8 @@ final class Project
         $this->dependencies = new ArrayCollection();
         $this->mergeRequests = new ArrayCollection();
         $this->lastSyncedAt = null;
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -202,12 +203,12 @@ final class Project
         return $this->mergeRequests;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -238,17 +239,17 @@ final class Project
         if ($visibility !== null) {
             $this->visibility = $visibility;
         }
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
-    public function getLastSyncedAt(): ?\DateTimeImmutable
+    public function getLastSyncedAt(): ?DateTimeImmutable
     {
         return $this->lastSyncedAt;
     }
 
     public function markSynced(): void
     {
-        $this->lastSyncedAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->lastSyncedAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 }

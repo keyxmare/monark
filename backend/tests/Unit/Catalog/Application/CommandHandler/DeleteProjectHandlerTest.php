@@ -14,24 +14,55 @@ function stubDeleteProjectRepo(?Project $project = null): ProjectRepositoryInter
 {
     return new class ($project) implements ProjectRepositoryInterface {
         public bool $deleted = false;
-        public function __construct(private readonly ?Project $project) {}
-        public function findById(Uuid $id): ?Project { return $this->project; }
-        public function findBySlug(string $slug): ?Project { return null; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void {}
-        public function delete(Project $project): void { $this->deleted = true; }
+        public function __construct(private readonly ?Project $project)
+        {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return $this->project;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return null;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+        }
+        public function delete(Project $project): void
+        {
+            $this->deleted = true;
+        }
     };
 }
 
 describe('DeleteProjectHandler', function () {
     it('deletes a project successfully', function () {
         $project = ProjectFactory::create();
-        $repo = stubDeleteProjectRepo($project);
+        $repo = \stubDeleteProjectRepo($project);
         $handler = new DeleteProjectHandler($repo);
 
         $handler(new DeleteProjectCommand($project->getId()->toRfc4122()));
@@ -40,7 +71,7 @@ describe('DeleteProjectHandler', function () {
     });
 
     it('throws not found when project does not exist', function () {
-        $handler = new DeleteProjectHandler(stubDeleteProjectRepo(null));
+        $handler = new DeleteProjectHandler(\stubDeleteProjectRepo(null));
         $handler(new DeleteProjectCommand('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

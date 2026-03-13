@@ -21,8 +21,12 @@ function stubStalePrMRRepo(array $openMRs = [], array $draftMRs = []): MergeRequ
         public function __construct(
             private readonly array $openMRs,
             private readonly array $draftMRs,
-        ) {}
-        public function findById(Uuid $id): ?MergeRequest { return null; }
+        ) {
+        }
+        public function findById(Uuid $id): ?MergeRequest
+        {
+            return null;
+        }
         public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array
         {
             $result = [];
@@ -34,12 +38,28 @@ function stubStalePrMRRepo(array $openMRs = [], array $draftMRs = []): MergeRequ
             }
             return $result;
         }
-        public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest { return null; }
-        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int { return 0; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(MergeRequest $mergeRequest): void {}
-        public function delete(MergeRequest $mergeRequest): void {}
+        public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest
+        {
+            return null;
+        }
+        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int
+        {
+            return 0;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(MergeRequest $mergeRequest): void
+        {
+        }
+        public function delete(MergeRequest $mergeRequest): void
+        {
+        }
     };
 }
 
@@ -48,15 +68,41 @@ function spyStalePrSyncTaskRepo(?SyncTask $existing = null): object
     return new class ($existing) implements SyncTaskRepositoryInterface {
         /** @var list<SyncTask> */
         public array $saved = [];
-        public function __construct(private readonly ?SyncTask $existing) {}
-        public function findById(Uuid $id): ?SyncTask { return null; }
-        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array { return []; }
-        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int { return 0; }
-        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask { return $this->existing; }
-        public function countGroupedByType(): array { return []; }
-        public function countGroupedBySeverity(): array { return []; }
-        public function countGroupedByStatus(): array { return []; }
-        public function save(SyncTask $syncTask): void { $this->saved[] = $syncTask; }
+        public function __construct(private readonly ?SyncTask $existing)
+        {
+        }
+        public function findById(Uuid $id): ?SyncTask
+        {
+            return null;
+        }
+        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int
+        {
+            return 0;
+        }
+        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask
+        {
+            return $this->existing;
+        }
+        public function countGroupedByType(): array
+        {
+            return [];
+        }
+        public function countGroupedBySeverity(): array
+        {
+            return [];
+        }
+        public function countGroupedByStatus(): array
+        {
+            return [];
+        }
+        public function save(SyncTask $syncTask): void
+        {
+            $this->saved[] = $syncTask;
+        }
     };
 }
 
@@ -89,11 +135,11 @@ function createStaleMR(MergeRequestStatus $status, int $daysOld, string $externa
 
 describe('CreateStalePrTasksListener', function () {
     it('creates medium severity task for MR stale > 7 days', function () {
-        $mr = createStaleMR(MergeRequestStatus::Open, 10, '42');
-        $syncTaskRepo = spyStalePrSyncTaskRepo();
+        $mr = \createStaleMR(MergeRequestStatus::Open, 10, '42');
+        $syncTaskRepo = \spyStalePrSyncTaskRepo();
 
         $listener = new CreateStalePrTasksListener(
-            stubStalePrMRRepo(openMRs: [$mr]),
+            \stubStalePrMRRepo(openMRs: [$mr]),
             $syncTaskRepo,
         );
         $listener(new MergeRequestsSyncedEvent(
@@ -117,11 +163,11 @@ describe('CreateStalePrTasksListener', function () {
     });
 
     it('creates high severity task for MR stale > 30 days', function () {
-        $mr = createStaleMR(MergeRequestStatus::Open, 45, '99');
-        $syncTaskRepo = spyStalePrSyncTaskRepo();
+        $mr = \createStaleMR(MergeRequestStatus::Open, 45, '99');
+        $syncTaskRepo = \spyStalePrSyncTaskRepo();
 
         $listener = new CreateStalePrTasksListener(
-            stubStalePrMRRepo(openMRs: [$mr]),
+            \stubStalePrMRRepo(openMRs: [$mr]),
             $syncTaskRepo,
         );
         $listener(new MergeRequestsSyncedEvent(
@@ -135,11 +181,11 @@ describe('CreateStalePrTasksListener', function () {
     });
 
     it('skips MR updated less than 7 days ago', function () {
-        $mr = createStaleMR(MergeRequestStatus::Open, 3, '10');
-        $syncTaskRepo = spyStalePrSyncTaskRepo();
+        $mr = \createStaleMR(MergeRequestStatus::Open, 3, '10');
+        $syncTaskRepo = \spyStalePrSyncTaskRepo();
 
         $listener = new CreateStalePrTasksListener(
-            stubStalePrMRRepo(openMRs: [$mr]),
+            \stubStalePrMRRepo(openMRs: [$mr]),
             $syncTaskRepo,
         );
         $listener(new MergeRequestsSyncedEvent(
@@ -152,11 +198,11 @@ describe('CreateStalePrTasksListener', function () {
     });
 
     it('detects stale draft MRs', function () {
-        $mr = createStaleMR(MergeRequestStatus::Draft, 15, '77');
-        $syncTaskRepo = spyStalePrSyncTaskRepo();
+        $mr = \createStaleMR(MergeRequestStatus::Draft, 15, '77');
+        $syncTaskRepo = \spyStalePrSyncTaskRepo();
 
         $listener = new CreateStalePrTasksListener(
-            stubStalePrMRRepo(draftMRs: [$mr]),
+            \stubStalePrMRRepo(draftMRs: [$mr]),
             $syncTaskRepo,
         );
         $listener(new MergeRequestsSyncedEvent(
@@ -170,7 +216,7 @@ describe('CreateStalePrTasksListener', function () {
     });
 
     it('updates existing task instead of creating duplicate', function () {
-        $mr = createStaleMR(MergeRequestStatus::Open, 10, '42');
+        $mr = \createStaleMR(MergeRequestStatus::Open, 10, '42');
         $existingTask = SyncTask::create(
             type: SyncTaskType::StalePr,
             severity: SyncTaskSeverity::Low,
@@ -180,10 +226,10 @@ describe('CreateStalePrTasksListener', function () {
             projectId: $mr->getProject()->getId(),
         );
 
-        $syncTaskRepo = spyStalePrSyncTaskRepo($existingTask);
+        $syncTaskRepo = \spyStalePrSyncTaskRepo($existingTask);
 
         $listener = new CreateStalePrTasksListener(
-            stubStalePrMRRepo(openMRs: [$mr]),
+            \stubStalePrMRRepo(openMRs: [$mr]),
             $syncTaskRepo,
         );
         $listener(new MergeRequestsSyncedEvent(

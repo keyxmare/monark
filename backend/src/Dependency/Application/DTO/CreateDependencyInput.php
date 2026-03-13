@@ -12,33 +12,25 @@ final readonly class CreateDependencyInput
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 255)]
         public string $name,
-
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 100)]
         public string $currentVersion,
-
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 100)]
         public string $latestVersion,
-
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 100)]
         public string $ltsVersion,
-
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['composer', 'npm', 'pip'])]
         public string $packageManager,
-
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['runtime', 'dev'])]
         public string $type,
-
         public bool $isOutdated,
-
         #[Assert\NotBlank]
         #[Assert\Uuid]
         public string $projectId,
-
         #[Assert\Url]
         #[Assert\Length(max: 2048)]
         public ?string $repositoryUrl = null,

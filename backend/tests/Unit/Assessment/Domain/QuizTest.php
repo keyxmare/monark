@@ -65,7 +65,7 @@ describe('Quiz', function () {
         );
         $oldUpdatedAt = $quiz->getUpdatedAt();
 
-        usleep(1000);
+        \usleep(1000);
         $quiz->update(title: 'Updated Title');
 
         expect($quiz->getTitle())->toBe('Updated Title');

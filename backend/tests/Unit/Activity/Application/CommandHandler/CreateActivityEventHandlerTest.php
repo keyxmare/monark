@@ -12,18 +12,30 @@ use Symfony\Component\Uid\Uuid;
 
 function stubActivityEventRepo(): ActivityEventRepositoryInterface
 {
-    return new class implements ActivityEventRepositoryInterface {
+    return new class () implements ActivityEventRepositoryInterface {
         public ?ActivityEvent $saved = null;
-        public function findById(Uuid $id): ?ActivityEvent { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(ActivityEvent $event): void { $this->saved = $event; }
+        public function findById(Uuid $id): ?ActivityEvent
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(ActivityEvent $event): void
+        {
+            $this->saved = $event;
+        }
     };
 }
 
 describe('CreateActivityEventHandler', function () {
     it('creates an activity event successfully', function () {
-        $repo = stubActivityEventRepo();
+        $repo = \stubActivityEventRepo();
         $handler = new CreateActivityEventHandler($repo);
 
         $input = new CreateActivityEventInput(

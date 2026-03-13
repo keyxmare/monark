@@ -17,18 +17,35 @@ function stubUpdateUserRepo(?User $user = null): UserRepositoryInterface
 {
     return new class ($user) implements UserRepositoryInterface {
         public ?User $saved = null;
-        public function __construct(private readonly ?User $user) {}
-        public function findById(Uuid $id): ?User { return $this->user; }
-        public function findByEmail(string $email): ?User { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(User $user): void { $this->saved = $user; }
+        public function __construct(private readonly ?User $user)
+        {
+        }
+        public function findById(Uuid $id): ?User
+        {
+            return $this->user;
+        }
+        public function findByEmail(string $email): ?User
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(User $user): void
+        {
+            $this->saved = $user;
+        }
     };
 }
 
 function stubUpdateEventBus(): MessageBusInterface
 {
-    return new class implements MessageBusInterface {
+    return new class () implements MessageBusInterface {
         public function dispatch(object $message, array $stamps = []): Envelope
         {
             return new Envelope($message);
@@ -46,8 +63,8 @@ describe('UpdateUserHandler', function () {
         );
 
         $userId = $user->getId()->toRfc4122();
-        $repo = stubUpdateUserRepo($user);
-        $handler = new UpdateUserHandler($repo, stubUpdateEventBus());
+        $repo = \stubUpdateUserRepo($user);
+        $handler = new UpdateUserHandler($repo, \stubUpdateEventBus());
 
         $input = new UpdateUserInput(firstName: 'Jane', lastName: 'Smith');
         $result = $handler(new UpdateUserCommand($userId, $input));
@@ -59,7 +76,7 @@ describe('UpdateUserHandler', function () {
     });
 
     it('throws not found when user does not exist', function () {
-        $handler = new UpdateUserHandler(stubUpdateUserRepo(null), stubUpdateEventBus());
+        $handler = new UpdateUserHandler(\stubUpdateUserRepo(null), \stubUpdateEventBus());
 
         $input = new UpdateUserInput(firstName: 'Jane');
         $handler(new UpdateUserCommand('00000000-0000-0000-0000-000000000000', $input));

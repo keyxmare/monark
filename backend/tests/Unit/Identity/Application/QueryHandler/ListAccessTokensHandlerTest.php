@@ -14,12 +14,27 @@ use Symfony\Component\Uid\Uuid;
 function stubListTokensRepo(array $tokens = [], int $count = 0): AccessTokenRepositoryInterface
 {
     return new class ($tokens, $count) implements AccessTokenRepositoryInterface {
-        public function __construct(private readonly array $tokens, private readonly int $count) {}
-        public function findById(Uuid $id): ?AccessToken { return null; }
-        public function findByUser(Uuid $userId, int $page = 1, int $perPage = 20): array { return $this->tokens; }
-        public function countByUser(Uuid $userId): int { return $this->count; }
-        public function save(AccessToken $accessToken): void {}
-        public function delete(AccessToken $accessToken): void {}
+        public function __construct(private readonly array $tokens, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?AccessToken
+        {
+            return null;
+        }
+        public function findByUser(Uuid $userId, int $page = 1, int $perPage = 20): array
+        {
+            return $this->tokens;
+        }
+        public function countByUser(Uuid $userId): int
+        {
+            return $this->count;
+        }
+        public function save(AccessToken $accessToken): void
+        {
+        }
+        public function delete(AccessToken $accessToken): void
+        {
+        }
     };
 }
 
@@ -34,7 +49,7 @@ describe('ListAccessTokensHandler', function () {
             user: $user,
         );
 
-        $handler = new ListAccessTokensHandler(stubListTokensRepo([$token], 1));
+        $handler = new ListAccessTokensHandler(\stubListTokensRepo([$token], 1));
         $result = $handler(new ListAccessTokensQuery($user->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(AccessTokenListOutput::class);

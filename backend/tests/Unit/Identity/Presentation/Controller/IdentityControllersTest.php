@@ -74,7 +74,7 @@ function stubIdentityBus(mixed $result = null): MessageBusInterface&stdClass
 
 it('registers a user and returns 201', function () {
     $output = new UserOutput('u-1', 'john@test.com', 'John', 'Doe', null, ['ROLE_USER'], '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new RegisterController($bus);
 
     $input = new RegisterUserInput(email: 'john@test.com', password: 'password123', firstName: 'John', lastName: 'Doe');
@@ -112,7 +112,7 @@ it('gets current user profile', function () {
 
 it('gets a user by id', function () {
     $output = new UserOutput('u-1', 'john@test.com', 'John', 'Doe', null, ['ROLE_USER'], '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new GetUserController($bus);
 
     $response = $controller('u-1');
@@ -123,7 +123,7 @@ it('gets a user by id', function () {
 
 it('updates a user', function () {
     $output = new UserOutput('u-1', 'john@test.com', 'Jane', 'Doe', null, ['ROLE_USER'], '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new UpdateUserController($bus);
 
     $response = $controller('u-1', new UpdateUserInput(firstName: 'Jane'));
@@ -134,7 +134,7 @@ it('updates a user', function () {
 
 it('lists users with pagination', function () {
     $listOutput = new UserListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubIdentityBus($listOutput);
+    $bus = \stubIdentityBus($listOutput);
     $controller = new ListUsersController($bus);
 
     $response = $controller(Request::create('/api/identity/users', 'GET', ['page' => 1]));
@@ -147,7 +147,7 @@ it('lists users with pagination', function () {
 
 it('creates a team and returns 201', function () {
     $output = new TeamOutput('t-1', 'Dev Team', 'dev-team', null, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new CreateTeamController($bus);
 
     $response = $controller(new CreateTeamInput(name: 'Dev Team', slug: 'dev-team'));
@@ -158,7 +158,7 @@ it('creates a team and returns 201', function () {
 
 it('gets a team', function () {
     $output = new TeamOutput('t-1', 'Dev Team', 'dev-team', null, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new GetTeamController($bus);
 
     $response = $controller('t-1');
@@ -169,7 +169,7 @@ it('gets a team', function () {
 
 it('updates a team', function () {
     $output = new TeamOutput('t-1', 'Updated', 'updated', null, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new UpdateTeamController($bus);
 
     $response = $controller('t-1', new UpdateTeamInput(name: 'Updated'));
@@ -179,7 +179,7 @@ it('updates a team', function () {
 });
 
 it('deletes a team and returns 204', function () {
-    $bus = stubIdentityBus();
+    $bus = \stubIdentityBus();
     $controller = new DeleteTeamController($bus);
 
     $response = $controller('t-1');
@@ -190,7 +190,7 @@ it('deletes a team and returns 204', function () {
 
 it('lists teams with pagination', function () {
     $listOutput = new TeamListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubIdentityBus($listOutput);
+    $bus = \stubIdentityBus($listOutput);
     $controller = new ListTeamsController($bus);
 
     $response = $controller(Request::create('/api/identity/teams', 'GET'));
@@ -203,7 +203,7 @@ it('lists teams with pagination', function () {
 
 it('creates an access token and returns 201', function () {
     $output = new AccessTokenOutput('at-1', 'gitlab', ['api'], null, 'u-1', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new CreateAccessTokenController($bus);
     $user = UserFactory::create();
 
@@ -215,7 +215,7 @@ it('creates an access token and returns 201', function () {
 
 it('gets an access token', function () {
     $output = new AccessTokenOutput('at-1', 'gitlab', ['api'], null, 'u-1', '2026-01-01T00:00:00+00:00');
-    $bus = stubIdentityBus($output);
+    $bus = \stubIdentityBus($output);
     $controller = new GetAccessTokenController($bus);
 
     $response = $controller('at-1');
@@ -225,7 +225,7 @@ it('gets an access token', function () {
 });
 
 it('deletes an access token and returns 204', function () {
-    $bus = stubIdentityBus();
+    $bus = \stubIdentityBus();
     $controller = new DeleteAccessTokenController($bus);
 
     $response = $controller('at-1');
@@ -236,7 +236,7 @@ it('deletes an access token and returns 204', function () {
 
 it('lists access tokens with pagination', function () {
     $listOutput = new AccessTokenListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubIdentityBus($listOutput);
+    $bus = \stubIdentityBus($listOutput);
     $controller = new ListAccessTokensController($bus);
     $user = UserFactory::create();
 

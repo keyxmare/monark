@@ -18,22 +18,48 @@ function spyStackSyncTaskRepo(?SyncTask $existing = null): object
     return new class ($existing) implements SyncTaskRepositoryInterface {
         /** @var list<SyncTask> */
         public array $saved = [];
-        public function __construct(private readonly ?SyncTask $existing) {}
-        public function findById(Uuid $id): ?SyncTask { return null; }
-        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array { return []; }
-        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int { return 0; }
-        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask { return $this->existing; }
-        public function countGroupedByType(): array { return []; }
-        public function countGroupedBySeverity(): array { return []; }
-        public function countGroupedByStatus(): array { return []; }
-        public function save(SyncTask $syncTask): void { $this->saved[] = $syncTask; }
+        public function __construct(private readonly ?SyncTask $existing)
+        {
+        }
+        public function findById(Uuid $id): ?SyncTask
+        {
+            return null;
+        }
+        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int
+        {
+            return 0;
+        }
+        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask
+        {
+            return $this->existing;
+        }
+        public function countGroupedByType(): array
+        {
+            return [];
+        }
+        public function countGroupedBySeverity(): array
+        {
+            return [];
+        }
+        public function countGroupedByStatus(): array
+        {
+            return [];
+        }
+        public function save(SyncTask $syncTask): void
+        {
+            $this->saved[] = $syncTask;
+        }
     };
 }
 
 describe('CreateStackUpgradeTasksListener', function () {
     it('creates sync task for outdated PHP version', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -59,7 +85,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('skips current version stacks', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -77,7 +103,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('skips stacks with empty version', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -95,7 +121,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('skips unknown languages', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -113,7 +139,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('creates sync task for outdated Node version', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -133,7 +159,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('skips Node at current major version (22)', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -151,7 +177,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('creates task for Node version 21 (one behind)', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -169,7 +195,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('creates task for outdated TypeScript version', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -188,7 +214,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('skips TypeScript at current major version (5)', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -206,7 +232,7 @@ describe('CreateStackUpgradeTasksListener', function () {
 
     it('creates tasks for multiple outdated stacks', function () {
         $projectId = Uuid::v7()->toRfc4122();
-        $syncTaskRepo = spyStackSyncTaskRepo();
+        $syncTaskRepo = \spyStackSyncTaskRepo();
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -234,7 +260,7 @@ describe('CreateStackUpgradeTasksListener', function () {
             projectId: $projectId,
         );
 
-        $syncTaskRepo = spyStackSyncTaskRepo($existingTask);
+        $syncTaskRepo = \spyStackSyncTaskRepo($existingTask);
 
         $listener = new CreateStackUpgradeTasksListener($syncTaskRepo);
         $listener(new ProjectScannedEvent(

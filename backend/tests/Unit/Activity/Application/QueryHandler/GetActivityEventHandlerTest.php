@@ -13,11 +13,24 @@ use Symfony\Component\Uid\Uuid;
 function stubGetActivityEventRepo(?ActivityEvent $event = null): ActivityEventRepositoryInterface
 {
     return new class ($event) implements ActivityEventRepositoryInterface {
-        public function __construct(private readonly ?ActivityEvent $event) {}
-        public function findById(Uuid $id): ?ActivityEvent { return $this->event; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(ActivityEvent $event): void {}
+        public function __construct(private readonly ?ActivityEvent $event)
+        {
+        }
+        public function findById(Uuid $id): ?ActivityEvent
+        {
+            return $this->event;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(ActivityEvent $event): void
+        {
+        }
     };
 }
 
@@ -31,7 +44,7 @@ describe('GetActivityEventHandler', function () {
             userId: '00000000-0000-0000-0000-000000000001',
         );
 
-        $handler = new GetActivityEventHandler(stubGetActivityEventRepo($event));
+        $handler = new GetActivityEventHandler(\stubGetActivityEventRepo($event));
         $result = $handler(new GetActivityEventQuery($event->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(ActivityEventOutput::class);
@@ -40,7 +53,7 @@ describe('GetActivityEventHandler', function () {
     });
 
     it('throws not found when event does not exist', function () {
-        $handler = new GetActivityEventHandler(stubGetActivityEventRepo(null));
+        $handler = new GetActivityEventHandler(\stubGetActivityEventRepo(null));
         $handler(new GetActivityEventQuery('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

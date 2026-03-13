@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Identity\Infrastructure\Security;
 
 use App\Identity\Domain\Repository\UserRepositoryInterface;
+use DateTimeImmutable;
+use SensitiveParameter;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\AccessToken\AccessTokenHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -20,14 +22,14 @@ final readonly class ApiTokenHandler implements AccessTokenHandlerInterface
 
     public function createToken(string $userId): string
     {
-        $expiresAt = (new \DateTimeImmutable('+24 hours'))->getTimestamp();
+        $expiresAt = (new DateTimeImmutable('+24 hours'))->getTimestamp();
         $payload = $userId . '|' . $expiresAt;
         $signature = \hash_hmac('sha256', $payload, $this->appSecret);
 
         return \base64_encode($payload . '|' . $signature);
     }
 
-    public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge
+    public function getUserBadgeFrom(#[SensitiveParameter] string $accessToken): UserBadge
     {
         $decoded = \base64_decode($accessToken, true);
         if ($decoded === false) {

@@ -12,7 +12,6 @@ final readonly class CreateAttemptInput
         #[Assert\NotBlank]
         #[Assert\Uuid]
         public string $userId,
-
         #[Assert\NotBlank]
         #[Assert\Uuid]
         public string $quizId,

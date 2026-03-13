@@ -59,7 +59,7 @@ function stubResourceBus(mixed $result = null): MessageBusInterface&stdClass
 
 it('creates a pipeline and returns 201', function () {
     $output = new PipelineOutput('pipe-1', 'ext-1', 'main', 'running', 120, '2026-01-01T00:00:00+00:00', null, 'proj-1', '2026-01-01T00:00:00+00:00');
-    $bus = stubResourceBus($output);
+    $bus = \stubResourceBus($output);
     $controller = new CreatePipelineController($bus);
 
     $input = new CreatePipelineInput(
@@ -80,7 +80,7 @@ it('creates a pipeline and returns 201', function () {
 
 it('gets a pipeline and returns 200', function () {
     $output = new PipelineOutput('pipe-1', 'ext-1', 'main', 'success', 60, '2026-01-01T00:00:00+00:00', '2026-01-01T00:01:00+00:00', 'proj-1', '2026-01-01T00:00:00+00:00');
-    $bus = stubResourceBus($output);
+    $bus = \stubResourceBus($output);
     $controller = new GetPipelineController($bus);
 
     $response = $controller('pipe-1');
@@ -91,7 +91,7 @@ it('gets a pipeline and returns 200', function () {
 
 it('lists pipelines with filters', function () {
     $listOutput = new PipelineListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubResourceBus($listOutput);
+    $bus = \stubResourceBus($listOutput);
     $controller = new ListPipelinesController($bus);
 
     $request = Request::create('/api/catalog/pipelines', 'GET', ['project_id' => 'proj-1', 'ref' => 'main']);
@@ -109,7 +109,7 @@ it('lists pipelines with filters', function () {
 
 it('creates a tech stack and returns 201', function () {
     $output = new TechStackOutput('ts-1', 'PHP', 'Symfony', '8.0', '', '2026-01-01T00:00:00+00:00', 'proj-1', '2026-01-01T00:00:00+00:00');
-    $bus = stubResourceBus($output);
+    $bus = \stubResourceBus($output);
     $controller = new CreateTechStackController($bus);
 
     $input = new CreateTechStackInput(
@@ -127,7 +127,7 @@ it('creates a tech stack and returns 201', function () {
 
 it('gets a tech stack and returns 200', function () {
     $output = new TechStackOutput('ts-1', 'PHP', 'Symfony', '8.0', '', '2026-01-01T00:00:00+00:00', 'proj-1', '2026-01-01T00:00:00+00:00');
-    $bus = stubResourceBus($output);
+    $bus = \stubResourceBus($output);
     $controller = new GetTechStackController($bus);
 
     $response = $controller('ts-1');
@@ -137,7 +137,7 @@ it('gets a tech stack and returns 200', function () {
 });
 
 it('deletes a tech stack and returns 204', function () {
-    $bus = stubResourceBus();
+    $bus = \stubResourceBus();
     $controller = new DeleteTechStackController($bus);
 
     $response = $controller('ts-1');
@@ -148,7 +148,7 @@ it('deletes a tech stack and returns 204', function () {
 
 it('lists tech stacks with project filter', function () {
     $listOutput = new TechStackListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubResourceBus($listOutput);
+    $bus = \stubResourceBus($listOutput);
     $controller = new ListTechStacksController($bus);
 
     $request = Request::create('/api/catalog/tech-stacks', 'GET', ['project_id' => 'proj-1']);
@@ -162,7 +162,7 @@ it('lists tech stacks with project filter', function () {
 });
 
 it('gets a merge request and returns 200', function () {
-    $bus = stubResourceBus(['id' => 'mr-1', 'title' => 'Fix bug']);
+    $bus = \stubResourceBus(['id' => 'mr-1', 'title' => 'Fix bug']);
     $controller = new GetMergeRequestController($bus);
 
     $response = $controller('mr-1');
@@ -173,7 +173,7 @@ it('gets a merge request and returns 200', function () {
 
 it('lists merge requests with filters', function () {
     $listOutput = new MergeRequestListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubResourceBus($listOutput);
+    $bus = \stubResourceBus($listOutput);
     $controller = new ListMergeRequestsController($bus);
 
     $request = Request::create('/api/catalog/projects/proj-1/merge-requests', 'GET', ['status' => 'open', 'author' => 'jdoe']);

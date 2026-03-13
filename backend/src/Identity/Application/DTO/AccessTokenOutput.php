@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Application\DTO;
 
 use App\Identity\Domain\Model\AccessToken;
+use DateTimeInterface;
 
 final readonly class AccessTokenOutput
 {
@@ -25,9 +26,9 @@ final readonly class AccessTokenOutput
             id: $token->getId()->toRfc4122(),
             provider: $token->getProvider()->value,
             scopes: $token->getScopes(),
-            expiresAt: $token->getExpiresAt()?->format(\DateTimeInterface::ATOM),
+            expiresAt: $token->getExpiresAt()?->format(DateTimeInterface::ATOM),
             userId: $token->getUser()->getId()->toRfc4122(),
-            createdAt: $token->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $token->getCreatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

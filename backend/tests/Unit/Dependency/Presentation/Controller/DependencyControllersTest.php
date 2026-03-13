@@ -62,7 +62,7 @@ $uuid = 'a0000000-0000-0000-0000-000000000001';
 
 it('creates a dependency and returns 201', function () use ($ts, $uuid) {
     $output = new DependencyOutput('d-1', 'symfony/http-kernel', '7.2.0', '8.0.0', '7.4.0', 'composer', 'runtime', true, $uuid, null, 0, $ts, $ts);
-    $bus = stubDependencyBus($output);
+    $bus = \stubDependencyBus($output);
     $controller = new CreateDependencyController($bus);
 
     $input = new CreateDependencyInput(
@@ -83,7 +83,7 @@ it('creates a dependency and returns 201', function () use ($ts, $uuid) {
 
 it('gets a dependency', function () use ($ts, $uuid) {
     $output = new DependencyOutput('d-1', 'symfony/http-kernel', '7.2.0', '8.0.0', '7.4.0', 'composer', 'runtime', true, $uuid, null, 0, $ts, $ts);
-    $bus = stubDependencyBus($output);
+    $bus = \stubDependencyBus($output);
     $response = (new GetDependencyController($bus))('d-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -92,7 +92,7 @@ it('gets a dependency', function () use ($ts, $uuid) {
 
 it('updates a dependency', function () use ($ts, $uuid) {
     $output = new DependencyOutput('d-1', 'symfony/http-kernel', '8.0.0', '8.0.0', '7.4.0', 'composer', 'runtime', false, $uuid, null, 0, $ts, $ts);
-    $bus = stubDependencyBus($output);
+    $bus = \stubDependencyBus($output);
     $response = (new UpdateDependencyController($bus))('d-1', new UpdateDependencyInput(currentVersion: '8.0.0', isOutdated: false));
 
     expect($response->getStatusCode())->toBe(200);
@@ -100,7 +100,7 @@ it('updates a dependency', function () use ($ts, $uuid) {
 });
 
 it('deletes a dependency and returns 204', function () {
-    $bus = stubDependencyBus();
+    $bus = \stubDependencyBus();
     $response = (new DeleteDependencyController($bus))('d-1');
 
     expect($response->getStatusCode())->toBe(204);
@@ -108,7 +108,7 @@ it('deletes a dependency and returns 204', function () {
 });
 
 it('lists dependencies with project filter', function () {
-    $bus = stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['project_id' => 'p-1']));
 
     expect($response->getStatusCode())->toBe(200);
@@ -119,7 +119,7 @@ it('lists dependencies with project filter', function () {
 
 it('creates a vulnerability and returns 201', function () use ($ts, $uuid) {
     $output = new VulnerabilityOutput('v-1', 'CVE-2026-0001', 'critical', 'RCE in parser', 'Remote code execution', '8.0.1', 'open', $ts, $uuid, 'symfony/http-kernel', $ts, $ts);
-    $bus = stubDependencyBus($output);
+    $bus = \stubDependencyBus($output);
     $input = new CreateVulnerabilityInput(
         cveId: 'CVE-2026-0001',
         severity: 'critical',
@@ -138,7 +138,7 @@ it('creates a vulnerability and returns 201', function () use ($ts, $uuid) {
 
 it('gets a vulnerability', function () use ($ts, $uuid) {
     $output = new VulnerabilityOutput('v-1', 'CVE-2026-0001', 'critical', 'RCE', 'Desc', '8.0.1', 'open', $ts, $uuid, 'dep-name', $ts, $ts);
-    $bus = stubDependencyBus($output);
+    $bus = \stubDependencyBus($output);
     $response = (new GetVulnerabilityController($bus))('v-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -147,7 +147,7 @@ it('gets a vulnerability', function () use ($ts, $uuid) {
 
 it('updates a vulnerability', function () use ($ts, $uuid) {
     $output = new VulnerabilityOutput('v-1', 'CVE-2026-0001', 'critical', 'RCE', 'Desc', '8.0.1', 'fixed', $ts, $uuid, 'dep-name', $ts, $ts);
-    $bus = stubDependencyBus($output);
+    $bus = \stubDependencyBus($output);
     $response = (new UpdateVulnerabilityController($bus))('v-1', new UpdateVulnerabilityInput(status: 'fixed'));
 
     expect($response->getStatusCode())->toBe(200);
@@ -155,7 +155,7 @@ it('updates a vulnerability', function () use ($ts, $uuid) {
 });
 
 it('lists vulnerabilities', function () {
-    $bus = stubDependencyBus(new VulnerabilityListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubDependencyBus(new VulnerabilityListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $response = (new ListVulnerabilitiesController($bus))(Request::create('/api/dependency/vulnerabilities'));
 
     expect($response->getStatusCode())->toBe(200);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Dependency\Application\DTO;
 
 use App\Dependency\Domain\Model\Dependency;
+use DateTimeInterface;
 
 final readonly class DependencyOutput
 {
@@ -39,8 +40,8 @@ final readonly class DependencyOutput
             projectId: $dependency->getProject()->getId()->toRfc4122(),
             repositoryUrl: $dependency->getRepositoryUrl(),
             vulnerabilityCount: $dependency->getVulnerabilityCount(),
-            createdAt: $dependency->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $dependency->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $dependency->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $dependency->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

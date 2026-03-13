@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\DTO;
 
 use App\Catalog\Domain\Model\TechStack;
+use DateTimeInterface;
 
 final readonly class TechStackOutput
 {
@@ -28,9 +29,9 @@ final readonly class TechStackOutput
             framework: $techStack->getFramework(),
             version: $techStack->getVersion(),
             frameworkVersion: $techStack->getFrameworkVersion(),
-            detectedAt: $techStack->getDetectedAt()->format(\DateTimeInterface::ATOM),
+            detectedAt: $techStack->getDetectedAt()->format(DateTimeInterface::ATOM),
             projectId: $techStack->getProject()->getId()->toRfc4122(),
-            createdAt: $techStack->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $techStack->getCreatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Assessment\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,10 +42,10 @@ final class Question
     private Collection $answers;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     private function __construct(
         Uuid $id,
@@ -63,8 +64,8 @@ final class Question
         $this->position = $position;
         $this->quiz = $quiz;
         $this->answers = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -136,12 +137,12 @@ final class Question
         return $this->answers->count();
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -168,7 +169,7 @@ final class Question
         if ($position !== null) {
             $this->position = $position;
         }
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function addAnswer(Answer $answer): void

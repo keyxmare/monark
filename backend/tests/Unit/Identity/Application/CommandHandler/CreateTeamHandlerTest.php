@@ -14,19 +14,38 @@ function stubCreateTeamRepo(?Team $findBySlugResult = null): TeamRepositoryInter
 {
     return new class ($findBySlugResult) implements TeamRepositoryInterface {
         public ?Team $saved = null;
-        public function __construct(private readonly ?Team $findBySlugResult) {}
-        public function findById(Uuid $id): ?Team { return null; }
-        public function findBySlug(string $slug): ?Team { return $this->findBySlugResult; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Team $team): void { $this->saved = $team; }
-        public function delete(Team $team): void {}
+        public function __construct(private readonly ?Team $findBySlugResult)
+        {
+        }
+        public function findById(Uuid $id): ?Team
+        {
+            return null;
+        }
+        public function findBySlug(string $slug): ?Team
+        {
+            return $this->findBySlugResult;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Team $team): void
+        {
+            $this->saved = $team;
+        }
+        public function delete(Team $team): void
+        {
+        }
     };
 }
 
 describe('CreateTeamHandler', function () {
     it('creates a team successfully', function () {
-        $repo = stubCreateTeamRepo(null);
+        $repo = \stubCreateTeamRepo(null);
         $handler = new CreateTeamHandler($repo);
 
         $input = new CreateTeamInput(
@@ -46,7 +65,7 @@ describe('CreateTeamHandler', function () {
 
     it('throws exception when slug already exists', function () {
         $existingTeam = Team::create(name: 'Engineering', slug: 'engineering');
-        $handler = new CreateTeamHandler(stubCreateTeamRepo($existingTeam));
+        $handler = new CreateTeamHandler(\stubCreateTeamRepo($existingTeam));
 
         $input = new CreateTeamInput(name: 'Engineering', slug: 'engineering');
         $handler(new CreateTeamCommand($input));

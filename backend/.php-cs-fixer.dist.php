@@ -14,6 +14,7 @@ return (new PhpCsFixer\Config())
         'strict_param' => true,
         'native_function_invocation' => [
             'include' => ['@all'],
+            'exclude' => ['it', 'test', 'expect', 'describe', 'beforeEach', 'afterEach', 'beforeAll', 'afterAll', 'dataset', 'covers', 'uses', 'pest'],
             'scope' => 'all',
             'strict' => true,
         ],

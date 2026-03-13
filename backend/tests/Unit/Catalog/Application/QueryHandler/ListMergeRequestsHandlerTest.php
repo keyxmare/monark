@@ -18,15 +18,38 @@ function stubListMRRepo(array $items = [], int $count = 0): MergeRequestReposito
         public function __construct(
             private readonly array $items,
             private readonly int $count,
-        ) {}
-        public function findById(Uuid $id): ?MergeRequest { return null; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array { return $this->items; }
-        public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest { return null; }
-        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int { return $this->count; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(MergeRequest $mergeRequest): void {}
-        public function delete(MergeRequest $mergeRequest): void {}
+        ) {
+        }
+        public function findById(Uuid $id): ?MergeRequest
+        {
+            return null;
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array
+        {
+            return $this->items;
+        }
+        public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest
+        {
+            return null;
+        }
+        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int
+        {
+            return $this->count;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(MergeRequest $mergeRequest): void
+        {
+        }
+        public function delete(MergeRequest $mergeRequest): void
+        {
+        }
     };
 }
 
@@ -51,7 +74,7 @@ describe('ListMergeRequestsHandler', function () {
             project: $project,
         );
 
-        $handler = new ListMergeRequestsHandler(stubListMRRepo([$mr], 1));
+        $handler = new ListMergeRequestsHandler(\stubListMRRepo([$mr], 1));
         $result = $handler(new ListMergeRequestsQuery($project->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(MergeRequestListOutput::class);
@@ -64,7 +87,7 @@ describe('ListMergeRequestsHandler', function () {
     });
 
     it('returns empty list for project with no MRs', function () {
-        $handler = new ListMergeRequestsHandler(stubListMRRepo([], 0));
+        $handler = new ListMergeRequestsHandler(\stubListMRRepo([], 0));
         $result = $handler(new ListMergeRequestsQuery(Uuid::v7()->toRfc4122()));
 
         expect($result->pagination->items)->toBeEmpty();

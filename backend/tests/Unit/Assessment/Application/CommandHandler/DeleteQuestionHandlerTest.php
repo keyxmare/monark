@@ -17,14 +17,36 @@ function stubDeleteQuestionRepo(?Question $question = null): QuestionRepositoryI
 {
     return new class ($question) implements QuestionRepositoryInterface {
         public bool $deleted = false;
-        public function __construct(private readonly ?Question $question) {}
-        public function findById(Uuid $id): ?Question { return $this->question; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function countByQuizId(Uuid $quizId): int { return 0; }
-        public function save(Question $question): void {}
-        public function delete(Question $question): void { $this->deleted = true; }
+        public function __construct(private readonly ?Question $question)
+        {
+        }
+        public function findById(Uuid $id): ?Question
+        {
+            return $this->question;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function countByQuizId(Uuid $quizId): int
+        {
+            return 0;
+        }
+        public function save(Question $question): void
+        {
+        }
+        public function delete(Question $question): void
+        {
+            $this->deleted = true;
+        }
     };
 }
 
@@ -40,7 +62,7 @@ describe('DeleteQuestionHandler', function () {
             quiz: $quiz,
         );
 
-        $repo = stubDeleteQuestionRepo($question);
+        $repo = \stubDeleteQuestionRepo($question);
         $handler = new DeleteQuestionHandler($repo);
 
         $handler(new DeleteQuestionCommand($question->getId()->toRfc4122()));
@@ -49,7 +71,7 @@ describe('DeleteQuestionHandler', function () {
     });
 
     it('throws not found when question does not exist', function () {
-        $handler = new DeleteQuestionHandler(stubDeleteQuestionRepo(null));
+        $handler = new DeleteQuestionHandler(\stubDeleteQuestionRepo(null));
         $handler(new DeleteQuestionCommand('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

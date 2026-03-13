@@ -13,12 +13,28 @@ use Symfony\Component\Uid\Uuid;
 function stubGetUserRepo(?User $user = null): UserRepositoryInterface
 {
     return new class ($user) implements UserRepositoryInterface {
-        public function __construct(private readonly ?User $user) {}
-        public function findById(Uuid $id): ?User { return $this->user; }
-        public function findByEmail(string $email): ?User { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(User $user): void {}
+        public function __construct(private readonly ?User $user)
+        {
+        }
+        public function findById(Uuid $id): ?User
+        {
+            return $this->user;
+        }
+        public function findByEmail(string $email): ?User
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(User $user): void
+        {
+        }
     };
 }
 
@@ -31,7 +47,7 @@ describe('GetUserHandler', function () {
             lastName: 'Doe',
         );
 
-        $handler = new GetUserHandler(stubGetUserRepo($user));
+        $handler = new GetUserHandler(\stubGetUserRepo($user));
         $result = $handler(new GetUserQuery($user->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(UserOutput::class);
@@ -40,7 +56,7 @@ describe('GetUserHandler', function () {
     });
 
     it('throws not found when user does not exist', function () {
-        $handler = new GetUserHandler(stubGetUserRepo(null));
+        $handler = new GetUserHandler(\stubGetUserRepo(null));
         $handler(new GetUserQuery('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

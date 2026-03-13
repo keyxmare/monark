@@ -7,6 +7,7 @@ namespace App\Shared\Infrastructure\Controller;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
 
 final readonly class HealthController
 {
@@ -27,7 +28,7 @@ final readonly class HealthController
                     'database' => 'ok',
                 ],
             ]);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return new JsonResponse([
                 'status' => 'unhealthy',
                 'checks' => [

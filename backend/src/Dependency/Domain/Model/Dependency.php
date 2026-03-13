@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Dependency\Domain\Model;
 
 use App\Catalog\Domain\Model\Project;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -51,10 +52,10 @@ final class Dependency
     private Collection $vulnerabilities;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     private function __construct(
         Uuid $id,
@@ -79,8 +80,8 @@ final class Dependency
         $this->project = $project;
         $this->repositoryUrl = $repositoryUrl;
         $this->vulnerabilities = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -174,12 +175,12 @@ final class Dependency
         return $this->vulnerabilities->count();
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -221,6 +222,6 @@ final class Dependency
         } elseif ($clearRepositoryUrl) {
             $this->repositoryUrl = null;
         }
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 }

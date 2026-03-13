@@ -17,40 +17,92 @@ use Tests\Factory\Catalog\ProjectFactory;
 function stubCreateTechStackProjectRepo(?Project $project = null): ProjectRepositoryInterface
 {
     return new class ($project) implements ProjectRepositoryInterface {
-        public function __construct(private readonly ?Project $project) {}
-        public function findById(Uuid $id): ?Project { return $this->project; }
-        public function findBySlug(string $slug): ?Project { return null; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void {}
-        public function delete(Project $project): void {}
+        public function __construct(private readonly ?Project $project)
+        {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return $this->project;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return null;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 }
 
 function stubCreateTechStackRepo(): TechStackRepositoryInterface
 {
-    return new class implements TechStackRepositoryInterface {
+    return new class () implements TechStackRepositoryInterface {
         public ?TechStack $saved = null;
-        public function findById(Uuid $id): ?TechStack { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function count(): int { return 0; }
-        public function save(TechStack $techStack): void { $this->saved = $techStack; }
-        public function delete(TechStack $techStack): void {}
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function findById(Uuid $id): ?TechStack
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(TechStack $techStack): void
+        {
+            $this->saved = $techStack;
+        }
+        public function delete(TechStack $techStack): void
+        {
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
 describe('CreateTechStackHandler', function () {
     it('creates a tech stack successfully', function () {
         $project = ProjectFactory::create();
-        $tsRepo = stubCreateTechStackRepo();
-        $projectRepo = stubCreateTechStackProjectRepo($project);
+        $tsRepo = \stubCreateTechStackRepo();
+        $projectRepo = \stubCreateTechStackProjectRepo($project);
         $handler = new CreateTechStackHandler($tsRepo, $projectRepo);
 
         $input = new CreateTechStackInput(
@@ -72,8 +124,8 @@ describe('CreateTechStackHandler', function () {
 
     it('throws not found when project does not exist', function () {
         $handler = new CreateTechStackHandler(
-            stubCreateTechStackRepo(),
-            stubCreateTechStackProjectRepo(null),
+            \stubCreateTechStackRepo(),
+            \stubCreateTechStackProjectRepo(null),
         );
 
         $input = new CreateTechStackInput(

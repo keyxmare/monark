@@ -15,25 +15,55 @@ use Symfony\Component\Uid\Uuid;
 
 function stubAccessTokenRepo(): AccessTokenRepositoryInterface
 {
-    return new class implements AccessTokenRepositoryInterface {
+    return new class () implements AccessTokenRepositoryInterface {
         public ?AccessToken $saved = null;
-        public function findById(Uuid $id): ?AccessToken { return null; }
-        public function findByUser(Uuid $userId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByUser(Uuid $userId): int { return 0; }
-        public function save(AccessToken $accessToken): void { $this->saved = $accessToken; }
-        public function delete(AccessToken $accessToken): void {}
+        public function findById(Uuid $id): ?AccessToken
+        {
+            return null;
+        }
+        public function findByUser(Uuid $userId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByUser(Uuid $userId): int
+        {
+            return 0;
+        }
+        public function save(AccessToken $accessToken): void
+        {
+            $this->saved = $accessToken;
+        }
+        public function delete(AccessToken $accessToken): void
+        {
+        }
     };
 }
 
 function stubUserRepoForToken(?User $user = null): UserRepositoryInterface
 {
     return new class ($user) implements UserRepositoryInterface {
-        public function __construct(private readonly ?User $user) {}
-        public function findById(Uuid $id): ?User { return $this->user; }
-        public function findByEmail(string $email): ?User { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(User $user): void {}
+        public function __construct(private readonly ?User $user)
+        {
+        }
+        public function findById(Uuid $id): ?User
+        {
+            return $this->user;
+        }
+        public function findByEmail(string $email): ?User
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(User $user): void
+        {
+        }
     };
 }
 
@@ -47,8 +77,8 @@ describe('CreateAccessTokenHandler', function () {
         );
 
         $userId = $user->getId()->toRfc4122();
-        $tokenRepo = stubAccessTokenRepo();
-        $handler = new CreateAccessTokenHandler($tokenRepo, stubUserRepoForToken($user));
+        $tokenRepo = \stubAccessTokenRepo();
+        $handler = new CreateAccessTokenHandler($tokenRepo, \stubUserRepoForToken($user));
 
         $input = new CreateAccessTokenInput(
             provider: 'gitlab',
@@ -67,8 +97,8 @@ describe('CreateAccessTokenHandler', function () {
 
     it('throws not found when user does not exist', function () {
         $handler = new CreateAccessTokenHandler(
-            stubAccessTokenRepo(),
-            stubUserRepoForToken(null),
+            \stubAccessTokenRepo(),
+            \stubUserRepoForToken(null),
         );
 
         $input = new CreateAccessTokenInput(provider: 'gitlab', token: 'glpat-test', scopes: []);

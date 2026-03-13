@@ -15,15 +15,38 @@ use Symfony\Component\Uid\Uuid;
 function stubGetDependencyRepo(?Dependency $dependency = null): DependencyRepositoryInterface
 {
     return new class ($dependency) implements DependencyRepositoryInterface {
-        public function __construct(private readonly ?Dependency $dependency) {}
-        public function findById(Uuid $id): ?Dependency { return $this->dependency; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Dependency $dependency): void {}
-        public function delete(Dependency $dependency): void {}
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function __construct(private readonly ?Dependency $dependency)
+        {
+        }
+        public function findById(Uuid $id): ?Dependency
+        {
+            return $this->dependency;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Dependency $dependency): void
+        {
+        }
+        public function delete(Dependency $dependency): void
+        {
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
@@ -40,7 +63,7 @@ describe('GetDependencyHandler', function () {
             project: Tests\Factory\Catalog\ProjectFactory::create(),
         );
 
-        $handler = new GetDependencyHandler(stubGetDependencyRepo($dependency));
+        $handler = new GetDependencyHandler(\stubGetDependencyRepo($dependency));
         $result = $handler(new GetDependencyQuery($dependency->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(DependencyOutput::class);
@@ -49,7 +72,7 @@ describe('GetDependencyHandler', function () {
     });
 
     it('throws not found when dependency does not exist', function () {
-        $handler = new GetDependencyHandler(stubGetDependencyRepo(null));
+        $handler = new GetDependencyHandler(\stubGetDependencyRepo(null));
         $handler(new GetDependencyQuery('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

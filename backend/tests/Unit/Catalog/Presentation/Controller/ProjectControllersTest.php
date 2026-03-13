@@ -49,7 +49,7 @@ function stubProjectBus(mixed $result = null): MessageBusInterface&stdClass
 
 it('creates a project and returns 201', function () {
     $output = new ProjectOutput('uuid-1', 'Monark', 'monark', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubProjectBus($output);
+    $bus = \stubProjectBus($output);
     $controller = new CreateProjectController($bus);
 
     $input = new CreateProjectInput(name: 'Monark', slug: 'monark', repositoryUrl: 'https://github.com/x/y', ownerId: 'a0000000-0000-0000-0000-000000000001');
@@ -64,7 +64,7 @@ it('creates a project and returns 201', function () {
 
 it('gets a project and returns 200', function () {
     $output = new ProjectOutput('uuid-1', 'Monark', 'monark', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubProjectBus($output);
+    $bus = \stubProjectBus($output);
     $controller = new GetProjectController($bus);
 
     $response = $controller('uuid-1');
@@ -78,7 +78,7 @@ it('gets a project and returns 200', function () {
 
 it('updates a project and returns 200', function () {
     $output = new ProjectOutput('uuid-1', 'Updated', 'updated', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
-    $bus = stubProjectBus($output);
+    $bus = \stubProjectBus($output);
     $controller = new UpdateProjectController($bus);
 
     $input = new UpdateProjectInput(name: 'Updated');
@@ -92,7 +92,7 @@ it('updates a project and returns 200', function () {
 });
 
 it('deletes a project and returns 204', function () {
-    $bus = stubProjectBus();
+    $bus = \stubProjectBus();
     $controller = new DeleteProjectController($bus);
 
     $response = $controller('uuid-1');
@@ -104,7 +104,7 @@ it('deletes a project and returns 204', function () {
 
 it('lists projects and returns paginated 200', function () {
     $listOutput = new ProjectListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubProjectBus($listOutput);
+    $bus = \stubProjectBus($listOutput);
     $controller = new ListProjectsController($bus);
 
     $request = Request::create('/api/catalog/projects', 'GET', ['page' => 2, 'per_page' => 10]);
@@ -121,7 +121,7 @@ it('lists projects and returns paginated 200', function () {
 
 it('lists projects with default pagination', function () {
     $listOutput = new ProjectListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubProjectBus($listOutput);
+    $bus = \stubProjectBus($listOutput);
     $controller = new ListProjectsController($bus);
 
     $request = Request::create('/api/catalog/projects', 'GET');
@@ -134,7 +134,7 @@ it('lists projects with default pagination', function () {
 });
 
 it('scans a project and returns 202', function () {
-    $bus = stubProjectBus();
+    $bus = \stubProjectBus();
     $controller = new ScanProjectController($bus);
 
     $response = $controller('uuid-1');

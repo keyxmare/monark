@@ -11,13 +11,10 @@ final readonly class UpdateProviderInput
     public function __construct(
         #[Assert\Length(min: 1, max: 255)]
         public ?string $name = null,
-
         #[Assert\Url]
         #[Assert\Length(max: 500)]
         public ?string $url = null,
-
         public ?string $apiToken = null,
-
         #[Assert\Length(max: 255)]
         public ?string $username = null,
     ) {

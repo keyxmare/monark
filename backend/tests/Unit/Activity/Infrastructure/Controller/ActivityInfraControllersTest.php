@@ -59,7 +59,7 @@ $ts = '2026-01-01T00:00:00+00:00';
 
 it('creates an activity event and returns 201', function () use ($ts) {
     $output = new ActivityEventOutput('ev-1', 'project.created', 'Project', 'p-1', ['name' => 'Monark'], $ts, 'u-1');
-    $bus = stubActivityInfraBus($output);
+    $bus = \stubActivityInfraBus($output);
     $input = new CreateActivityEventInput(type: 'project.created', entityType: 'Project', entityId: 'p-1', payload: ['name' => 'Monark'], userId: 'u-1');
     $response = (new CreateActivityEventController($bus))($input);
 
@@ -69,7 +69,7 @@ it('creates an activity event and returns 201', function () use ($ts) {
 
 it('gets an activity event', function () use ($ts) {
     $output = new ActivityEventOutput('ev-1', 'project.created', 'Project', 'p-1', [], $ts, 'u-1');
-    $bus = stubActivityInfraBus($output);
+    $bus = \stubActivityInfraBus($output);
     $response = (new GetActivityEventController($bus))('ev-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -77,7 +77,7 @@ it('gets an activity event', function () use ($ts) {
 });
 
 it('lists activity events', function () {
-    $bus = stubActivityInfraBus(new ActivityEventListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubActivityInfraBus(new ActivityEventListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $response = (new ListActivityEventsController($bus))(Request::create('/api/activity/events'));
 
     expect($response->getStatusCode())->toBe(200);
@@ -88,7 +88,7 @@ it('lists activity events', function () {
 
 it('creates a notification and returns 201', function () use ($ts) {
     $output = new NotificationOutput('n-1', 'Alert', 'Something happened', 'in_app', null, 'u-1', $ts);
-    $bus = stubActivityInfraBus($output);
+    $bus = \stubActivityInfraBus($output);
     $input = new CreateNotificationInput(title: 'Alert', message: 'Something happened', channel: 'in_app', userId: 'u-1');
     $response = (new CreateNotificationController($bus))($input);
 
@@ -98,7 +98,7 @@ it('creates a notification and returns 201', function () use ($ts) {
 
 it('gets a notification', function () use ($ts) {
     $output = new NotificationOutput('n-1', 'Alert', 'Something happened', 'in_app', null, 'u-1', $ts);
-    $bus = stubActivityInfraBus($output);
+    $bus = \stubActivityInfraBus($output);
     $response = (new GetNotificationController($bus))('n-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -107,7 +107,7 @@ it('gets a notification', function () use ($ts) {
 
 it('marks a notification as read', function () use ($ts) {
     $output = new NotificationOutput('n-1', 'Alert', 'Something happened', 'in_app', $ts, 'u-1', $ts);
-    $bus = stubActivityInfraBus($output);
+    $bus = \stubActivityInfraBus($output);
     $response = (new UpdateNotificationController($bus))('n-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -115,7 +115,7 @@ it('marks a notification as read', function () use ($ts) {
 });
 
 it('lists notifications for current user', function () {
-    $bus = stubActivityInfraBus(new NotificationListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubActivityInfraBus(new NotificationListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $user = UserFactory::create();
     $response = (new ListNotificationsController($bus))($user, Request::create('/api/activity/notifications'));
 
@@ -126,7 +126,7 @@ it('lists notifications for current user', function () {
 });
 
 it('gets dashboard for current user', function () {
-    $bus = stubActivityInfraBus(new DashboardOutput(metrics: []));
+    $bus = \stubActivityInfraBus(new DashboardOutput(metrics: []));
     $user = UserFactory::create();
     $response = (new GetDashboardController($bus))($user);
 

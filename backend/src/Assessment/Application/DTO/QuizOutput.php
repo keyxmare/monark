@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Assessment\Application\DTO;
 
 use App\Assessment\Domain\Model\Quiz;
+use DateTimeInterface;
 
 final readonly class QuizOutput
 {
@@ -34,13 +35,13 @@ final readonly class QuizOutput
             description: $quiz->getDescription(),
             type: $quiz->getType()->value,
             status: $quiz->getStatus()->value,
-            startsAt: $quiz->getStartsAt()?->format(\DateTimeInterface::ATOM),
-            endsAt: $quiz->getEndsAt()?->format(\DateTimeInterface::ATOM),
+            startsAt: $quiz->getStartsAt()?->format(DateTimeInterface::ATOM),
+            endsAt: $quiz->getEndsAt()?->format(DateTimeInterface::ATOM),
             timeLimit: $quiz->getTimeLimit(),
             authorId: $quiz->getAuthorId(),
             questionCount: $quiz->getQuestionCount(),
-            createdAt: $quiz->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $quiz->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $quiz->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $quiz->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

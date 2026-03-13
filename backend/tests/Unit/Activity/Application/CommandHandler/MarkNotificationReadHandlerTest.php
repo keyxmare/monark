@@ -15,12 +15,29 @@ function stubMarkReadNotificationRepo(?Notification $notification = null): Notif
 {
     return new class ($notification) implements NotificationRepositoryInterface {
         public ?Notification $saved = null;
-        public function __construct(private readonly ?Notification $notification) {}
-        public function findById(Uuid $id): ?Notification { return $this->notification; }
-        public function findByUser(string $userId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByUser(string $userId): int { return 0; }
-        public function countUnreadByUser(string $userId): int { return 0; }
-        public function save(Notification $notification): void { $this->saved = $notification; }
+        public function __construct(private readonly ?Notification $notification)
+        {
+        }
+        public function findById(Uuid $id): ?Notification
+        {
+            return $this->notification;
+        }
+        public function findByUser(string $userId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByUser(string $userId): int
+        {
+            return 0;
+        }
+        public function countUnreadByUser(string $userId): int
+        {
+            return 0;
+        }
+        public function save(Notification $notification): void
+        {
+            $this->saved = $notification;
+        }
     };
 }
 
@@ -33,7 +50,7 @@ describe('MarkNotificationReadHandler', function () {
             userId: '00000000-0000-0000-0000-000000000001',
         );
 
-        $repo = stubMarkReadNotificationRepo($notification);
+        $repo = \stubMarkReadNotificationRepo($notification);
         $handler = new MarkNotificationReadHandler($repo);
 
         $result = $handler(new MarkNotificationReadCommand($notification->getId()->toRfc4122()));
@@ -44,7 +61,7 @@ describe('MarkNotificationReadHandler', function () {
     });
 
     it('throws not found when notification does not exist', function () {
-        $handler = new MarkNotificationReadHandler(stubMarkReadNotificationRepo(null));
+        $handler = new MarkNotificationReadHandler(\stubMarkReadNotificationRepo(null));
         $handler(new MarkNotificationReadCommand('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

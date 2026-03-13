@@ -12,19 +12,34 @@ use Symfony\Component\Uid\Uuid;
 
 function stubNotificationRepoForCreate(): NotificationRepositoryInterface
 {
-    return new class implements NotificationRepositoryInterface {
+    return new class () implements NotificationRepositoryInterface {
         public ?Notification $saved = null;
-        public function findById(Uuid $id): ?Notification { return null; }
-        public function findByUser(string $userId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByUser(string $userId): int { return 0; }
-        public function countUnreadByUser(string $userId): int { return 0; }
-        public function save(Notification $notification): void { $this->saved = $notification; }
+        public function findById(Uuid $id): ?Notification
+        {
+            return null;
+        }
+        public function findByUser(string $userId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByUser(string $userId): int
+        {
+            return 0;
+        }
+        public function countUnreadByUser(string $userId): int
+        {
+            return 0;
+        }
+        public function save(Notification $notification): void
+        {
+            $this->saved = $notification;
+        }
     };
 }
 
 describe('CreateNotificationHandler', function () {
     it('creates a notification successfully', function () {
-        $repo = stubNotificationRepoForCreate();
+        $repo = \stubNotificationRepoForCreate();
         $handler = new CreateNotificationHandler($repo);
 
         $input = new CreateNotificationInput(

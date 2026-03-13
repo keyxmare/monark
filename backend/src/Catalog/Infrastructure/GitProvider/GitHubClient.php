@@ -8,8 +8,11 @@ use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteMergeRequest;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Throwable;
 
 final readonly class GitHubClient implements GitProviderInterface
 {
@@ -125,7 +128,7 @@ final readonly class GitHubClient implements GitProviderInterface
             ]);
 
             return $response->getStatusCode() === 200;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -157,7 +160,7 @@ final readonly class GitHubClient implements GitProviderInterface
             /** @var array{content?: string} $data */
             $data = $response->toArray();
 
-            return \base64_decode($data['content'] ?? '');
+            return \base64_decode($data['content'] ?? '', true) ?: null;
         } catch (ClientExceptionInterface $e) {
             if ($e->getResponse()->getStatusCode() === 404) {
                 return null;
@@ -168,7 +171,7 @@ final readonly class GitHubClient implements GitProviderInterface
     }
 
     /** @return list<RemoteMergeRequest> */
-    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
+    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?DateTimeImmutable $updatedAfter = null): array
     {
         $perPage = \min($perPage, 100);
         $url = \sprintf('%s/repos/%s/pulls', $this->baseUrl($provider), $externalProjectId);
@@ -191,7 +194,7 @@ final readonly class GitHubClient implements GitProviderInterface
         }
 
         if ($updatedAfter !== null) {
-            $query['since'] = $updatedAfter->format(\DateTimeInterface::ATOM);
+            $query['since'] = $updatedAfter->format(DateTimeInterface::ATOM);
         }
 
         $response = $this->httpClient->request('GET', $url, [

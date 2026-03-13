@@ -10,8 +10,8 @@ use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class ExceptionListener
 {

@@ -17,11 +17,24 @@ use Symfony\Component\Uid\Uuid;
 function stubListVulnRepo(array $vulnerabilities = [], int $count = 0): VulnerabilityRepositoryInterface
 {
     return new class ($vulnerabilities, $count) implements VulnerabilityRepositoryInterface {
-        public function __construct(private readonly array $vulnerabilities, private readonly int $count) {}
-        public function findById(Uuid $id): ?Vulnerability { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return $this->vulnerabilities; }
-        public function count(): int { return $this->count; }
-        public function save(Vulnerability $vulnerability): void {}
+        public function __construct(private readonly array $vulnerabilities, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?Vulnerability
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return $this->vulnerabilities;
+        }
+        public function count(): int
+        {
+            return $this->count;
+        }
+        public function save(Vulnerability $vulnerability): void
+        {
+        }
     };
 }
 
@@ -59,7 +72,7 @@ describe('ListVulnerabilitiesHandler', function () {
             dependency: $dependency,
         );
 
-        $handler = new ListVulnerabilitiesHandler(stubListVulnRepo([$vuln1, $vuln2], 2));
+        $handler = new ListVulnerabilitiesHandler(\stubListVulnRepo([$vuln1, $vuln2], 2));
         $result = $handler(new ListVulnerabilitiesQuery(1, 20));
 
         expect($result)->toBeInstanceOf(VulnerabilityListOutput::class);
@@ -68,7 +81,7 @@ describe('ListVulnerabilitiesHandler', function () {
     });
 
     it('returns empty list when no vulnerabilities', function () {
-        $handler = new ListVulnerabilitiesHandler(stubListVulnRepo([], 0));
+        $handler = new ListVulnerabilitiesHandler(\stubListVulnRepo([], 0));
         $result = $handler(new ListVulnerabilitiesQuery());
 
         expect($result->pagination->items)->toBeEmpty();

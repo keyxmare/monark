@@ -16,14 +16,35 @@ use Symfony\Component\Uid\Uuid;
 function stubListQuestionsRepo(array $questions = [], int $count = 0): QuestionRepositoryInterface
 {
     return new class ($questions, $count) implements QuestionRepositoryInterface {
-        public function __construct(private readonly array $questions, private readonly int $count) {}
-        public function findById(Uuid $id): ?Question { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return $this->questions; }
-        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array { return $this->questions; }
-        public function count(): int { return $this->count; }
-        public function countByQuizId(Uuid $quizId): int { return $this->count; }
-        public function save(Question $question): void {}
-        public function delete(Question $question): void {}
+        public function __construct(private readonly array $questions, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?Question
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return $this->questions;
+        }
+        public function findByQuizId(Uuid $quizId, int $page = 1, int $perPage = 20): array
+        {
+            return $this->questions;
+        }
+        public function count(): int
+        {
+            return $this->count;
+        }
+        public function countByQuizId(Uuid $quizId): int
+        {
+            return $this->count;
+        }
+        public function save(Question $question): void
+        {
+        }
+        public function delete(Question $question): void
+        {
+        }
     };
 }
 
@@ -33,7 +54,7 @@ describe('ListQuestionsHandler', function () {
         $q1 = Question::create(type: QuestionType::SingleChoice, content: 'Q1', level: QuestionLevel::Easy, score: 1, position: 1, quiz: $quiz);
         $q2 = Question::create(type: QuestionType::Text, content: 'Q2', level: QuestionLevel::Hard, score: 2, position: 2, quiz: $quiz);
 
-        $handler = new ListQuestionsHandler(stubListQuestionsRepo([$q1, $q2], 2));
+        $handler = new ListQuestionsHandler(\stubListQuestionsRepo([$q1, $q2], 2));
         $result = $handler(new ListQuestionsQuery(1, 20));
 
         expect($result)->toBeInstanceOf(QuestionListOutput::class);
@@ -42,7 +63,7 @@ describe('ListQuestionsHandler', function () {
     });
 
     it('returns empty list when no questions', function () {
-        $handler = new ListQuestionsHandler(stubListQuestionsRepo([], 0));
+        $handler = new ListQuestionsHandler(\stubListQuestionsRepo([], 0));
         $result = $handler(new ListQuestionsQuery());
 
         expect($result->pagination->items)->toBeEmpty();

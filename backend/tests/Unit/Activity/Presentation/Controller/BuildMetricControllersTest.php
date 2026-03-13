@@ -42,7 +42,7 @@ function stubBuildMetricBus(mixed $result = null): MessageBusInterface&stdClass
 
 it('creates a build metric and returns 201', function () {
     $output = new BuildMetricOutput('bm-1', 'proj-1', 'abc123', 'master', 82.6, 16.37, 76.55, '2026-01-01T00:00:00+00:00');
-    $bus = stubBuildMetricBus($output);
+    $bus = \stubBuildMetricBus($output);
     $controller = new CreateBuildMetricController($bus);
 
     $input = new CreateBuildMetricInput(commitSha: 'abc123', ref: 'master', backendCoverage: 82.6);
@@ -57,7 +57,7 @@ it('creates a build metric and returns 201', function () {
 
 it('lists build metrics with pagination', function () {
     $listOutput = new BuildMetricListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubBuildMetricBus($listOutput);
+    $bus = \stubBuildMetricBus($listOutput);
     $controller = new ListBuildMetricsController($bus);
 
     $request = Request::create('/api/activity/projects/proj-1/build-metrics', 'GET', ['page' => 2, 'per_page' => 10]);
@@ -73,7 +73,7 @@ it('lists build metrics with pagination', function () {
 
 it('lists build metrics with default pagination', function () {
     $listOutput = new BuildMetricListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = stubBuildMetricBus($listOutput);
+    $bus = \stubBuildMetricBus($listOutput);
     $controller = new ListBuildMetricsController($bus);
 
     $request = Request::create('/api/activity/projects/proj-1/build-metrics', 'GET');
@@ -87,7 +87,7 @@ it('lists build metrics with default pagination', function () {
 
 it('gets latest build metric', function () {
     $output = new BuildMetricOutput('bm-1', 'proj-1', 'abc123', 'master', 82.6, null, null, '2026-01-01T00:00:00+00:00');
-    $bus = stubBuildMetricBus($output);
+    $bus = \stubBuildMetricBus($output);
     $controller = new GetLatestBuildMetricController($bus);
 
     $response = $controller('proj-1');
@@ -100,7 +100,7 @@ it('gets latest build metric', function () {
 });
 
 it('returns null when no build metrics exist', function () {
-    $bus = stubBuildMetricBus(null);
+    $bus = \stubBuildMetricBus(null);
     $controller = new GetLatestBuildMetricController($bus);
 
     $response = $controller('proj-1');

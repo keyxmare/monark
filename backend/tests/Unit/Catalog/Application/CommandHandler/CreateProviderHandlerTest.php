@@ -11,7 +11,6 @@ use App\Catalog\Domain\Model\ProviderType;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitLabClient;
 use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
 use Symfony\Component\Uid\Uuid;
 
@@ -19,31 +18,74 @@ function stubProviderRepo(): ProviderRepositoryInterface
 {
     return new class () implements ProviderRepositoryInterface {
         public ?Provider $saved = null;
-        public function findById(Uuid $id): ?Provider { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Provider $provider): void { $this->saved = $provider; }
-        public function remove(Provider $provider): void {}
+        public function findById(Uuid $id): ?Provider
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Provider $provider): void
+        {
+            $this->saved = $provider;
+        }
+        public function remove(Provider $provider): void
+        {
+        }
     };
 }
 
 function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactory
 {
     $gitClient = new class ($connectionSuccess) implements GitProviderInterface {
-        public function __construct(private readonly bool $success) {}
-        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array { return []; }
-        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int { return 0; }
-        public function testConnection(Provider $provider): bool { return $this->success; }
-        public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
-        public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string { return null; }
-        public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array { return []; }
-        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array { return []; }
+        public function __construct(private readonly bool $success)
+        {
+        }
+        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
+        {
+            return [];
+        }
+        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int
+        {
+            return 0;
+        }
+        public function testConnection(Provider $provider): bool
+        {
+            return $this->success;
+        }
+        public function getProject(Provider $provider, string $externalId): RemoteProject
+        {
+            throw new \RuntimeException('Not implemented');
+        }
+        public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
+        {
+            return null;
+        }
+        public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array
+        {
+            return [];
+        }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
+        {
+            return [];
+        }
     };
 
     $factory = new class ($gitClient) extends GitProviderFactory {
         private GitProviderInterface $client;
-        public function __construct(GitProviderInterface $client) { $this->client = $client; }
-        public function create(Provider $provider): GitProviderInterface { return $this->client; }
+        public function __construct(GitProviderInterface $client)
+        {
+            $this->client = $client;
+        }
+        public function create(Provider $provider): GitProviderInterface
+        {
+            return $this->client;
+        }
     };
 
     return $factory;
@@ -51,8 +93,8 @@ function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactory
 
 describe('CreateProviderHandler', function () {
     it('creates a provider and marks connected on successful test', function () {
-        $repo = stubProviderRepo();
-        $factory = stubGitProviderFactory(true);
+        $repo = \stubProviderRepo();
+        $factory = \stubGitProviderFactory(true);
         $handler = new CreateProviderHandler($repo, $factory);
 
         $input = new CreateProviderInput(
@@ -74,8 +116,8 @@ describe('CreateProviderHandler', function () {
     });
 
     it('creates a provider and marks error on failed test', function () {
-        $repo = stubProviderRepo();
-        $factory = stubGitProviderFactory(false);
+        $repo = \stubProviderRepo();
+        $factory = \stubGitProviderFactory(false);
         $handler = new CreateProviderHandler($repo, $factory);
 
         $input = new CreateProviderInput(
@@ -93,8 +135,8 @@ describe('CreateProviderHandler', function () {
     });
 
     it('trims trailing slash from url', function () {
-        $repo = stubProviderRepo();
-        $factory = stubGitProviderFactory(true);
+        $repo = \stubProviderRepo();
+        $factory = \stubGitProviderFactory(true);
         $handler = new CreateProviderHandler($repo, $factory);
 
         $input = new CreateProviderInput(

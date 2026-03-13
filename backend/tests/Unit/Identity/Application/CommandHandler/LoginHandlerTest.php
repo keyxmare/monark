@@ -15,22 +15,49 @@ use Symfony\Component\Uid\Uuid;
 function stubLoginUserRepo(?User $user = null): UserRepositoryInterface
 {
     return new class ($user) implements UserRepositoryInterface {
-        public function __construct(private readonly ?User $user) {}
-        public function findById(Uuid $id): ?User { return null; }
-        public function findByEmail(string $email): ?User { return $this->user; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(User $user): void {}
+        public function __construct(private readonly ?User $user)
+        {
+        }
+        public function findById(Uuid $id): ?User
+        {
+            return null;
+        }
+        public function findByEmail(string $email): ?User
+        {
+            return $this->user;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(User $user): void
+        {
+        }
     };
 }
 
 function stubLoginHasher(bool $valid): UserPasswordHasherInterface
 {
     return new class ($valid) implements UserPasswordHasherInterface {
-        public function __construct(private readonly bool $valid) {}
-        public function hashPassword(PasswordAuthenticatedUserInterface $user, #[\SensitiveParameter] string $plainPassword): string { return ''; }
-        public function isPasswordValid(PasswordAuthenticatedUserInterface $user, #[\SensitiveParameter] string $plainPassword): bool { return $this->valid; }
-        public function needsRehash(PasswordAuthenticatedUserInterface $user): bool { return false; }
+        public function __construct(private readonly bool $valid)
+        {
+        }
+        public function hashPassword(PasswordAuthenticatedUserInterface $user, #[\SensitiveParameter] string $plainPassword): string
+        {
+            return '';
+        }
+        public function isPasswordValid(PasswordAuthenticatedUserInterface $user, #[\SensitiveParameter] string $plainPassword): bool
+        {
+            return $this->valid;
+        }
+        public function needsRehash(PasswordAuthenticatedUserInterface $user): bool
+        {
+            return false;
+        }
     };
 }
 
@@ -43,7 +70,7 @@ describe('LoginHandler', function () {
             lastName: 'Doe',
         );
 
-        $handler = new LoginHandler(stubLoginUserRepo($user), stubLoginHasher(true));
+        $handler = new LoginHandler(\stubLoginUserRepo($user), \stubLoginHasher(true));
 
         $input = new LoginInput(email: 'john@example.com', password: 'password123');
         $result = $handler(new LoginCommand($input));
@@ -55,7 +82,7 @@ describe('LoginHandler', function () {
     });
 
     it('throws exception when user not found', function () {
-        $handler = new LoginHandler(stubLoginUserRepo(null), stubLoginHasher(true));
+        $handler = new LoginHandler(\stubLoginUserRepo(null), \stubLoginHasher(true));
 
         $input = new LoginInput(email: 'unknown@example.com', password: 'password123');
         $handler(new LoginCommand($input));
@@ -69,7 +96,7 @@ describe('LoginHandler', function () {
             lastName: 'Doe',
         );
 
-        $handler = new LoginHandler(stubLoginUserRepo($user), stubLoginHasher(false));
+        $handler = new LoginHandler(\stubLoginUserRepo($user), \stubLoginHasher(false));
 
         $input = new LoginInput(email: 'john@example.com', password: 'wrong');
         $handler(new LoginCommand($input));

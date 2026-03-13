@@ -9,8 +9,6 @@ use App\Activity\Domain\Model\SyncTaskStatus;
 use App\Activity\Domain\Model\SyncTaskType;
 use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
 use App\Catalog\Domain\Event\ProjectScannedEvent;
-use App\Catalog\Domain\Model\DetectedDependency;
-use App\Catalog\Domain\Model\DetectedStack;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
 use App\Catalog\Domain\Model\ScanResult;
@@ -24,15 +22,38 @@ use Tests\Factory\Catalog\ProviderFactory;
 function stubOutdatedDepRepo(array $dependencies = []): DependencyRepositoryInterface
 {
     return new class ($dependencies) implements DependencyRepositoryInterface {
-        public function __construct(private readonly array $deps) {}
-        public function findById(Uuid $id): ?Dependency { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return $this->deps; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function save(Dependency $dependency): void {}
-        public function delete(Dependency $dependency): void {}
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function __construct(private readonly array $deps)
+        {
+        }
+        public function findById(Uuid $id): ?Dependency
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return $this->deps;
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function save(Dependency $dependency): void
+        {
+        }
+        public function delete(Dependency $dependency): void
+        {
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
@@ -41,15 +62,41 @@ function spySyncTaskRepo(?SyncTask $existing = null): object
     return new class ($existing) implements SyncTaskRepositoryInterface {
         /** @var list<SyncTask> */
         public array $saved = [];
-        public function __construct(private readonly ?SyncTask $existing) {}
-        public function findById(Uuid $id): ?SyncTask { return null; }
-        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array { return []; }
-        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int { return 0; }
-        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask { return $this->existing; }
-        public function countGroupedByType(): array { return []; }
-        public function countGroupedBySeverity(): array { return []; }
-        public function countGroupedByStatus(): array { return []; }
-        public function save(SyncTask $syncTask): void { $this->saved[] = $syncTask; }
+        public function __construct(private readonly ?SyncTask $existing)
+        {
+        }
+        public function findById(Uuid $id): ?SyncTask
+        {
+            return null;
+        }
+        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int
+        {
+            return 0;
+        }
+        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask
+        {
+            return $this->existing;
+        }
+        public function countGroupedByType(): array
+        {
+            return [];
+        }
+        public function countGroupedBySeverity(): array
+        {
+            return [];
+        }
+        public function countGroupedByStatus(): array
+        {
+            return [];
+        }
+        public function save(SyncTask $syncTask): void
+        {
+            $this->saved[] = $syncTask;
+        }
     };
 }
 
@@ -71,7 +118,7 @@ function createTestProject(): Project
 
 describe('CreateOutdatedDependencyTasksListener', function () {
     it('creates sync tasks for outdated dependencies', function () {
-        $project = createTestProject();
+        $project = \createTestProject();
         $dep = Dependency::create(
             name: 'symfony/framework-bundle',
             currentVersion: '6.0.0',
@@ -83,8 +130,8 @@ describe('CreateOutdatedDependencyTasksListener', function () {
             project: $project,
         );
 
-        $depRepo = stubOutdatedDepRepo([$dep]);
-        $syncTaskRepo = spySyncTaskRepo();
+        $depRepo = \stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = \spySyncTaskRepo();
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -106,7 +153,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('skips non-outdated dependencies', function () {
-        $project = createTestProject();
+        $project = \createTestProject();
         $dep = Dependency::create(
             name: 'symfony/framework-bundle',
             currentVersion: '7.2.0',
@@ -118,8 +165,8 @@ describe('CreateOutdatedDependencyTasksListener', function () {
             project: $project,
         );
 
-        $depRepo = stubOutdatedDepRepo([$dep]);
-        $syncTaskRepo = spySyncTaskRepo();
+        $depRepo = \stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = \spySyncTaskRepo();
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -131,7 +178,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('updates existing open task instead of creating duplicate', function () {
-        $project = createTestProject();
+        $project = \createTestProject();
         $dep = Dependency::create(
             name: 'vue',
             currentVersion: '2.7.0',
@@ -152,8 +199,8 @@ describe('CreateOutdatedDependencyTasksListener', function () {
             projectId: $project->getId(),
         );
 
-        $depRepo = stubOutdatedDepRepo([$dep]);
-        $syncTaskRepo = spySyncTaskRepo($existingTask);
+        $depRepo = \stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = \spySyncTaskRepo($existingTask);
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -168,7 +215,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('assigns critical severity for 2+ major versions behind', function () {
-        $project = createTestProject();
+        $project = \createTestProject();
         $dep = Dependency::create(
             name: 'old-pkg',
             currentVersion: '1.0.0',
@@ -180,8 +227,8 @@ describe('CreateOutdatedDependencyTasksListener', function () {
             project: $project,
         );
 
-        $depRepo = stubOutdatedDepRepo([$dep]);
-        $syncTaskRepo = spySyncTaskRepo();
+        $depRepo = \stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = \spySyncTaskRepo();
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -193,7 +240,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('assigns medium severity for 5+ minor versions behind', function () {
-        $project = createTestProject();
+        $project = \createTestProject();
         $dep = Dependency::create(
             name: 'pinia',
             currentVersion: '2.0.0',
@@ -205,8 +252,8 @@ describe('CreateOutdatedDependencyTasksListener', function () {
             project: $project,
         );
 
-        $depRepo = stubOutdatedDepRepo([$dep]);
-        $syncTaskRepo = spySyncTaskRepo();
+        $depRepo = \stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = \spySyncTaskRepo();
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
@@ -218,7 +265,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('assigns low severity for small version gap', function () {
-        $project = createTestProject();
+        $project = \createTestProject();
         $dep = Dependency::create(
             name: 'lodash',
             currentVersion: '4.17.0',
@@ -230,8 +277,8 @@ describe('CreateOutdatedDependencyTasksListener', function () {
             project: $project,
         );
 
-        $depRepo = stubOutdatedDepRepo([$dep]);
-        $syncTaskRepo = spySyncTaskRepo();
+        $depRepo = \stubOutdatedDepRepo([$dep]);
+        $syncTaskRepo = \spySyncTaskRepo();
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(

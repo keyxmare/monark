@@ -12,15 +12,12 @@ final readonly class RegisterUserInput
         #[Assert\NotBlank]
         #[Assert\Email]
         public string $email,
-
         #[Assert\NotBlank]
         #[Assert\Length(min: 8, max: 128)]
         public string $password,
-
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 100)]
         public string $firstName,
-
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 100)]
         public string $lastName,

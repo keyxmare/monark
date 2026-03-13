@@ -10,6 +10,7 @@ use App\Catalog\Domain\Model\TechStack;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 
@@ -36,7 +37,7 @@ final readonly class CreateTechStackHandler
             framework: $input->framework,
             version: $input->version,
             frameworkVersion: $input->frameworkVersion,
-            detectedAt: new \DateTimeImmutable($input->detectedAt),
+            detectedAt: new DateTimeImmutable($input->detectedAt),
             project: $project,
         );
 

@@ -10,15 +10,10 @@ use App\Catalog\Domain\Model\DetectedDependency;
 use App\Catalog\Domain\Model\DetectedStack;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
-use App\Catalog\Domain\Model\Provider;
-use App\Catalog\Domain\Model\ProviderStatus;
-use App\Catalog\Domain\Model\ProviderType;
 use App\Catalog\Domain\Model\ScanResult;
 use App\Catalog\Domain\Model\TechStack;
-use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
 use App\Catalog\Infrastructure\Scanner\ProjectScanner;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\DependencyType;
@@ -31,7 +26,7 @@ use Tests\Factory\Catalog\ProviderFactory;
 
 function spyScanEventBus(): object
 {
-    return new class implements MessageBusInterface {
+    return new class () implements MessageBusInterface {
         /** @var list<object> */
         public array $dispatched = [];
         public function dispatch(object $message, array $stamps = []): Envelope
@@ -45,51 +40,127 @@ function spyScanEventBus(): object
 function stubScanProjectRepo(?Project $project = null): ProjectRepositoryInterface
 {
     return new class ($project) implements ProjectRepositoryInterface {
-        public function __construct(private readonly ?Project $project) {}
-        public function findById(Uuid $id): ?Project { return $this->project; }
-        public function findBySlug(string $slug): ?Project { return null; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void {}
-        public function delete(Project $project): void {}
+        public function __construct(private readonly ?Project $project)
+        {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return $this->project;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return null;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 }
 
 function stubScanTechStackRepo(): TechStackRepositoryInterface
 {
-    return new class implements TechStackRepositoryInterface {
+    return new class () implements TechStackRepositoryInterface {
         /** @var list<TechStack> */
         public array $saved = [];
         public bool $deletedByProject = false;
-        public function findById(Uuid $id): ?TechStack { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function count(): int { return 0; }
-        public function save(TechStack $techStack): void { $this->saved[] = $techStack; }
-        public function delete(TechStack $techStack): void {}
-        public function deleteByProjectId(Uuid $projectId): void { $this->deletedByProject = true; }
+        public function findById(Uuid $id): ?TechStack
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(TechStack $techStack): void
+        {
+            $this->saved[] = $techStack;
+        }
+        public function delete(TechStack $techStack): void
+        {
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+            $this->deletedByProject = true;
+        }
     };
 }
 
 function stubScanDependencyRepo(): DependencyRepositoryInterface
 {
-    return new class implements DependencyRepositoryInterface {
+    return new class () implements DependencyRepositoryInterface {
         /** @var list<Dependency> */
         public array $saved = [];
         public bool $deletedByProject = false;
-        public function findById(Uuid $id): ?Dependency { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function save(Dependency $dependency): void { $this->saved[] = $dependency; }
-        public function delete(Dependency $dependency): void {}
-        public function deleteByProjectId(Uuid $projectId): void { $this->deletedByProject = true; }
+        public function findById(Uuid $id): ?Dependency
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function save(Dependency $dependency): void
+        {
+            $this->saved[] = $dependency;
+        }
+        public function delete(Dependency $dependency): void
+        {
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+            $this->deletedByProject = true;
+        }
     };
 }
 
@@ -122,9 +193,9 @@ describe('ScanProjectHandler', function () {
             externalId: '42',
         );
 
-        $projectRepo = stubScanProjectRepo($project);
-        $techStackRepo = stubScanTechStackRepo();
-        $depRepo = stubScanDependencyRepo();
+        $projectRepo = \stubScanProjectRepo($project);
+        $techStackRepo = \stubScanTechStackRepo();
+        $depRepo = \stubScanDependencyRepo();
 
         $scanResult = new ScanResult(
             stacks: [
@@ -137,8 +208,8 @@ describe('ScanProjectHandler', function () {
             ],
         );
 
-        $scanner = stubProjectScanner($scanResult);
-        $eventBus = spyScanEventBus();
+        $scanner = \stubProjectScanner($scanResult);
+        $eventBus = \spyScanEventBus();
         $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
@@ -165,12 +236,12 @@ describe('ScanProjectHandler', function () {
     });
 
     it('throws not found for unknown project', function () {
-        $projectRepo = stubScanProjectRepo(null);
-        $techStackRepo = stubScanTechStackRepo();
-        $depRepo = stubScanDependencyRepo();
-        $scanner = stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
+        $projectRepo = \stubScanProjectRepo(null);
+        $techStackRepo = \stubScanTechStackRepo();
+        $depRepo = \stubScanDependencyRepo();
+        $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
-        $eventBus = spyScanEventBus();
+        $eventBus = \spyScanEventBus();
         $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand(Uuid::v7()->toRfc4122()));
@@ -187,12 +258,12 @@ describe('ScanProjectHandler', function () {
             ownerId: Uuid::v7(),
         );
 
-        $projectRepo = stubScanProjectRepo($project);
-        $techStackRepo = stubScanTechStackRepo();
-        $depRepo = stubScanDependencyRepo();
-        $scanner = stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
+        $projectRepo = \stubScanProjectRepo($project);
+        $techStackRepo = \stubScanTechStackRepo();
+        $depRepo = \stubScanDependencyRepo();
+        $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
-        $eventBus = spyScanEventBus();
+        $eventBus = \spyScanEventBus();
         $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand($project->getId()->toRfc4122()));

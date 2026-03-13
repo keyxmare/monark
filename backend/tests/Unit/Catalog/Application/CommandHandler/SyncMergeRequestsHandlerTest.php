@@ -11,8 +11,8 @@ use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteMergeRequest;
-use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Model\RemoteProject;
+use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
@@ -24,17 +24,47 @@ use Tests\Factory\Catalog\ProviderFactory;
 function stubSyncMRProjectRepo(?Project $project = null): ProjectRepositoryInterface
 {
     return new class ($project) implements ProjectRepositoryInterface {
-        public function __construct(private readonly ?Project $project) {}
-        public function findById(Uuid $id): ?Project { return $this->project; }
-        public function findBySlug(string $slug): ?Project { return null; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void {}
-        public function delete(Project $project): void {}
+        public function __construct(private readonly ?Project $project)
+        {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return $this->project;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return null;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 }
 
@@ -43,43 +73,93 @@ function stubSyncMRRepo(?MergeRequest $existing = null): object
     return new class ($existing) implements MergeRequestRepositoryInterface {
         /** @var list<MergeRequest> */
         public array $saved = [];
-        public function __construct(private readonly ?MergeRequest $existing) {}
-        public function findById(Uuid $id): ?MergeRequest { return null; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array { return []; }
+        public function __construct(private readonly ?MergeRequest $existing)
+        {
+        }
+        public function findById(Uuid $id): ?MergeRequest
+        {
+            return null;
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20, array $statuses = [], ?string $author = null): array
+        {
+            return [];
+        }
         public function findByExternalIdAndProject(string $externalId, Uuid $projectId): ?MergeRequest
         {
             return $this->existing !== null && $this->existing->getExternalId() === $externalId ? $this->existing : null;
         }
-        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int { return 0; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(MergeRequest $mergeRequest): void { $this->saved[] = $mergeRequest; }
-        public function delete(MergeRequest $mergeRequest): void {}
+        public function countByProjectId(Uuid $projectId, array $statuses = [], ?string $author = null): int
+        {
+            return 0;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(MergeRequest $mergeRequest): void
+        {
+            $this->saved[] = $mergeRequest;
+        }
+        public function delete(MergeRequest $mergeRequest): void
+        {
+        }
     };
 }
 
 function stubSyncMRGitFactory(array $remoteMRs = []): GitProviderFactory
 {
     $client = new class ($remoteMRs) implements GitProviderInterface {
-        public function __construct(private readonly array $mrs) {}
-        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array { return []; }
-        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int { return 0; }
-        public function testConnection(Provider $provider): bool { return true; }
-        public function getProject(Provider $provider, string $externalId): RemoteProject { throw new \RuntimeException('Not implemented'); }
-        public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string { return null; }
-        public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array { return []; }
-        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array { return $this->mrs; }
+        public function __construct(private readonly array $mrs)
+        {
+        }
+        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
+        {
+            return [];
+        }
+        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int
+        {
+            return 0;
+        }
+        public function testConnection(Provider $provider): bool
+        {
+            return true;
+        }
+        public function getProject(Provider $provider, string $externalId): RemoteProject
+        {
+            throw new \RuntimeException('Not implemented');
+        }
+        public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
+        {
+            return null;
+        }
+        public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array
+        {
+            return [];
+        }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
+        {
+            return $this->mrs;
+        }
     };
 
     return new class ($client) extends GitProviderFactory {
-        public function __construct(private readonly GitProviderInterface $client) {}
-        public function create(Provider $provider): GitProviderInterface { return $this->client; }
+        public function __construct(private readonly GitProviderInterface $client)
+        {
+        }
+        public function create(Provider $provider): GitProviderInterface
+        {
+            return $this->client;
+        }
     };
 }
 
 function spySyncMREventBus(): object
 {
-    return new class implements MessageBusInterface {
+    return new class () implements MessageBusInterface {
         /** @var list<object> */
         public array $dispatched = [];
         public function dispatch(object $message, array $stamps = []): Envelope
@@ -131,16 +211,16 @@ function makeRemoteMR(string $externalId = '1', string $status = 'open', string 
 describe('SyncMergeRequestsHandler', function () {
     it('creates new merge requests from remote', function () {
         $provider = ProviderFactory::create();
-        $project = createSyncMRProject($provider);
-        $remoteMRs = [makeRemoteMR('1'), makeRemoteMR('2', 'draft', 'Draft MR')];
+        $project = \createSyncMRProject($provider);
+        $remoteMRs = [\makeRemoteMR('1'), \makeRemoteMR('2', 'draft', 'Draft MR')];
 
-        $mrRepo = stubSyncMRRepo();
-        $eventBus = spySyncMREventBus();
+        $mrRepo = \stubSyncMRRepo();
+        $eventBus = \spySyncMREventBus();
 
         $handler = new SyncMergeRequestsHandler(
-            stubSyncMRProjectRepo($project),
+            \stubSyncMRProjectRepo($project),
             $mrRepo,
-            stubSyncMRGitFactory($remoteMRs),
+            \stubSyncMRGitFactory($remoteMRs),
             $eventBus,
         );
 
@@ -170,7 +250,7 @@ describe('SyncMergeRequestsHandler', function () {
 
     it('updates existing merge requests', function () {
         $provider = ProviderFactory::create();
-        $project = createSyncMRProject($provider);
+        $project = \createSyncMRProject($provider);
 
         $existingMR = MergeRequest::create(
             externalId: '1',
@@ -209,13 +289,13 @@ describe('SyncMergeRequestsHandler', function () {
             closedAt: null,
         );
 
-        $mrRepo = stubSyncMRRepo($existingMR);
-        $eventBus = spySyncMREventBus();
+        $mrRepo = \stubSyncMRRepo($existingMR);
+        $eventBus = \spySyncMREventBus();
 
         $handler = new SyncMergeRequestsHandler(
-            stubSyncMRProjectRepo($project),
+            \stubSyncMRProjectRepo($project),
             $mrRepo,
-            stubSyncMRGitFactory([$remoteMR]),
+            \stubSyncMRGitFactory([$remoteMR]),
             $eventBus,
         );
 
@@ -235,16 +315,16 @@ describe('SyncMergeRequestsHandler', function () {
 
     it('dispatches ProjectSyncCompletedEvent when syncJobId is set', function () {
         $provider = ProviderFactory::create();
-        $project = createSyncMRProject($provider);
-        $remoteMRs = [makeRemoteMR('1')];
+        $project = \createSyncMRProject($provider);
+        $remoteMRs = [\makeRemoteMR('1')];
 
-        $mrRepo = stubSyncMRRepo();
-        $eventBus = spySyncMREventBus();
+        $mrRepo = \stubSyncMRRepo();
+        $eventBus = \spySyncMREventBus();
 
         $handler = new SyncMergeRequestsHandler(
-            stubSyncMRProjectRepo($project),
+            \stubSyncMRProjectRepo($project),
             $mrRepo,
-            stubSyncMRGitFactory($remoteMRs),
+            \stubSyncMRGitFactory($remoteMRs),
             $eventBus,
         );
 
@@ -268,13 +348,13 @@ describe('SyncMergeRequestsHandler', function () {
             ownerId: Uuid::v7(),
         );
 
-        $mrRepo = stubSyncMRRepo();
-        $eventBus = spySyncMREventBus();
+        $mrRepo = \stubSyncMRRepo();
+        $eventBus = \spySyncMREventBus();
 
         $handler = new SyncMergeRequestsHandler(
-            stubSyncMRProjectRepo($project),
+            \stubSyncMRProjectRepo($project),
             $mrRepo,
-            stubSyncMRGitFactory(),
+            \stubSyncMRGitFactory(),
             $eventBus,
         );
 
@@ -285,13 +365,13 @@ describe('SyncMergeRequestsHandler', function () {
     });
 
     it('ignores unknown project', function () {
-        $mrRepo = stubSyncMRRepo();
-        $eventBus = spySyncMREventBus();
+        $mrRepo = \stubSyncMRRepo();
+        $eventBus = \spySyncMREventBus();
 
         $handler = new SyncMergeRequestsHandler(
-            stubSyncMRProjectRepo(null),
+            \stubSyncMRProjectRepo(null),
             $mrRepo,
-            stubSyncMRGitFactory(),
+            \stubSyncMRGitFactory(),
             $eventBus,
         );
 

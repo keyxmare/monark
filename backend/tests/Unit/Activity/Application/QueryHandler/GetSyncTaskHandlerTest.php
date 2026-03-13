@@ -15,15 +15,40 @@ use Symfony\Component\Uid\Uuid;
 function stubGetSyncTaskRepo(?SyncTask $task = null): SyncTaskRepositoryInterface
 {
     return new class ($task) implements SyncTaskRepositoryInterface {
-        public function __construct(private readonly ?SyncTask $task) {}
-        public function findById(Uuid $id): ?SyncTask { return $this->task; }
-        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array { return []; }
-        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int { return 0; }
-        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask { return null; }
-        public function countGroupedByType(): array { return []; }
-        public function countGroupedBySeverity(): array { return []; }
-        public function countGroupedByStatus(): array { return []; }
-        public function save(SyncTask $syncTask): void {}
+        public function __construct(private readonly ?SyncTask $task)
+        {
+        }
+        public function findById(Uuid $id): ?SyncTask
+        {
+            return $this->task;
+        }
+        public function findFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countFiltered(?SyncTaskStatus $status = null, ?SyncTaskType $type = null, ?SyncTaskSeverity $severity = null, ?Uuid $projectId = null): int
+        {
+            return 0;
+        }
+        public function findOpenByProjectAndTypeAndKey(Uuid $projectId, SyncTaskType $type, string $metadataKey): ?SyncTask
+        {
+            return null;
+        }
+        public function countGroupedByType(): array
+        {
+            return [];
+        }
+        public function countGroupedBySeverity(): array
+        {
+            return [];
+        }
+        public function countGroupedByStatus(): array
+        {
+            return [];
+        }
+        public function save(SyncTask $syncTask): void
+        {
+        }
     };
 }
 
@@ -38,7 +63,7 @@ describe('GetSyncTaskHandler', function () {
             projectId: Uuid::v7(),
         );
 
-        $handler = new GetSyncTaskHandler(stubGetSyncTaskRepo($task));
+        $handler = new GetSyncTaskHandler(\stubGetSyncTaskRepo($task));
         $result = $handler(new GetSyncTaskQuery($task->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(SyncTaskOutput::class);
@@ -48,7 +73,7 @@ describe('GetSyncTaskHandler', function () {
     });
 
     it('throws not found for unknown task', function () {
-        $handler = new GetSyncTaskHandler(stubGetSyncTaskRepo(null));
+        $handler = new GetSyncTaskHandler(\stubGetSyncTaskRepo(null));
         $handler(new GetSyncTaskQuery(Uuid::v7()->toRfc4122()));
     })->throws(\App\Shared\Domain\Exception\NotFoundException::class);
 });

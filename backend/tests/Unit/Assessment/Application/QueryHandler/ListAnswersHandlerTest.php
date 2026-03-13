@@ -17,14 +17,35 @@ use Symfony\Component\Uid\Uuid;
 function stubListAnswersRepo(array $answers = [], int $count = 0): AnswerRepositoryInterface
 {
     return new class ($answers, $count) implements AnswerRepositoryInterface {
-        public function __construct(private readonly array $answers, private readonly int $count) {}
-        public function findById(Uuid $id): ?Answer { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return $this->answers; }
-        public function findByQuestionId(Uuid $questionId, int $page = 1, int $perPage = 20): array { return $this->answers; }
-        public function count(): int { return $this->count; }
-        public function countByQuestionId(Uuid $questionId): int { return $this->count; }
-        public function save(Answer $answer): void {}
-        public function delete(Answer $answer): void {}
+        public function __construct(private readonly array $answers, private readonly int $count)
+        {
+        }
+        public function findById(Uuid $id): ?Answer
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return $this->answers;
+        }
+        public function findByQuestionId(Uuid $questionId, int $page = 1, int $perPage = 20): array
+        {
+            return $this->answers;
+        }
+        public function count(): int
+        {
+            return $this->count;
+        }
+        public function countByQuestionId(Uuid $questionId): int
+        {
+            return $this->count;
+        }
+        public function save(Answer $answer): void
+        {
+        }
+        public function delete(Answer $answer): void
+        {
+        }
     };
 }
 
@@ -35,7 +56,7 @@ describe('ListAnswersHandler', function () {
         $a1 = Answer::create(content: 'Answer 1', isCorrect: true, position: 1, question: $question);
         $a2 = Answer::create(content: 'Answer 2', isCorrect: false, position: 2, question: $question);
 
-        $handler = new ListAnswersHandler(stubListAnswersRepo([$a1, $a2], 2));
+        $handler = new ListAnswersHandler(\stubListAnswersRepo([$a1, $a2], 2));
         $result = $handler(new ListAnswersQuery(1, 20));
 
         expect($result)->toBeInstanceOf(AnswerListOutput::class);
@@ -44,7 +65,7 @@ describe('ListAnswersHandler', function () {
     });
 
     it('returns empty list when no answers', function () {
-        $handler = new ListAnswersHandler(stubListAnswersRepo([], 0));
+        $handler = new ListAnswersHandler(\stubListAnswersRepo([], 0));
         $result = $handler(new ListAnswersQuery());
 
         expect($result->pagination->items)->toBeEmpty();

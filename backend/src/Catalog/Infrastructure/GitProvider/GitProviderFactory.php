@@ -7,6 +7,7 @@ namespace App\Catalog\Infrastructure\GitProvider;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\ProviderType;
 use App\Catalog\Domain\Port\GitProviderInterface;
+use InvalidArgumentException;
 
 class GitProviderFactory
 {
@@ -21,7 +22,7 @@ class GitProviderFactory
         return match ($provider->getType()) {
             ProviderType::GitLab => $this->gitLabClient,
             ProviderType::GitHub => $this->gitHubClient,
-            default => throw new \InvalidArgumentException(\sprintf('Unsupported provider type: %s', $provider->getType()->value)),
+            default => throw new InvalidArgumentException(\sprintf('Unsupported provider type: %s', $provider->getType()->value)),
         };
     }
 }

@@ -15,23 +15,54 @@ function stubCreateProjectRepo(?Project $findBySlugResult = null): ProjectReposi
 {
     return new class ($findBySlugResult) implements ProjectRepositoryInterface {
         public ?Project $saved = null;
-        public function __construct(private readonly ?Project $findBySlugResult) {}
-        public function findById(Uuid $id): ?Project { return null; }
-        public function findBySlug(string $slug): ?Project { return $this->findBySlugResult; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void { $this->saved = $project; }
-        public function delete(Project $project): void {}
+        public function __construct(private readonly ?Project $findBySlugResult)
+        {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return null;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return $this->findBySlugResult;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+            $this->saved = $project;
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 }
 
 describe('CreateProjectHandler', function () {
     it('creates a project successfully', function () {
-        $repo = stubCreateProjectRepo(null);
+        $repo = \stubCreateProjectRepo(null);
         $handler = new CreateProjectHandler($repo);
 
         $ownerId = Uuid::v7()->toRfc4122();
@@ -65,7 +96,7 @@ describe('CreateProjectHandler', function () {
             visibility: ProjectVisibility::Private,
             ownerId: Uuid::v7(),
         );
-        $handler = new CreateProjectHandler(stubCreateProjectRepo($existingProject));
+        $handler = new CreateProjectHandler(\stubCreateProjectRepo($existingProject));
 
         $input = new CreateProjectInput(
             name: 'My Project',

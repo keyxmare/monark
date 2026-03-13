@@ -100,7 +100,7 @@ describe('MergeRequest', function () {
         );
 
         $beforeUpdate = $mr->getUpdatedAt();
-        usleep(1000);
+        \usleep(1000);
 
         $mr->update(
             title: 'feat: dashboard',

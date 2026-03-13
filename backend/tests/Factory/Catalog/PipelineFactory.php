@@ -7,6 +7,7 @@ namespace Tests\Factory\Catalog;
 use App\Catalog\Domain\Model\Pipeline;
 use App\Catalog\Domain\Model\PipelineStatus;
 use App\Catalog\Domain\Model\Project;
+use DateTimeImmutable;
 
 final class PipelineFactory
 {
@@ -15,8 +16,8 @@ final class PipelineFactory
         string $ref = 'main',
         PipelineStatus $status = PipelineStatus::Success,
         int $duration = 120,
-        ?\DateTimeImmutable $startedAt = null,
-        ?\DateTimeImmutable $finishedAt = null,
+        ?DateTimeImmutable $startedAt = null,
+        ?DateTimeImmutable $finishedAt = null,
         ?Project $project = null,
     ): Pipeline {
         return Pipeline::create(
@@ -24,8 +25,8 @@ final class PipelineFactory
             ref: $ref,
             status: $status,
             duration: $duration,
-            startedAt: $startedAt ?? new \DateTimeImmutable(),
-            finishedAt: $finishedAt ?? new \DateTimeImmutable(),
+            startedAt: $startedAt ?? new DateTimeImmutable(),
+            finishedAt: $finishedAt ?? new DateTimeImmutable(),
             project: $project ?? ProjectFactory::create(),
         );
     }

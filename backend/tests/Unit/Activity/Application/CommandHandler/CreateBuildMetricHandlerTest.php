@@ -12,7 +12,7 @@ use Symfony\Component\Uid\Uuid;
 
 function stubBuildMetricRepo(): BuildMetricRepositoryInterface&stdClass
 {
-    return new class extends stdClass implements BuildMetricRepositoryInterface {
+    return new class () extends stdClass implements BuildMetricRepositoryInterface {
         /** @var list<BuildMetric> */
         public array $saved = [];
 
@@ -46,7 +46,7 @@ function stubBuildMetricRepo(): BuildMetricRepositoryInterface&stdClass
 
 describe('CreateBuildMetricHandler', function () {
     it('creates and persists a build metric', function () {
-        $repo = stubBuildMetricRepo();
+        $repo = \stubBuildMetricRepo();
         $handler = new CreateBuildMetricHandler($repo);
 
         $input = new CreateBuildMetricInput(
@@ -69,7 +69,7 @@ describe('CreateBuildMetricHandler', function () {
     });
 
     it('creates with nullable fields', function () {
-        $repo = stubBuildMetricRepo();
+        $repo = \stubBuildMetricRepo();
         $handler = new CreateBuildMetricHandler($repo);
 
         $input = new CreateBuildMetricInput(

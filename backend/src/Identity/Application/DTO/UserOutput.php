@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Application\DTO;
 
 use App\Identity\Domain\Model\User;
+use DateTimeInterface;
 
 final readonly class UserOutput
 {
@@ -30,8 +31,8 @@ final readonly class UserOutput
             lastName: $user->getLastName(),
             avatar: $user->getAvatar(),
             roles: $user->getRoles(),
-            createdAt: $user->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $user->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $user->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $user->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

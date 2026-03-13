@@ -15,12 +15,28 @@ function stubDeleteTokenRepo(?AccessToken $token = null): AccessTokenRepositoryI
 {
     return new class ($token) implements AccessTokenRepositoryInterface {
         public bool $deleted = false;
-        public function __construct(private readonly ?AccessToken $token) {}
-        public function findById(Uuid $id): ?AccessToken { return $this->token; }
-        public function findByUser(Uuid $userId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByUser(Uuid $userId): int { return 0; }
-        public function save(AccessToken $accessToken): void {}
-        public function delete(AccessToken $accessToken): void { $this->deleted = true; }
+        public function __construct(private readonly ?AccessToken $token)
+        {
+        }
+        public function findById(Uuid $id): ?AccessToken
+        {
+            return $this->token;
+        }
+        public function findByUser(Uuid $userId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByUser(Uuid $userId): int
+        {
+            return 0;
+        }
+        public function save(AccessToken $accessToken): void
+        {
+        }
+        public function delete(AccessToken $accessToken): void
+        {
+            $this->deleted = true;
+        }
     };
 }
 
@@ -41,7 +57,7 @@ describe('DeleteAccessTokenHandler', function () {
             user: $user,
         );
 
-        $repo = stubDeleteTokenRepo($token);
+        $repo = \stubDeleteTokenRepo($token);
         $handler = new DeleteAccessTokenHandler($repo);
 
         $handler(new DeleteAccessTokenCommand($token->getId()->toRfc4122()));
@@ -50,7 +66,7 @@ describe('DeleteAccessTokenHandler', function () {
     });
 
     it('throws not found when token does not exist', function () {
-        $handler = new DeleteAccessTokenHandler(stubDeleteTokenRepo(null));
+        $handler = new DeleteAccessTokenHandler(\stubDeleteTokenRepo(null));
         $handler(new DeleteAccessTokenCommand('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

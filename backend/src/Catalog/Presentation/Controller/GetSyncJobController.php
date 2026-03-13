@@ -7,6 +7,7 @@ namespace App\Catalog\Presentation\Controller;
 use App\Catalog\Domain\Repository\SyncJobRepositoryInterface;
 use App\Shared\Application\DTO\ApiResponse;
 use App\Shared\Domain\Exception\NotFoundException;
+use DateTimeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
@@ -31,8 +32,8 @@ final readonly class GetSyncJobController
             'totalProjects' => $syncJob->getTotalProjects(),
             'completedProjects' => $syncJob->getCompletedProjects(),
             'status' => $syncJob->getStatus()->value,
-            'createdAt' => $syncJob->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            'completedAt' => $syncJob->getCompletedAt()?->format(\DateTimeInterface::ATOM),
+            'createdAt' => $syncJob->getCreatedAt()->format(DateTimeInterface::ATOM),
+            'completedAt' => $syncJob->getCompletedAt()?->format(DateTimeInterface::ATOM),
         ])->toArray());
     }
 }

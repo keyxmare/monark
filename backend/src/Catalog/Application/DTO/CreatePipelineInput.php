@@ -13,22 +13,16 @@ final readonly class CreatePipelineInput
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 255)]
         public string $externalId,
-
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 255)]
         public string $ref,
-
         #[Assert\NotNull]
         public PipelineStatus $status,
-
         #[Assert\PositiveOrZero]
         public int $duration,
-
         #[Assert\NotBlank]
         public string $startedAt,
-
         public ?string $finishedAt = null,
-
         #[Assert\NotBlank]
         #[Assert\Uuid]
         public string $projectId = '',

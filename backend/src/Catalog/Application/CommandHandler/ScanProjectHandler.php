@@ -14,6 +14,8 @@ use App\Catalog\Infrastructure\Scanner\ProjectScanner;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use DateTimeImmutable;
+use DomainException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -38,7 +40,7 @@ final readonly class ScanProjectHandler
         }
 
         if ($project->getProvider() === null || $project->getExternalId() === null) {
-            throw new \DomainException(\sprintf('Project "%s" is not linked to a provider.', $command->projectId));
+            throw new DomainException(\sprintf('Project "%s" is not linked to a provider.', $command->projectId));
         }
 
         $scanResult = $this->projectScanner->scan($project);
@@ -54,7 +56,7 @@ final readonly class ScanProjectHandler
                 framework: $detected->framework,
                 version: $detected->version,
                 frameworkVersion: $detected->frameworkVersion,
-                detectedAt: new \DateTimeImmutable(),
+                detectedAt: new DateTimeImmutable(),
                 project: $project,
             );
             $this->techStackRepository->save($techStack);

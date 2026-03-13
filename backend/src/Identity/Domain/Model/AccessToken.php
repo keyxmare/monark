@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -26,14 +27,14 @@ final class AccessToken
     private array $scopes;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $expiresAt;
+    private ?DateTimeImmutable $expiresAt;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'accessTokens')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private User $user;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     /** @param list<string> $scopes */
     private function __construct(
@@ -41,7 +42,7 @@ final class AccessToken
         TokenProvider $provider,
         string $token,
         array $scopes,
-        ?\DateTimeImmutable $expiresAt,
+        ?DateTimeImmutable $expiresAt,
         User $user,
     ) {
         $this->id = $id;
@@ -50,7 +51,7 @@ final class AccessToken
         $this->scopes = $scopes;
         $this->expiresAt = $expiresAt;
         $this->user = $user;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     /** @param list<string> $scopes */
@@ -58,7 +59,7 @@ final class AccessToken
         TokenProvider $provider,
         string $token,
         array $scopes,
-        ?\DateTimeImmutable $expiresAt,
+        ?DateTimeImmutable $expiresAt,
         User $user,
     ): self {
         return new self(
@@ -92,7 +93,7 @@ final class AccessToken
         return $this->scopes;
     }
 
-    public function getExpiresAt(): ?\DateTimeImmutable
+    public function getExpiresAt(): ?DateTimeImmutable
     {
         return $this->expiresAt;
     }
@@ -102,7 +103,7 @@ final class AccessToken
         return $this->user;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -113,6 +114,6 @@ final class AccessToken
             return false;
         }
 
-        return $this->expiresAt < new \DateTimeImmutable();
+        return $this->expiresAt < new DateTimeImmutable();
     }
 }

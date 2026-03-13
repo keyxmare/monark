@@ -34,7 +34,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $project = $client->getProject(gitlabProvider(), '42');
+            $project = $client->getProject(\gitlabProvider(), '42');
 
             expect($project->externalId)->toBe('42');
             expect($project->name)->toBe('monark');
@@ -59,7 +59,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $project = $client->getProject(gitlabProvider(), '99');
+            $project = $client->getProject(\gitlabProvider(), '99');
 
             expect($project->visibility)->toBe('private');
             expect($project->defaultBranch)->toBe('develop');
@@ -77,7 +77,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $project = $client->getProject(gitlabProvider(), '77');
+            $project = $client->getProject(\gitlabProvider(), '77');
 
             expect($project->repositoryUrl)->toBe('https://gitlab.example.com/team/web-only');
         });
@@ -93,7 +93,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $client->getProject(gitlabProvider(), 'team/test');
+            $client->getProject(\gitlabProvider(), 'team/test');
 
             expect($mockResponse->getRequestUrl())->toContain('/api/v4/projects/team%2Ftest');
         });
@@ -122,7 +122,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+            $mrs = $client->listMergeRequests(\gitlabProvider(), '42');
 
             expect($mrs)->toHaveCount(1);
             expect($mrs[0]->externalId)->toBe('42');
@@ -160,7 +160,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+            $mrs = $client->listMergeRequests(\gitlabProvider(), '42');
 
             expect($mrs[0]->status)->toBe('draft');
             expect($mrs[0]->description)->toBeNull();
@@ -188,7 +188,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+            $mrs = $client->listMergeRequests(\gitlabProvider(), '42');
 
             expect($mrs[0]->status)->toBe('merged');
             expect($mrs[0]->mergedAt)->toBe('2026-03-11T10:00:00Z');
@@ -215,7 +215,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+            $mrs = $client->listMergeRequests(\gitlabProvider(), '42');
 
             expect($mrs[0]->url)->toBe('https://gitlab.example.com/mr/42');
             expect($mrs[0]->createdAt)->toBe('2026-03-10T10:00:00Z');
@@ -244,7 +244,7 @@ describe('GitLabClient', function () {
             ]));
 
             $client = new GitLabClient(new MockHttpClient($mockResponse));
-            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+            $mrs = $client->listMergeRequests(\gitlabProvider(), '42');
 
             expect($mrs[0]->author)->toBe('');
         });
@@ -253,7 +253,7 @@ describe('GitLabClient', function () {
             $mockResponse = new MockResponse(\json_encode([]));
             $client = new GitLabClient(new MockHttpClient($mockResponse));
 
-            $client->listMergeRequests(gitlabProvider(), '42', 'open', 2, 10);
+            $client->listMergeRequests(\gitlabProvider(), '42', 'open', 2, 10);
 
             $url = $mockResponse->getRequestUrl();
             expect($url)->toContain('state=opened');
@@ -267,7 +267,7 @@ describe('GitLabClient', function () {
             $mockResponse = new MockResponse(\json_encode([]));
             $client = new GitLabClient(new MockHttpClient($mockResponse));
 
-            $mrs = $client->listMergeRequests(gitlabProvider(), '42');
+            $mrs = $client->listMergeRequests(\gitlabProvider(), '42');
 
             expect($mrs)->toBeEmpty();
         });

@@ -17,12 +17,27 @@ use Tests\Factory\Catalog\ProviderFactory;
 function stubImportProviderRepo(?Provider $provider = null): ProviderRepositoryInterface
 {
     return new class ($provider) implements ProviderRepositoryInterface {
-        public function __construct(private readonly ?Provider $provider) {}
-        public function findById(Uuid $id): ?Provider { return $this->provider; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Provider $provider): void {}
-        public function remove(Provider $provider): void {}
+        public function __construct(private readonly ?Provider $provider)
+        {
+        }
+        public function findById(Uuid $id): ?Provider
+        {
+            return $this->provider;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Provider $provider): void
+        {
+        }
+        public function remove(Provider $provider): void
+        {
+        }
     };
 }
 
@@ -34,13 +49,20 @@ function stubImportProjectRepo(array $existingExternalIds = [], array $existingS
         public function __construct(
             private readonly array $existingExternalIds,
             private readonly array $existingSlugs,
-        ) {}
-        public function findById(Uuid $id): ?Project { return null; }
+        ) {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return null;
+        }
         public function findBySlug(string $slug): ?Project
         {
             return \in_array($slug, $this->existingSlugs, true) ? Project::create(
-                name: 'existing', slug: $slug, description: null,
-                repositoryUrl: 'https://test.com', defaultBranch: 'main',
+                name: 'existing',
+                slug: $slug,
+                description: null,
+                repositoryUrl: 'https://test.com',
+                defaultBranch: 'main',
                 visibility: \App\Catalog\Domain\Model\ProjectVisibility::Private,
                 ownerId: Uuid::v7(),
             ) : null;
@@ -48,27 +70,50 @@ function stubImportProjectRepo(array $existingExternalIds = [], array $existingS
         public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
         {
             return \in_array($externalId, $this->existingExternalIds, true) ? Project::create(
-                name: 'existing', slug: 'existing', description: null,
-                repositoryUrl: 'https://test.com', defaultBranch: 'main',
+                name: 'existing',
+                slug: 'existing',
+                description: null,
+                repositoryUrl: 'https://test.com',
+                defaultBranch: 'main',
                 visibility: \App\Catalog\Domain\Model\ProjectVisibility::Private,
                 ownerId: Uuid::v7(),
             ) : null;
         }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return $this->existingExternalIds; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void { $this->saved[] = $project; }
-        public function delete(Project $project): void {}
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return $this->existingExternalIds;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+            $this->saved[] = $project;
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 }
 
 describe('ImportProjectsHandler', function () {
     it('imports remote projects as local projects', function () {
         $provider = ProviderFactory::create();
-        $providerRepo = stubImportProviderRepo($provider);
-        $projectRepo = stubImportProjectRepo();
+        $providerRepo = \stubImportProviderRepo($provider);
+        $projectRepo = \stubImportProjectRepo();
         $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
         $ownerId = Uuid::v7()->toRfc4122();
 
@@ -104,8 +149,8 @@ describe('ImportProjectsHandler', function () {
 
     it('skips already imported projects', function () {
         $provider = ProviderFactory::create();
-        $providerRepo = stubImportProviderRepo($provider);
-        $projectRepo = stubImportProjectRepo(existingExternalIds: ['42']);
+        $providerRepo = \stubImportProviderRepo($provider);
+        $projectRepo = \stubImportProjectRepo(existingExternalIds: ['42']);
         $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
         $ownerId = Uuid::v7()->toRfc4122();
 
@@ -134,8 +179,8 @@ describe('ImportProjectsHandler', function () {
 
     it('normalizes slug with special characters', function () {
         $provider = ProviderFactory::create();
-        $providerRepo = stubImportProviderRepo($provider);
-        $projectRepo = stubImportProjectRepo();
+        $providerRepo = \stubImportProviderRepo($provider);
+        $projectRepo = \stubImportProjectRepo();
         $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
         $ownerId = Uuid::v7()->toRfc4122();
 
@@ -158,8 +203,8 @@ describe('ImportProjectsHandler', function () {
 
     it('maps internal visibility to public', function () {
         $provider = ProviderFactory::create();
-        $providerRepo = stubImportProviderRepo($provider);
-        $projectRepo = stubImportProjectRepo();
+        $providerRepo = \stubImportProviderRepo($provider);
+        $projectRepo = \stubImportProjectRepo();
         $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
         $ownerId = Uuid::v7()->toRfc4122();
 
@@ -183,8 +228,8 @@ describe('ImportProjectsHandler', function () {
 
     it('appends suffix on slug collision', function () {
         $provider = ProviderFactory::create();
-        $providerRepo = stubImportProviderRepo($provider);
-        $projectRepo = stubImportProjectRepo(existingSlugs: ['my-app']);
+        $providerRepo = \stubImportProviderRepo($provider);
+        $projectRepo = \stubImportProjectRepo(existingSlugs: ['my-app']);
         $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
         $ownerId = Uuid::v7()->toRfc4122();
 
@@ -207,8 +252,8 @@ describe('ImportProjectsHandler', function () {
 
     it('sets default branch and description from input', function () {
         $provider = ProviderFactory::create();
-        $providerRepo = stubImportProviderRepo($provider);
-        $projectRepo = stubImportProjectRepo();
+        $providerRepo = \stubImportProviderRepo($provider);
+        $projectRepo = \stubImportProjectRepo();
         $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
         $ownerId = Uuid::v7()->toRfc4122();
 
@@ -237,8 +282,8 @@ describe('ImportProjectsHandler', function () {
     });
 
     it('throws not found for unknown provider', function () {
-        $providerRepo = stubImportProviderRepo(null);
-        $projectRepo = stubImportProjectRepo();
+        $providerRepo = \stubImportProviderRepo(null);
+        $projectRepo = \stubImportProjectRepo();
         $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
 
         $input = new ImportProjectsInput(

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Assessment\Application\DTO;
 
 use App\Assessment\Domain\Model\Question;
+use DateTimeInterface;
 
 final readonly class QuestionOutput
 {
@@ -33,8 +34,8 @@ final readonly class QuestionOutput
             position: $question->getPosition(),
             quizId: $question->getQuiz()->getId()->toRfc4122(),
             answerCount: $question->getAnswerCount(),
-            createdAt: $question->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $question->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $question->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $question->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Application\DTO;
 
 use App\Identity\Domain\Model\Team;
+use DateTimeInterface;
 
 final readonly class TeamOutput
 {
@@ -27,8 +28,8 @@ final readonly class TeamOutput
             slug: $team->getSlug(),
             description: $team->getDescription(),
             memberCount: $team->getMemberCount(),
-            createdAt: $team->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $team->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $team->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $team->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

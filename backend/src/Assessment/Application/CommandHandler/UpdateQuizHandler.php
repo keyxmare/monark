@@ -10,6 +10,7 @@ use App\Assessment\Domain\Model\QuizStatus;
 use App\Assessment\Domain\Model\QuizType;
 use App\Assessment\Domain\Repository\QuizRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 
@@ -36,8 +37,8 @@ final readonly class UpdateQuizHandler
             description: $input->description,
             type: $input->type !== null ? QuizType::from($input->type) : null,
             status: $input->status !== null ? QuizStatus::from($input->status) : null,
-            startsAt: $input->startsAt !== null ? new \DateTimeImmutable($input->startsAt) : null,
-            endsAt: $input->endsAt !== null ? new \DateTimeImmutable($input->endsAt) : null,
+            startsAt: $input->startsAt !== null ? new DateTimeImmutable($input->startsAt) : null,
+            endsAt: $input->endsAt !== null ? new DateTimeImmutable($input->endsAt) : null,
             timeLimit: $input->timeLimit,
         );
 

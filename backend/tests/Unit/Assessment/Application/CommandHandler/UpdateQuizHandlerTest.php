@@ -16,13 +16,32 @@ function stubUpdateQuizRepo(?Quiz $quiz = null): QuizRepositoryInterface
 {
     return new class ($quiz) implements QuizRepositoryInterface {
         public ?Quiz $saved = null;
-        public function __construct(private readonly ?Quiz $quiz) {}
-        public function findById(Uuid $id): ?Quiz { return $this->quiz; }
-        public function findBySlug(string $slug): ?Quiz { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Quiz $quiz): void { $this->saved = $quiz; }
-        public function delete(Quiz $quiz): void {}
+        public function __construct(private readonly ?Quiz $quiz)
+        {
+        }
+        public function findById(Uuid $id): ?Quiz
+        {
+            return $this->quiz;
+        }
+        public function findBySlug(string $slug): ?Quiz
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Quiz $quiz): void
+        {
+            $this->saved = $quiz;
+        }
+        public function delete(Quiz $quiz): void
+        {
+        }
     };
 }
 
@@ -36,7 +55,7 @@ describe('UpdateQuizHandler', function () {
         );
         $quizId = $quiz->getId()->toRfc4122();
 
-        $repo = stubUpdateQuizRepo($quiz);
+        $repo = \stubUpdateQuizRepo($quiz);
         $handler = new UpdateQuizHandler($repo);
 
         $input = new UpdateQuizInput(title: 'Advanced PHP', description: 'An advanced quiz');
@@ -49,7 +68,7 @@ describe('UpdateQuizHandler', function () {
     });
 
     it('throws not found when quiz does not exist', function () {
-        $handler = new UpdateQuizHandler(stubUpdateQuizRepo(null));
+        $handler = new UpdateQuizHandler(\stubUpdateQuizRepo(null));
         $input = new UpdateQuizInput(title: 'New Title');
         $handler(new UpdateQuizCommand('00000000-0000-0000-0000-000000000000', $input));
     })->throws(NotFoundException::class);

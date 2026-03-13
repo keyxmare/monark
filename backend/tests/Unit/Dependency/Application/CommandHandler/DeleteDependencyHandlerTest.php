@@ -15,15 +15,39 @@ function stubDeleteDependencyRepo(?Dependency $dependency = null): DependencyRep
 {
     return new class ($dependency) implements DependencyRepositoryInterface {
         public bool $deleted = false;
-        public function __construct(private readonly ?Dependency $dependency) {}
-        public function findById(Uuid $id): ?Dependency { return $this->dependency; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Dependency $dependency): void {}
-        public function delete(Dependency $dependency): void { $this->deleted = true; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function __construct(private readonly ?Dependency $dependency)
+        {
+        }
+        public function findById(Uuid $id): ?Dependency
+        {
+            return $this->dependency;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Dependency $dependency): void
+        {
+        }
+        public function delete(Dependency $dependency): void
+        {
+            $this->deleted = true;
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
@@ -39,7 +63,7 @@ describe('DeleteDependencyHandler', function () {
             isOutdated: true,
             project: Tests\Factory\Catalog\ProjectFactory::create(),
         );
-        $repo = stubDeleteDependencyRepo($dependency);
+        $repo = \stubDeleteDependencyRepo($dependency);
         $handler = new DeleteDependencyHandler($repo);
 
         $handler(new DeleteDependencyCommand($dependency->getId()->toRfc4122()));
@@ -48,7 +72,7 @@ describe('DeleteDependencyHandler', function () {
     });
 
     it('throws not found when dependency does not exist', function () {
-        $handler = new DeleteDependencyHandler(stubDeleteDependencyRepo(null));
+        $handler = new DeleteDependencyHandler(\stubDeleteDependencyRepo(null));
         $handler(new DeleteDependencyCommand('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

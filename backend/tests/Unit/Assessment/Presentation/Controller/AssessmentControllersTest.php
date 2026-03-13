@@ -87,7 +87,7 @@ $uuid = 'a0000000-0000-0000-0000-000000000001';
 
 it('creates a quiz and returns 201', function () use ($ts, $uuid) {
     $output = new QuizOutput('q-1', 'PHP Quiz', 'php-quiz', 'A quiz', 'quiz', 'draft', null, null, null, $uuid, 0, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $controller = new CreateQuizController($bus);
 
     $response = $controller(new CreateQuizInput(title: 'PHP Quiz', slug: 'php-quiz', description: 'A quiz', type: 'quiz', authorId: $uuid));
@@ -98,7 +98,7 @@ it('creates a quiz and returns 201', function () use ($ts, $uuid) {
 
 it('gets a quiz', function () use ($ts, $uuid) {
     $output = new QuizOutput('q-1', 'PHP Quiz', 'php-quiz', 'A quiz', 'quiz', 'draft', null, null, null, $uuid, 0, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new GetQuizController($bus))('q-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -107,7 +107,7 @@ it('gets a quiz', function () use ($ts, $uuid) {
 
 it('updates a quiz', function () use ($ts, $uuid) {
     $output = new QuizOutput('q-1', 'Updated', 'updated', 'A quiz', 'quiz', 'draft', null, null, null, $uuid, 0, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new UpdateQuizController($bus))('q-1', new UpdateQuizInput(title: 'Updated'));
 
     expect($response->getStatusCode())->toBe(200);
@@ -115,7 +115,7 @@ it('updates a quiz', function () use ($ts, $uuid) {
 });
 
 it('deletes a quiz and returns 204', function () {
-    $bus = stubAssessmentBus();
+    $bus = \stubAssessmentBus();
     $response = (new DeleteQuizController($bus))('q-1');
 
     expect($response->getStatusCode())->toBe(204);
@@ -123,7 +123,7 @@ it('deletes a quiz and returns 204', function () {
 });
 
 it('lists quizzes', function () {
-    $bus = stubAssessmentBus(new QuizListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubAssessmentBus(new QuizListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $response = (new ListQuizzesController($bus))(Request::create('/api/assessment/quizzes'));
 
     expect($response->getStatusCode())->toBe(200);
@@ -134,7 +134,7 @@ it('lists quizzes', function () {
 
 it('creates a question and returns 201', function () use ($ts, $uuid) {
     $output = new QuestionOutput('qn-1', 'single_choice', 'What is PHP?', 'easy', 10, 1, $uuid, 0, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $input = new CreateQuestionInput(type: 'single_choice', content: 'What is PHP?', level: 'easy', score: 10, position: 1, quizId: $uuid);
     $response = (new CreateQuestionController($bus))($input);
 
@@ -144,7 +144,7 @@ it('creates a question and returns 201', function () use ($ts, $uuid) {
 
 it('gets a question', function () use ($ts, $uuid) {
     $output = new QuestionOutput('qn-1', 'single_choice', 'What is PHP?', 'easy', 10, 1, $uuid, 0, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new GetQuestionController($bus))('qn-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -153,7 +153,7 @@ it('gets a question', function () use ($ts, $uuid) {
 
 it('updates a question', function () use ($ts, $uuid) {
     $output = new QuestionOutput('qn-1', 'text', 'Updated?', 'medium', 20, 1, $uuid, 0, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new UpdateQuestionController($bus))('qn-1', new UpdateQuestionInput(content: 'Updated?'));
 
     expect($response->getStatusCode())->toBe(200);
@@ -161,7 +161,7 @@ it('updates a question', function () use ($ts, $uuid) {
 });
 
 it('deletes a question and returns 204', function () {
-    $bus = stubAssessmentBus();
+    $bus = \stubAssessmentBus();
     $response = (new DeleteQuestionController($bus))('qn-1');
 
     expect($response->getStatusCode())->toBe(204);
@@ -169,7 +169,7 @@ it('deletes a question and returns 204', function () {
 });
 
 it('lists questions', function () {
-    $bus = stubAssessmentBus(new QuestionListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubAssessmentBus(new QuestionListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $response = (new ListQuestionsController($bus))(Request::create('/api/assessment/questions', 'GET', ['quiz_id' => 'q-1']));
 
     expect($response->getStatusCode())->toBe(200);
@@ -180,7 +180,7 @@ it('lists questions', function () {
 
 it('creates an answer and returns 201', function () use ($ts, $uuid) {
     $output = new AnswerOutput('a-1', 'Yes', true, 1, $uuid, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new CreateAnswerController($bus))(new CreateAnswerInput(content: 'Yes', isCorrect: true, position: 1, questionId: $uuid));
 
     expect($response->getStatusCode())->toBe(201);
@@ -189,7 +189,7 @@ it('creates an answer and returns 201', function () use ($ts, $uuid) {
 
 it('gets an answer', function () use ($ts, $uuid) {
     $output = new AnswerOutput('a-1', 'Yes', true, 1, $uuid, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new GetAnswerController($bus))('a-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -198,7 +198,7 @@ it('gets an answer', function () use ($ts, $uuid) {
 
 it('updates an answer', function () use ($ts, $uuid) {
     $output = new AnswerOutput('a-1', 'No', false, 1, $uuid, $ts, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new UpdateAnswerController($bus))('a-1', new UpdateAnswerInput(content: 'No'));
 
     expect($response->getStatusCode())->toBe(200);
@@ -206,7 +206,7 @@ it('updates an answer', function () use ($ts, $uuid) {
 });
 
 it('deletes an answer and returns 204', function () {
-    $bus = stubAssessmentBus();
+    $bus = \stubAssessmentBus();
     $response = (new DeleteAnswerController($bus))('a-1');
 
     expect($response->getStatusCode())->toBe(204);
@@ -214,7 +214,7 @@ it('deletes an answer and returns 204', function () {
 });
 
 it('lists answers', function () {
-    $bus = stubAssessmentBus(new AnswerListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubAssessmentBus(new AnswerListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $response = (new ListAnswersController($bus))(Request::create('/api/assessment/answers', 'GET', ['question_id' => 'qn-1']));
 
     expect($response->getStatusCode())->toBe(200);
@@ -225,7 +225,7 @@ it('lists answers', function () {
 
 it('creates an attempt and returns 201', function () use ($ts, $uuid) {
     $output = new AttemptOutput('att-1', 0, 'started', $ts, null, $uuid, $uuid, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new CreateAttemptController($bus))(new CreateAttemptInput(userId: $uuid, quizId: $uuid));
 
     expect($response->getStatusCode())->toBe(201);
@@ -234,7 +234,7 @@ it('creates an attempt and returns 201', function () use ($ts, $uuid) {
 
 it('gets an attempt', function () use ($ts, $uuid) {
     $output = new AttemptOutput('att-1', 85, 'graded', $ts, $ts, $uuid, $uuid, $ts);
-    $bus = stubAssessmentBus($output);
+    $bus = \stubAssessmentBus($output);
     $response = (new GetAttemptController($bus))('att-1');
 
     expect($response->getStatusCode())->toBe(200);
@@ -242,7 +242,7 @@ it('gets an attempt', function () use ($ts, $uuid) {
 });
 
 it('lists attempts', function () {
-    $bus = stubAssessmentBus(new AttemptListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    $bus = \stubAssessmentBus(new AttemptListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $response = (new ListAttemptsController($bus))(Request::create('/api/assessment/attempts'));
 
     expect($response->getStatusCode())->toBe(200);

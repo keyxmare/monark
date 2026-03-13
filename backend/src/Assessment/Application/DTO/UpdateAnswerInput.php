@@ -10,9 +10,7 @@ final readonly class UpdateAnswerInput
 {
     public function __construct(
         public ?string $content = null,
-
         public ?bool $isCorrect = null,
-
         #[Assert\PositiveOrZero]
         public ?int $position = null,
     ) {

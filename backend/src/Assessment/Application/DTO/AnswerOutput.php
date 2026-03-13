@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Assessment\Application\DTO;
 
 use App\Assessment\Domain\Model\Answer;
+use DateTimeInterface;
 
 final readonly class AnswerOutput
 {
@@ -27,8 +28,8 @@ final readonly class AnswerOutput
             isCorrect: $answer->isCorrect(),
             position: $answer->getPosition(),
             questionId: $answer->getQuestion()->getId()->toRfc4122(),
-            createdAt: $answer->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $answer->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            createdAt: $answer->getCreatedAt()->format(DateTimeInterface::ATOM),
+            updatedAt: $answer->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );
     }
 }

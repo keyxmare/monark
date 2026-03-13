@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -36,17 +37,17 @@ final class Provider
     private ProviderStatus $status;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $lastSyncAt;
+    private ?DateTimeImmutable $lastSyncAt;
 
     /** @var Collection<int, Project> */
     #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'provider')]
     private Collection $projects;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     private function __construct(
         Uuid $id,
@@ -65,8 +66,8 @@ final class Provider
         $this->status = ProviderStatus::Pending;
         $this->lastSyncAt = null;
         $this->projects = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -121,7 +122,7 @@ final class Provider
         return $this->status;
     }
 
-    public function getLastSyncAt(): ?\DateTimeImmutable
+    public function getLastSyncAt(): ?DateTimeImmutable
     {
         return $this->lastSyncAt;
     }
@@ -132,12 +133,12 @@ final class Provider
         return $this->projects;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -160,19 +161,19 @@ final class Provider
         if ($username !== null) {
             $this->username = $username;
         }
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function markConnected(): void
     {
         $this->status = ProviderStatus::Connected;
-        $this->lastSyncAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->lastSyncAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function markError(): void
     {
         $this->status = ProviderStatus::Error;
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 }

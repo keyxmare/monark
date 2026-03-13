@@ -14,22 +14,45 @@ use Tests\Factory\Catalog\TechStackFactory;
 function stubGetTechStackRepo(?TechStack $techStack = null): TechStackRepositoryInterface
 {
     return new class ($techStack) implements TechStackRepositoryInterface {
-        public function __construct(private readonly ?TechStack $techStack) {}
-        public function findById(Uuid $id): ?TechStack { return $this->techStack; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function count(): int { return 0; }
-        public function save(TechStack $techStack): void {}
-        public function delete(TechStack $techStack): void {}
-        public function deleteByProjectId(Uuid $projectId): void {}
+        public function __construct(private readonly ?TechStack $techStack)
+        {
+        }
+        public function findById(Uuid $id): ?TechStack
+        {
+            return $this->techStack;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(TechStack $techStack): void
+        {
+        }
+        public function delete(TechStack $techStack): void
+        {
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
     };
 }
 
 describe('GetTechStackHandler', function () {
     it('returns a tech stack by id', function () {
         $techStack = TechStackFactory::create(language: 'PHP', framework: 'Symfony');
-        $handler = new GetTechStackHandler(stubGetTechStackRepo($techStack));
+        $handler = new GetTechStackHandler(\stubGetTechStackRepo($techStack));
         $result = $handler(new GetTechStackQuery($techStack->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(TechStackOutput::class);
@@ -38,7 +61,7 @@ describe('GetTechStackHandler', function () {
     });
 
     it('throws not found when tech stack does not exist', function () {
-        $handler = new GetTechStackHandler(stubGetTechStackRepo(null));
+        $handler = new GetTechStackHandler(\stubGetTechStackRepo(null));
         $handler(new GetTechStackQuery('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

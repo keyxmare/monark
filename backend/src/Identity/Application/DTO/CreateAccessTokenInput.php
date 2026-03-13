@@ -15,13 +15,10 @@ final readonly class CreateAccessTokenInput
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['gitlab', 'github'])]
         public string $provider,
-
         #[Assert\NotBlank]
         public string $token,
-
         #[Assert\NotNull]
         public array $scopes = [],
-
         public ?string $expiresAt = null,
     ) {
     }

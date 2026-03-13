@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Identity\Domain\Repository\UserRepositoryInterface;
 use App\Identity\Infrastructure\Security\ApiTokenHandler;
 use App\Identity\Infrastructure\Security\LoginFailureHandler;
 use App\Identity\Infrastructure\Security\LoginSuccessHandler;
-use App\Identity\Domain\Repository\UserRepositoryInterface;
 use App\Tests\Factory\Identity\UserFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
