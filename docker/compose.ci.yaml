@@ -1,5 +1,6 @@
 services:
   backend:
+    user: "0:0"
     command: ["sleep", "infinity"]
     depends_on:
       database:
@@ -8,8 +9,8 @@ services:
       disable: true
 
   frontend:
+    user: "0:0"
     command: ["sleep", "infinity"]
     depends_on: []
     healthcheck:
       disable: true
-
