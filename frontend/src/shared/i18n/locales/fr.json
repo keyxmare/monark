@@ -217,7 +217,19 @@
       "noDependencies": "Aucune dépendance trouvée. Lancez un scan pour détecter les dépendances.",
       "repoLink": "Dépôt",
       "mergeRequestsCount": "Merge Requests ({count})",
-      "noMergeRequests": "Aucune merge request trouvée."
+      "mergeRequests": "Merge Requests",
+      "noMergeRequests": "Aucune merge request trouvée.",
+      "searchDependencies": "Rechercher des dépendances…",
+      "allPackageManagers": "Tous les gestionnaires",
+      "noMatchingDependencies": "Aucune dépendance ne correspond à votre recherche.",
+      "confirmDeleteStackTitle": "Supprimer la stack technique",
+      "confirmDeleteStackMessage": "Êtes-vous sûr de vouloir supprimer « {name} » ?",
+      "lastScan": "Dernier scan",
+      "freshness": {
+        "fresh": "Récent",
+        "recent": "Modéré",
+        "stale": "Ancien"
+      }
     },
     "providers": {
       "title": "Fournisseurs",

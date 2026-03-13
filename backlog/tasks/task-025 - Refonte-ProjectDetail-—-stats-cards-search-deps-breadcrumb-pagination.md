@@ -1,9 +1,10 @@
 ---
 id: TASK-025
 title: 'Refonte ProjectDetail — stats cards, search deps, breadcrumb, pagination'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-13 12:08'
+updated_date: '2026-03-13 12:41'
 labels:
   - frontend
   - catalog

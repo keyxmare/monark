@@ -217,7 +217,19 @@
       "noDependencies": "No dependencies found. Run a scan to detect dependencies.",
       "repoLink": "Repo",
       "mergeRequestsCount": "Merge Requests ({count})",
-      "noMergeRequests": "No merge requests found."
+      "mergeRequests": "Merge Requests",
+      "noMergeRequests": "No merge requests found.",
+      "searchDependencies": "Search dependencies…",
+      "allPackageManagers": "All package managers",
+      "noMatchingDependencies": "No dependencies match your search.",
+      "confirmDeleteStackTitle": "Delete Tech Stack",
+      "confirmDeleteStackMessage": "Are you sure you want to delete \"{name}\"?",
+      "lastScan": "Last Scan",
+      "freshness": {
+        "fresh": "Fresh",
+        "recent": "Recent",
+        "stale": "Stale"
+      }
     },
     "providers": {
       "title": "Providers",

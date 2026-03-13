@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
@@ -7,7 +7,11 @@ import { useMergeRequestStore } from '@/catalog/stores/merge-request'
 import { useProjectStore } from '@/catalog/stores/project'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { useDependencyStore } from '@/dependency/stores/dependency'
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useToastStore } from '@/shared/stores/toast'
+
+const PER_PAGE = 20
 
 const route = useRoute()
 const { d, t } = useI18n()
@@ -15,63 +19,118 @@ const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
 const dependencyStore = useDependencyStore()
 const mergeRequestStore = useMergeRequestStore()
+const toastStore = useToastStore()
 
 const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-stacks')
 const projectId = computed(() => route.params.id as string)
+const deleteTarget = ref<null | { id: string; name: string }>(null)
+const depSearch = ref('')
+const depFilterPm = ref('all')
+
+const scanFreshness = computed(() => {
+  if (!projectStore.selected?.updatedAt) return 'stale'
+  const diff = Date.now() - new Date(projectStore.selected.updatedAt).getTime()
+  const hours = diff / (1000 * 60 * 60)
+  if (hours < 1) return 'fresh'
+  if (hours < 24) return 'recent'
+  return 'stale'
+})
+
+const filteredDependencies = computed(() => {
+  let deps = dependencyStore.dependencies
+  if (depSearch.value.trim()) {
+    const q = depSearch.value.toLowerCase()
+    deps = deps.filter(dep => dep.name.toLowerCase().includes(q))
+  }
+  if (depFilterPm.value !== 'all') {
+    deps = deps.filter(dep => dep.packageManager === depFilterPm.value)
+  }
+  return deps
+})
+
+function truncateUrl(url: string, max = 50): string {
+  if (url.length <= max) return url
+  return `${url.slice(0, max)}…`
+}
 
 onMounted(async () => {
   await projectStore.fetchOne(projectId.value)
   await Promise.all([
-    techStackStore.fetchAll(1, 20, projectId.value),
-    dependencyStore.fetchAll(1, 100, projectId.value),
-    mergeRequestStore.fetchAll(projectId.value, 1, 20, 'active'),
+    techStackStore.fetchAll(1, PER_PAGE, projectId.value),
+    dependencyStore.fetchAll(1, PER_PAGE, projectId.value),
+    mergeRequestStore.fetchAll(projectId.value, 1, PER_PAGE, 'active'),
   ])
 })
 
-async function handleDeleteTechStack(id: string) {
-  await techStackStore.remove(id)
+watch(activeTab, (tab) => {
+  if (tab === 'tech-stacks' && techStackStore.currentPage !== 1) {
+    techStackStore.fetchAll(1, PER_PAGE, projectId.value)
+  } else if (tab === 'dependencies' && dependencyStore.currentPage !== 1) {
+    dependencyStore.fetchAll(1, PER_PAGE, projectId.value)
+  } else if (tab === 'merge-requests' && mergeRequestStore.currentPage !== 1) {
+    mergeRequestStore.fetchAll(projectId.value, 1, PER_PAGE, 'active')
+  }
+})
+
+function requestDeleteTechStack(id: string, name: string) {
+  deleteTarget.value = { id, name }
+}
+
+async function confirmDeleteTechStack() {
+  if (!deleteTarget.value) return
+  await techStackStore.remove(deleteTarget.value.id)
+  deleteTarget.value = null
 }
 
 async function handleScan() {
   await projectStore.scan(projectId.value)
+  toastStore.addToast({
+    title: t('catalog.projects.scanComplete', {
+      deps: projectStore.scanResult?.dependenciesDetected ?? 0,
+      stacks: projectStore.scanResult?.stacksDetected ?? 0,
+    }),
+    variant: 'success',
+  })
   await Promise.all([
-    techStackStore.fetchAll(1, 100, projectId.value),
-    dependencyStore.fetchAll(1, 100, projectId.value),
+    techStackStore.fetchAll(1, PER_PAGE, projectId.value),
+    dependencyStore.fetchAll(1, PER_PAGE, projectId.value),
   ])
+}
+
+function changeTechStackPage(page: number) {
+  techStackStore.fetchAll(page, PER_PAGE, projectId.value)
+}
+
+function changeDependencyPage(page: number) {
+  dependencyStore.fetchAll(page, PER_PAGE, projectId.value)
+}
+
+function changeMergeRequestPage(page: number) {
+  mergeRequestStore.fetchAll(projectId.value, page, PER_PAGE, 'active')
 }
 </script>
 
 <template>
   <DashboardLayout>
     <div data-testid="project-detail-page">
-      <div class="mb-6 flex items-center justify-between">
+      <nav
+        class="mb-6 flex items-center gap-1 text-sm text-text-muted"
+        data-testid="project-detail-breadcrumb"
+      >
         <RouterLink
           :to="{ name: 'catalog-projects-list' }"
-          class="text-sm text-primary hover:text-primary-dark"
-          data-testid="project-detail-back"
+          class="text-primary hover:text-primary-dark"
         >
-          &larr; {{ t('common.backTo', { page: t('catalog.projects.title').toLowerCase() }) }}
+          {{ t('catalog.projects.title') }}
         </RouterLink>
-        <div class="flex gap-2">
-          <button
-            v-if="projectStore.selected?.externalId"
-            :disabled="projectStore.scanning"
-            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
-            data-testid="project-scan-btn"
-            @click="handleScan"
-          >
-            {{ projectStore.scanning ? t('catalog.projects.scanning') : t('catalog.projects.scanProject') }}
-          </button>
-          <RouterLink
-            v-if="projectStore.selected"
-            :to="{ name: 'catalog-projects-edit', params: { id: projectStore.selected.id } }"
-            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-            data-testid="project-detail-edit"
-          >
-            {{ t('common.actions.edit') }}
-          </RouterLink>
-        </div>
-      </div>
+        <span>/</span>
+        <span
+          v-if="projectStore.selected"
+          class="font-medium text-text"
+        >
+          {{ projectStore.selected.name }}
+        </span>
+      </nav>
 
       <div
         v-if="projectStore.loading"
@@ -91,99 +150,112 @@ async function handleScan() {
       </div>
 
       <template v-else-if="projectStore.selected">
-        <div
-          class="mb-6 max-w-2xl rounded-xl border border-border bg-surface p-6"
-          data-testid="project-detail-card"
-        >
-          <h2 class="mb-6 text-2xl font-bold text-text">
-            {{ projectStore.selected.name }}
-          </h2>
-
-          <dl class="space-y-4">
-            <div>
-              <dt class="text-sm font-medium text-text-muted">
-                {{ t('catalog.projects.slug') }}
-              </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="project-detail-slug"
-              >
-                {{ projectStore.selected.slug }}
-              </dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-text-muted">
-                {{ t('catalog.projects.description') }}
-              </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="project-detail-description"
-              >
-                {{ projectStore.selected.description ?? t('common.noDescription') }}
-              </dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-text-muted">
-                {{ t('catalog.projects.repositoryUrl') }}
-              </dt>
-              <dd
-                class="mt-1 text-text"
+        <div class="mb-6 flex items-start justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-text">
+              {{ projectStore.selected.name }}
+            </h2>
+            <p
+              v-if="projectStore.selected.description"
+              class="mt-1 text-sm text-text-muted"
+              data-testid="project-detail-description"
+            >
+              {{ projectStore.selected.description }}
+            </p>
+            <p class="mt-1 text-sm text-text-muted">
+              <a
+                :href="projectStore.selected.repositoryUrl"
+                target="_blank"
+                rel="noopener"
+                class="text-primary hover:text-primary-dark"
                 data-testid="project-detail-repository-url"
-              >
-                {{ projectStore.selected.repositoryUrl }}
-              </dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-text-muted">
-                {{ t('catalog.projects.defaultBranch') }}
-              </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="project-detail-default-branch"
-              >
-                {{ projectStore.selected.defaultBranch }}
-              </dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-text-muted">
-                {{ t('catalog.projects.visibility') }}
-              </dt>
-              <dd class="mt-1">
-                <span
-                  :class="[
-                    'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
-                    projectStore.selected.visibility === 'public'
-                      ? 'bg-success/10 text-success'
-                      : 'bg-warning/10 text-warning',
-                  ]"
-                  data-testid="project-detail-visibility"
-                >
-                  {{ projectStore.selected.visibility }}
-                </span>
-              </dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-text-muted">
-                {{ t('identity.users.createdAt') }}
-              </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="project-detail-created-at"
-              >
-                {{ d(new Date(projectStore.selected.createdAt), 'short') }}
-              </dd>
-            </div>
-          </dl>
+                :title="projectStore.selected.repositoryUrl"
+              >{{ truncateUrl(projectStore.selected.repositoryUrl) }} ↗</a>
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button
+              v-if="projectStore.selected.externalId"
+              :disabled="projectStore.scanning"
+              class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
+              data-testid="project-scan-btn"
+              @click="handleScan"
+            >
+              {{ projectStore.scanning ? t('catalog.projects.scanning') : t('catalog.projects.scanProject') }}
+            </button>
+            <RouterLink
+              :to="{ name: 'catalog-projects-edit', params: { id: projectStore.selected.id } }"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+              data-testid="project-detail-edit"
+            >
+              {{ t('common.actions.edit') }}
+            </RouterLink>
+          </div>
         </div>
 
         <div
-          v-if="projectStore.scanResult"
-          class="mb-6 rounded-lg border border-success/30 bg-success/10 p-4"
-          data-testid="scan-result-banner"
+          class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4"
+          data-testid="project-stats-cards"
         >
-          <p class="text-sm font-medium text-success">
-            {{ t('catalog.projects.scanComplete', { stacks: projectStore.scanResult.stacksDetected, deps: projectStore.scanResult.dependenciesDetected }) }}
-          </p>
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div class="text-lg font-bold text-text">
+              <span
+                :class="[
+                  'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
+                  projectStore.selected.visibility === 'public'
+                    ? 'bg-success/10 text-success'
+                    : 'bg-warning/10 text-warning',
+                ]"
+                data-testid="project-stat-visibility"
+              >
+                {{ projectStore.selected.visibility }}
+              </span>
+            </div>
+            <p class="mt-1 text-xs text-text-muted">
+              {{ t('catalog.projects.visibility') }}
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div
+              class="text-lg font-bold tabular-nums text-text"
+              data-testid="project-stat-stacks"
+            >
+              {{ techStackStore.total }}
+            </div>
+            <p class="mt-1 text-xs text-text-muted">
+              {{ t('catalog.projects.techStacks') }}
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div
+              class="text-lg font-bold tabular-nums text-text"
+              data-testid="project-stat-mrs"
+            >
+              {{ mergeRequestStore.total }}
+            </div>
+            <p class="mt-1 text-xs text-text-muted">
+              {{ t('catalog.projects.mergeRequests') }}
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+            <div
+              :class="{
+                'text-green-600': scanFreshness === 'fresh',
+                'text-yellow-600': scanFreshness === 'recent',
+                'text-red-600': scanFreshness === 'stale',
+              }"
+              class="text-lg font-bold"
+              data-testid="project-stat-freshness"
+            >
+              {{ t(`catalog.projects.freshness.${scanFreshness}`) }}
+            </div>
+            <p class="mt-1 text-xs text-text-muted">
+              {{ t('catalog.projects.lastScan') }}
+            </p>
+          </div>
         </div>
 
         <div class="mb-4 flex gap-2 border-b border-border">
@@ -225,232 +297,369 @@ async function handleScan() {
           </button>
         </div>
 
+        <!-- Tech Stacks Tab -->
         <div
           v-if="activeTab === 'tech-stacks'"
-          class="overflow-hidden rounded-xl border border-border bg-surface"
           data-testid="tech-stacks-panel"
         >
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-border bg-surface-muted">
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.language') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.languageVersion') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.framework') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.frameworkVersion') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.detectedAt') }}
-                </th>
-                <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                  {{ t('common.table.actions') }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="ts in techStackStore.techStacks"
-                :key="ts.id"
-                class="border-b border-border last:border-0"
-                data-testid="tech-stack-row"
-              >
-                <td class="px-4 py-3 text-sm text-text">
-                  {{ ts.language }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ ts.version || '—' }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text">
-                  {{ ts.framework }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ ts.frameworkVersion || '—' }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ d(new Date(ts.detectedAt), 'short') }}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <button
-                    class="text-sm text-danger hover:text-danger/80"
-                    data-testid="tech-stack-delete"
-                    @click="handleDeleteTechStack(ts.id)"
-                  >
-                    {{ t('common.actions.delete') }}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="overflow-hidden rounded-xl border border-border bg-surface">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-border bg-surface-muted">
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.language') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.languageVersion') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.framework') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.frameworkVersion') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.detectedAt') }}
+                  </th>
+                  <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
+                    {{ t('common.table.actions') }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="ts in techStackStore.techStacks"
+                  :key="ts.id"
+                  class="border-b border-border last:border-0"
+                  data-testid="tech-stack-row"
+                >
+                  <td class="px-4 py-3 text-sm text-text">
+                    {{ ts.language }}
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ ts.version || '—' }}
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text">
+                    {{ ts.framework }}
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ ts.frameworkVersion || '—' }}
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ d(new Date(ts.detectedAt), 'short') }}
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <button
+                      class="text-sm text-danger hover:text-danger/80"
+                      data-testid="tech-stack-delete"
+                      @click="requestDeleteTechStack(ts.id, `${ts.language} ${ts.framework}`)"
+                    >
+                      {{ t('common.actions.delete') }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              v-if="techStackStore.techStacks.length === 0"
+              class="py-8 text-center text-text-muted"
+              data-testid="tech-stacks-empty"
+            >
+              {{ t('catalog.projects.noTechStacks') }}
+            </div>
+          </div>
           <div
-            v-if="techStackStore.techStacks.length === 0"
-            class="py-8 text-center text-text-muted"
-            data-testid="tech-stacks-empty"
+            v-if="techStackStore.totalPages > 1"
+            class="mt-4 flex items-center justify-center gap-2"
+            data-testid="tech-stacks-pagination"
           >
-            {{ t('catalog.projects.noTechStacks') }}
+            <button
+              :disabled="techStackStore.currentPage <= 1"
+              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
+              @click="changeTechStackPage(techStackStore.currentPage - 1)"
+            >
+              {{ t('common.pagination.previous') }}
+            </button>
+            <span class="text-sm text-text-muted">
+              {{ t('common.pagination.page', { current: techStackStore.currentPage, total: techStackStore.totalPages }) }}
+            </span>
+            <button
+              :disabled="techStackStore.currentPage >= techStackStore.totalPages"
+              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
+              @click="changeTechStackPage(techStackStore.currentPage + 1)"
+            >
+              {{ t('common.pagination.next') }}
+            </button>
           </div>
         </div>
 
+        <!-- Dependencies Tab -->
         <div
           v-if="activeTab === 'dependencies'"
-          class="overflow-hidden rounded-xl border border-border bg-surface"
           data-testid="dependencies-panel"
         >
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-border bg-surface-muted">
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.projects.name') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.version') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('dependency.dependencies.packageManager') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('dependency.dependencies.type') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.projects.repository') }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="dep in dependencyStore.dependencies"
-                :key="dep.id"
-                class="border-b border-border last:border-0"
-                data-testid="dependency-row"
-              >
-                <td class="px-4 py-3 text-sm text-text">
-                  {{ dep.name }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ dep.currentVersion }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ dep.packageManager }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ dep.type }}
-                </td>
-                <td class="px-4 py-3 text-sm">
-                  <a
-                    v-if="dep.repositoryUrl"
-                    :href="dep.repositoryUrl"
-                    target="_blank"
-                    rel="noopener"
-                    class="text-primary hover:text-primary-dark"
-                  >{{ t('catalog.projects.repoLink') }} ↗</a>
-                  <span
-                    v-else
-                    class="text-text-muted"
-                  >—</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
           <div
-            v-if="dependencyStore.dependencies.length === 0"
-            class="py-8 text-center text-text-muted"
-            data-testid="dependencies-empty"
+            class="mb-4 flex flex-wrap items-center gap-3"
+            data-testid="dependencies-filters"
           >
-            {{ t('catalog.projects.noDependencies') }}
+            <div class="relative flex-1">
+              <svg
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+              <input
+                v-model="depSearch"
+                type="search"
+                :aria-label="t('catalog.projects.searchDependencies')"
+                :placeholder="t('catalog.projects.searchDependencies')"
+                class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
+                data-testid="dependencies-search"
+              >
+            </div>
+            <select
+              v-model="depFilterPm"
+              :aria-label="t('catalog.projects.allPackageManagers')"
+              class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+              data-testid="dependencies-filter-pm"
+            >
+              <option value="all">
+                {{ t('catalog.projects.allPackageManagers') }}
+              </option>
+              <option value="composer">
+                Composer
+              </option>
+              <option value="npm">
+                npm
+              </option>
+              <option value="pip">
+                pip
+              </option>
+            </select>
+          </div>
+
+          <div class="overflow-hidden rounded-xl border border-border bg-surface">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-border bg-surface-muted">
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.projects.name') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.version') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('dependency.dependencies.packageManager') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('dependency.dependencies.type') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.projects.repository') }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="dep in filteredDependencies"
+                  :key="dep.id"
+                  class="border-b border-border last:border-0"
+                  data-testid="dependency-row"
+                >
+                  <td class="px-4 py-3 text-sm text-text">
+                    {{ dep.name }}
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ dep.currentVersion }}
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info">
+                      {{ dep.packageManager }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ dep.type }}
+                  </td>
+                  <td class="px-4 py-3 text-sm">
+                    <a
+                      v-if="dep.repositoryUrl"
+                      :href="dep.repositoryUrl"
+                      target="_blank"
+                      rel="noopener"
+                      class="text-primary hover:text-primary-dark"
+                      :title="dep.repositoryUrl"
+                    >{{ truncateUrl(dep.repositoryUrl, 35) }} ↗</a>
+                    <span
+                      v-else
+                      class="text-text-muted"
+                    >—</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              v-if="filteredDependencies.length === 0"
+              class="py-8 text-center text-text-muted"
+              data-testid="dependencies-empty"
+            >
+              {{ depSearch || depFilterPm !== 'all' ? t('catalog.projects.noMatchingDependencies') : t('catalog.projects.noDependencies') }}
+            </div>
+          </div>
+          <div
+            v-if="dependencyStore.totalPages > 1"
+            class="mt-4 flex items-center justify-center gap-2"
+            data-testid="dependencies-pagination"
+          >
+            <button
+              :disabled="dependencyStore.currentPage <= 1"
+              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
+              @click="changeDependencyPage(dependencyStore.currentPage - 1)"
+            >
+              {{ t('common.pagination.previous') }}
+            </button>
+            <span class="text-sm text-text-muted">
+              {{ t('common.pagination.page', { current: dependencyStore.currentPage, total: dependencyStore.totalPages }) }}
+            </span>
+            <button
+              :disabled="dependencyStore.currentPage >= dependencyStore.totalPages"
+              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
+              @click="changeDependencyPage(dependencyStore.currentPage + 1)"
+            >
+              {{ t('common.pagination.next') }}
+            </button>
           </div>
         </div>
+
+        <!-- Merge Requests Tab -->
         <div
           v-if="activeTab === 'merge-requests'"
-          class="overflow-hidden rounded-xl border border-border bg-surface"
           data-testid="merge-requests-panel"
         >
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-border bg-surface-muted">
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.mergeRequests.mrTitle') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.mergeRequests.status') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.mergeRequests.author') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.mergeRequests.branches') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.mergeRequests.updatedAt') }}
-                </th>
-                <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                  {{ t('common.table.actions') }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="mr in mergeRequestStore.mergeRequests"
-                :key="mr.id"
-                class="border-b border-border last:border-0"
-                data-testid="mr-row"
-              >
-                <td class="px-4 py-3 text-sm text-text">
-                  <span class="text-text-muted">#{{ mr.externalId }}</span>
-                  {{ mr.title }}
-                </td>
-                <td class="px-4 py-3">
-                  <span
-                    :class="[
-                      'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
-                      {
-                        'bg-success/10 text-success': mr.status === 'open',
-                        'bg-info/10 text-info': mr.status === 'merged',
-                        'bg-danger/10 text-danger': mr.status === 'closed',
-                        'bg-warning/10 text-warning': mr.status === 'draft',
-                      },
-                    ]"
-                    data-testid="mr-status-badge"
-                  >
-                    {{ mr.status }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ mr.author }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ mr.sourceBranch }} → {{ mr.targetBranch }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ d(new Date(mr.updatedAt), 'short') }}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <a
-                    :href="mr.url"
-                    target="_blank"
-                    rel="noopener"
-                    class="text-sm text-primary hover:text-primary-dark"
-                    data-testid="mr-external-link"
-                  >
-                    {{ t('catalog.mergeRequests.viewExternal') }} ↗
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="overflow-hidden rounded-xl border border-border bg-surface">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-border bg-surface-muted">
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.mergeRequests.mrTitle') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.mergeRequests.status') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.mergeRequests.author') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.mergeRequests.branches') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.mergeRequests.updatedAt') }}
+                  </th>
+                  <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
+                    {{ t('common.table.actions') }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="mr in mergeRequestStore.mergeRequests"
+                  :key="mr.id"
+                  class="border-b border-border last:border-0"
+                  data-testid="mr-row"
+                >
+                  <td class="px-4 py-3 text-sm text-text">
+                    <span class="text-text-muted">#{{ mr.externalId }}</span>
+                    {{ mr.title }}
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      :class="[
+                        'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                        {
+                          'bg-success/10 text-success': mr.status === 'open',
+                          'bg-info/10 text-info': mr.status === 'merged',
+                          'bg-danger/10 text-danger': mr.status === 'closed',
+                          'bg-warning/10 text-warning': mr.status === 'draft',
+                        },
+                      ]"
+                      data-testid="mr-status-badge"
+                    >
+                      {{ mr.status }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ mr.author }}
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ mr.sourceBranch }} → {{ mr.targetBranch }}
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ d(new Date(mr.updatedAt), 'short') }}
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <a
+                      :href="mr.url"
+                      target="_blank"
+                      rel="noopener"
+                      class="text-sm text-primary hover:text-primary-dark"
+                      data-testid="mr-external-link"
+                    >
+                      {{ t('catalog.mergeRequests.viewExternal') }} ↗
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              v-if="mergeRequestStore.mergeRequests.length === 0"
+              class="py-8 text-center text-text-muted"
+              data-testid="merge-requests-empty"
+            >
+              {{ t('catalog.mergeRequests.noMergeRequests') }}
+            </div>
+          </div>
           <div
-            v-if="mergeRequestStore.mergeRequests.length === 0"
-            class="py-8 text-center text-text-muted"
-            data-testid="merge-requests-empty"
+            v-if="mergeRequestStore.totalPages > 1"
+            class="mt-4 flex items-center justify-center gap-2"
+            data-testid="merge-requests-pagination"
           >
-            {{ t('catalog.mergeRequests.noMergeRequests') }}
+            <button
+              :disabled="mergeRequestStore.currentPage <= 1"
+              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
+              @click="changeMergeRequestPage(mergeRequestStore.currentPage - 1)"
+            >
+              {{ t('common.pagination.previous') }}
+            </button>
+            <span class="text-sm text-text-muted">
+              {{ t('common.pagination.page', { current: mergeRequestStore.currentPage, total: mergeRequestStore.totalPages }) }}
+            </span>
+            <button
+              :disabled="mergeRequestStore.currentPage >= mergeRequestStore.totalPages"
+              class="rounded-lg border border-border px-3 py-1.5 text-sm text-text transition-colors hover:bg-background disabled:opacity-50"
+              @click="changeMergeRequestPage(mergeRequestStore.currentPage + 1)"
+            >
+              {{ t('common.pagination.next') }}
+            </button>
           </div>
         </div>
       </template>
+
+      <ConfirmDialog
+        :open="deleteTarget !== null"
+        :title="t('catalog.projects.confirmDeleteStackTitle')"
+        :message="t('catalog.projects.confirmDeleteStackMessage', { name: deleteTarget?.name ?? '' })"
+        :confirm-label="t('common.actions.delete')"
+        variant="danger"
+        @confirm="confirmDeleteTechStack"
+        @cancel="deleteTarget = null"
+      />
     </div>
   </DashboardLayout>
 </template>
