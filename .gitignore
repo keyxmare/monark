@@ -5,6 +5,7 @@ var/
 dist/
 coverage/
 .phpunit.cache/
+.php-cs-fixer.cache
 
 .env.local
 .env.*.local
