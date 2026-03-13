@@ -1,9 +1,10 @@
 ---
 id: TASK-017.13
 title: 'Tri des remote projects (nom, visibilité, branche)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-12 16:11'
+updated_date: '2026-03-13 07:36'
 labels:
   - frontend
   - ui/ux

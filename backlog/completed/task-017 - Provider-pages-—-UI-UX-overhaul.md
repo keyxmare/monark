@@ -1,9 +1,10 @@
 ---
 id: TASK-017
 title: Provider pages — UI/UX overhaul
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-12 16:10'
+updated_date: '2026-03-13 07:36'
 labels:
   - frontend
   - ui/ux

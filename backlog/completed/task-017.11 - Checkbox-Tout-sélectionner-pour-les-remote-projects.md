@@ -1,10 +1,10 @@
 ---
 id: TASK-017.11
 title: Checkbox "Tout sélectionner" pour les remote projects
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-03-12 16:11'
-updated_date: '2026-03-12 16:37'
+updated_date: '2026-03-13 07:36'
 labels:
   - frontend
   - ui/ux

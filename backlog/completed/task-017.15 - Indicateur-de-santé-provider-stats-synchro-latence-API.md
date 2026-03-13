@@ -1,9 +1,10 @@
 ---
 id: TASK-017.15
 title: 'Indicateur de santé provider (stats synchro, latence API)'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-12 16:11'
+updated_date: '2026-03-13 07:36'
 labels:
   - frontend
   - backend
