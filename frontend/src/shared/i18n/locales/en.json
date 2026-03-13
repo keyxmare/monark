@@ -82,6 +82,10 @@
       "mergeRequests": "merge requests",
       "messenger": "messenger queues"
     },
+    "validation": {
+      "required": "This field is required",
+      "invalidUrl": "Please enter a valid URL"
+    },
     "notSet": "Not set",
     "none": "None",
     "never": "Never",
@@ -256,6 +260,8 @@
       "hideToken": "Hide",
       "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "tokenKeepCurrent": "Leave empty to keep current",
+      "typeLockedHint": "Provider type cannot be changed after creation",
+      "urlHint": "The base URL of the provider API",
       "syncAll": "Sync All",
       "syncSelected": "Sync Selected ({count})",
       "syncing": "Syncing…",

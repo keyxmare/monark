@@ -82,6 +82,10 @@
       "mergeRequests": "les merge requests",
       "messenger": "les files messenger"
     },
+    "validation": {
+      "required": "Ce champ est requis",
+      "invalidUrl": "Veuillez entrer une URL valide"
+    },
     "notSet": "Non défini",
     "none": "Aucun",
     "never": "Jamais",
@@ -256,6 +260,8 @@
       "hideToken": "Masquer",
       "tokenPlaceholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "tokenKeepCurrent": "Laisser vide pour conserver l'actuel",
+      "typeLockedHint": "Le type de provider ne peut pas être modifié après la création",
+      "urlHint": "L'URL de base de l'API du provider",
       "syncAll": "Tout synchroniser",
       "syncSelected": "Synchro sélection ({count})",
       "syncing": "Synchronisation…",
