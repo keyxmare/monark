@@ -1,7 +1,7 @@
 ---
 id: TASK-009
 title: Filtrer les MR par statut actif par défaut (open/draft)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-03-12 09:06'
 labels:

@@ -1,7 +1,7 @@
 ---
 id: TASK-003
 title: Mettre en place l'i18n sur l'ensemble du projet
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-11 16:18'
 updated_date: '2026-03-11 19:32'
