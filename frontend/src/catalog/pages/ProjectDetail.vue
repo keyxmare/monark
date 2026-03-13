@@ -28,6 +28,9 @@ const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-s
 const projectId = computed(() => route.params.id as string)
 const depSearch = ref('')
 const depFilterPm = ref('all')
+const depTypeFilter = ref('')
+const mrStatusFilter = ref('')
+const mrAuthorSearch = ref('')
 
 const scanFreshness = computed(() => {
   if (!projectStore.selected?.updatedAt) return 'stale'
@@ -47,7 +50,18 @@ const filteredDependencies = computed(() => {
   if (depFilterPm.value !== 'all') {
     deps = deps.filter(dep => dep.packageManager === depFilterPm.value)
   }
+  if (depTypeFilter.value) {
+    deps = deps.filter(dep => dep.type === depTypeFilter.value)
+  }
   return deps
+})
+
+const filteredMergeRequests = computed(() => {
+  return mergeRequestStore.mergeRequests.filter(mr => {
+    if (mrStatusFilter.value && mr.status !== mrStatusFilter.value) return false
+    if (mrAuthorSearch.value && !mr.author.toLowerCase().includes(mrAuthorSearch.value.toLowerCase())) return false
+    return true
+  })
 })
 
 function truncateUrl(url: string, max = 50): string {
@@ -420,6 +434,22 @@ function changeMergeRequestPage(page: number) {
                 pip
               </option>
             </select>
+            <select
+              v-model="depTypeFilter"
+              :aria-label="t('catalog.projects.filterByType')"
+              class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+              data-testid="dependencies-filter-type"
+            >
+              <option value="">
+                {{ t('catalog.projects.allTypes') }}
+              </option>
+              <option value="runtime">
+                {{ t('dependency.dependencies.typeRuntime') }}
+              </option>
+              <option value="dev">
+                {{ t('dependency.dependencies.typeDev') }}
+              </option>
+            </select>
           </div>
 
           <div class="overflow-hidden rounded-xl border border-border bg-surface">
@@ -486,7 +516,7 @@ function changeMergeRequestPage(page: number) {
               class="py-8 text-center text-text-muted"
               data-testid="dependencies-empty"
             >
-              {{ depSearch || depFilterPm !== 'all' ? t('catalog.projects.noMatchingDependencies') : t('catalog.projects.noDependencies') }}
+              {{ depSearch || depFilterPm !== 'all' || depTypeFilter ? t('catalog.projects.noMatchingDependencies') : t('catalog.projects.noDependencies') }}
             </div>
           </div>
           <Pagination
@@ -503,6 +533,56 @@ function changeMergeRequestPage(page: number) {
           v-if="activeTab === 'merge-requests'"
           data-testid="merge-requests-panel"
         >
+          <div
+            class="mb-4 flex flex-wrap items-center gap-3"
+            data-testid="merge-requests-filters"
+          >
+            <select
+              v-model="mrStatusFilter"
+              :aria-label="t('catalog.projects.filterByStatus')"
+              class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+              data-testid="mr-filter-status"
+            >
+              <option value="">
+                {{ t('catalog.mergeRequests.allStatuses') }}
+              </option>
+              <option value="open">
+                {{ t('catalog.mergeRequests.statusOpen') }}
+              </option>
+              <option value="draft">
+                {{ t('catalog.mergeRequests.statusDraft') }}
+              </option>
+              <option value="merged">
+                {{ t('catalog.mergeRequests.statusMerged') }}
+              </option>
+              <option value="closed">
+                {{ t('catalog.mergeRequests.statusClosed') }}
+              </option>
+            </select>
+            <div class="relative flex-1">
+              <svg
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+              <input
+                v-model="mrAuthorSearch"
+                type="search"
+                :aria-label="t('catalog.mergeRequests.filterByAuthor')"
+                :placeholder="t('catalog.mergeRequests.filterByAuthor')"
+                class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
+                data-testid="mr-search-author"
+              >
+            </div>
+          </div>
           <div class="overflow-hidden rounded-xl border border-border bg-surface">
             <table class="w-full">
               <thead>
@@ -529,7 +609,7 @@ function changeMergeRequestPage(page: number) {
               </thead>
               <tbody>
                 <tr
-                  v-for="mr in mergeRequestStore.mergeRequests"
+                  v-for="mr in filteredMergeRequests"
                   :key="mr.id"
                   class="border-b border-border last:border-0"
                   data-testid="mr-row"
@@ -578,11 +658,11 @@ function changeMergeRequestPage(page: number) {
               </tbody>
             </table>
             <div
-              v-if="mergeRequestStore.mergeRequests.length === 0"
+              v-if="filteredMergeRequests.length === 0"
               class="py-8 text-center text-text-muted"
               data-testid="merge-requests-empty"
             >
-              {{ t('catalog.mergeRequests.noMergeRequests') }}
+              {{ mrStatusFilter || mrAuthorSearch ? t('catalog.projects.noMatchingMergeRequests') : t('catalog.mergeRequests.noMergeRequests') }}
             </div>
           </div>
           <Pagination
