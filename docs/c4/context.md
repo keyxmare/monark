@@ -13,7 +13,7 @@ C4Context
     System_Ext(cve, "CVE Database", "Vulnerability database (NVD)")
 
     Rel(dev, monark, "Uses", "HTTPS")
-    Rel(monark, gitlab, "Syncs projects and pipelines", "REST API")
-    Rel(monark, github, "Syncs projects and pipelines", "REST API")
+    Rel(monark, gitlab, "Syncs projects and merge requests", "REST API")
+    Rel(monark, github, "Syncs projects and merge requests", "REST API")
     Rel(monark, cve, "Fetches vulnerabilities", "REST API")
 ```

@@ -76,9 +76,6 @@ async function handleDelete(id: string) {
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
                 {{ t('catalog.projects.techStacks') }}
               </th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                {{ t('catalog.projects.pipelines') }}
-              </th>
               <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
                 {{ t('common.table.actions') }}
               </th>
@@ -115,9 +112,6 @@ async function handleDelete(id: string) {
               </td>
               <td class="px-4 py-3 text-sm text-text">
                 {{ project.techStacksCount }}
-              </td>
-              <td class="px-4 py-3 text-sm text-text">
-                {{ project.pipelinesCount }}
               </td>
               <td class="flex items-center justify-end gap-3 px-4 py-3">
                 <RouterLink

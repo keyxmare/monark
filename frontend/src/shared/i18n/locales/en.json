@@ -66,7 +66,6 @@
       "teams": "teams",
       "projects": "projects",
       "providers": "providers",
-      "pipelines": "pipelines",
       "techStacks": "tech stacks",
       "dependencies": "dependencies",
       "vulnerabilities": "vulnerabilities",
@@ -107,7 +106,6 @@
     "providers": "Providers",
     "projects": "Projects",
     "techStacks": "Tech Stacks",
-    "pipelines": "Pipelines",
     "dependencies": "Dependencies",
     "vulnerabilities": "Vulnerabilities",
     "activityEvents": "Activity Events",
@@ -201,7 +199,6 @@
       "repository": "Repository",
       "branch": "Branch",
       "techStacks": "Tech Stacks",
-      "pipelines": "Pipelines",
       "noProjects": "No projects found.",
       "createFailed": "Failed to create project",
       "updateFailed": "Failed to update project",
@@ -209,10 +206,8 @@
       "scanning": "Scanning…",
       "scanComplete": "Scan complete — {stacks} tech stacks and {deps} dependencies detected.",
       "techStacksCount": "Tech Stacks ({count})",
-      "pipelinesCount": "Pipelines ({count})",
       "dependenciesCount": "Dependencies ({count})",
       "noTechStacks": "No tech stacks detected.",
-      "noPipelines": "No pipelines found.",
       "noDependencies": "No dependencies found. Run a scan to detect dependencies.",
       "repoLink": "Repo",
       "mergeRequestsCount": "Merge Requests ({count})",
@@ -325,18 +320,6 @@
       "filterByAuthor": "Filter by author…",
       "noMergeRequests": "No merge requests found.",
       "viewExternal": "View"
-    },
-    "pipelines": {
-      "title": "Pipelines",
-      "externalId": "External ID",
-      "ref": "Ref",
-      "status": "Status",
-      "duration": "Duration",
-      "startedAt": "Started At",
-      "finishedAt": "Finished At",
-      "notFinished": "Not finished",
-      "noPipelines": "No pipelines found.",
-      "pipelineNumber": "Pipeline #{id}"
     }
   },
   "dependency": {

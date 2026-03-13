@@ -2,31 +2,21 @@
 
 declare(strict_types=1);
 
-use App\Catalog\Application\Command\CreatePipelineCommand;
 use App\Catalog\Application\Command\CreateTechStackCommand;
 use App\Catalog\Application\Command\DeleteTechStackCommand;
-use App\Catalog\Application\DTO\CreatePipelineInput;
 use App\Catalog\Application\DTO\CreateTechStackInput;
 use App\Catalog\Application\DTO\MergeRequestListOutput;
-use App\Catalog\Application\DTO\PipelineListOutput;
-use App\Catalog\Application\DTO\PipelineOutput;
 use App\Catalog\Application\DTO\TechStackListOutput;
 use App\Catalog\Application\DTO\TechStackOutput;
 use App\Catalog\Application\Query\GetMergeRequestQuery;
-use App\Catalog\Application\Query\GetPipelineQuery;
 use App\Catalog\Application\Query\GetTechStackQuery;
 use App\Catalog\Application\Query\ListMergeRequestsQuery;
-use App\Catalog\Application\Query\ListPipelinesQuery;
 use App\Catalog\Application\Query\ListTechStacksQuery;
-use App\Catalog\Domain\Model\PipelineStatus;
-use App\Catalog\Presentation\Controller\CreatePipelineController;
 use App\Catalog\Presentation\Controller\CreateTechStackController;
 use App\Catalog\Presentation\Controller\DeleteTechStackController;
 use App\Catalog\Presentation\Controller\GetMergeRequestController;
-use App\Catalog\Presentation\Controller\GetPipelineController;
 use App\Catalog\Presentation\Controller\GetTechStackController;
 use App\Catalog\Presentation\Controller\ListMergeRequestsController;
-use App\Catalog\Presentation\Controller\ListPipelinesController;
 use App\Catalog\Presentation\Controller\ListTechStacksController;
 use App\Shared\Application\DTO\PaginatedOutput;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,56 +46,6 @@ function stubResourceBus(mixed $result = null): MessageBusInterface&stdClass
         }
     };
 }
-
-it('creates a pipeline and returns 201', function () {
-    $output = new PipelineOutput('pipe-1', 'ext-1', 'main', 'running', 120, '2026-01-01T00:00:00+00:00', null, 'proj-1', '2026-01-01T00:00:00+00:00');
-    $bus = \stubResourceBus($output);
-    $controller = new CreatePipelineController($bus);
-
-    $input = new CreatePipelineInput(
-        externalId: 'ext-1',
-        ref: 'main',
-        status: PipelineStatus::Running,
-        duration: 120,
-        startedAt: '2026-01-01T00:00:00+00:00',
-        projectId: 'a0000000-0000-0000-0000-000000000001',
-    );
-    $response = $controller($input);
-
-    expect($response->getStatusCode())->toBe(201);
-    $data = \json_decode((string) $response->getContent(), true);
-    expect($data['success'])->toBeTrue();
-    expect($bus->dispatched)->toBeInstanceOf(CreatePipelineCommand::class);
-});
-
-it('gets a pipeline and returns 200', function () {
-    $output = new PipelineOutput('pipe-1', 'ext-1', 'main', 'success', 60, '2026-01-01T00:00:00+00:00', '2026-01-01T00:01:00+00:00', 'proj-1', '2026-01-01T00:00:00+00:00');
-    $bus = \stubResourceBus($output);
-    $controller = new GetPipelineController($bus);
-
-    $response = $controller('pipe-1');
-
-    expect($response->getStatusCode())->toBe(200);
-    expect($bus->dispatched)->toBeInstanceOf(GetPipelineQuery::class);
-});
-
-it('lists pipelines with filters', function () {
-    $listOutput = new PipelineListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = \stubResourceBus($listOutput);
-    $controller = new ListPipelinesController($bus);
-
-    $request = Request::create('/api/catalog/pipelines', 'GET', ['project_id' => 'proj-1', 'ref' => 'main']);
-    $response = $controller($request);
-
-    expect($response->getStatusCode())->toBe(200);
-    $data = \json_decode((string) $response->getContent(), true);
-    expect($data['data'])->toHaveKeys(['items', 'total', 'page']);
-    expect($bus->dispatched)->toBeInstanceOf(ListPipelinesQuery::class);
-    expect($bus->dispatched->projectId)->toBe('proj-1');
-    expect($bus->dispatched->ref)->toBe('main');
-    expect($bus->dispatched->page)->toBe(1);
-    expect($bus->dispatched->perPage)->toBe(20);
-});
 
 it('creates a tech stack and returns 201', function () {
     $output = new TechStackOutput('ts-1', 'PHP', 'Symfony', '8.0', '', '2026-01-01T00:00:00+00:00', 'proj-1', '2026-01-01T00:00:00+00:00');

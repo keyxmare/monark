@@ -32,7 +32,6 @@ const navSections = computed<NavSection[]>(() => [
       { icon: '🔌', labelKey: 'nav.providers', to: '/catalog/providers' },
       { icon: '📦', labelKey: 'nav.projects', to: '/catalog/projects' },
       { icon: '🔧', labelKey: 'nav.techStacks', to: '/catalog/tech-stacks' },
-      { icon: '🚀', labelKey: 'nav.pipelines', to: '/catalog/pipelines' },
     ],
   },
   {

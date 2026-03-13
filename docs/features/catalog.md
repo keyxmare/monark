@@ -1,6 +1,6 @@
 # Catalog
 
-Project management, tech stack detection, and CI/CD pipeline monitoring.
+Project management and tech stack detection.
 
 ## Features
 
@@ -14,13 +14,7 @@ Project management, tech stack detection, and CI/CD pipeline monitoring.
 - Version tracking per project
 - Historical detection records
 
-### Pipelines
-- Monitor CI/CD pipeline status
-- Track duration and history
-- Alert on failures
-
 ## Entities
 
 - **Project**: name, slug, description, repositoryUrl, defaultBranch, visibility, ownerId
 - **TechStack**: language, framework, version, detectedAt
-- **Pipeline**: externalId, ref, status (pending/running/success/failed), duration, startedAt, finishedAt

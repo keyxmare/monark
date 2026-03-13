@@ -24,7 +24,6 @@ const mockProject = {
   visibility: 'private' as const,
   ownerId: 'owner-456',
   techStacksCount: 2,
-  pipelinesCount: 5,
   createdAt: '2026-01-01T00:00:00+00:00',
   updatedAt: '2026-01-01T00:00:00+00:00',
 }

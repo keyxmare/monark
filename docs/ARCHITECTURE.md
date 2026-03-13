@@ -37,7 +37,7 @@ src/
 | Context | Responsibility |
 |---|---|
 | **Identity** | Authentication, user profiles, teams |
-| **Catalog** | Projects, tech stacks, CI/CD pipelines |
+| **Catalog** | Projects, tech stacks, merge requests |
 | **Dependency** | Dependencies, LTS versions, CVE vulnerabilities |
 | **Assessment** | Quizzes, questions, attempts and grading |
 | **Activity** | Developer dashboard, activity log, notifications |

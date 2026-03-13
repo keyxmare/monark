@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
 import { useMergeRequestStore } from '@/catalog/stores/merge-request'
-import { usePipelineStore } from '@/catalog/stores/pipeline'
 import { useProjectStore } from '@/catalog/stores/project'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { useDependencyStore } from '@/dependency/stores/dependency'
@@ -14,18 +13,16 @@ const route = useRoute()
 const { d, t } = useI18n()
 const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
-const pipelineStore = usePipelineStore()
 const dependencyStore = useDependencyStore()
 const mergeRequestStore = useMergeRequestStore()
 
-const activeTab = ref<'dependencies' | 'merge-requests' | 'pipelines' | 'tech-stacks'>('tech-stacks')
+const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-stacks')
 const projectId = computed(() => route.params.id as string)
 
 onMounted(async () => {
   await projectStore.fetchOne(projectId.value)
   await Promise.all([
     techStackStore.fetchAll(1, 20, projectId.value),
-    pipelineStore.fetchAll(1, 10, projectId.value, projectStore.selected?.defaultBranch),
     dependencyStore.fetchAll(1, 100, projectId.value),
     mergeRequestStore.fetchAll(projectId.value, 1, 20, 'active'),
   ])
@@ -205,18 +202,6 @@ async function handleScan() {
           <button
             :class="[
               'px-4 py-2 text-sm font-medium transition-colors',
-              activeTab === 'pipelines'
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-text-muted hover:text-text',
-            ]"
-            data-testid="tab-pipelines"
-            @click="activeTab = 'pipelines'"
-          >
-            {{ t('catalog.projects.pipelinesCount', { count: pipelineStore.total }) }}
-          </button>
-          <button
-            :class="[
-              'px-4 py-2 text-sm font-medium transition-colors',
               activeTab === 'dependencies'
                 ? 'border-b-2 border-primary text-primary'
                 : 'text-text-muted hover:text-text',
@@ -311,95 +296,6 @@ async function handleScan() {
           </div>
         </div>
 
-        <div
-          v-if="activeTab === 'pipelines'"
-          class="overflow-hidden rounded-xl border border-border bg-surface"
-          data-testid="pipelines-panel"
-        >
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-border bg-surface-muted">
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.pipelines.externalId') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.pipelines.ref') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.pipelines.status') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.pipelines.duration') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.pipelines.startedAt') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.pipelines.finishedAt') }}
-                </th>
-                <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                  {{ t('common.table.actions') }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="pipeline in pipelineStore.pipelines"
-                :key="pipeline.id"
-                class="border-b border-border last:border-0"
-                data-testid="pipeline-row"
-              >
-                <td class="px-4 py-3 text-sm text-text">
-                  {{ pipeline.externalId }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ pipeline.ref }}
-                </td>
-                <td class="px-4 py-3">
-                  <span
-                    :class="[
-                      'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
-                      {
-                        'bg-warning/10 text-warning': pipeline.status === 'pending',
-                        'bg-info/10 text-info': pipeline.status === 'running',
-                        'bg-success/10 text-success': pipeline.status === 'success',
-                        'bg-danger/10 text-danger': pipeline.status === 'failed',
-                      },
-                    ]"
-                    data-testid="pipeline-status-badge"
-                  >
-                    {{ pipeline.status }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ pipeline.duration }}s
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ d(new Date(pipeline.startedAt), 'short') }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ pipeline.finishedAt ? d(new Date(pipeline.finishedAt), 'short') : '—' }}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <RouterLink
-                    :to="{ name: 'catalog-pipelines-detail', params: { id: pipeline.id } }"
-                    class="text-sm text-primary hover:text-primary-dark"
-                    data-testid="pipeline-view-link"
-                  >
-                    {{ t('common.actions.view') }}
-                  </RouterLink>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div
-            v-if="pipelineStore.pipelines.length === 0"
-            class="py-8 text-center text-text-muted"
-            data-testid="pipelines-empty"
-          >
-            {{ t('catalog.projects.noPipelines') }}
-          </div>
-        </div>
         <div
           v-if="activeTab === 'dependencies'"
           class="overflow-hidden rounded-xl border border-border bg-surface"

@@ -19,7 +19,7 @@ Hub développeur — monitoring de projets, dépendances, vulnérabilités et é
 | Context | Responsabilité |
 |---|---|
 | Identity | Authentification, profils, équipes |
-| Catalog | Projets, tech stacks, pipelines CI/CD |
+| Catalog | Projets, tech stacks, merge requests |
 | Dependency | Dépendances, versions LTS, vulnérabilités CVE |
 | Assessment | Quiz, questions, tentatives |
 | Activity | Dashboard, journal d'activité, notifications |

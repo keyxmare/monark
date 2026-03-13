@@ -206,7 +206,6 @@ describe('Provider Store', () => {
       visibility: 'private' as const,
       ownerId: 'owner-1',
       techStacksCount: 0,
-      pipelinesCount: 0,
       createdAt: '2026-01-01T00:00:00+00:00',
       updatedAt: '2026-01-01T00:00:00+00:00',
     }

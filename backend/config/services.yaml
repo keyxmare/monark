@@ -42,9 +42,6 @@ services:
     App\Catalog\Domain\Repository\TechStackRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineTechStackRepository
 
-    App\Catalog\Domain\Repository\PipelineRepositoryInterface:
-        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrinePipelineRepository
-
     App\Catalog\Domain\Repository\ProviderRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
 

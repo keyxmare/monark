@@ -66,7 +66,6 @@
       "teams": "les équipes",
       "projects": "les projets",
       "providers": "les fournisseurs",
-      "pipelines": "les pipelines",
       "techStacks": "les stacks techniques",
       "dependencies": "les dépendances",
       "vulnerabilities": "les vulnérabilités",
@@ -107,7 +106,6 @@
     "providers": "Fournisseurs",
     "projects": "Projets",
     "techStacks": "Stacks techniques",
-    "pipelines": "Pipelines",
     "dependencies": "Dépendances",
     "vulnerabilities": "Vulnérabilités",
     "activityEvents": "Événements",
@@ -201,7 +199,6 @@
       "repository": "Dépôt",
       "branch": "Branche",
       "techStacks": "Stacks techniques",
-      "pipelines": "Pipelines",
       "noProjects": "Aucun projet trouvé.",
       "createFailed": "Échec de la création du projet",
       "updateFailed": "Échec de la mise à jour du projet",
@@ -209,10 +206,8 @@
       "scanning": "Scan en cours…",
       "scanComplete": "Scan terminé — {stacks} stacks techniques et {deps} dépendances détectées.",
       "techStacksCount": "Stacks techniques ({count})",
-      "pipelinesCount": "Pipelines ({count})",
       "dependenciesCount": "Dépendances ({count})",
       "noTechStacks": "Aucune stack technique détectée.",
-      "noPipelines": "Aucun pipeline trouvé.",
       "noDependencies": "Aucune dépendance trouvée. Lancez un scan pour détecter les dépendances.",
       "repoLink": "Dépôt",
       "mergeRequestsCount": "Merge Requests ({count})",
@@ -325,18 +320,6 @@
       "filterByAuthor": "Filtrer par auteur…",
       "noMergeRequests": "Aucune merge request trouvée.",
       "viewExternal": "Voir"
-    },
-    "pipelines": {
-      "title": "Pipelines",
-      "externalId": "ID externe",
-      "ref": "Réf",
-      "status": "Statut",
-      "duration": "Durée",
-      "startedAt": "Démarré le",
-      "finishedAt": "Terminé le",
-      "notFinished": "Non terminé",
-      "noPipelines": "Aucun pipeline trouvé.",
-      "pipelineNumber": "Pipeline n°{id}"
     }
   },
   "dependency": {

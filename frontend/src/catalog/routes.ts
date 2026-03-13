@@ -62,18 +62,6 @@ export const catalogRoutes: RouteRecordRaw[] = [
     path: '/catalog/tech-stacks/new',
   },
   {
-    component: () => import('@/catalog/pages/PipelineList.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'catalog-pipelines-list',
-    path: '/catalog/pipelines',
-  },
-  {
-    component: () => import('@/catalog/pages/PipelineDetail.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'catalog-pipelines-detail',
-    path: '/catalog/pipelines/:id',
-  },
-  {
     component: () => import('@/catalog/pages/MergeRequestList.vue'),
     meta: { layout: 'dashboard' },
     name: 'catalog-merge-requests-list',

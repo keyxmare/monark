@@ -21,7 +21,6 @@ final readonly class ProjectOutput
         public ?string $providerId,
         public ?string $externalId,
         public int $techStacksCount,
-        public int $pipelinesCount,
         public string $createdAt,
         public string $updatedAt,
     ) {
@@ -41,7 +40,6 @@ final readonly class ProjectOutput
             providerId: $project->getProvider()?->getId()->toRfc4122(),
             externalId: $project->getExternalId(),
             techStacksCount: $project->getTechStacks()->count(),
-            pipelinesCount: $project->getPipelines()->count(),
             createdAt: $project->getCreatedAt()->format(DateTimeInterface::ATOM),
             updatedAt: $project->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );

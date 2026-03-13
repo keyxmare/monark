@@ -11,7 +11,6 @@ export interface Project {
   ownerId: string
   externalId: string | null
   techStacksCount: number
-  pipelinesCount: number
   createdAt: string
   updatedAt: string
 }

@@ -52,10 +52,6 @@ final class Project
     #[ORM\OneToMany(targetEntity: TechStack::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $techStacks;
 
-    /** @var Collection<int, Pipeline> */
-    #[ORM\OneToMany(targetEntity: Pipeline::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $pipelines;
-
     /** @var Collection<int, Dependency> */
     #[ORM\OneToMany(targetEntity: Dependency::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $dependencies;
@@ -96,7 +92,6 @@ final class Project
         $this->provider = $provider;
         $this->externalId = $externalId;
         $this->techStacks = new ArrayCollection();
-        $this->pipelines = new ArrayCollection();
         $this->dependencies = new ArrayCollection();
         $this->mergeRequests = new ArrayCollection();
         $this->lastSyncedAt = null;
@@ -183,12 +178,6 @@ final class Project
     public function getTechStacks(): Collection
     {
         return $this->techStacks;
-    }
-
-    /** @return Collection<int, Pipeline> */
-    public function getPipelines(): Collection
-    {
-        return $this->pipelines;
     }
 
     /** @return Collection<int, Dependency> */
