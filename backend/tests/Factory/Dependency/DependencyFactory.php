@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Factory\Dependency;
 
 use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
-use Tests\Factory\Catalog\ProjectFactory;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
+use Symfony\Component\Uid\Uuid;
 
 final class DependencyFactory
 {
@@ -21,7 +21,7 @@ final class DependencyFactory
             packageManager: $overrides['packageManager'] ?? PackageManager::Composer,
             type: $overrides['type'] ?? DependencyType::Runtime,
             isOutdated: $overrides['isOutdated'] ?? true,
-            project: $overrides['project'] ?? ProjectFactory::create(),
+            projectId: $overrides['projectId'] ?? Uuid::v7(),
         );
     }
 }

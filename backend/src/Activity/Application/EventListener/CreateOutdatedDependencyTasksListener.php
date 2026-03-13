@@ -8,8 +8,8 @@ use App\Activity\Domain\Model\SyncTask;
 use App\Activity\Domain\Model\SyncTaskSeverity;
 use App\Activity\Domain\Model\SyncTaskType;
 use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
-use App\Catalog\Domain\Event\ProjectScannedEvent;
-use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Shared\Domain\Event\ProjectScannedEvent;
+use App\Shared\Domain\Port\DependencyReaderPort;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 
@@ -17,7 +17,7 @@ use Symfony\Component\Uid\Uuid;
 final readonly class CreateOutdatedDependencyTasksListener
 {
     public function __construct(
-        private DependencyRepositoryInterface $dependencyRepository,
+        private DependencyReaderPort $dependencyReader,
         private SyncTaskRepositoryInterface $syncTaskRepository,
     ) {
     }
@@ -25,33 +25,33 @@ final readonly class CreateOutdatedDependencyTasksListener
     public function __invoke(ProjectScannedEvent $event): void
     {
         $projectId = Uuid::fromString($event->projectId);
-        $dependencies = $this->dependencyRepository->findByProjectId($projectId);
+        $dependencies = $this->dependencyReader->findByProjectId($projectId);
 
         foreach ($dependencies as $dependency) {
-            if (!$dependency->isOutdated()) {
+            if (!$dependency->isOutdated) {
                 continue;
             }
 
             $existing = $this->syncTaskRepository->findOpenByProjectAndTypeAndKey(
                 $projectId,
                 SyncTaskType::OutdatedDependency,
-                $dependency->getName(),
+                $dependency->name,
             );
 
-            $severity = $this->determineSeverity($dependency->getCurrentVersion(), $dependency->getLatestVersion());
-            $title = \sprintf('Outdated dependency: %s', $dependency->getName());
+            $severity = $this->determineSeverity($dependency->currentVersion, $dependency->latestVersion);
+            $title = \sprintf('Outdated dependency: %s', $dependency->name);
             $description = \sprintf(
                 '%s is at version %s, latest is %s (%s).',
-                $dependency->getName(),
-                $dependency->getCurrentVersion(),
-                $dependency->getLatestVersion(),
-                $dependency->getPackageManager()->value,
+                $dependency->name,
+                $dependency->currentVersion,
+                $dependency->latestVersion,
+                $dependency->packageManager,
             );
             $metadata = [
-                'dependencyName' => $dependency->getName(),
-                'currentVersion' => $dependency->getCurrentVersion(),
-                'latestVersion' => $dependency->getLatestVersion(),
-                'packageManager' => $dependency->getPackageManager()->value,
+                'dependencyName' => $dependency->name,
+                'currentVersion' => $dependency->currentVersion,
+                'latestVersion' => $dependency->latestVersion,
+                'packageManager' => $dependency->packageManager,
             ];
 
             if ($existing !== null) {

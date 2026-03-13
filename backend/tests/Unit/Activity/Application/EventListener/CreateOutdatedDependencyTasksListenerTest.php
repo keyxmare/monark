@@ -8,51 +8,21 @@ use App\Activity\Domain\Model\SyncTaskSeverity;
 use App\Activity\Domain\Model\SyncTaskStatus;
 use App\Activity\Domain\Model\SyncTaskType;
 use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
-use App\Catalog\Domain\Event\ProjectScannedEvent;
-use App\Catalog\Domain\Model\Project;
-use App\Catalog\Domain\Model\ProjectVisibility;
-use App\Catalog\Domain\Model\ScanResult;
-use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
-use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Shared\Domain\DTO\DependencyReadDTO;
+use App\Shared\Domain\DTO\ScanResult;
+use App\Shared\Domain\Event\ProjectScannedEvent;
+use App\Shared\Domain\Port\DependencyReaderPort;
 use Symfony\Component\Uid\Uuid;
-use Tests\Factory\Catalog\ProviderFactory;
 
-function stubOutdatedDepRepo(array $dependencies = []): DependencyRepositoryInterface
+function stubOutdatedDepRepo(array $dependencies = []): DependencyReaderPort
 {
-    return new class ($dependencies) implements DependencyRepositoryInterface {
+    return new class ($dependencies) implements DependencyReaderPort {
         public function __construct(private readonly array $deps)
         {
         }
-        public function findById(Uuid $id): ?Dependency
-        {
-            return null;
-        }
-        public function findAll(int $page = 1, int $perPage = 20): array
-        {
-            return [];
-        }
-        public function count(): int
-        {
-            return 0;
-        }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        public function findByProjectId(Uuid $projectId): array
         {
             return $this->deps;
-        }
-        public function countByProjectId(Uuid $projectId): int
-        {
-            return 0;
-        }
-        public function save(Dependency $dependency): void
-        {
-        }
-        public function delete(Dependency $dependency): void
-        {
-        }
-        public function deleteByProjectId(Uuid $projectId): void
-        {
         }
     };
 }
@@ -100,34 +70,15 @@ function spySyncTaskRepo(?SyncTask $existing = null): object
     };
 }
 
-function createTestProject(): Project
-{
-    $provider = ProviderFactory::create();
-    return Project::create(
-        name: 'Test Project',
-        slug: 'test-project',
-        description: null,
-        repositoryUrl: 'https://gitlab.example.com/test.git',
-        defaultBranch: 'main',
-        visibility: ProjectVisibility::Private,
-        ownerId: Uuid::v7(),
-        provider: $provider,
-        externalId: '42',
-    );
-}
-
 describe('CreateOutdatedDependencyTasksListener', function () {
     it('creates sync tasks for outdated dependencies', function () {
-        $project = \createTestProject();
-        $dep = Dependency::create(
+        $projectId = Uuid::v7();
+        $dep = new DependencyReadDTO(
             name: 'symfony/framework-bundle',
             currentVersion: '6.0.0',
             latestVersion: '7.2.0',
-            ltsVersion: '6.4.0',
-            packageManager: PackageManager::Composer,
-            type: DependencyType::Runtime,
+            packageManager: 'composer',
             isOutdated: true,
-            project: $project,
         );
 
         $depRepo = \stubOutdatedDepRepo([$dep]);
@@ -135,7 +86,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
-            projectId: $project->getId()->toRfc4122(),
+            projectId: $projectId->toRfc4122(),
             scanResult: new ScanResult(stacks: [], dependencies: []),
         ));
 
@@ -153,16 +104,13 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('skips non-outdated dependencies', function () {
-        $project = \createTestProject();
-        $dep = Dependency::create(
+        $projectId = Uuid::v7();
+        $dep = new DependencyReadDTO(
             name: 'symfony/framework-bundle',
             currentVersion: '7.2.0',
             latestVersion: '7.2.0',
-            ltsVersion: '7.2.0',
-            packageManager: PackageManager::Composer,
-            type: DependencyType::Runtime,
+            packageManager: 'composer',
             isOutdated: false,
-            project: $project,
         );
 
         $depRepo = \stubOutdatedDepRepo([$dep]);
@@ -170,7 +118,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
-            projectId: $project->getId()->toRfc4122(),
+            projectId: $projectId->toRfc4122(),
             scanResult: new ScanResult(stacks: [], dependencies: []),
         ));
 
@@ -178,16 +126,13 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('updates existing open task instead of creating duplicate', function () {
-        $project = \createTestProject();
-        $dep = Dependency::create(
+        $projectId = Uuid::v7();
+        $dep = new DependencyReadDTO(
             name: 'vue',
             currentVersion: '2.7.0',
             latestVersion: '3.5.0',
-            ltsVersion: '3.0.0',
-            packageManager: PackageManager::Npm,
-            type: DependencyType::Runtime,
+            packageManager: 'npm',
             isOutdated: true,
-            project: $project,
         );
 
         $existingTask = SyncTask::create(
@@ -196,7 +141,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
             title: 'Old title',
             description: 'Old desc',
             metadata: ['dependencyName' => 'vue', 'currentVersion' => '2.6.0', 'latestVersion' => '3.4.0', 'packageManager' => 'npm'],
-            projectId: $project->getId(),
+            projectId: $projectId,
         );
 
         $depRepo = \stubOutdatedDepRepo([$dep]);
@@ -204,7 +149,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
-            projectId: $project->getId()->toRfc4122(),
+            projectId: $projectId->toRfc4122(),
             scanResult: new ScanResult(stacks: [], dependencies: []),
         ));
 
@@ -215,16 +160,13 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('assigns critical severity for 2+ major versions behind', function () {
-        $project = \createTestProject();
-        $dep = Dependency::create(
+        $projectId = Uuid::v7();
+        $dep = new DependencyReadDTO(
             name: 'old-pkg',
             currentVersion: '1.0.0',
             latestVersion: '3.0.0',
-            ltsVersion: '3.0.0',
-            packageManager: PackageManager::Composer,
-            type: DependencyType::Runtime,
+            packageManager: 'composer',
             isOutdated: true,
-            project: $project,
         );
 
         $depRepo = \stubOutdatedDepRepo([$dep]);
@@ -232,7 +174,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
-            projectId: $project->getId()->toRfc4122(),
+            projectId: $projectId->toRfc4122(),
             scanResult: new ScanResult(stacks: [], dependencies: []),
         ));
 
@@ -240,16 +182,13 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('assigns medium severity for 5+ minor versions behind', function () {
-        $project = \createTestProject();
-        $dep = Dependency::create(
+        $projectId = Uuid::v7();
+        $dep = new DependencyReadDTO(
             name: 'pinia',
             currentVersion: '2.0.0',
             latestVersion: '2.5.0',
-            ltsVersion: '2.5.0',
-            packageManager: PackageManager::Npm,
-            type: DependencyType::Runtime,
+            packageManager: 'npm',
             isOutdated: true,
-            project: $project,
         );
 
         $depRepo = \stubOutdatedDepRepo([$dep]);
@@ -257,7 +196,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
-            projectId: $project->getId()->toRfc4122(),
+            projectId: $projectId->toRfc4122(),
             scanResult: new ScanResult(stacks: [], dependencies: []),
         ));
 
@@ -265,16 +204,13 @@ describe('CreateOutdatedDependencyTasksListener', function () {
     });
 
     it('assigns low severity for small version gap', function () {
-        $project = \createTestProject();
-        $dep = Dependency::create(
+        $projectId = Uuid::v7();
+        $dep = new DependencyReadDTO(
             name: 'lodash',
             currentVersion: '4.17.0',
             latestVersion: '4.18.0',
-            ltsVersion: '4.18.0',
-            packageManager: PackageManager::Npm,
-            type: DependencyType::Runtime,
+            packageManager: 'npm',
             isOutdated: true,
-            project: $project,
         );
 
         $depRepo = \stubOutdatedDepRepo([$dep]);
@@ -282,7 +218,7 @@ describe('CreateOutdatedDependencyTasksListener', function () {
 
         $listener = new CreateOutdatedDependencyTasksListener($depRepo, $syncTaskRepo);
         $listener(new ProjectScannedEvent(
-            projectId: $project->getId()->toRfc4122(),
+            projectId: $projectId->toRfc4122(),
             scanResult: new ScanResult(stacks: [], dependencies: []),
         ));
 

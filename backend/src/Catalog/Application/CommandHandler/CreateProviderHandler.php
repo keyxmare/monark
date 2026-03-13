@@ -8,7 +8,7 @@ use App\Catalog\Application\Command\CreateProviderCommand;
 use App\Catalog\Application\DTO\ProviderOutput;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(bus: 'command.bus')]
@@ -16,7 +16,7 @@ final readonly class CreateProviderHandler
 {
     public function __construct(
         private ProviderRepositoryInterface $providerRepository,
-        private GitProviderFactory $gitProviderFactory,
+        private GitProviderFactoryInterface $gitProviderFactory,
     ) {
     }
 

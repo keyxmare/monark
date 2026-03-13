@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dependency\Domain\Model;
+namespace App\Shared\Domain\ValueObject;
 
 enum DependencyType: string
 {

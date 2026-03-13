@@ -84,7 +84,8 @@ deptrac:
           value: src/Shared/.*
 
   ruleset:
-    Identity_Domain: ~
+    Identity_Domain:
+      - Shared
     Identity_Application:
       - Identity_Domain
       - Shared
@@ -93,7 +94,8 @@ deptrac:
       - Identity_Application
       - Shared
 
-    Catalog_Domain: ~
+    Catalog_Domain:
+      - Shared
     Catalog_Application:
       - Catalog_Domain
       - Shared
@@ -102,7 +104,8 @@ deptrac:
       - Catalog_Application
       - Shared
 
-    Dependency_Domain: ~
+    Dependency_Domain:
+      - Shared
     Dependency_Application:
       - Dependency_Domain
       - Shared
@@ -111,7 +114,8 @@ deptrac:
       - Dependency_Application
       - Shared
 
-    Assessment_Domain: ~
+    Assessment_Domain:
+      - Shared
     Assessment_Application:
       - Assessment_Domain
       - Shared
@@ -120,7 +124,8 @@ deptrac:
       - Assessment_Application
       - Shared
 
-    Activity_Domain: ~
+    Activity_Domain:
+      - Shared
     Activity_Application:
       - Activity_Domain
       - Shared

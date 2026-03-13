@@ -11,7 +11,7 @@ use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\Factory\Catalog\ProviderFactory;
 
@@ -89,7 +89,7 @@ function stubRemoteProjectRepo(array $importedExternalIds = []): ProjectReposito
     };
 }
 
-function stubRemoteGitFactory(array $remoteProjects): GitProviderFactory
+function stubRemoteGitFactory(array $remoteProjects): GitProviderFactoryInterface
 {
     $gitClient = new class ($remoteProjects) implements GitProviderInterface {
         public function __construct(private readonly array $projects)
@@ -125,7 +125,7 @@ function stubRemoteGitFactory(array $remoteProjects): GitProviderFactory
         }
     };
 
-    return new class ($gitClient) extends GitProviderFactory {
+    return new class ($gitClient) implements GitProviderFactoryInterface {
         private GitProviderInterface $client;
         public function __construct(GitProviderInterface $client)
         {

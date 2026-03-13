@@ -11,7 +11,7 @@ use App\Catalog\Domain\Model\ProviderType;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Uid\Uuid;
 
 function stubProviderRepo(): ProviderRepositoryInterface
@@ -40,7 +40,7 @@ function stubProviderRepo(): ProviderRepositoryInterface
     };
 }
 
-function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactory
+function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactoryInterface
 {
     $gitClient = new class ($connectionSuccess) implements GitProviderInterface {
         public function __construct(private readonly bool $success)
@@ -76,7 +76,7 @@ function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactory
         }
     };
 
-    $factory = new class ($gitClient) extends GitProviderFactory {
+    $factory = new class ($gitClient) implements GitProviderFactoryInterface {
         private GitProviderInterface $client;
         public function __construct(GitProviderInterface $client)
         {

@@ -8,7 +8,7 @@ use App\Catalog\Application\Command\SyncProjectMetadataCommand;
 use App\Catalog\Domain\Event\ProjectMetadataSyncedEvent;
 use App\Catalog\Domain\Model\ProjectVisibility;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -18,7 +18,7 @@ final readonly class SyncProjectMetadataHandler
 {
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
-        private GitProviderFactory $gitProviderFactory,
+        private GitProviderFactoryInterface $gitProviderFactory,
         private MessageBusInterface $eventBus,
     ) {
     }

@@ -8,9 +8,9 @@ use App\Activity\Domain\Model\SyncTaskSeverity;
 use App\Activity\Domain\Model\SyncTaskStatus;
 use App\Activity\Domain\Model\SyncTaskType;
 use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
-use App\Catalog\Domain\Event\ProjectScannedEvent;
-use App\Catalog\Domain\Model\DetectedStack;
-use App\Catalog\Domain\Model\ScanResult;
+use App\Shared\Domain\DTO\DetectedStack;
+use App\Shared\Domain\DTO\ScanResult;
+use App\Shared\Domain\Event\ProjectScannedEvent;
 use Symfony\Component\Uid\Uuid;
 
 function spyStackSyncTaskRepo(?SyncTask $existing = null): object

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
-use App\Dependency\Domain\Model\Dependency;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -52,10 +51,6 @@ final class Project
     #[ORM\OneToMany(targetEntity: TechStack::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $techStacks;
 
-    /** @var Collection<int, Dependency> */
-    #[ORM\OneToMany(targetEntity: Dependency::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $dependencies;
-
     /** @var Collection<int, MergeRequest> */
     #[ORM\OneToMany(targetEntity: MergeRequest::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $mergeRequests;
@@ -92,7 +87,6 @@ final class Project
         $this->provider = $provider;
         $this->externalId = $externalId;
         $this->techStacks = new ArrayCollection();
-        $this->dependencies = new ArrayCollection();
         $this->mergeRequests = new ArrayCollection();
         $this->lastSyncedAt = null;
         $this->createdAt = new DateTimeImmutable();
@@ -178,12 +172,6 @@ final class Project
     public function getTechStacks(): Collection
     {
         return $this->techStacks;
-    }
-
-    /** @return Collection<int, Dependency> */
-    public function getDependencies(): Collection
-    {
-        return $this->dependencies;
     }
 
     /** @return Collection<int, MergeRequest> */

@@ -6,8 +6,8 @@ use App\Dependency\Application\DTO\VulnerabilityListOutput;
 use App\Dependency\Application\Query\ListVulnerabilitiesQuery;
 use App\Dependency\Application\QueryHandler\ListVulnerabilitiesHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Model\Severity;
 use App\Dependency\Domain\Model\Vulnerability;
 use App\Dependency\Domain\Model\VulnerabilityStatus;
@@ -48,7 +48,7 @@ describe('ListVulnerabilitiesHandler', function () {
             packageManager: PackageManager::Composer,
             type: DependencyType::Runtime,
             isOutdated: true,
-            project: Tests\Factory\Catalog\ProjectFactory::create(),
+            projectId: Uuid::v7(),
         );
 
         $vuln1 = Vulnerability::create(

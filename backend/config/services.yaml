@@ -54,6 +54,12 @@ services:
     App\Catalog\Domain\Port\GitProviderInterface:
         alias: App\Catalog\Infrastructure\GitProvider\GitLabClient
 
+    App\Catalog\Domain\Port\GitProviderFactoryInterface:
+        alias: App\Catalog\Infrastructure\GitProvider\GitProviderFactory
+
+    App\Catalog\Domain\Port\ProjectScannerInterface:
+        alias: App\Catalog\Infrastructure\Scanner\ProjectScanner
+
     App\Activity\Domain\Repository\ActivityEventRepositoryInterface:
         alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineActivityEventRepository
 
@@ -118,6 +124,15 @@ services:
     App\Activity\Infrastructure\Adapter\RabbitMqMonitor:
         arguments:
             $managementUrl: '%env(RABBITMQ_MANAGEMENT_URL)%'
+
+    App\Shared\Domain\Port\DependencyReaderPort:
+        alias: App\Dependency\Infrastructure\Adapter\DependencyReaderAdapter
+
+    App\Shared\Domain\Port\DependencyWriterPort:
+        alias: App\Dependency\Infrastructure\Adapter\DependencyWriterAdapter
+
+    App\Shared\Domain\Port\MergeRequestReaderPort:
+        alias: App\Catalog\Infrastructure\Adapter\MergeRequestReaderAdapter
 
     App\Shared\Infrastructure\EventListener\ExceptionListener:
         tags:

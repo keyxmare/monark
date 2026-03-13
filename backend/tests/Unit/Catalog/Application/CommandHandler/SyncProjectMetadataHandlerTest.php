@@ -11,7 +11,7 @@ use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -79,7 +79,7 @@ function stubMetadataProjectRepo(?Project $project = null): object
     };
 }
 
-function stubMetadataGitProviderFactory(RemoteProject $remoteProject): GitProviderFactory
+function stubMetadataGitProviderFactory(RemoteProject $remoteProject): GitProviderFactoryInterface
 {
     $client = new class ($remoteProject) implements GitProviderInterface {
         public function __construct(private readonly RemoteProject $remoteProject)
@@ -115,7 +115,7 @@ function stubMetadataGitProviderFactory(RemoteProject $remoteProject): GitProvid
         }
     };
 
-    return new class ($client) extends GitProviderFactory {
+    return new class ($client) implements GitProviderFactoryInterface {
         public function __construct(private readonly GitProviderInterface $client)
         {
         }

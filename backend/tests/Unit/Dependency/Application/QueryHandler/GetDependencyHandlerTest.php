@@ -6,8 +6,8 @@ use App\Dependency\Application\DTO\DependencyOutput;
 use App\Dependency\Application\Query\GetDependencyQuery;
 use App\Dependency\Application\QueryHandler\GetDependencyHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Uid\Uuid;
@@ -60,7 +60,7 @@ describe('GetDependencyHandler', function () {
             packageManager: PackageManager::Composer,
             type: DependencyType::Runtime,
             isOutdated: true,
-            project: Tests\Factory\Catalog\ProjectFactory::create(),
+            projectId: Uuid::v7(),
         );
 
         $handler = new GetDependencyHandler(\stubGetDependencyRepo($dependency));

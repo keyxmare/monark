@@ -14,7 +14,7 @@ use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\ProviderType;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 
 function stubProviderHandlerRepo(?Provider $provider = null): ProviderRepositoryInterface
@@ -106,7 +106,7 @@ describe('TestProviderConnectionHandler', function () {
         $gitClient = $this->createMock(GitProviderInterface::class);
         $gitClient->method('testConnection')->willReturn(true);
 
-        $factory = $this->createMock(GitProviderFactory::class);
+        $factory = $this->createMock(GitProviderFactoryInterface::class);
         $factory->method('create')->willReturn($gitClient);
 
         $handler = new TestProviderConnectionHandler($repo, $factory);
@@ -124,7 +124,7 @@ describe('TestProviderConnectionHandler', function () {
         $gitClient = $this->createMock(GitProviderInterface::class);
         $gitClient->method('testConnection')->willReturn(false);
 
-        $factory = $this->createMock(GitProviderFactory::class);
+        $factory = $this->createMock(GitProviderFactoryInterface::class);
         $factory->method('create')->willReturn($gitClient);
 
         $handler = new TestProviderConnectionHandler($repo, $factory);
@@ -136,7 +136,7 @@ describe('TestProviderConnectionHandler', function () {
 
     it('throws not found for unknown provider', function () {
         $repo = \stubProviderHandlerRepo(null);
-        $factory = $this->createMock(GitProviderFactory::class);
+        $factory = $this->createMock(GitProviderFactoryInterface::class);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 
         $handler(new TestProviderConnectionCommand('a0000000-0000-0000-0000-000000000001'));

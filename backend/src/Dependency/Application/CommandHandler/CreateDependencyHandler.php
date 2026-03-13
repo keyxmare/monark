@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Dependency\Application\CommandHandler;
 
-use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Dependency\Application\Command\CreateDependencyCommand;
 use App\Dependency\Application\DTO\DependencyOutput;
 use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -20,18 +19,12 @@ final readonly class CreateDependencyHandler
 {
     public function __construct(
         private DependencyRepositoryInterface $dependencyRepository,
-        private ProjectRepositoryInterface $projectRepository,
     ) {
     }
 
     public function __invoke(CreateDependencyCommand $command): DependencyOutput
     {
         $input = $command->input;
-
-        $project = $this->projectRepository->findById(Uuid::fromString($input->projectId));
-        if ($project === null) {
-            throw NotFoundException::forEntity('Project', $input->projectId);
-        }
 
         $dependency = Dependency::create(
             name: $input->name,
@@ -41,7 +34,7 @@ final readonly class CreateDependencyHandler
             packageManager: PackageManager::from($input->packageManager),
             type: DependencyType::from($input->type),
             isOutdated: $input->isOutdated,
-            project: $project,
+            projectId: Uuid::fromString($input->projectId),
             repositoryUrl: $input->repositoryUrl,
         );
 

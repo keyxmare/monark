@@ -8,8 +8,8 @@ use App\Activity\Domain\Model\SyncTask;
 use App\Activity\Domain\Model\SyncTaskSeverity;
 use App\Activity\Domain\Model\SyncTaskType;
 use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
-use App\Catalog\Domain\Event\ProjectScannedEvent;
-use App\Catalog\Domain\Model\DetectedStack;
+use App\Shared\Domain\Event\ProjectScannedEvent;
+use App\Shared\Domain\DTO\DetectedStack;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 

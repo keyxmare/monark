@@ -5,20 +5,19 @@ declare(strict_types=1);
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\CommandHandler\ScanProjectHandler;
 use App\Catalog\Application\DTO\ScanResultOutput;
-use App\Catalog\Domain\Event\ProjectScannedEvent;
-use App\Catalog\Domain\Model\DetectedDependency;
-use App\Catalog\Domain\Model\DetectedStack;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
-use App\Catalog\Domain\Model\ScanResult;
 use App\Catalog\Domain\Model\TechStack;
+use App\Catalog\Domain\Port\ProjectScannerInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
-use App\Catalog\Infrastructure\Scanner\ProjectScanner;
-use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
-use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Shared\Domain\DTO\DetectedDependency;
+use App\Shared\Domain\DTO\DetectedStack;
+use App\Shared\Domain\DTO\ScanResult;
+use App\Shared\Domain\Event\ProjectScannedEvent;
+use App\Shared\Domain\Port\DependencyWriterPort;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -124,49 +123,26 @@ function stubScanTechStackRepo(): TechStackRepositoryInterface
     };
 }
 
-function stubScanDependencyRepo(): DependencyRepositoryInterface
+function stubScanDependencyWriter(): DependencyWriterPort
 {
-    return new class () implements DependencyRepositoryInterface {
-        /** @var list<Dependency> */
-        public array $saved = [];
+    return new class () implements DependencyWriterPort {
+        /** @var list<array{name: string, currentVersion: string, packageManager: string, type: string, projectId: Uuid, repositoryUrl: ?string}> */
+        public array $created = [];
         public bool $deletedByProject = false;
-        public function findById(Uuid $id): ?Dependency
-        {
-            return null;
-        }
-        public function findAll(int $page = 1, int $perPage = 20): array
-        {
-            return [];
-        }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
-        {
-            return [];
-        }
-        public function count(): int
-        {
-            return 0;
-        }
-        public function countByProjectId(Uuid $projectId): int
-        {
-            return 0;
-        }
-        public function save(Dependency $dependency): void
-        {
-            $this->saved[] = $dependency;
-        }
-        public function delete(Dependency $dependency): void
-        {
-        }
         public function deleteByProjectId(Uuid $projectId): void
         {
             $this->deletedByProject = true;
         }
+        public function createFromScan(string $name, string $currentVersion, string $packageManager, string $type, Uuid $projectId, ?string $repositoryUrl): void
+        {
+            $this->created[] = compact('name', 'currentVersion', 'packageManager', 'type', 'projectId', 'repositoryUrl');
+        }
     };
 }
 
-function stubProjectScanner(ScanResult $result): ProjectScanner
+function stubProjectScanner(ScanResult $result): ProjectScannerInterface
 {
-    return new class ($result) extends ProjectScanner {
+    return new class ($result) implements ProjectScannerInterface {
         public function __construct(private readonly ScanResult $scanResult)
         {
         }
@@ -195,7 +171,7 @@ describe('ScanProjectHandler', function () {
 
         $projectRepo = \stubScanProjectRepo($project);
         $techStackRepo = \stubScanTechStackRepo();
-        $depRepo = \stubScanDependencyRepo();
+        $depWriter = \stubScanDependencyWriter();
 
         $scanResult = new ScanResult(
             stacks: [
@@ -210,7 +186,7 @@ describe('ScanProjectHandler', function () {
 
         $scanner = \stubProjectScanner($scanResult);
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
@@ -226,8 +202,8 @@ describe('ScanProjectHandler', function () {
         expect($result->dependencies[1]['packageManager'])->toBe('npm');
         expect($techStackRepo->saved)->toHaveCount(2);
         expect($techStackRepo->deletedByProject)->toBeTrue();
-        expect($depRepo->saved)->toHaveCount(2);
-        expect($depRepo->deletedByProject)->toBeTrue();
+        expect($depWriter->created)->toHaveCount(2);
+        expect($depWriter->deletedByProject)->toBeTrue();
         expect($eventBus->dispatched)->toHaveCount(1);
         expect($eventBus->dispatched[0])->toBeInstanceOf(ProjectScannedEvent::class);
         expect($eventBus->dispatched[0]->projectId)->toBe($project->getId()->toRfc4122());
@@ -238,11 +214,11 @@ describe('ScanProjectHandler', function () {
     it('throws not found for unknown project', function () {
         $projectRepo = \stubScanProjectRepo(null);
         $techStackRepo = \stubScanTechStackRepo();
-        $depRepo = \stubScanDependencyRepo();
+        $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
@@ -260,11 +236,11 @@ describe('ScanProjectHandler', function () {
 
         $projectRepo = \stubScanProjectRepo($project);
         $techStackRepo = \stubScanTechStackRepo();
-        $depRepo = \stubScanDependencyRepo();
+        $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depRepo, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
     })->throws(\DomainException::class);

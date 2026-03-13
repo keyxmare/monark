@@ -6,11 +6,11 @@ use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteProject;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
 use App\Catalog\Infrastructure\Scanner\ProjectScanner;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Uid\Uuid;
 use Tests\Factory\Catalog\ProviderFactory;
 
@@ -57,9 +57,9 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
     };
 }
 
-function stubScannerFactory(GitProviderInterface $client): GitProviderFactory
+function stubScannerFactory(GitProviderInterface $client): GitProviderFactoryInterface
 {
-    return new class ($client) extends GitProviderFactory {
+    return new class ($client) implements GitProviderFactoryInterface {
         private GitProviderInterface $client;
         public function __construct(GitProviderInterface $client)
         {

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Dependency\Domain\Model;
 
-use App\Catalog\Domain\Model\Project;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -43,9 +44,8 @@ final class Dependency
     #[ORM\Column(length: 2048, nullable: true)]
     private ?string $repositoryUrl;
 
-    #[ORM\ManyToOne(targetEntity: Project::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Project $project;
+    #[ORM\Column(type: 'uuid')]
+    private Uuid $projectId;
 
     /** @var Collection<int, Vulnerability> */
     #[ORM\OneToMany(targetEntity: Vulnerability::class, mappedBy: 'dependency', cascade: ['persist', 'remove'], orphanRemoval: true)]
@@ -66,7 +66,7 @@ final class Dependency
         PackageManager $packageManager,
         DependencyType $type,
         bool $isOutdated,
-        Project $project,
+        Uuid $projectId,
         ?string $repositoryUrl = null,
     ) {
         $this->id = $id;
@@ -77,7 +77,7 @@ final class Dependency
         $this->packageManager = $packageManager;
         $this->type = $type;
         $this->isOutdated = $isOutdated;
-        $this->project = $project;
+        $this->projectId = $projectId;
         $this->repositoryUrl = $repositoryUrl;
         $this->vulnerabilities = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
@@ -92,7 +92,7 @@ final class Dependency
         PackageManager $packageManager,
         DependencyType $type,
         bool $isOutdated,
-        Project $project,
+        Uuid $projectId,
         ?string $repositoryUrl = null,
     ): self {
         return new self(
@@ -104,7 +104,7 @@ final class Dependency
             packageManager: $packageManager,
             type: $type,
             isOutdated: $isOutdated,
-            project: $project,
+            projectId: $projectId,
             repositoryUrl: $repositoryUrl,
         );
     }
@@ -154,14 +154,9 @@ final class Dependency
         return $this->repositoryUrl;
     }
 
-    public function getProject(): Project
-    {
-        return $this->project;
-    }
-
     public function getProjectId(): Uuid
     {
-        return $this->project->getId();
+        return $this->projectId;
     }
 
     /** @return Collection<int, Vulnerability> */

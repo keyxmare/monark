@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Catalog\Domain\Model;
+namespace App\Shared\Domain\DTO;
 
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 
 final readonly class DetectedDependency
 {

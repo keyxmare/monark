@@ -9,7 +9,7 @@ use App\Catalog\Application\DTO\RemoteProjectOutput;
 use App\Catalog\Application\Query\ListRemoteProjectsQuery;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -21,7 +21,7 @@ final readonly class ListRemoteProjectsHandler
     public function __construct(
         private ProviderRepositoryInterface $providerRepository,
         private ProjectRepositoryInterface $projectRepository,
-        private GitProviderFactory $gitProviderFactory,
+        private GitProviderFactoryInterface $gitProviderFactory,
     ) {
     }
 

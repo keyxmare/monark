@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Catalog\Infrastructure\Scanner;
 
-use App\Catalog\Domain\Model\DetectedDependency;
-use App\Catalog\Domain\Model\DetectedStack;
 use App\Catalog\Domain\Model\Project;
-use App\Catalog\Domain\Model\ScanResult;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Catalog\Domain\Port\ProjectScannerInterface;
+use App\Shared\Domain\DTO\DetectedDependency;
+use App\Shared\Domain\DTO\DetectedStack;
+use App\Shared\Domain\DTO\ScanResult;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 
-class ProjectScanner
+class ProjectScanner implements ProjectScannerInterface
 {
     private const array MANIFEST_FILES = [
         'composer.json',
@@ -28,7 +29,7 @@ class ProjectScanner
     ];
 
     public function __construct(
-        private GitProviderFactory $gitProviderFactory,
+        private GitProviderFactoryInterface $gitProviderFactory,
     ) {
     }
 

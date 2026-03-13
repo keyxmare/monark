@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Catalog\Domain\Event;
+namespace App\Shared\Domain\Event;
 
-use App\Catalog\Domain\Model\ScanResult;
+use App\Shared\Domain\DTO\ScanResult;
 
 final readonly class ProjectScannedEvent
 {

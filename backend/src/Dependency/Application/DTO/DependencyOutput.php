@@ -37,7 +37,7 @@ final readonly class DependencyOutput
             packageManager: $dependency->getPackageManager()->value,
             type: $dependency->getType()->value,
             isOutdated: $dependency->isOutdated(),
-            projectId: $dependency->getProject()->getId()->toRfc4122(),
+            projectId: $dependency->getProjectId()->toRfc4122(),
             repositoryUrl: $dependency->getRepositoryUrl(),
             vulnerabilityCount: $dependency->getVulnerabilityCount(),
             createdAt: $dependency->getCreatedAt()->format(DateTimeInterface::ATOM),

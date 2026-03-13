@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Catalog\Domain\Model;
+namespace App\Shared\Domain\DTO;
 
 final readonly class ScanResult
 {

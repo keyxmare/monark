@@ -6,8 +6,8 @@ use App\Dependency\Application\DTO\DependencyListOutput;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Application\QueryHandler\ListDependenciesHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use Symfony\Component\Uid\Uuid;
 
@@ -59,7 +59,7 @@ describe('ListDependenciesHandler', function () {
             packageManager: PackageManager::Composer,
             type: DependencyType::Runtime,
             isOutdated: true,
-            project: Tests\Factory\Catalog\ProjectFactory::create(),
+            projectId: Uuid::v7(),
         );
         $dep2 = Dependency::create(
             name: 'vue',
@@ -69,7 +69,7 @@ describe('ListDependenciesHandler', function () {
             packageManager: PackageManager::Npm,
             type: DependencyType::Runtime,
             isOutdated: true,
-            project: Tests\Factory\Catalog\ProjectFactory::create(),
+            projectId: Uuid::v7(),
         );
 
         $handler = new ListDependenciesHandler(\stubListDependenciesRepo([$dep1, $dep2], 2));

@@ -6,14 +6,13 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\DTO\ScanResultOutput;
-use App\Catalog\Domain\Event\ProjectScannedEvent;
+use App\Shared\Domain\Event\ProjectScannedEvent;
 use App\Catalog\Domain\Model\TechStack;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
-use App\Catalog\Infrastructure\Scanner\ProjectScanner;
-use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Catalog\Domain\Port\ProjectScannerInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use App\Shared\Domain\Port\DependencyWriterPort;
 use DateTimeImmutable;
 use DomainException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -26,8 +25,8 @@ final readonly class ScanProjectHandler
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
         private TechStackRepositoryInterface $techStackRepository,
-        private DependencyRepositoryInterface $dependencyRepository,
-        private ProjectScanner $projectScanner,
+        private DependencyWriterPort $dependencyWriter,
+        private ProjectScannerInterface $projectScanner,
         private MessageBusInterface $eventBus,
     ) {
     }
@@ -47,7 +46,7 @@ final readonly class ScanProjectHandler
 
         $projectId = $project->getId();
         $this->techStackRepository->deleteByProjectId($projectId);
-        $this->dependencyRepository->deleteByProjectId($projectId);
+        $this->dependencyWriter->deleteByProjectId($projectId);
 
         $stackOutputs = [];
         foreach ($scanResult->stacks as $detected) {
@@ -70,18 +69,14 @@ final readonly class ScanProjectHandler
 
         $depOutputs = [];
         foreach ($scanResult->dependencies as $detected) {
-            $dependency = Dependency::create(
+            $this->dependencyWriter->createFromScan(
                 name: $detected->name,
                 currentVersion: $detected->currentVersion,
-                latestVersion: $detected->currentVersion,
-                ltsVersion: $detected->currentVersion,
-                packageManager: $detected->packageManager,
-                type: $detected->type,
-                isOutdated: false,
-                project: $project,
+                packageManager: $detected->packageManager->value,
+                type: $detected->type->value,
+                projectId: $project->getId(),
                 repositoryUrl: $detected->repositoryUrl,
             );
-            $this->dependencyRepository->save($dependency);
             $depOutputs[] = [
                 'name' => $detected->name,
                 'version' => $detected->currentVersion,

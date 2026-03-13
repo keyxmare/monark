@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\SyncMergeRequestsCommand;
-use App\Catalog\Domain\Event\MergeRequestsSyncedEvent;
+use App\Shared\Domain\Event\MergeRequestsSyncedEvent;
 use App\Catalog\Domain\Event\ProjectSyncCompletedEvent;
 use App\Catalog\Domain\Model\MergeRequest;
 use App\Catalog\Domain\Model\MergeRequestStatus;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -23,7 +23,7 @@ final readonly class SyncMergeRequestsHandler
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
         private MergeRequestRepositoryInterface $mergeRequestRepository,
-        private GitProviderFactory $gitProviderFactory,
+        private GitProviderFactoryInterface $gitProviderFactory,
         private MessageBusInterface $eventBus,
     ) {
     }

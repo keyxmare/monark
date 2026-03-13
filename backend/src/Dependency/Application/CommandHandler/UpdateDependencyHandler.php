@@ -6,8 +6,8 @@ namespace App\Dependency\Application\CommandHandler;
 
 use App\Dependency\Application\Command\UpdateDependencyCommand;
 use App\Dependency\Application\DTO\DependencyOutput;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;

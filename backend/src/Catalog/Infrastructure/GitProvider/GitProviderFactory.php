@@ -6,10 +6,11 @@ namespace App\Catalog\Infrastructure\GitProvider;
 
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\ProviderType;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use InvalidArgumentException;
 
-class GitProviderFactory
+class GitProviderFactory implements GitProviderFactoryInterface
 {
     public function __construct(
         private readonly GitLabClient $gitLabClient,

@@ -5,8 +5,8 @@ declare(strict_types=1);
 use App\Dependency\Application\Command\DeleteDependencyCommand;
 use App\Dependency\Application\CommandHandler\DeleteDependencyHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyType;
-use App\Dependency\Domain\Model\PackageManager;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Uid\Uuid;
@@ -61,7 +61,7 @@ describe('DeleteDependencyHandler', function () {
             packageManager: PackageManager::Composer,
             type: DependencyType::Runtime,
             isOutdated: true,
-            project: Tests\Factory\Catalog\ProjectFactory::create(),
+            projectId: Uuid::v7(),
         );
         $repo = \stubDeleteDependencyRepo($dependency);
         $handler = new DeleteDependencyHandler($repo);

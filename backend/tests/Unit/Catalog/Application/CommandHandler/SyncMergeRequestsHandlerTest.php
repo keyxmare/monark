@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Catalog\Application\Command\SyncMergeRequestsCommand;
 use App\Catalog\Application\CommandHandler\SyncMergeRequestsHandler;
-use App\Catalog\Domain\Event\MergeRequestsSyncedEvent;
+use App\Shared\Domain\Event\MergeRequestsSyncedEvent;
 use App\Catalog\Domain\Model\MergeRequest;
 use App\Catalog\Domain\Model\MergeRequestStatus;
 use App\Catalog\Domain\Model\Project;
@@ -15,7 +15,7 @@ use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
-use App\Catalog\Infrastructure\GitProvider\GitProviderFactory;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -110,7 +110,7 @@ function stubSyncMRRepo(?MergeRequest $existing = null): object
     };
 }
 
-function stubSyncMRGitFactory(array $remoteMRs = []): GitProviderFactory
+function stubSyncMRGitFactory(array $remoteMRs = []): GitProviderFactoryInterface
 {
     $client = new class ($remoteMRs) implements GitProviderInterface {
         public function __construct(private readonly array $mrs)
@@ -146,7 +146,7 @@ function stubSyncMRGitFactory(array $remoteMRs = []): GitProviderFactory
         }
     };
 
-    return new class ($client) extends GitProviderFactory {
+    return new class ($client) implements GitProviderFactoryInterface {
         public function __construct(private readonly GitProviderInterface $client)
         {
         }
