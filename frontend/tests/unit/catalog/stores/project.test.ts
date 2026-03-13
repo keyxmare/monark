@@ -24,6 +24,10 @@ const mockProject = {
   visibility: 'private' as const,
   ownerId: 'owner-456',
   techStacksCount: 2,
+  techStacks: [
+    { language: 'PHP', framework: 'Symfony' },
+    { language: 'TypeScript', framework: 'Vue' },
+  ],
   createdAt: '2026-01-01T00:00:00+00:00',
   updatedAt: '2026-01-01T00:00:00+00:00',
 }

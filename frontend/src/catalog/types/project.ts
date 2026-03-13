@@ -1,5 +1,10 @@
 export type ProjectVisibility = 'public' | 'private'
 
+export interface TechStackSummary {
+  language: string
+  framework: string | null
+}
+
 export interface Project {
   id: string
   name: string
@@ -11,6 +16,7 @@ export interface Project {
   ownerId: string
   externalId: string | null
   techStacksCount: number
+  techStacks: TechStackSummary[]
   createdAt: string
   updatedAt: string
 }

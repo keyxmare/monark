@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Catalog\Application\DTO;
 
 use App\Catalog\Domain\Model\Project;
+use App\Catalog\Domain\Model\TechStack;
 use DateTimeInterface;
 
 final readonly class ProjectOutput
 {
+    /** @param list<TechStackSummaryDTO> $techStacks */
     public function __construct(
         public string $id,
         public string $name,
@@ -21,6 +23,7 @@ final readonly class ProjectOutput
         public ?string $providerId,
         public ?string $externalId,
         public int $techStacksCount,
+        public array $techStacks,
         public string $createdAt,
         public string $updatedAt,
     ) {
@@ -40,6 +43,12 @@ final readonly class ProjectOutput
             providerId: $project->getProvider()?->getId()->toRfc4122(),
             externalId: $project->getExternalId(),
             techStacksCount: $project->getTechStacks()->count(),
+            techStacks: $project->getTechStacks()->map(
+                static fn (TechStack $ts) => new TechStackSummaryDTO(
+                    language: $ts->getLanguage(),
+                    framework: $ts->getFramework() !== '' ? $ts->getFramework() : null,
+                )
+            )->toArray(),
             createdAt: $project->getCreatedAt()->format(DateTimeInterface::ATOM),
             updatedAt: $project->getUpdatedAt()->format(DateTimeInterface::ATOM),
         );

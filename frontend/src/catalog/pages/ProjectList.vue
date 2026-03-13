@@ -9,6 +9,7 @@ import { useProjectStore } from '@/catalog/stores/project'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import DropdownMenu from '@/shared/components/DropdownMenu.vue'
 import Pagination from '@/shared/components/Pagination.vue'
+import TechBadge from '@/shared/components/TechBadge.vue'
 import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
@@ -51,6 +52,17 @@ function handleDropdownAction(action: string, project: Project) {
 
 function navigateToDetail(id: string) {
   router.push({ name: 'catalog-projects-detail', params: { id } })
+}
+
+const MAX_BADGES = 5
+
+function getUniqueTechNames(project: Project): string[] {
+  const names = new Set<string>()
+  for (const ts of project.techStacks ?? []) {
+    names.add(ts.language)
+    if (ts.framework) names.add(ts.framework)
+  }
+  return [...names]
 }
 
 function changePage(page: number) {
@@ -203,14 +215,31 @@ function changePage(page: number) {
                     {{ t('catalog.projects.branch') }}
                   </p>
                 </div>
-                <div data-testid="project-stacks-count">
-                  <p class="text-sm font-bold tabular-nums text-text">
-                    {{ project.techStacksCount }}
-                  </p>
-                  <p class="text-xs text-text-muted">
-                    {{ t('catalog.projects.techStacks') }}
-                  </p>
+                <div
+                  v-if="getUniqueTechNames(project).length > 0"
+                  class="flex flex-wrap gap-1.5"
+                  data-testid="project-stacks-count"
+                >
+                  <TechBadge
+                    v-for="name in getUniqueTechNames(project).slice(0, MAX_BADGES)"
+                    :key="name"
+                    :name="name"
+                    size="sm"
+                  />
+                  <span
+                    v-if="getUniqueTechNames(project).length > MAX_BADGES"
+                    class="text-xs text-text-muted"
+                  >
+                    +{{ getUniqueTechNames(project).length - MAX_BADGES }}
+                  </span>
                 </div>
+                <p
+                  v-else
+                  class="text-xs text-text-muted"
+                  data-testid="project-stacks-count"
+                >
+                  —
+                </p>
               </div>
             </div>
           </div>

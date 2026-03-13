@@ -9,6 +9,7 @@ import { useTechStackStore } from '@/catalog/stores/tech-stack'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import Pagination from '@/shared/components/Pagination.vue'
+import TechBadge from '@/shared/components/TechBadge.vue'
 import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 import { useToastStore } from '@/shared/stores/toast'
@@ -39,6 +40,15 @@ const scanFreshness = computed(() => {
   if (hours < 1) return 'fresh'
   if (hours < 24) return 'recent'
   return 'stale'
+})
+
+const uniqueTechNames = computed(() => {
+  const names = new Set<string>()
+  for (const ts of techStackStore.techStacks) {
+    names.add(ts.language)
+    if (ts.framework) names.add(ts.framework)
+  }
+  return [...names]
 })
 
 const filteredDependencies = computed(() => {
@@ -222,15 +232,28 @@ function changeMergeRequestPage(page: number) {
             </p>
           </div>
 
-          <div class="rounded-xl border border-border bg-surface p-4 text-center">
+          <div class="rounded-xl border border-border bg-surface p-4 text-left">
+            <p class="mb-2 text-xs text-text-muted">
+              {{ t('catalog.projects.techStacks') }}
+            </p>
             <div
-              class="text-lg font-bold tabular-nums text-text"
+              v-if="techStackStore.techStacks.length > 0"
+              class="flex flex-wrap gap-2"
               data-testid="project-stat-stacks"
             >
-              {{ techStackStore.total }}
+              <TechBadge
+                v-for="name in uniqueTechNames"
+                :key="name"
+                :name="name"
+                size="md"
+              />
             </div>
-            <p class="mt-1 text-xs text-text-muted">
-              {{ t('catalog.projects.techStacks') }}
+            <p
+              v-else
+              class="text-sm text-text-muted"
+              data-testid="project-stat-stacks"
+            >
+              —
             </p>
           </div>
 

@@ -48,7 +48,7 @@ function stubProjectBus(mixed $result = null): MessageBusInterface&stdClass
 }
 
 it('creates a project and returns 201', function () {
-    $output = new ProjectOutput('uuid-1', 'Monark', 'monark', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
+    $output = new ProjectOutput('uuid-1', 'Monark', 'monark', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, [], '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
     $bus = \stubProjectBus($output);
     $controller = new CreateProjectController($bus);
 
@@ -63,7 +63,7 @@ it('creates a project and returns 201', function () {
 });
 
 it('gets a project and returns 200', function () {
-    $output = new ProjectOutput('uuid-1', 'Monark', 'monark', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
+    $output = new ProjectOutput('uuid-1', 'Monark', 'monark', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, [], '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
     $bus = \stubProjectBus($output);
     $controller = new GetProjectController($bus);
 
@@ -77,7 +77,7 @@ it('gets a project and returns 200', function () {
 });
 
 it('updates a project and returns 200', function () {
-    $output = new ProjectOutput('uuid-1', 'Updated', 'updated', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
+    $output = new ProjectOutput('uuid-1', 'Updated', 'updated', null, 'https://github.com/x/y', 'main', 'private', 'owner-1', null, null, 0, [], '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
     $bus = \stubProjectBus($output);
     $controller = new UpdateProjectController($bus);
 
