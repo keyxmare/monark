@@ -13,6 +13,3 @@ services:
     healthcheck:
       disable: true
 
-  database:
-    tmpfs:
-      - /var/lib/postgresql/data
