@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\DTO;
 
 use App\Activity\Domain\Model\ActivityEvent;
+use DateTimeInterface;
 
 final readonly class ActivityEventOutput
 {
@@ -28,7 +29,7 @@ final readonly class ActivityEventOutput
             entityType: $event->getEntityType(),
             entityId: $event->getEntityId(),
             payload: $event->getPayload(),
-            occurredAt: $event->getOccurredAt()->format(\DateTimeInterface::ATOM),
+            occurredAt: $event->getOccurredAt()->format(DateTimeInterface::ATOM),
             userId: $event->getUserId(),
         );
     }

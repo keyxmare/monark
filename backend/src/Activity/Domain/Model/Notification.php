@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Activity\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -25,13 +26,13 @@ final class Notification
     private NotificationChannel $channel;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $readAt;
+    private ?DateTimeImmutable $readAt;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $userId;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     private function __construct(
         Uuid $id,
@@ -46,7 +47,7 @@ final class Notification
         $this->channel = $channel;
         $this->readAt = null;
         $this->userId = $userId;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public static function create(
@@ -66,7 +67,7 @@ final class Notification
 
     public function markAsRead(): void
     {
-        $this->readAt = new \DateTimeImmutable();
+        $this->readAt = new DateTimeImmutable();
     }
 
     public function getId(): Uuid
@@ -89,7 +90,7 @@ final class Notification
         return $this->channel;
     }
 
-    public function getReadAt(): ?\DateTimeImmutable
+    public function getReadAt(): ?DateTimeImmutable
     {
         return $this->readAt;
     }
@@ -99,7 +100,7 @@ final class Notification
         return $this->userId;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }

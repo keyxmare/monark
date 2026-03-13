@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Activity\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -29,7 +30,7 @@ final class ActivityEvent
     private array $payload;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $occurredAt;
+    private DateTimeImmutable $occurredAt;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $userId;
@@ -41,7 +42,7 @@ final class ActivityEvent
         string $entityType,
         string $entityId,
         array $payload,
-        \DateTimeImmutable $occurredAt,
+        DateTimeImmutable $occurredAt,
         string $userId,
     ) {
         $this->id = $id;
@@ -67,7 +68,7 @@ final class ActivityEvent
             entityType: $entityType,
             entityId: $entityId,
             payload: $payload,
-            occurredAt: new \DateTimeImmutable(),
+            occurredAt: new DateTimeImmutable(),
             userId: $userId,
         );
     }
@@ -98,7 +99,7 @@ final class ActivityEvent
         return $this->payload;
     }
 
-    public function getOccurredAt(): \DateTimeImmutable
+    public function getOccurredAt(): DateTimeImmutable
     {
         return $this->occurredAt;
     }

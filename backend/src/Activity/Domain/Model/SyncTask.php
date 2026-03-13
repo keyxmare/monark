@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Activity\Domain\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -39,13 +40,13 @@ final class SyncTask
     private Uuid $projectId;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $resolvedAt;
+    private ?DateTimeImmutable $resolvedAt;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $updatedAt;
+    private DateTimeImmutable $updatedAt;
 
     /** @param array<string, mixed> $metadata */
     private function __construct(
@@ -67,8 +68,8 @@ final class SyncTask
         $this->metadata = $metadata;
         $this->projectId = $projectId;
         $this->resolvedAt = null;
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     /** @param array<string, mixed> $metadata */
@@ -103,16 +104,16 @@ final class SyncTask
         $this->title = $title;
         $this->description = $description;
         $this->metadata = $metadata;
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function changeStatus(SyncTaskStatus $status): void
     {
         $this->status = $status;
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
 
         if ($status === SyncTaskStatus::Resolved || $status === SyncTaskStatus::Dismissed) {
-            $this->resolvedAt = new \DateTimeImmutable();
+            $this->resolvedAt = new DateTimeImmutable();
         }
     }
 
@@ -157,17 +158,17 @@ final class SyncTask
         return $this->projectId;
     }
 
-    public function getResolvedAt(): ?\DateTimeImmutable
+    public function getResolvedAt(): ?DateTimeImmutable
     {
         return $this->resolvedAt;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }

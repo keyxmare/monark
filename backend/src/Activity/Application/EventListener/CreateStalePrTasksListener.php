@@ -11,6 +11,7 @@ use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
 use App\Catalog\Domain\Event\MergeRequestsSyncedEvent;
 use App\Catalog\Domain\Model\MergeRequestStatus;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
+use DateTimeImmutable;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 
@@ -29,10 +30,13 @@ final readonly class CreateStalePrTasksListener
     public function __invoke(MergeRequestsSyncedEvent $event): void
     {
         $projectId = Uuid::fromString($event->projectId);
-        $now = new \DateTimeImmutable();
+        $now = new DateTimeImmutable();
 
         $activeMRs = $this->mergeRequestRepository->findByProjectId(
-            $projectId, 1, 100, [MergeRequestStatus::Open, MergeRequestStatus::Draft],
+            $projectId,
+            1,
+            100,
+            [MergeRequestStatus::Open, MergeRequestStatus::Draft],
         );
 
         foreach ($activeMRs as $mr) {

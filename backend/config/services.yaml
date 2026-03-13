@@ -66,6 +66,9 @@ services:
     App\Activity\Domain\Repository\SyncTaskRepositoryInterface:
         alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineSyncTaskRepository
 
+    App\Activity\Domain\Repository\BuildMetricRepositoryInterface:
+        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineBuildMetricRepository
+
     App\Dependency\Domain\Repository\DependencyRepositoryInterface:
         alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyRepository
 

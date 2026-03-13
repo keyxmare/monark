@@ -199,6 +199,63 @@ jobs:
       - run: ${{ env.DC }} exec -T frontend pnpm install
       - run: ${{ env.DC }} exec -T frontend pnpm audit
 
+  report-metrics:
+    name: Report Build Metrics
+    if: github.event_name == 'push'
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend-coverage
+        continue-on-error: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend-coverage
+        continue-on-error: true
+      - name: Post metrics to Monark
+        if: env.MONARK_API_URL != ''
+        continue-on-error: true
+        env:
+          MONARK_API_URL: ${{ secrets.MONARK_API_URL }}
+          MONARK_API_TOKEN: ${{ secrets.MONARK_API_TOKEN }}
+          MONARK_PROJECT_ID: ${{ secrets.MONARK_PROJECT_ID }}
+        run: |
+          BACKEND=""
+          if [ -f backend-coverage/clover.xml ]; then
+            BACKEND=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          root = ET.parse('backend-coverage/clover.xml').getroot()
+          m = root.find('.//project/metrics')
+          stmts = int(m.get('statements', 0))
+          covered = int(m.get('coveredstatements', 0))
+          print(round(covered / max(1, stmts) * 100, 2))
+          ")
+          fi
+
+          FRONTEND=""
+          if [ -f frontend-coverage/coverage-summary.json ]; then
+            FRONTEND=$(python3 -c "
+          import json
+          with open('frontend-coverage/coverage-summary.json') as f:
+              data = json.load(f)
+          print(data['total']['lines']['pct'])
+          ")
+          fi
+
+          curl -sf -X POST "${MONARK_API_URL}/api/activity/projects/${MONARK_PROJECT_ID}/build-metrics" \
+            -H "Authorization: Bearer ${MONARK_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"commitSha\": \"${GITHUB_SHA:0:40}\",
+              \"ref\": \"${GITHUB_REF_NAME}\",
+              $([ -n "$BACKEND" ] && echo "\"backendCoverage\": $BACKEND,")
+              $([ -n "$FRONTEND" ] && echo "\"frontendCoverage\": $FRONTEND,")
+              \"mutationScore\": null
+            }"
+
   build:
     name: Build Production
     runs-on: ubuntu-latest

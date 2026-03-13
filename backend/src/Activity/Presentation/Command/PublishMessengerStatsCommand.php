@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
+use Throwable;
 
 #[AsCommand(
     name: 'app:messenger:publish-stats',
@@ -49,7 +50,7 @@ final class PublishMessengerStatsCommand extends Command
                     $lastHash = $hash;
                     $output->writeln(\sprintf('[%s] Stats published (%d queues, %d workers)', \date('H:i:s'), \count($queues), \count($workers)), OutputInterface::VERBOSITY_VERBOSE);
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $output->writeln(\sprintf('<error>[%s] %s</error>', \date('H:i:s'), $e->getMessage()));
             }
 

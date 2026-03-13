@@ -12,16 +12,12 @@ final readonly class CreateActivityEventInput
     public function __construct(
         #[Assert\NotBlank]
         public string $type,
-
         #[Assert\NotBlank]
         public string $entityType,
-
         #[Assert\NotBlank]
         public string $entityId,
-
         #[Assert\NotNull]
         public array $payload = [],
-
         #[Assert\NotBlank]
         public string $userId = '',
     ) {
