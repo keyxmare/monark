@@ -168,7 +168,7 @@ async function handleTestConnection() {
       </div>
 
       <div
-        v-else-if="providerStore.error"
+        v-else-if="providerStore.error && !providerStore.selected"
         class="rounded-lg bg-danger/10 p-4 text-danger"
         role="alert"
         data-testid="provider-detail-error"
@@ -177,6 +177,14 @@ async function handleTestConnection() {
       </div>
 
       <template v-else-if="providerStore.selected">
+        <div
+          v-if="providerStore.error"
+          class="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning"
+          role="alert"
+          data-testid="provider-detail-warning"
+        >
+          {{ providerStore.error }}
+        </div>
         <ProviderInfoCard
           :provider="providerStore.selected"
           :testing-connection="testingConnection"
@@ -191,6 +199,7 @@ async function handleTestConnection() {
         />
 
         <RemoteProjectsSection
+          :error="providerStore.remoteProjectsError"
           :importing="importing"
           :initial-loaded="initialLoaded"
           :projects="providerStore.remoteProjects"

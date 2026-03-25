@@ -7,17 +7,20 @@ use App\Catalog\Application\Query\ListRemoteProjectsQuery;
 use App\Catalog\Application\QueryHandler\ListRemoteProjectsHandler;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\Provider;
+use App\Catalog\Domain\Model\ProviderStatus;
 use App\Catalog\Domain\Model\RemoteProject;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\Factory\Catalog\ProviderFactory;
 
-function stubRemoteProviderRepo(?Provider $provider = null): ProviderRepositoryInterface
+function stubRemoteProviderRepo(?Provider $provider = null): ProviderRepositoryInterface&stdClass
 {
-    return new class ($provider) implements ProviderRepositoryInterface {
+    return new class ($provider) extends stdClass implements ProviderRepositoryInterface {
+        public int $saveCount = 0;
+
         public function __construct(private readonly ?Provider $provider)
         {
         }
@@ -35,9 +38,57 @@ function stubRemoteProviderRepo(?Provider $provider = null): ProviderRepositoryI
         }
         public function save(Provider $provider): void
         {
+            $this->saveCount++;
         }
         public function remove(Provider $provider): void
         {
+        }
+    };
+}
+
+function stubFailingGitFactory(\Throwable $exception): GitProviderFactoryInterface
+{
+    $gitClient = new class ($exception) implements GitProviderInterface {
+        public function __construct(private readonly \Throwable $exception)
+        {
+        }
+        public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
+        {
+            throw $this->exception;
+        }
+        public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int
+        {
+            return 0;
+        }
+        public function testConnection(Provider $provider): bool
+        {
+            return false;
+        }
+        public function getProject(Provider $provider, string $externalId): RemoteProject
+        {
+            throw new \RuntimeException('Not implemented');
+        }
+        public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
+        {
+            return null;
+        }
+        public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array
+        {
+            return [];
+        }
+        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
+        {
+            return [];
+        }
+    };
+
+    return new class ($gitClient) implements GitProviderFactoryInterface {
+        public function __construct(private readonly GitProviderInterface $client)
+        {
+        }
+        public function create(Provider $provider): GitProviderInterface
+        {
+            return $this->client;
         }
     };
 }
@@ -168,6 +219,49 @@ describe('ListRemoteProjectsHandler', function () {
         expect($items[2]->externalId)->toBe('30');
         expect($items[2]->alreadyImported)->toBeTrue();
         expect($items[2]->localProjectId)->toBe($localUuidC);
+    });
+
+    it('marks provider as error when API call fails', function () {
+        $provider = ProviderFactory::create();
+        $provider->markConnected();
+        expect($provider->getStatus())->toBe(ProviderStatus::Connected);
+
+        $providerRepo = \stubRemoteProviderRepo($provider);
+        $projectRepo = \stubRemoteProjectRepo();
+        $factory = \stubFailingGitFactory(new \Symfony\Component\HttpClient\Exception\ClientException(
+            new \Symfony\Component\HttpClient\Response\MockResponse('', ['http_code' => 403]),
+        ));
+
+        $handler = new ListRemoteProjectsHandler($providerRepo, $projectRepo, $factory);
+
+        try {
+            $handler(new ListRemoteProjectsQuery($provider->getId()->toRfc4122()));
+        } catch (\Throwable) {
+        }
+
+        expect($provider->getStatus())->toBe(ProviderStatus::Error);
+        expect($providerRepo->saveCount)->toBe(1);
+    });
+
+    it('does not save provider when already in error status', function () {
+        $provider = ProviderFactory::create();
+        $provider->markError();
+        expect($provider->getStatus())->toBe(ProviderStatus::Error);
+
+        $providerRepo = \stubRemoteProviderRepo($provider);
+        $projectRepo = \stubRemoteProjectRepo();
+        $factory = \stubFailingGitFactory(new \Symfony\Component\HttpClient\Exception\ClientException(
+            new \Symfony\Component\HttpClient\Response\MockResponse('', ['http_code' => 403]),
+        ));
+
+        $handler = new ListRemoteProjectsHandler($providerRepo, $projectRepo, $factory);
+
+        try {
+            $handler(new ListRemoteProjectsQuery($provider->getId()->toRfc4122()));
+        } catch (\Throwable) {
+        }
+
+        expect($providerRepo->saveCount)->toBe(0);
     });
 
     it('throws not found for unknown provider', function () {

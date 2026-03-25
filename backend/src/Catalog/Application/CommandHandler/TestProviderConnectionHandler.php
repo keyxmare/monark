@@ -6,8 +6,8 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\TestProviderConnectionCommand;
 use App\Catalog\Application\DTO\ProviderOutput;
-use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Catalog\Domain\Port\GitProviderFactoryInterface;
+use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;

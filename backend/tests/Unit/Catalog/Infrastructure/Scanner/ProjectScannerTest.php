@@ -724,6 +724,139 @@ describe('ProjectScanner', function () {
         expect($result->dependencies[0]->repositoryUrl)->toBe('https://example.com/some-lib');
     });
 
+    it('deduplicates PHP stack when Dockerfile and composer.json both detect PHP', function () {
+        $composerJson = \json_encode([
+            'require' => ['php' => '>=8.4', 'symfony/framework-bundle' => '^8.0'],
+        ]);
+        $dockerfile = "FROM php:8.4-fpm\nRUN apt-get update";
+
+        $client = \stubScannerGitClient(
+            files: ['composer.json' => $composerJson, 'Dockerfile' => $dockerfile],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toHaveCount(1);
+        expect($result->stacks[0]->language)->toBe('PHP');
+        expect($result->stacks[0]->framework)->toBe('Symfony');
+    });
+
+    it('keeps only framework stacks when both framework and none exist for same language', function () {
+        $composerJson = \json_encode([
+            'require' => ['php' => '>=8.4', 'laravel/framework' => '^11.0'],
+        ]);
+        $dockerfile = "FROM php:8.4-cli\nCMD php artisan serve";
+
+        $client = \stubScannerGitClient(
+            files: [
+                'composer.json' => $composerJson,
+                'Dockerfile' => $dockerfile,
+            ],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toHaveCount(1);
+        expect($result->stacks[0]->framework)->toBe('Laravel');
+        expect($result->stacks[0]->language)->toBe('PHP');
+    });
+
+    it('keeps frameworkless stack when no framework is detected', function () {
+        $dockerfile = "FROM node:22-alpine\nRUN npm install";
+
+        $client = \stubScannerGitClient(
+            files: ['Dockerfile' => $dockerfile],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toHaveCount(1);
+        expect($result->stacks[0]->language)->toBe('Node.js');
+        expect($result->stacks[0]->framework)->toBe('none');
+    });
+
+    it('keeps stacks from different languages after dedup', function () {
+        $composerJson = \json_encode([
+            'require' => ['php' => '>=8.4', 'symfony/framework-bundle' => '^8.0'],
+        ]);
+        $packageJson = \json_encode([
+            'dependencies' => ['vue' => '^3.5.0'],
+            'devDependencies' => ['typescript' => '^5.7.0'],
+        ]);
+        $dockerfile = "FROM php:8.4-fpm\nRUN apt-get update";
+
+        $client = \stubScannerGitClient(
+            files: [
+                'composer.json' => $composerJson,
+                'package.json' => $packageJson,
+                'Dockerfile' => $dockerfile,
+            ],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toHaveCount(2);
+        $languages = \array_map(fn ($s) => $s->language, $result->stacks);
+        expect($languages)->toContain('PHP');
+        expect($languages)->toContain('TypeScript');
+
+        $phpStack = \array_values(\array_filter($result->stacks, fn ($s) => $s->language === 'PHP'))[0];
+        expect($phpStack->framework)->toBe('Symfony');
+    });
+
+    it('returns empty result when API throws instead of crashing', function () {
+        $gitClient = new class () implements GitProviderInterface {
+            public function listProjects(Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
+            {
+                return [];
+            }
+            public function countProjects(Provider $provider, ?string $search = null, ?string $visibility = null): int
+            {
+                return 0;
+            }
+            public function testConnection(Provider $provider): bool
+            {
+                return false;
+            }
+            public function getProject(Provider $provider, string $externalId): \App\Catalog\Domain\Model\RemoteProject
+            {
+                throw new \RuntimeException('Not implemented');
+            }
+            public function getFileContent(Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
+            {
+                throw new \Symfony\Component\HttpClient\Exception\ClientException(
+                    new \Symfony\Component\HttpClient\Response\MockResponse('', ['http_code' => 403]),
+                );
+            }
+            public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array
+            {
+                throw new \Symfony\Component\HttpClient\Exception\ClientException(
+                    new \Symfony\Component\HttpClient\Response\MockResponse('', ['http_code' => 403]),
+                );
+            }
+            public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
+            {
+                return [];
+            }
+        };
+
+        $factory = \stubScannerFactory($gitClient);
+        $scanner = new ProjectScanner($factory);
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toBeEmpty();
+        expect($result->dependencies)->toBeEmpty();
+    });
+
     it('deduplicates dependencies across locations', function () {
         $packageJson = \json_encode([
             'dependencies' => ['vue' => '^3.5.0'],
@@ -749,5 +882,169 @@ describe('ProjectScanner', function () {
 
         $vueCount = \count(\array_filter($result->dependencies, fn ($d) => $d->name === 'vue'));
         expect($vueCount)->toBe(1);
+    });
+
+    it('enriches JS framework version from pnpm-lock.yaml', function () {
+        $packageJson = \json_encode([
+            'dependencies' => ['vue' => '^3.5.0', 'pinia' => '^3.0.0'],
+            'devDependencies' => ['typescript' => '^5.7.0'],
+        ]);
+        $pnpmLock = <<<'YAML'
+lockfileVersion: '9.0'
+
+importers:
+  .:
+    dependencies:
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.13
+      pinia:
+        specifier: ^3.0.0
+        version: 3.0.2
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.7.3
+YAML;
+
+        $client = \stubScannerGitClient(
+            files: ['package.json' => $packageJson, 'pnpm-lock.yaml' => $pnpmLock],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->frameworkVersion)->toBe('3.5.13');
+        expect($result->stacks[0]->version)->toBe('5.7.3');
+
+        $vueDep = \array_values(\array_filter($result->dependencies, fn ($d) => $d->name === 'vue'))[0];
+        expect($vueDep->currentVersion)->toBe('3.5.13');
+        $tsDep = \array_values(\array_filter($result->dependencies, fn ($d) => $d->name === 'typescript'))[0];
+        expect($tsDep->currentVersion)->toBe('5.7.3');
+    });
+
+    it('enriches Nuxt version from pnpm-lock.yaml with peer deps', function () {
+        $packageJson = \json_encode([
+            'dependencies' => ['nuxt' => '^3'],
+            'devDependencies' => ['typescript' => '^5.7.0'],
+        ]);
+        $pnpmLock = <<<'YAML'
+lockfileVersion: '9.0'
+
+importers:
+  .:
+    dependencies:
+      nuxt:
+        specifier: ^3
+        version: 3.16.2(@types/node@22.15.3)(typescript@5.7.3)
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.7.3
+YAML;
+
+        $client = \stubScannerGitClient(
+            files: ['package.json' => $packageJson, 'pnpm-lock.yaml' => $pnpmLock],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->framework)->toBe('Nuxt');
+        expect($result->stacks[0]->frameworkVersion)->toBe('3.16.2');
+    });
+
+    it('enriches JS framework version from package-lock.json', function () {
+        $packageJson = \json_encode([
+            'dependencies' => ['react' => '^18.0.0'],
+        ]);
+        $npmLock = \json_encode([
+            'lockfileVersion' => 3,
+            'packages' => [
+                '' => ['name' => 'my-app'],
+                'node_modules/react' => ['version' => '18.3.1'],
+            ],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: ['package.json' => $packageJson, 'package-lock.json' => $npmLock],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->frameworkVersion)->toBe('18.3.1');
+
+        $reactDep = \array_values(\array_filter($result->dependencies, fn ($d) => $d->name === 'react'))[0];
+        expect($reactDep->currentVersion)->toBe('18.3.1');
+    });
+
+    it('enriches JS framework version from yarn.lock', function () {
+        $packageJson = \json_encode([
+            'dependencies' => ['nuxt' => '^3'],
+            'devDependencies' => ['typescript' => '^5.7.0'],
+        ]);
+        $yarnLock = <<<'YARN'
+__metadata:
+  version: 8
+
+"nuxt@npm:3":
+  version: 3.21.1
+  resolution: "nuxt@npm:3.21.1"
+  dependencies:
+    vue: "npm:^3.5.0"
+
+"typescript@npm:^5.7.0":
+  version: 5.8.3
+  resolution: "typescript@npm:5.8.3"
+
+"vue@npm:^3.5.0":
+  version: 3.5.13
+  resolution: "vue@npm:3.5.13"
+YARN;
+
+        $client = \stubScannerGitClient(
+            files: ['package.json' => $packageJson, 'yarn.lock' => $yarnLock],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->framework)->toBe('Nuxt');
+        expect($result->stacks[0]->frameworkVersion)->toBe('3.21.1');
+        expect($result->stacks[0]->version)->toBe('5.8.3');
+
+        $nuxtDep = \array_values(\array_filter($result->dependencies, fn ($d) => $d->name === 'nuxt'))[0];
+        expect($nuxtDep->currentVersion)->toBe('3.21.1');
+    });
+
+    it('enriches PHP framework version via symfony prefix fallback from lock', function () {
+        $composerJson = \json_encode([
+            'require' => [
+                'php' => '>=5.6',
+                'symfony/http-foundation' => '2.8.*',
+            ],
+        ]);
+        $composerLock = \json_encode([
+            'packages' => [
+                ['name' => 'symfony/http-foundation', 'version' => 'v2.8.52'],
+            ],
+            'packages-dev' => [],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client));
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->framework)->toBe('Symfony');
+        expect($result->stacks[0]->frameworkVersion)->toBe('2.8.52');
     });
 });

@@ -32,22 +32,10 @@ export const catalogRoutes: RouteRecordRaw[] = [
     path: '/catalog/projects',
   },
   {
-    component: () => import('@/catalog/pages/ProjectForm.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'catalog-projects-create',
-    path: '/catalog/projects/new',
-  },
-  {
     component: () => import('@/catalog/pages/ProjectDetail.vue'),
     meta: { layout: 'dashboard' },
     name: 'catalog-projects-detail',
     path: '/catalog/projects/:id',
-  },
-  {
-    component: () => import('@/catalog/pages/ProjectForm.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'catalog-projects-edit',
-    path: '/catalog/projects/:id/edit',
   },
   {
     component: () => import('@/catalog/pages/TechStackList.vue'),

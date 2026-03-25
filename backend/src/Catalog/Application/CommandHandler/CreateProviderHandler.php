@@ -7,8 +7,8 @@ namespace App\Catalog\Application\CommandHandler;
 use App\Catalog\Application\Command\CreateProviderCommand;
 use App\Catalog\Application\DTO\ProviderOutput;
 use App\Catalog\Domain\Model\Provider;
-use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Catalog\Domain\Port\GitProviderFactoryInterface;
+use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(bus: 'command.bus')]

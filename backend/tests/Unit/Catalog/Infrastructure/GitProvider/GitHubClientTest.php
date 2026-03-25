@@ -269,6 +269,15 @@ describe('GitHubClient', function () {
 
             expect($result)->toBeNull();
         });
+
+        it('returns null on 403 (rate limit or no access)', function () {
+            $mockResponse = new MockResponse(\json_encode(['message' => 'API rate limit exceeded']), ['http_code' => 403]);
+
+            $client = new GitHubClient(new MockHttpClient($mockResponse));
+            $result = $client->getFileContent(\githubProviderPublicOnly(), 'keyxmare/monark', 'composer.json');
+
+            expect($result)->toBeNull();
+        });
     });
 
     describe('getProject', function () {

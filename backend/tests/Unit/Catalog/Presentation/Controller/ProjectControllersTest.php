@@ -6,9 +6,11 @@ use App\Catalog\Application\Command\CreateProjectCommand;
 use App\Catalog\Application\Command\DeleteProjectCommand;
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\Command\UpdateProjectCommand;
+use App\Catalog\Application\CommandHandler\ScanProjectHandler;
 use App\Catalog\Application\DTO\CreateProjectInput;
 use App\Catalog\Application\DTO\ProjectListOutput;
 use App\Catalog\Application\DTO\ProjectOutput;
+use App\Catalog\Application\DTO\ScanResultOutput;
 use App\Catalog\Application\DTO\UpdateProjectInput;
 use App\Catalog\Application\Query\GetProjectQuery;
 use App\Catalog\Application\Query\ListProjectsQuery;
@@ -133,16 +135,33 @@ it('lists projects with default pagination', function () {
     expect($bus->dispatched->perPage)->toBe(20);
 });
 
-it('scans a project and returns 202', function () {
-    $bus = \stubProjectBus();
-    $controller = new ScanProjectController($bus);
+it('scans a project and returns 200 with results', function () {
+    $scanResult = new ScanResultOutput(stacksDetected: 2, dependenciesDetected: 5, stacks: [], dependencies: []);
+
+    $handler = new class ($scanResult) extends ScanProjectHandler {
+        public ?ScanProjectCommand $received = null;
+
+        public function __construct(private readonly ScanResultOutput $scanResultOutput)
+        {
+        }
+
+        public function __invoke(ScanProjectCommand $command): ScanResultOutput
+        {
+            $this->received = $command;
+
+            return $this->scanResultOutput;
+        }
+    };
+
+    $controller = new ScanProjectController($handler);
 
     $response = $controller('uuid-1');
 
-    expect($response->getStatusCode())->toBe(202);
+    expect($response->getStatusCode())->toBe(200);
     $data = \json_decode((string) $response->getContent(), true);
     expect($data['success'])->toBeTrue();
-    expect($data['data']['message'])->toBe('Scan started');
-    expect($bus->dispatched)->toBeInstanceOf(ScanProjectCommand::class);
-    expect($bus->dispatched->projectId)->toBe('uuid-1');
+    expect($data['data']['stacksDetected'])->toBe(2);
+    expect($data['data']['dependenciesDetected'])->toBe(5);
+    expect($handler->received)->toBeInstanceOf(ScanProjectCommand::class);
+    expect($handler->received->projectId)->toBe('uuid-1');
 });

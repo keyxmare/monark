@@ -135,7 +135,7 @@ function stubScanDependencyWriter(): DependencyWriterPort
         }
         public function createFromScan(string $name, string $currentVersion, string $packageManager, string $type, Uuid $projectId, ?string $repositoryUrl): void
         {
-            $this->created[] = compact('name', 'currentVersion', 'packageManager', 'type', 'projectId', 'repositoryUrl');
+            $this->created[] = \compact('name', 'currentVersion', 'packageManager', 'type', 'projectId', 'repositoryUrl');
         }
     };
 }
@@ -222,6 +222,75 @@ describe('ScanProjectHandler', function () {
 
         $handler(new ScanProjectCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
+
+    it('preserves existing data when scan returns empty result', function () {
+        $provider = ProviderFactory::create();
+        $project = Project::create(
+            name: 'Test',
+            slug: 'test',
+            description: null,
+            repositoryUrl: 'https://gitlab.example.com/test.git',
+            defaultBranch: 'main',
+            visibility: ProjectVisibility::Private,
+            ownerId: Uuid::v7(),
+            provider: $provider,
+            externalId: '42',
+        );
+
+        $projectRepo = \stubScanProjectRepo($project);
+        $techStackRepo = \stubScanTechStackRepo();
+        $depWriter = \stubScanDependencyWriter();
+        $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
+        $eventBus = \spyScanEventBus();
+
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
+        $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
+
+        expect($result->stacksDetected)->toBe(0);
+        expect($result->dependenciesDetected)->toBe(0);
+        expect($techStackRepo->deletedByProject)->toBeFalse();
+        expect($depWriter->deletedByProject)->toBeFalse();
+        expect($eventBus->dispatched)->toBeEmpty();
+    });
+
+    it('skips stacks without framework', function () {
+        $provider = ProviderFactory::create();
+        $project = Project::create(
+            name: 'Test',
+            slug: 'test',
+            description: null,
+            repositoryUrl: 'https://gitlab.example.com/test.git',
+            defaultBranch: 'main',
+            visibility: ProjectVisibility::Private,
+            ownerId: Uuid::v7(),
+            provider: $provider,
+            externalId: '42',
+        );
+
+        $projectRepo = \stubScanProjectRepo($project);
+        $techStackRepo = \stubScanTechStackRepo();
+        $depWriter = \stubScanDependencyWriter();
+
+        $scanResult = new ScanResult(
+            stacks: [
+                new DetectedStack(language: 'PHP', framework: 'Symfony', version: '8.4', frameworkVersion: '8.0'),
+                new DetectedStack(language: 'JavaScript', framework: 'none', version: '', frameworkVersion: ''),
+                new DetectedStack(language: 'TypeScript', framework: 'Vue', version: '', frameworkVersion: '3.5.0'),
+            ],
+            dependencies: [],
+        );
+
+        $scanner = \stubProjectScanner($scanResult);
+        $eventBus = \spyScanEventBus();
+        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
+
+        $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
+
+        expect($result->stacksDetected)->toBe(2);
+        expect($techStackRepo->saved)->toHaveCount(2);
+        $savedFrameworks = \array_map(fn ($ts) => $ts->getFramework(), $techStackRepo->saved);
+        expect($savedFrameworks)->not->toContain('none');
+    });
 
     it('throws when project has no provider', function () {
         $project = Project::create(

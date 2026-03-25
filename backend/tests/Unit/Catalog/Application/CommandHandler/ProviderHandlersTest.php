@@ -12,9 +12,9 @@ use App\Catalog\Application\DTO\ProviderOutput;
 use App\Catalog\Application\DTO\UpdateProviderInput;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\ProviderType;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 
 function stubProviderHandlerRepo(?Provider $provider = null): ProviderRepositoryInterface

@@ -24,6 +24,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
   const remoteProjectsTotalPages = ref(0)
   const remoteProjectsCurrentPage = ref(1)
   const remoteProjectsTotal = ref(0)
+  const remoteProjectsError = ref<string | null>(null)
 
   async function fetchAll(page = 1, perPage = 20): Promise<void> {
     loading.value = true
@@ -129,8 +130,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
   }
 
   async function fetchRemoteProjects(id: string, page = 1, perPage = 20, params?: { search?: string; sort?: string; sortDir?: string; visibility?: string }): Promise<void> {
-    loading.value = true
-    error.value = null
+    remoteProjectsError.value = null
 
     try {
       const response = await providerService.listRemoteProjects(id, page, perPage, params)
@@ -140,9 +140,14 @@ export const useProviderStore = defineStore('catalog-provider', () => {
       remoteProjectsCurrentPage.value = data.page
       remoteProjectsTotal.value = data.total
     } catch {
-      error.value = t('common.errors.failedToLoad', { entity: t('common.entities.remoteProjects') })
-    } finally {
-      loading.value = false
+      remoteProjectsError.value = t('common.errors.failedToLoad', { entity: t('common.entities.remoteProjects') })
+      if (selected.value) {
+        selected.value = { ...selected.value, status: 'error' }
+      }
+      const index = providers.value.findIndex(p => p.id === id)
+      if (index !== -1) {
+        providers.value[index] = { ...providers.value[index], status: 'error' }
+      }
     }
   }
 
@@ -188,6 +193,7 @@ export const useProviderStore = defineStore('catalog-provider', () => {
     remoteProjectsTotalPages,
     remoteProjectsCurrentPage,
     remoteProjectsTotal,
+    remoteProjectsError,
     fetchAll,
     fetchOne,
     create,

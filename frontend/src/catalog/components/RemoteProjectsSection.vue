@@ -10,6 +10,7 @@ import Pagination from '@/shared/components/Pagination.vue'
 type SortField = 'defaultBranch' | 'name' | 'visibility'
 
 const props = defineProps<{
+  error: string | null
   importing: boolean
   initialLoaded: boolean
   projects: RemoteProject[]
@@ -156,6 +157,15 @@ function toggleSort(field: SortField) {
     </div>
 
     <template v-else>
+      <div
+        v-if="error"
+        class="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning"
+        role="alert"
+        data-testid="remote-projects-error"
+      >
+        {{ error }}
+      </div>
+
       <div
         class="mb-4 flex flex-wrap items-center gap-3"
         data-testid="remote-projects-filters"

@@ -162,7 +162,8 @@ final readonly class GitHubClient implements GitProviderInterface
 
             return \base64_decode($data['content'] ?? '', true) ?: null;
         } catch (ClientExceptionInterface $e) {
-            if ($e->getResponse()->getStatusCode() === 404) {
+            $status = $e->getResponse()->getStatusCode();
+            if ($status === 404 || $status === 403) {
                 return null;
             }
 

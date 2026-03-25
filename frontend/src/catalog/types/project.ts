@@ -15,6 +15,7 @@ export interface Project {
   visibility: ProjectVisibility
   ownerId: string
   externalId: string | null
+  providerId: string | null
   techStacksCount: number
   techStacks: TechStackSummary[]
   createdAt: string

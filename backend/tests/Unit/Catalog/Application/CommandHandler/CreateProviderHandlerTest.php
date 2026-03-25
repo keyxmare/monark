@@ -9,9 +9,9 @@ use App\Catalog\Application\DTO\ProviderOutput;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\ProviderType;
 use App\Catalog\Domain\Model\RemoteProject;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use Symfony\Component\Uid\Uuid;
 
 function stubProviderRepo(): ProviderRepositoryInterface

@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\SyncMergeRequestsCommand;
-use App\Shared\Domain\Event\MergeRequestsSyncedEvent;
 use App\Catalog\Domain\Event\ProjectSyncCompletedEvent;
 use App\Catalog\Domain\Model\MergeRequest;
 use App\Catalog\Domain\Model\MergeRequestStatus;
+use App\Catalog\Domain\Model\ProviderStatus;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
-use App\Catalog\Domain\Port\GitProviderFactoryInterface;
+use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
+use App\Shared\Domain\Event\MergeRequestsSyncedEvent;
 use DateTimeImmutable;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -23,8 +27,10 @@ final readonly class SyncMergeRequestsHandler
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
         private MergeRequestRepositoryInterface $mergeRequestRepository,
+        private ProviderRepositoryInterface $providerRepository,
         private GitProviderFactoryInterface $gitProviderFactory,
         private MessageBusInterface $eventBus,
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -41,6 +47,34 @@ final readonly class SyncMergeRequestsHandler
         }
 
         $client = $this->gitProviderFactory->create($provider);
+
+        try {
+            $this->doSync($client, $project, $provider, $command);
+        } catch (\Throwable $e) {
+            $this->logger->error('MR sync failed for project {project}: {error}', [
+                'project' => $command->projectId,
+                'error' => $e->getMessage(),
+            ]);
+            if ($provider->getStatus() !== ProviderStatus::Error) {
+                $provider->markError();
+                $this->providerRepository->save($provider);
+            }
+        }
+
+        if ($command->syncJobId !== null) {
+            $this->eventBus->dispatch(new ProjectSyncCompletedEvent(
+                projectId: $command->projectId,
+                syncJobId: $command->syncJobId,
+            ));
+        }
+    }
+
+    private function doSync(
+        \App\Catalog\Domain\Port\GitProviderInterface $client,
+        \App\Catalog\Domain\Model\Project $project,
+        \App\Catalog\Domain\Model\Provider $provider,
+        SyncMergeRequestsCommand $command,
+    ): void {
         $lastSyncedAt = $project->getLastSyncedAt();
         $isIncremental = $lastSyncedAt !== null && !$command->force;
         $updatedAfter = $isIncremental ? $lastSyncedAt : null;
@@ -123,12 +157,5 @@ final readonly class SyncMergeRequestsHandler
             created: $created,
             updated: $updated,
         ));
-
-        if ($command->syncJobId !== null) {
-            $this->eventBus->dispatch(new ProjectSyncCompletedEvent(
-                projectId: $command->projectId,
-                syncJobId: $command->syncJobId,
-            ));
-        }
     }
 }

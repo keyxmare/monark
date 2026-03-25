@@ -39,14 +39,12 @@ onMounted(() => {
 function getDropdownItems() {
   return [
     { action: 'view', label: t('common.actions.view') },
-    { action: 'edit', label: t('common.actions.edit') },
     { action: 'delete', label: t('common.actions.delete'), variant: 'danger' as const },
   ]
 }
 
 function handleDropdownAction(action: string, project: Project) {
   if (action === 'view') router.push({ name: 'catalog-projects-detail', params: { id: project.id } })
-  else if (action === 'edit') router.push({ name: 'catalog-projects-edit', params: { id: project.id } })
   else if (action === 'delete') requestDelete({ id: project.id, name: project.name })
 }
 
@@ -86,13 +84,6 @@ function changePage(page: number) {
         <h2 class="text-2xl font-bold text-text">
           {{ t('catalog.projects.title') }}
         </h2>
-        <RouterLink
-          :to="{ name: 'catalog-projects-create' }"
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-          data-testid="project-create-link"
-        >
-          {{ t('catalog.projects.createProject') }}
-        </RouterLink>
       </div>
 
       <div
@@ -288,11 +279,11 @@ function changePage(page: number) {
             {{ t('catalog.projects.noProjectsHint') }}
           </p>
           <RouterLink
-            :to="{ name: 'catalog-projects-create' }"
+            :to="{ name: 'catalog-providers-list' }"
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-            data-testid="project-empty-create-link"
+            data-testid="project-empty-providers-link"
           >
-            {{ t('catalog.projects.createProject') }}
+            {{ t('catalog.providers.title') }}
           </RouterLink>
         </div>
       </template>

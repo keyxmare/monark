@@ -13,6 +13,8 @@ use App\Shared\Domain\DTO\DetectedStack;
 use App\Shared\Domain\DTO\ScanResult;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class ProjectScanner implements ProjectScannerInterface
 {
@@ -30,10 +32,25 @@ class ProjectScanner implements ProjectScannerInterface
 
     public function __construct(
         private GitProviderFactoryInterface $gitProviderFactory,
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
     public function scan(Project $project): ScanResult
+    {
+        try {
+            return $this->doScan($project);
+        } catch (\Throwable $e) {
+            $this->logger->error('Scan failed for project {project}: {error}', [
+                'project' => $project->getId()->toRfc4122(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return new ScanResult(stacks: [], dependencies: []);
+        }
+    }
+
+    private function doScan(Project $project): ScanResult
     {
         $provider = $project->getProvider();
         $externalId = $project->getExternalId();
@@ -50,6 +67,8 @@ class ProjectScanner implements ProjectScannerInterface
         $stacks = [];
         /** @var list<DetectedDependency> $dependencies */
         $dependencies = [];
+
+        $rootNpmLockVersions = $this->resolveNpmLockVersions($gitProvider, $provider, $externalId, '', $ref);
 
         foreach ($searchPaths as $basePath) {
             $prefix = $basePath === '' ? '' : $basePath . '/';
@@ -82,6 +101,13 @@ class ProjectScanner implements ProjectScannerInterface
                     /** @var array<string, mixed> $data */
                     $stacks[] = $this->detectJsStack($data);
                     \array_push($dependencies, ...$this->extractNpmDeps($data));
+                }
+
+                $localNpmLockVersions = $prefix !== '' ? $this->resolveNpmLockVersions($gitProvider, $provider, $externalId, $prefix, $ref) : [];
+                $npmLockVersions = \array_merge($rootNpmLockVersions, $localNpmLockVersions);
+                if ($npmLockVersions !== []) {
+                    $dependencies = $this->enrichNpmVersions($dependencies, $npmLockVersions);
+                    $stacks = $this->enrichJsStackVersions($stacks, $npmLockVersions);
                 }
             }
 
@@ -121,7 +147,7 @@ class ProjectScanner implements ProjectScannerInterface
         }
 
         return new ScanResult(
-            stacks: \array_values(\array_filter($stacks)),
+            stacks: $this->deduplicateStacks(\array_values(\array_filter($stacks))),
             dependencies: $this->deduplicateDependencies($dependencies),
         );
     }
@@ -210,6 +236,20 @@ class ProjectScanner implements ProjectScannerInterface
                 $frameworkPkg = self::FRAMEWORK_PACKAGES[$stack->framework] ?? null;
                 if ($frameworkPkg !== null && isset($lockVersions[$frameworkPkg])) {
                     $enrichedFrameworkVersion = $lockVersions[$frameworkPkg];
+                } elseif ($stack->framework !== 'none') {
+                    $prefix = match ($stack->framework) {
+                        'Symfony' => 'symfony/',
+                        'Laravel' => 'laravel/',
+                        default => null,
+                    };
+                    if ($prefix !== null) {
+                        foreach ($lockVersions as $pkgName => $pkgVer) {
+                            if (\str_starts_with($pkgName, $prefix)) {
+                                $enrichedFrameworkVersion = $pkgVer;
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 return new DetectedStack(
@@ -621,6 +661,211 @@ class ProjectScanner implements ProjectScannerInterface
     private function cleanVersion(string $version): string
     {
         return \ltrim(\trim($version), '^~>=<! ');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function resolveNpmLockVersions(
+        GitProviderInterface $gitProvider,
+        \App\Catalog\Domain\Model\Provider $provider,
+        string $externalId,
+        string $prefix,
+        string $ref,
+    ): array {
+        $pnpmLock = $gitProvider->getFileContent($provider, $externalId, $prefix . 'pnpm-lock.yaml', $ref);
+        if ($pnpmLock !== null) {
+            return $this->parsePnpmLock($pnpmLock);
+        }
+
+        $npmLock = $gitProvider->getFileContent($provider, $externalId, $prefix . 'package-lock.json', $ref);
+        if ($npmLock !== null) {
+            $data = \json_decode($npmLock, true);
+            if (\is_array($data)) {
+                return $this->parseNpmLock($data);
+            }
+        }
+
+        $yarnLock = $gitProvider->getFileContent($provider, $externalId, $prefix . 'yarn.lock', $ref);
+        if ($yarnLock !== null) {
+            return $this->parseYarnLock($yarnLock);
+        }
+
+        return [];
+    }
+
+    /** @return array<string, string> */
+    private function parsePnpmLock(string $content): array
+    {
+        $versions = [];
+
+        if (\preg_match_all('/^\s+([\'"]?)([a-z@][a-z0-9\/@._-]*)\1:\s*$/m', $content, $pkgMatches, \PREG_SET_ORDER | \PREG_OFFSET_CAPTURE)) {
+            foreach ($pkgMatches as $match) {
+                $pkgName = $match[2][0];
+                $offset = $match[0][1];
+                $rest = \substr($content, $offset, 500);
+                if (\preg_match('/version:\s*[\'"]?(\d+(?:\.\d+)*)/m', $rest, $vm)) {
+                    $versions[$pkgName] = \ltrim($vm[1], 'v');
+                }
+            }
+        }
+
+        return $versions;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, string>
+     */
+    private function parseNpmLock(array $data): array
+    {
+        $versions = [];
+
+        /** @var array<string, array{version?: string}> $packages */
+        $packages = \is_array($data['packages'] ?? null) ? $data['packages'] : [];
+        foreach ($packages as $path => $info) {
+            if ($path === '' || !\str_starts_with($path, 'node_modules/')) {
+                continue;
+            }
+            $name = \substr($path, \strlen('node_modules/'));
+            if (isset($info['version'])) {
+                $versions[$name] = \ltrim($info['version'], 'v');
+            }
+        }
+
+        return $versions;
+    }
+
+    /** @return array<string, string> */
+    private function parseYarnLock(string $content): array
+    {
+        $versions = [];
+
+        if (\preg_match_all('/^"?(@?[a-z][a-z0-9\/@._-]*)@(?:npm:)?[^":\n]+(?:,\s*"?@?[a-z][a-z0-9\/@._-]*@(?:npm:)?[^":\n]+)*"?:\s*$/m', $content, $pkgMatches, \PREG_SET_ORDER | \PREG_OFFSET_CAPTURE)) {
+            foreach ($pkgMatches as $match) {
+                $pkgName = $match[1][0];
+                $offset = $match[0][1];
+                $rest = \substr($content, $offset, 300);
+                if (\preg_match('/^\s+version:\s*["\']?(\d+(?:\.\d+)*)/m', $rest, $vm)) {
+                    if (!isset($versions[$pkgName])) {
+                        $versions[$pkgName] = $vm[1];
+                    }
+                }
+            }
+        }
+
+        return $versions;
+    }
+
+    /**
+     * @param list<DetectedDependency> $dependencies
+     * @param array<string, string> $lockVersions
+     * @return list<DetectedDependency>
+     */
+    private function enrichNpmVersions(array $dependencies, array $lockVersions): array
+    {
+        return \array_map(
+            static function (DetectedDependency $dep) use ($lockVersions): DetectedDependency {
+                if ($dep->packageManager !== PackageManager::Npm) {
+                    return $dep;
+                }
+
+                $locked = $lockVersions[$dep->name] ?? null;
+                if ($locked === null) {
+                    return $dep;
+                }
+
+                return new DetectedDependency(
+                    name: $dep->name,
+                    currentVersion: $locked,
+                    packageManager: $dep->packageManager,
+                    type: $dep->type,
+                    repositoryUrl: $dep->repositoryUrl,
+                );
+            },
+            $dependencies,
+        );
+    }
+
+    private const array JS_FRAMEWORK_PACKAGES = [
+        'Vue' => 'vue',
+        'Nuxt' => 'nuxt',
+        'React' => 'react',
+        'Next.js' => 'next',
+        'Angular' => '@angular/core',
+        'Svelte' => 'svelte',
+        'Astro' => 'astro',
+        'Remix' => 'remix',
+    ];
+
+    /**
+     * @param list<DetectedStack|null> $stacks
+     * @param array<string, string> $lockVersions
+     * @return list<DetectedStack|null>
+     */
+    private function enrichJsStackVersions(array $stacks, array $lockVersions): array
+    {
+        return \array_map(
+            static function (?DetectedStack $stack) use ($lockVersions): ?DetectedStack {
+                if ($stack === null || ($stack->language !== 'TypeScript' && $stack->language !== 'JavaScript')) {
+                    return $stack;
+                }
+
+                $enrichedFrameworkVersion = $stack->frameworkVersion;
+                $frameworkPkg = self::JS_FRAMEWORK_PACKAGES[$stack->framework] ?? null;
+                if ($frameworkPkg !== null && isset($lockVersions[$frameworkPkg])) {
+                    $enrichedFrameworkVersion = $lockVersions[$frameworkPkg];
+                }
+
+                $enrichedVersion = $stack->version;
+                if (isset($lockVersions['typescript'])) {
+                    $enrichedVersion = $lockVersions['typescript'];
+                } elseif ($stack->language === 'JavaScript' && isset($lockVersions['node'])) {
+                    $enrichedVersion = $lockVersions['node'];
+                }
+
+                return new DetectedStack(
+                    language: $stack->language,
+                    framework: $stack->framework,
+                    version: $enrichedVersion,
+                    frameworkVersion: $enrichedFrameworkVersion,
+                );
+            },
+            $stacks,
+        );
+    }
+
+    /**
+     * @param list<DetectedStack> $stacks
+     * @return list<DetectedStack>
+     */
+    private function deduplicateStacks(array $stacks): array
+    {
+        /** @var array<string, list<DetectedStack>> $byLanguage */
+        $byLanguage = [];
+
+        foreach ($stacks as $stack) {
+            $byLanguage[$stack->language][] = $stack;
+        }
+
+        $result = [];
+        foreach ($byLanguage as $langStacks) {
+            $withFramework = \array_filter($langStacks, static fn (DetectedStack $s): bool => $s->framework !== 'none');
+
+            if ($withFramework !== []) {
+                $seen = [];
+                foreach ($withFramework as $s) {
+                    if (!isset($seen[$s->framework])) {
+                        $seen[$s->framework] = true;
+                        $result[] = $s;
+                    }
+                }
+            } else {
+                $result[] = $langStacks[0];
+            }
+        }
+
+        return $result;
     }
 
     /**

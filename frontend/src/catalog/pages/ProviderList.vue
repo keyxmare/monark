@@ -121,23 +121,22 @@ function navigateToDetail(id: string) {
       </div>
 
       <div
-        v-if="providerStore.loading"
+        v-if="providerStore.loading && providerStore.providers.length === 0"
         class="py-8 text-center text-text-muted"
         data-testid="provider-list-loading"
       >
         {{ t('common.actions.loading') }}
       </div>
 
-      <div
-        v-else-if="providerStore.error"
-        class="rounded-lg bg-danger/10 p-4 text-danger"
-        role="alert"
-        data-testid="provider-list-error"
-      >
-        {{ providerStore.error }}
-      </div>
-
       <template v-else>
+        <div
+          v-if="providerStore.error"
+          class="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning"
+          role="alert"
+          data-testid="provider-list-error"
+        >
+          {{ providerStore.error }}
+        </div>
         <div
           v-if="providerStore.providers.length > 0"
           class="mb-4 flex flex-wrap items-center gap-3"

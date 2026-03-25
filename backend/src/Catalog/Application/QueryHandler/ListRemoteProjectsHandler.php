@@ -7,13 +7,15 @@ namespace App\Catalog\Application\QueryHandler;
 use App\Catalog\Application\DTO\RemoteProjectListOutput;
 use App\Catalog\Application\DTO\RemoteProjectOutput;
 use App\Catalog\Application\Query\ListRemoteProjectsQuery;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
-use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
 use App\Shared\Domain\Exception\NotFoundException;
+use App\Catalog\Domain\Model\ProviderStatus;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 
 #[AsMessageHandler(bus: 'query.bus')]
 final readonly class ListRemoteProjectsHandler
@@ -33,8 +35,18 @@ final readonly class ListRemoteProjectsHandler
         }
 
         $client = $this->gitProviderFactory->create($provider);
-        $remoteProjects = $client->listProjects($provider, $query->page, $query->perPage, $query->search, $query->visibility, $query->sort, $query->sortDir);
-        $total = $client->countProjects($provider, $query->search, $query->visibility);
+
+        try {
+            $remoteProjects = $client->listProjects($provider, $query->page, $query->perPage, $query->search, $query->visibility, $query->sort, $query->sortDir);
+            $total = $client->countProjects($provider, $query->search, $query->visibility);
+        } catch (ExceptionInterface $e) {
+            if ($provider->getStatus() !== ProviderStatus::Error) {
+                $provider->markError();
+                $this->providerRepository->save($provider);
+            }
+
+            throw $e;
+        }
 
         $importedMap = $this->projectRepository->findExternalIdMapByProvider($provider->getId());
 

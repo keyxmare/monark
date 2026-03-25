@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
+import { humanizeTimeDiff, isVersionUpToDate, ltsUrgency, patchGap, useFrameworkLts } from '@/catalog/composables/useFrameworkLts'
+import type { MaintenanceInfo } from '@/catalog/composables/useFrameworkLts'
 import { useMergeRequestStore } from '@/catalog/stores/merge-request'
 import { useProjectStore } from '@/catalog/stores/project'
 import { useTechStackStore } from '@/catalog/stores/tech-stack'
@@ -17,12 +19,15 @@ import { useToastStore } from '@/shared/stores/toast'
 const PER_PAGE = 20
 
 const route = useRoute()
+const router = useRouter()
+const showUnfollow = ref(false)
 const { d, t } = useI18n()
 const projectStore = useProjectStore()
 const techStackStore = useTechStackStore()
 const dependencyStore = useDependencyStore()
 const mergeRequestStore = useMergeRequestStore()
 const toastStore = useToastStore()
+const { loadForFrameworks, getLtsInfo, getVersionReleaseDate, getVersionMaintenanceStatus } = useFrameworkLts()
 const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
 
 const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-stacks')
@@ -86,6 +91,10 @@ onMounted(async () => {
     dependencyStore.fetchAll(1, PER_PAGE, projectId.value),
     mergeRequestStore.fetchAll(projectId.value, 1, PER_PAGE, 'active'),
   ])
+  const frameworks = techStackStore.techStacks
+    .map(ts => ts.framework)
+    .filter(f => f && f !== 'none')
+  await loadForFrameworks(frameworks)
 })
 
 watch(activeTab, (tab) => {
@@ -199,13 +208,13 @@ function changeMergeRequestPage(page: number) {
             >
               {{ projectStore.scanning ? t('catalog.projects.scanning') : t('catalog.projects.scanProject') }}
             </button>
-            <RouterLink
-              :to="{ name: 'catalog-projects-edit', params: { id: projectStore.selected.id } }"
-              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-              data-testid="project-detail-edit"
+            <button
+              class="rounded-lg border border-danger bg-transparent px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger hover:text-white"
+              data-testid="project-unfollow-btn"
+              @click="showUnfollow = true"
             >
-              {{ t('common.actions.edit') }}
-            </RouterLink>
+              {{ t('catalog.projects.unfollow') }}
+            </button>
           </div>
         </div>
 
@@ -348,10 +357,13 @@ function changeMergeRequestPage(page: number) {
                     {{ t('catalog.techStacks.frameworkVersion') }}
                   </th>
                   <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                    {{ t('catalog.techStacks.detectedAt') }}
+                    {{ t('catalog.techStacks.latestLts') }}
                   </th>
-                  <th class="px-4 py-3 text-right text-sm font-medium text-text-muted">
-                    {{ t('common.table.actions') }}
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.ltsGap') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('catalog.techStacks.releasedAt') }}
                   </th>
                 </tr>
               </thead>
@@ -372,19 +384,65 @@ function changeMergeRequestPage(page: number) {
                     {{ ts.framework }}
                   </td>
                   <td class="px-4 py-3 text-sm text-text-muted">
-                    {{ ts.frameworkVersion || '—' }}
+                    <span class="inline-flex items-center gap-1.5">
+                      {{ ts.frameworkVersion || '—' }}
+                      <span
+                        v-if="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status === 'eol'"
+                        class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
+                        :title="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.eolDate
+                          ? t('catalog.techStacks.unmaintainedSince', { date: getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!.eolDate! })
+                          : t('catalog.techStacks.unmaintainedNoDate')"
+                        data-testid="tech-stack-eol-badge"
+                      >
+                        {{ t('catalog.techStacks.unmaintained') }}
+                      </span>
+                      <span
+                        v-else-if="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status === 'warning'"
+                        class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
+                        :title="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.lastRelease
+                          ? t('catalog.techStacks.inactiveSince', { duration: humanizeTimeDiff(getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!.lastRelease!, new Date().toISOString()) })
+                          : t('catalog.techStacks.inactive')"
+                        data-testid="tech-stack-inactive-badge"
+                      >
+                        {{ t('catalog.techStacks.inactive') }}
+                      </span>
+                    </span>
                   </td>
                   <td class="px-4 py-3 text-sm text-text-muted">
-                    {{ d(new Date(ts.detectedAt), 'short') }}
+                    {{ getLtsInfo(ts.framework)?.latestLts ?? '—' }}
                   </td>
-                  <td class="px-4 py-3 text-right">
-                    <button
-                      class="text-sm text-danger hover:text-danger/80"
-                      data-testid="tech-stack-delete"
-                      @click="requestDelete({ id: ts.id, name: `${ts.language} ${ts.framework}` })"
-                    >
-                      {{ t('common.actions.delete') }}
-                    </button>
+                  <td class="px-4 py-3 text-sm">
+                    <template v-if="getLtsInfo(ts.framework) && ts.frameworkVersion && getVersionReleaseDate(ts.framework, ts.frameworkVersion)">
+                      <span
+                        v-if="isVersionUpToDate(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts)"
+                        class="text-success"
+                      >
+                        {{ t('catalog.techStacks.upToDate') }}
+                      </span>
+                      <span
+                        v-else-if="patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) !== null"
+                        class="text-warning"
+                      >
+                        {{ t('catalog.techStacks.patchesBehind', { count: patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) }) }}
+                      </span>
+                      <span
+                        v-else
+                        :class="{
+                          'text-success': ltsUrgency(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) === 'fresh',
+                          'text-warning': ltsUrgency(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) === 'moderate',
+                          'text-danger': ltsUrgency(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) === 'outdated',
+                        }"
+                      >
+                        {{ humanizeTimeDiff(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) }}
+                      </span>
+                    </template>
+                    <span
+                      v-else
+                      class="text-text-muted"
+                    >—</span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text-muted">
+                    {{ getVersionReleaseDate(ts.framework, ts.frameworkVersion) ?? '—' }}
                   </td>
                 </tr>
               </tbody>
@@ -503,14 +561,31 @@ function changeMergeRequestPage(page: number) {
                   class="border-b border-border last:border-0"
                   data-testid="dependency-row"
                 >
-                  <td class="px-4 py-3 text-sm text-text">
-                    {{ dep.name }}
+                  <td class="px-4 py-3 text-sm">
+                    <RouterLink
+                      :to="{ name: 'dependency-dependencies-detail', params: { id: dep.id } }"
+                      class="font-medium text-primary hover:text-primary-dark"
+                    >
+                      {{ dep.name }}
+                    </RouterLink>
                   </td>
                   <td class="px-4 py-3 text-sm text-text-muted">
                     {{ dep.currentVersion }}
                   </td>
                   <td class="px-4 py-3">
-                    <span class="rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info">
+                    <span class="inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info">
+                      <img
+                        v-if="dep.packageManager === 'npm'"
+                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg"
+                        alt="npm"
+                        class="h-3 w-3"
+                      >
+                      <img
+                        v-else-if="dep.packageManager === 'composer'"
+                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/composer/composer-original.svg"
+                        alt="composer"
+                        class="h-3 w-3"
+                      >
                       {{ dep.packageManager }}
                     </span>
                   </td>
@@ -699,13 +774,13 @@ function changeMergeRequestPage(page: number) {
       </template>
 
       <ConfirmDialog
-        :open="deleteOpen"
-        :title="t('catalog.projects.confirmDeleteStackTitle')"
-        :message="t('catalog.projects.confirmDeleteStackMessage', { name: deleteTarget?.name ?? '' })"
-        :confirm-label="t('common.actions.delete')"
+        :open="showUnfollow"
+        :title="t('catalog.projects.unfollowTitle')"
+        :message="t('catalog.projects.unfollowMessage', { name: projectStore.selected?.name ?? '' })"
+        :confirm-label="t('catalog.projects.unfollow')"
         variant="danger"
-        @confirm="confirmDelete(() => techStackStore.remove(deleteTarget!.id))"
-        @cancel="cancelDelete"
+        @confirm="async () => { showUnfollow = false; await projectStore.remove(projectId); router.push({ name: 'catalog-projects-list' }) }"
+        @cancel="showUnfollow = false"
       />
     </div>
   </DashboardLayout>

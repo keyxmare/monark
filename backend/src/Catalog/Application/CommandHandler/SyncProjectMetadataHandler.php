@@ -7,8 +7,12 @@ namespace App\Catalog\Application\CommandHandler;
 use App\Catalog\Application\Command\SyncProjectMetadataCommand;
 use App\Catalog\Domain\Event\ProjectMetadataSyncedEvent;
 use App\Catalog\Domain\Model\ProjectVisibility;
-use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
+use App\Catalog\Domain\Model\ProviderStatus;
 use App\Catalog\Domain\Port\GitProviderFactoryInterface;
+use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
+use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -18,8 +22,10 @@ final readonly class SyncProjectMetadataHandler
 {
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
+        private ProviderRepositoryInterface $providerRepository,
         private GitProviderFactoryInterface $gitProviderFactory,
         private MessageBusInterface $eventBus,
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -36,7 +42,21 @@ final readonly class SyncProjectMetadataHandler
         }
 
         $client = $this->gitProviderFactory->create($provider);
-        $remote = $client->getProject($provider, $project->getExternalId());
+
+        try {
+            $remote = $client->getProject($provider, $project->getExternalId());
+        } catch (\Throwable $e) {
+            $this->logger->error('Metadata sync failed for project {project}: {error}', [
+                'project' => $command->projectId,
+                'error' => $e->getMessage(),
+            ]);
+            if ($provider->getStatus() !== ProviderStatus::Error) {
+                $provider->markError();
+                $this->providerRepository->save($provider);
+            }
+
+            return;
+        }
 
         $changedFields = [];
 

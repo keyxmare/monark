@@ -6,11 +6,11 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\DTO\ScanResultOutput;
-use App\Shared\Domain\Event\ProjectScannedEvent;
 use App\Catalog\Domain\Model\TechStack;
+use App\Catalog\Domain\Port\ProjectScannerInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
-use App\Catalog\Domain\Port\ProjectScannerInterface;
+use App\Shared\Domain\Event\ProjectScannedEvent;
 use App\Shared\Domain\Exception\NotFoundException;
 use App\Shared\Domain\Port\DependencyWriterPort;
 use DateTimeImmutable;
@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 
 #[AsMessageHandler(bus: 'command.bus')]
-final readonly class ScanProjectHandler
+readonly class ScanProjectHandler
 {
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
@@ -44,12 +44,25 @@ final readonly class ScanProjectHandler
 
         $scanResult = $this->projectScanner->scan($project);
 
+        if ($scanResult->stacks === [] && $scanResult->dependencies === []) {
+            return new ScanResultOutput(
+                stacksDetected: 0,
+                dependenciesDetected: 0,
+                stacks: [],
+                dependencies: [],
+            );
+        }
+
         $projectId = $project->getId();
         $this->techStackRepository->deleteByProjectId($projectId);
         $this->dependencyWriter->deleteByProjectId($projectId);
 
         $stackOutputs = [];
         foreach ($scanResult->stacks as $detected) {
+            if ($detected->framework === 'none') {
+                continue;
+            }
+
             $techStack = TechStack::create(
                 language: $detected->language,
                 framework: $detected->framework,
