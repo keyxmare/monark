@@ -6,12 +6,12 @@ use App\Dependency\Application\DTO\VulnerabilityListOutput;
 use App\Dependency\Application\Query\ListVulnerabilitiesQuery;
 use App\Dependency\Application\QueryHandler\ListVulnerabilitiesHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Shared\Domain\ValueObject\DependencyType;
-use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Model\Severity;
 use App\Dependency\Domain\Model\Vulnerability;
 use App\Dependency\Domain\Model\VulnerabilityStatus;
 use App\Dependency\Domain\Repository\VulnerabilityRepositoryInterface;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Uid\Uuid;
 
 function stubListVulnRepo(array $vulnerabilities = [], int $count = 0): VulnerabilityRepositoryInterface

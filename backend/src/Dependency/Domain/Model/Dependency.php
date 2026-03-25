@@ -41,6 +41,9 @@ final class Dependency
     #[ORM\Column]
     private bool $isOutdated;
 
+    #[ORM\Column(type: 'string', enumType: RegistryStatus::class)]
+    private RegistryStatus $registryStatus;
+
     #[ORM\Column(length: 2048, nullable: true)]
     private ?string $repositoryUrl;
 
@@ -77,6 +80,7 @@ final class Dependency
         $this->packageManager = $packageManager;
         $this->type = $type;
         $this->isOutdated = $isOutdated;
+        $this->registryStatus = RegistryStatus::Pending;
         $this->projectId = $projectId;
         $this->repositoryUrl = $repositoryUrl;
         $this->vulnerabilities = new ArrayCollection();
@@ -163,6 +167,17 @@ final class Dependency
     public function getVulnerabilities(): Collection
     {
         return $this->vulnerabilities;
+    }
+
+    public function getRegistryStatus(): RegistryStatus
+    {
+        return $this->registryStatus;
+    }
+
+    public function markRegistryStatus(RegistryStatus $status): void
+    {
+        $this->registryStatus = $status;
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function getVulnerabilityCount(): int

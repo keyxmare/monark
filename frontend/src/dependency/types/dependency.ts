@@ -14,8 +14,11 @@ export interface Dependency {
   projectId: string
   repositoryUrl: string | null
   vulnerabilityCount: number
+  registryStatus: 'pending' | 'synced' | 'not_found'
   createdAt: string
   updatedAt: string
+  currentVersionReleasedAt: string | null
+  latestVersionReleasedAt: string | null
 }
 
 export interface CreateDependencyInput {

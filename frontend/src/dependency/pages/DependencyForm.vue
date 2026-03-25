@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
+import { useProjectStore } from '@/catalog/stores/project'
 import { useDependencyStore } from '@/dependency/stores/dependency'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
@@ -10,6 +11,7 @@ const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const dependencyStore = useDependencyStore()
+const projectStore = useProjectStore()
 
 const dependencyId = computed(() => route.params.id as string | undefined)
 const isEditMode = computed(() => !!dependencyId.value)
@@ -27,6 +29,7 @@ const submitting = ref(false)
 const formError = ref('')
 
 onMounted(async () => {
+  await projectStore.fetchAll(1, 200)
   if (isEditMode.value && dependencyId.value) {
     await dependencyStore.fetchOne(dependencyId.value)
     if (dependencyStore.selectedDependency) {
@@ -87,15 +90,18 @@ async function handleSubmit() {
 <template>
   <DashboardLayout>
     <div data-testid="dependency-form-page">
-      <div class="mb-6">
+      <nav class="mb-6 flex items-center gap-1 text-sm text-text-muted">
         <RouterLink
           :to="{ name: 'dependency-dependencies-list' }"
-          class="text-sm text-primary hover:text-primary-dark"
-          data-testid="dependency-form-back"
+          class="text-primary hover:text-primary-dark"
         >
-          &larr; {{ t('common.backTo', { page: t('dependency.dependencies.title').toLowerCase() }) }}
+          {{ t('dependency.dependencies.title') }}
         </RouterLink>
-      </div>
+        <span>/</span>
+        <span class="font-medium text-text">
+          {{ isEditMode ? t('dependency.dependencies.editDependency') : t('dependency.dependencies.createDependency') }}
+        </span>
+      </nav>
 
       <div class="max-w-lg rounded-xl border border-border bg-surface p-6">
         <h2 class="mb-6 text-2xl font-bold text-text">
@@ -257,14 +263,27 @@ async function handleSubmit() {
               for="projectId"
               class="mb-1 block text-sm font-medium text-text"
             >{{ t('dependency.dependencies.projectId') }}</label>
-            <input
+            <select
               id="projectId"
               v-model="projectId"
-              type="text"
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-project-id"
             >
+              <option
+                value=""
+                disabled
+              >
+                {{ t('catalog.techStacks.selectProject') }}
+              </option>
+              <option
+                v-for="p in projectStore.projects"
+                :key="p.id"
+                :value="p.id"
+              >
+                {{ p.name }}
+              </option>
+            </select>
           </div>
 
           <button

@@ -6,9 +6,9 @@ use App\Dependency\Application\DTO\DependencyListOutput;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Application\QueryHandler\ListDependenciesHandler;
 use App\Dependency\Domain\Model\Dependency;
+use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
-use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use Symfony\Component\Uid\Uuid;
 
 function stubListDependenciesRepo(array $dependencies = [], int $count = 0): DependencyRepositoryInterface

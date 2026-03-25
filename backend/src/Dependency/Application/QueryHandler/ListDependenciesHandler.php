@@ -8,32 +8,53 @@ use App\Dependency\Application\DTO\DependencyListOutput;
 use App\Dependency\Application\DTO\DependencyOutput;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
+use App\Shared\Domain\ValueObject\PackageManager;
+use DateTimeInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Uid\Uuid;
 
 #[AsMessageHandler(bus: 'query.bus')]
 final readonly class ListDependenciesHandler
 {
     public function __construct(
         private DependencyRepositoryInterface $dependencyRepository,
+        private DependencyVersionRepositoryInterface $versionRepository,
     ) {
     }
 
     public function __invoke(ListDependenciesQuery $query): DependencyListOutput
     {
-        $projectId = $query->projectId !== null ? Uuid::fromString($query->projectId) : null;
+        $filters = \array_filter([
+            'projectId' => $query->projectId,
+            'search' => $query->search,
+            'packageManager' => $query->packageManager,
+            'type' => $query->type,
+            'sort' => $query->sort,
+            'sortDir' => $query->sortDir,
+        ], static fn ($v) => $v !== null && $v !== '');
 
-        $dependencies = $projectId !== null
-            ? $this->dependencyRepository->findByProjectId($projectId, $query->page, $query->perPage)
-            : $this->dependencyRepository->findAll($query->page, $query->perPage);
+        if ($query->isOutdated !== null) {
+            $filters['isOutdated'] = $query->isOutdated;
+        }
 
-        $total = $projectId !== null
-            ? $this->dependencyRepository->countByProjectId($projectId)
-            : $this->dependencyRepository->count();
+        $dependencies = $this->dependencyRepository->findFiltered($query->page, $query->perPage, $filters);
+        $total = $this->dependencyRepository->countFiltered($filters);
 
         $items = \array_map(
-            static fn ($dependency) => DependencyOutput::fromEntity($dependency),
+            function ($dependency) {
+                $manager = $dependency->getPackageManager();
+                $name = $dependency->getName();
+
+                $currentVer = $this->versionRepository->findByNameManagerAndVersion($name, $manager, $dependency->getCurrentVersion());
+                $latestVer = $this->versionRepository->findByNameManagerAndVersion($name, $manager, $dependency->getLatestVersion());
+
+                return DependencyOutput::fromEntity(
+                    $dependency,
+                    $currentVer?->getReleaseDate()?->format(DateTimeInterface::ATOM),
+                    $latestVer?->getReleaseDate()?->format(DateTimeInterface::ATOM),
+                );
+            },
             $dependencies,
         );
 

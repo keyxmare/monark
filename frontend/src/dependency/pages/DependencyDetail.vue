@@ -1,40 +1,54 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
+import { useProjectStore } from '@/catalog/stores/project'
 import { useDependencyStore } from '@/dependency/stores/dependency'
+import { useVulnerabilityStore } from '@/dependency/stores/vulnerability'
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
 
 const route = useRoute()
 const { d, t } = useI18n()
 const dependencyStore = useDependencyStore()
+const projectStore = useProjectStore()
+const vulnerabilityStore = useVulnerabilityStore()
 
-onMounted(() => {
+const linkedVulnerabilities = computed(() =>
+  vulnerabilityStore.vulnerabilities.filter(v => v.dependencyId === dependencyStore.selectedDependency?.id),
+)
+
+onMounted(async () => {
   const id = route.params.id as string
-  dependencyStore.fetchOne(id)
+  await dependencyStore.fetchOne(id)
+  await Promise.all([
+    dependencyStore.selectedDependency?.projectId
+      ? projectStore.fetchOne(dependencyStore.selectedDependency.projectId)
+      : Promise.resolve(),
+    vulnerabilityStore.fetchAll(1, 200),
+  ])
 })
 </script>
 
 <template>
   <DashboardLayout>
     <div data-testid="dependency-detail-page">
-      <div class="mb-6 flex items-center justify-between">
+      <nav class="mb-6 flex items-center gap-1 text-sm text-text-muted">
         <RouterLink
           :to="{ name: 'dependency-dependencies-list' }"
-          class="text-sm text-primary hover:text-primary-dark"
-          data-testid="dependency-detail-back"
+          class="text-primary hover:text-primary-dark"
         >
-          &larr; {{ t('common.backTo', { page: t('dependency.dependencies.title').toLowerCase() }) }}
+          {{ t('dependency.dependencies.title') }}
         </RouterLink>
-        <RouterLink
+        <span>/</span>
+        <span
           v-if="dependencyStore.selectedDependency"
-          :to="{ name: 'dependency-dependencies-edit', params: { id: dependencyStore.selectedDependency.id } }"
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-          data-testid="dependency-detail-edit"
-        >
-          {{ t('common.actions.edit') }}
-        </RouterLink>
+          class="font-medium text-text"
+        >{{ dependencyStore.selectedDependency.name }}</span>
+      </nav>
+
+      <div class="mb-6 flex items-center justify-between">
+        <div />
       </div>
 
       <div
@@ -67,6 +81,20 @@ onMounted(() => {
           </h2>
 
           <dl class="space-y-4">
+            <div v-if="projectStore.selected">
+              <dt class="text-sm font-medium text-text-muted">
+                {{ t('catalog.techStacks.project') }}
+              </dt>
+              <dd class="mt-1">
+                <RouterLink
+                  :to="{ name: 'catalog-projects-detail', params: { id: projectStore.selected.id } }"
+                  class="text-primary hover:text-primary-dark"
+                  data-testid="dependency-detail-project"
+                >
+                  {{ projectStore.selected.name }}
+                </RouterLink>
+              </dd>
+            </div>
             <div>
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('dependency.dependencies.currentVersion') }}
@@ -204,18 +232,84 @@ onMounted(() => {
         </div>
 
         <div class="max-w-2xl">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-text">
-              {{ t('dependency.dependencies.vulnerabilities') }}
-            </h3>
-            <RouterLink
-              :to="{ name: 'dependency-vulnerabilities-create' }"
-              class="text-sm text-primary hover:text-primary-dark"
-              data-testid="dependency-detail-add-vuln"
-            >
-              {{ t('dependency.dependencies.addVulnerability') }}
-            </RouterLink>
+          <h3 class="mb-4 text-lg font-semibold text-text">
+            {{ t('dependency.dependencies.vulnerabilities') }} ({{ linkedVulnerabilities.length }})
+          </h3>
+
+          <div
+            v-if="linkedVulnerabilities.length > 0"
+            class="overflow-hidden rounded-xl border border-border bg-surface"
+          >
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-border bg-surface-muted">
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('dependency.vulnerabilities.cveId') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('dependency.vulnerabilities.severity') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('dependency.vulnerabilities.vulnTitle') }}
+                  </th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                    {{ t('dependency.vulnerabilities.status') }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="vuln in linkedVulnerabilities"
+                  :key="vuln.id"
+                  class="border-b border-border last:border-0"
+                >
+                  <td class="px-4 py-3 text-sm">
+                    <RouterLink
+                      :to="{ name: 'dependency-vulnerabilities-detail', params: { id: vuln.id } }"
+                      class="font-medium text-primary hover:text-primary-dark"
+                    >
+                      {{ vuln.cveId }}
+                    </RouterLink>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      :class="{
+                        'bg-red-100 text-red-800': vuln.severity === 'critical',
+                        'bg-orange-100 text-orange-800': vuln.severity === 'high',
+                        'bg-yellow-100 text-yellow-800': vuln.severity === 'medium',
+                        'bg-green-100 text-green-800': vuln.severity === 'low',
+                      }"
+                      class="rounded-full px-2 py-0.5 text-xs font-medium"
+                    >
+                      {{ vuln.severity }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-text">
+                    {{ vuln.title }}
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      :class="{
+                        'bg-red-100 text-red-800': vuln.status === 'open',
+                        'bg-yellow-100 text-yellow-800': vuln.status === 'acknowledged',
+                        'bg-green-100 text-green-800': vuln.status === 'fixed',
+                        'bg-gray-100 text-gray-800': vuln.status === 'ignored',
+                      }"
+                      class="rounded-full px-2 py-0.5 text-xs font-medium"
+                    >
+                      {{ vuln.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+          <p
+            v-else
+            class="text-sm text-text-muted"
+          >
+            {{ t('dependency.vulnerabilities.noVulnerabilities') }}
+          </p>
         </div>
       </div>
     </div>

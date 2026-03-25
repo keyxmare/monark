@@ -5,10 +5,10 @@ declare(strict_types=1);
 use App\Dependency\Application\Command\DeleteDependencyCommand;
 use App\Dependency\Application\CommandHandler\DeleteDependencyHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Shared\Domain\ValueObject\DependencyType;
-use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Uid\Uuid;
 
 function stubDeleteDependencyRepo(?Dependency $dependency = null): DependencyRepositoryInterface

@@ -6,10 +6,10 @@ use App\Dependency\Application\DTO\DependencyOutput;
 use App\Dependency\Application\Query\GetDependencyQuery;
 use App\Dependency\Application\QueryHandler\GetDependencyHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Shared\Domain\ValueObject\DependencyType;
-use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Uid\Uuid;
 
 function stubGetDependencyRepo(?Dependency $dependency = null): DependencyRepositoryInterface

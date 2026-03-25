@@ -6,10 +6,10 @@ namespace App\Dependency\Application\CommandHandler;
 
 use App\Dependency\Application\Command\UpdateDependencyCommand;
 use App\Dependency\Application\DTO\DependencyOutput;
-use App\Shared\Domain\ValueObject\DependencyType;
-use App\Shared\Domain\ValueObject\PackageManager;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use App\Shared\Domain\ValueObject\DependencyType;
+use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
 

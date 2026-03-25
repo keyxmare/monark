@@ -23,11 +23,17 @@ final readonly class DependencyOutput
         public int $vulnerabilityCount,
         public string $createdAt,
         public string $updatedAt,
+        public string $registryStatus = 'pending',
+        public ?string $currentVersionReleasedAt = null,
+        public ?string $latestVersionReleasedAt = null,
     ) {
     }
 
-    public static function fromEntity(Dependency $dependency): self
-    {
+    public static function fromEntity(
+        Dependency $dependency,
+        ?string $currentVersionReleasedAt = null,
+        ?string $latestVersionReleasedAt = null,
+    ): self {
         return new self(
             id: $dependency->getId()->toRfc4122(),
             name: $dependency->getName(),
@@ -40,8 +46,11 @@ final readonly class DependencyOutput
             projectId: $dependency->getProjectId()->toRfc4122(),
             repositoryUrl: $dependency->getRepositoryUrl(),
             vulnerabilityCount: $dependency->getVulnerabilityCount(),
+            registryStatus: $dependency->getRegistryStatus()->value,
             createdAt: $dependency->getCreatedAt()->format(DateTimeInterface::ATOM),
             updatedAt: $dependency->getUpdatedAt()->format(DateTimeInterface::ATOM),
+            currentVersionReleasedAt: $currentVersionReleasedAt,
+            latestVersionReleasedAt: $latestVersionReleasedAt,
         );
     }
 }
