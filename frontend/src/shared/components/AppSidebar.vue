@@ -51,19 +51,10 @@ const navSections = computed<NavSection[]>(() => [
     ],
   },
   {
-    headingKey: 'nav.sections.assessment',
-    items: [
-      { icon: '📝', labelKey: 'nav.quizzes', to: '/assessment/quizzes' },
-      { icon: '❓', labelKey: 'nav.questions', to: '/assessment/questions' },
-      { icon: '🎯', labelKey: 'nav.attempts', to: '/assessment/attempts' },
-    ],
-  },
-  {
     headingKey: 'nav.sections.identity',
     items: [
       { icon: '👤', labelKey: 'nav.users', to: '/identity/users' },
       { icon: '🔑', labelKey: 'nav.accessTokens', to: '/identity/access-tokens' },
-      { icon: '👥', labelKey: 'nav.teams', to: '/identity/teams' },
     ],
   },
 ])

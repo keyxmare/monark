@@ -43,28 +43,4 @@ export const identityRoutes: RouteRecordRaw[] = [
     name: 'identity-access-tokens-create',
     path: '/identity/access-tokens/create',
   },
-  {
-    component: () => import('@/identity/pages/TeamList.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'identity-teams-list',
-    path: '/identity/teams',
-  },
-  {
-    component: () => import('@/identity/pages/TeamDetail.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'identity-teams-detail',
-    path: '/identity/teams/:id',
-  },
-  {
-    component: () => import('@/identity/pages/TeamForm.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'identity-teams-create',
-    path: '/identity/teams/create',
-  },
-  {
-    component: () => import('@/identity/pages/TeamForm.vue'),
-    meta: { layout: 'dashboard' },
-    name: 'identity-teams-edit',
-    path: '/identity/teams/:id/edit',
-  },
 ]

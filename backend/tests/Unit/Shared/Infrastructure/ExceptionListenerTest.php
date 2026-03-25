@@ -121,35 +121,9 @@ it('handles ValidationFailedException with 422', function () {
     expect($data['error']['message'])->toBe('Validation failed');
 });
 
-it('handles DomainException with duplicate slug for team', function () {
-    $listener = new ExceptionListener(\stubTranslator());
-    $exception = new class ('A team with this slug already exists.') extends DomainException {};
-    $event = \createExceptionEvent($exception);
-
-    $listener($event);
-
-    $response = $event->getResponse();
-    expect($response->getStatusCode())->toBe(422);
-    $data = \json_decode((string) $response->getContent(), true);
-    expect($data['error']['message'])->toBe('Slug already exists');
-});
-
 it('handles DomainException with duplicate slug for project', function () {
     $listener = new ExceptionListener(\stubTranslator());
     $exception = new class ('A project with this slug already exists.') extends DomainException {};
-    $event = \createExceptionEvent($exception);
-
-    $listener($event);
-
-    $response = $event->getResponse();
-    expect($response->getStatusCode())->toBe(422);
-    $data = \json_decode((string) $response->getContent(), true);
-    expect($data['error']['message'])->toBe('Slug already exists');
-});
-
-it('handles DomainException with duplicate slug for quiz', function () {
-    $listener = new ExceptionListener(\stubTranslator());
-    $exception = new class ('A quiz with this slug already exists.') extends DomainException {};
     $event = \createExceptionEvent($exception);
 
     $listener($event);

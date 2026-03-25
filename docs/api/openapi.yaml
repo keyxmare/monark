@@ -3,7 +3,7 @@ openapi: 3.1.0
 info:
   title: Monark API
   version: 0.1.0
-  description: Developer hub API for project monitoring, dependency tracking, and technical assessments.
+  description: Developer hub API for project monitoring and dependency tracking.
 
 servers:
   - url: http://localhost:8000/api

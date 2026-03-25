@@ -39,7 +39,7 @@ test-backend: ## Run backend tests
 
 lint-backend: ## Lint backend code
 	$(EXEC_BACKEND) php vendor/bin/php-cs-fixer fix --dry-run --diff
-	$(EXEC_BACKEND) php vendor/bin/phpstan analyse
+	$(EXEC_BACKEND) php -d memory_limit=512M vendor/bin/phpstan analyse
 
 quality-backend: lint-backend test-backend ## Full backend quality check
 

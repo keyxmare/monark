@@ -64,9 +64,7 @@ final readonly class ExceptionListener
     {
         $keyMap = [
             'A user with this email already exists.' => 'error.duplicate_email',
-            'A team with this slug already exists.' => 'error.duplicate_slug',
             'A project with this slug already exists.' => 'error.duplicate_slug',
-            'A quiz with this slug already exists.' => 'error.duplicate_slug',
             'Invalid credentials.' => 'error.invalid_credentials',
         ];
 

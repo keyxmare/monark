@@ -1,6 +1,6 @@
 # Monark
 
-Hub développeur — monitoring de projets, dépendances, vulnérabilités et évaluations techniques.
+Hub développeur — monitoring de projets, dépendances et vulnérabilités.
 
 ## Stack
 
@@ -18,10 +18,9 @@ Hub développeur — monitoring de projets, dépendances, vulnérabilités et é
 
 | Context | Responsabilité |
 |---|---|
-| Identity | Authentification, profils, équipes |
+| Identity | Authentification, profils |
 | Catalog | Projets, tech stacks, merge requests |
 | Dependency | Dépendances, versions LTS, vulnérabilités CVE |
-| Assessment | Quiz, questions, tentatives |
 | Activity | Dashboard, journal d'activité, notifications |
 
 ### Structure backend (DDD)

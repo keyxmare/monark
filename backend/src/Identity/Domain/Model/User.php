@@ -44,10 +44,6 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: AccessToken::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $accessTokens;
 
-    /** @var Collection<int, Team> */
-    #[ORM\ManyToMany(targetEntity: Team::class, mappedBy: 'members')]
-    private Collection $teams;
-
     #[ORM\Column]
     private DateTimeImmutable $createdAt;
 
@@ -72,7 +68,6 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->avatar = $avatar;
         $this->roles = $roles;
         $this->accessTokens = new ArrayCollection();
-        $this->teams = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
         $this->updatedAt = new DateTimeImmutable();
     }
@@ -140,12 +135,6 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getAccessTokens(): Collection
     {
         return $this->accessTokens;
-    }
-
-    /** @return Collection<int, Team> */
-    public function getTeams(): Collection
-    {
-        return $this->teams;
     }
 
     public function getCreatedAt(): DateTimeImmutable

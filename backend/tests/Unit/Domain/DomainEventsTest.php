@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Assessment\Domain\Event\QuizCreated;
-use App\Assessment\Domain\Event\QuizDeleted;
-use App\Assessment\Domain\Event\QuizUpdated;
 use App\Catalog\Domain\Event\ProjectCreated;
 use App\Catalog\Domain\Event\ProjectDeleted;
 use App\Catalog\Domain\Event\ProjectSyncCompletedEvent;
@@ -53,20 +50,4 @@ it('creates ProjectSyncCompletedEvent', function () {
     $event = new ProjectSyncCompletedEvent('p-1', 'sj-1');
     expect($event->projectId)->toBe('p-1');
     expect($event->syncJobId)->toBe('sj-1');
-});
-
-it('creates QuizCreated event', function () {
-    $event = new QuizCreated('q-1', 'PHP Quiz');
-    expect($event->quizId)->toBe('q-1');
-    expect($event->title)->toBe('PHP Quiz');
-});
-
-it('creates QuizUpdated event', function () {
-    $event = new QuizUpdated('q-1', 'PHP Quiz');
-    expect($event->quizId)->toBe('q-1');
-});
-
-it('creates QuizDeleted event', function () {
-    $event = new QuizDeleted('q-1');
-    expect($event->quizId)->toBe('q-1');
 });

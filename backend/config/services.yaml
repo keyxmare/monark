@@ -17,9 +17,6 @@ services:
     App\Dependency\:
         resource: '../src/Dependency/'
 
-    App\Assessment\:
-        resource: '../src/Assessment/'
-
     App\Activity\:
         resource: '../src/Activity/'
 
@@ -32,9 +29,6 @@ services:
 
     App\Identity\Domain\Repository\AccessTokenRepositoryInterface:
         alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineAccessTokenRepository
-
-    App\Identity\Domain\Repository\TeamRepositoryInterface:
-        alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineTeamRepository
 
     App\Catalog\Domain\Repository\ProjectRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProjectRepository
@@ -78,17 +72,18 @@ services:
     App\Dependency\Domain\Repository\VulnerabilityRepositoryInterface:
         alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineVulnerabilityRepository
 
-    App\Assessment\Domain\Repository\QuizRepositoryInterface:
-        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineQuizRepository
+    App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface:
+        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyVersionRepository
 
-    App\Assessment\Domain\Repository\QuestionRepositoryInterface:
-        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineQuestionRepository
+    App\Dependency\Infrastructure\Registry\PackageRegistryFactory:
+        arguments:
+            $adapters: !tagged_iterator dependency.registry_adapter
 
-    App\Assessment\Domain\Repository\AnswerRepositoryInterface:
-        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineAnswerRepository
+    App\Dependency\Infrastructure\Registry\NpmRegistryAdapter:
+        tags: ['dependency.registry_adapter']
 
-    App\Assessment\Domain\Repository\AttemptRepositoryInterface:
-        alias: App\Assessment\Infrastructure\Persistence\Doctrine\DoctrineAttemptRepository
+    App\Dependency\Infrastructure\Registry\PackagistRegistryAdapter:
+        tags: ['dependency.registry_adapter']
 
     App\Identity\Application\CommandHandler\RegisterUserHandler:
         arguments:

@@ -4,7 +4,7 @@
   "created_at": "2026-03-11T00:00:00Z",
   "updated_at": "2026-03-11T00:00:00Z",
   "name": "monark",
-  "description": "Hub développeur permettant de monitorer leurs activités, suivi de projets (dépendances techniques, retard par rapport à LTS etc.), partage de questionnaires, quizz etc.",
+  "description": "Hub développeur permettant de monitorer leurs activités, suivi de projets (dépendances techniques, retard par rapport à LTS etc.).",
   "type": "web",
   "preset": "backoffice",
   "backend": "symfony",
@@ -19,7 +19,7 @@
   "ui_framework": "tailwind",
   "ssr": null,
   "nuxt_ddd_strategy": null,
-  "bounded_contexts": ["Identity", "Catalog", "Dependency", "Assessment", "Activity"],
+  "bounded_contexts": ["Identity", "Catalog", "Dependency", "Activity"],
   "modules": ["auth", "messenger"],
   "cli_lang": null,
   "lib_lang": null,
@@ -53,18 +53,6 @@
             { "target": "User", "type": "ManyToOne", "inversedBy": "accessTokens", "nullable": false }
           ],
           "crud": ["CREATE", "READ", "LIST", "DELETE"]
-        },
-        {
-          "name": "Team",
-          "properties": {
-            "name": "string",
-            "slug": "string",
-            "description": "text"
-          },
-          "relations": [
-            { "target": "User", "type": "ManyToMany" }
-          ],
-          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
         }
       ],
       "custom": ["Register", "Login", "Logout"]
@@ -153,69 +141,6 @@
             { "target": "Dependency", "type": "ManyToOne", "inversedBy": "vulnerabilities", "nullable": false }
           ],
           "crud": ["CREATE", "READ", "LIST", "UPDATE"]
-        }
-      ],
-      "custom": []
-    },
-    "Assessment": {
-      "entities": [
-        {
-          "name": "Quiz",
-          "properties": {
-            "title": "string",
-            "slug": "string",
-            "description": "text",
-            "type": "enum(quiz,survey)",
-            "status": "enum(draft,published,archived)",
-            "startsAt": "datetime",
-            "endsAt": "datetime",
-            "timeLimit": "int",
-            "authorId": "string"
-          },
-          "relations": [
-            { "target": "Question", "type": "OneToMany", "mappedBy": "quiz", "cascade": ["persist", "remove"], "orphanRemoval": true }
-          ],
-          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
-        },
-        {
-          "name": "Question",
-          "properties": {
-            "type": "enum(single_choice,multiple_choice,text,code)",
-            "content": "text",
-            "level": "enum(easy,medium,hard)",
-            "score": "int",
-            "position": "int"
-          },
-          "relations": [
-            { "target": "Quiz", "type": "ManyToOne", "inversedBy": "questions", "nullable": false },
-            { "target": "Answer", "type": "OneToMany", "mappedBy": "question", "cascade": ["persist", "remove"], "orphanRemoval": true }
-          ],
-          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
-        },
-        {
-          "name": "Answer",
-          "properties": {
-            "content": "text",
-            "isCorrect": "bool",
-            "position": "int"
-          },
-          "relations": [
-            { "target": "Question", "type": "ManyToOne", "inversedBy": "answers", "nullable": false }
-          ],
-          "crud": ["CREATE", "READ", "LIST", "UPDATE", "DELETE"]
-        },
-        {
-          "name": "Attempt",
-          "properties": {
-            "score": "int",
-            "status": "enum(started,submitted,graded)",
-            "startedAt": "datetime",
-            "finishedAt": "datetime",
-            "userId": "string",
-            "quizId": "string"
-          },
-          "relations": [],
-          "crud": ["CREATE", "READ", "LIST"]
         }
       ],
       "custom": []

@@ -4,8 +4,7 @@
 
 | Context | Description |
 |---|---|
-| [Identity](identity.md) | Authentication, profiles, teams |
+| [Identity](identity.md) | Authentication, profiles |
 | [Catalog](catalog.md) | Projects, tech stacks |
 | [Dependency](dependency.md) | Dependencies, LTS, vulnerabilities |
-| [Assessment](assessment.md) | Quizzes, questions, attempts |
 | [Activity](activity.md) | Dashboard, activity log, notifications |

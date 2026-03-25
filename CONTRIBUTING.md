@@ -46,7 +46,7 @@ make install   # Build and start the project
 
 **Types**: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
 
-**Scopes**: identity, catalog, dependency, assessment, activity, docker, ci
+**Scopes**: identity, catalog, dependency, activity, shared, docker, ci
 
 ## Code standards
 

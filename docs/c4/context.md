@@ -6,7 +6,7 @@ C4Context
 
     Person(dev, "Developer", "Uses Monark to monitor projects and dependencies")
 
-    System(monark, "Monark", "Developer hub for project monitoring, dependency tracking, and technical assessments")
+    System(monark, "Monark", "Developer hub for project monitoring and dependency tracking")
 
     System_Ext(gitlab, "GitLab", "Source code hosting and CI/CD")
     System_Ext(github, "GitHub", "Source code hosting and CI/CD")

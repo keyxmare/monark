@@ -48,21 +48,6 @@ deptrac:
         - type: directory
           value: src/Dependency/Infrastructure/.*
 
-    - name: Assessment_Domain
-      collectors:
-        - type: directory
-          value: src/Assessment/Domain/.*
-
-    - name: Assessment_Application
-      collectors:
-        - type: directory
-          value: src/Assessment/Application/.*
-
-    - name: Assessment_Infrastructure
-      collectors:
-        - type: directory
-          value: src/Assessment/Infrastructure/.*
-
     - name: Activity_Domain
       collectors:
         - type: directory
@@ -112,16 +97,6 @@ deptrac:
     Dependency_Infrastructure:
       - Dependency_Domain
       - Dependency_Application
-      - Shared
-
-    Assessment_Domain:
-      - Shared
-    Assessment_Application:
-      - Assessment_Domain
-      - Shared
-    Assessment_Infrastructure:
-      - Assessment_Domain
-      - Assessment_Application
       - Shared
 
     Activity_Domain:
