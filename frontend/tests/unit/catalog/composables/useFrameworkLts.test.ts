@@ -106,6 +106,17 @@ describe('resolveFramework', () => {
   })
 })
 
+describe('useFrameworkLts with Angular', () => {
+  it('loads Angular LTS data from endoflife.date', async () => {
+    const { loadForFrameworks, getLtsInfo } = useFrameworkLts()
+    await loadForFrameworks(['Angular'])
+  })
+
+  it('resolves AngularJS alias to Angular for LTS lookup', () => {
+    expect(resolveFramework('AngularJS')).toBe('Angular')
+  })
+})
+
 describe('getMaintenanceStatus', () => {
   it('returns eol when eol date is in the past', () => {
     const cycle = {

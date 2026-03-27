@@ -27,6 +27,7 @@ const FRAMEWORK_MAP: Record<string, string> = {
   Symfony: 'symfony',
   Vue: 'vue',
   Nuxt: 'nuxt',
+  Angular: 'angular',
 }
 
 const FRAMEWORK_ALIASES: Record<string, string> = {

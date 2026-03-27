@@ -47,13 +47,14 @@ const scanFreshness = computed(() => {
   return 'stale'
 })
 
-const uniqueTechNames = computed(() => {
-  const names = new Set<string>()
+const uniqueTechs = computed(() => {
+  const seen = new Map<string, string>()
   for (const ts of techStackStore.techStacks) {
-    const name = ts.framework && ts.framework !== 'none' ? ts.framework : null
-    if (name) names.add(name)
+    if (ts.framework && ts.framework !== 'none' && !seen.has(ts.framework)) {
+      seen.set(ts.framework, ts.frameworkVersion)
+    }
   }
-  return [...names]
+  return [...seen.entries()].map(([name, version]) => ({ name, version }))
 })
 
 const filteredDependencies = computed(() => {
@@ -251,9 +252,10 @@ function changeMergeRequestPage(page: number) {
               data-testid="project-stat-stacks"
             >
               <TechBadge
-                v-for="name in uniqueTechNames"
-                :key="name"
-                :name="name"
+                v-for="tech in uniqueTechs"
+                :key="tech.name"
+                :name="tech.name"
+                :version="tech.version"
                 size="md"
               />
             </div>

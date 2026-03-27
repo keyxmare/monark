@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
   name: string
+  version?: string
   size?: 'sm' | 'md'
 }>(), {
   size: 'sm',
@@ -26,6 +27,7 @@ const DEVICON_MAP: Record<string, string> = {
   'vue.js': 'vuejs/vuejs-original',
   react: 'react/react-original',
   angular: 'angular/angular-original',
+  angularjs: 'angularjs/angularjs-original',
   'next.js': 'nextjs/nextjs-original',
   nextjs: 'nextjs/nextjs-original',
   nuxt: 'nuxtjs/nuxtjs-original',
@@ -52,8 +54,19 @@ const DEVICON_MAP: Record<string, string> = {
 
 const DEVICON_BASE = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons'
 
+function resolveIconKey(name: string, version?: string): string {
+  const key = name.toLowerCase()
+  if (key === 'angular' && version) {
+    const major = Number.parseInt(version.split('.')[0], 10)
+    if (!Number.isNaN(major) && major < 2) {
+      return 'angularjs'
+    }
+  }
+  return key
+}
+
 const iconUrl = computed(() => {
-  const key = props.name.toLowerCase()
+  const key = resolveIconKey(props.name, props.version)
   const path = DEVICON_MAP[key]
   return path ? `${DEVICON_BASE}/${path}.svg` : null
 })

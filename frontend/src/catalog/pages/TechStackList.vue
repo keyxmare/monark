@@ -768,6 +768,7 @@ function exportCsv() {
                 <td class="px-4 py-3 text-sm text-text">
                   <TechBadge
                     :name="row.ts.framework"
+                    :version="row.ts.frameworkVersion"
                     size="sm"
                   />
                 </td>

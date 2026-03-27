@@ -8,11 +8,31 @@ use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
+use App\Catalog\Infrastructure\Scanner\Detector\DockerDetector;
+use App\Catalog\Infrastructure\Scanner\Detector\GoDetector;
+use App\Catalog\Infrastructure\Scanner\Detector\JavaScriptDetector;
+use App\Catalog\Infrastructure\Scanner\Detector\PhpDetector;
+use App\Catalog\Infrastructure\Scanner\Detector\PythonDetector;
+use App\Catalog\Infrastructure\Scanner\Detector\RubyDetector;
+use App\Catalog\Infrastructure\Scanner\Detector\RustDetector;
 use App\Catalog\Infrastructure\Scanner\ProjectScanner;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Uid\Uuid;
 use Tests\Factory\Catalog\ProviderFactory;
+
+function allDetectors(): array
+{
+    return [
+        new PhpDetector(),
+        new JavaScriptDetector(),
+        new PythonDetector(),
+        new GoDetector(),
+        new RustDetector(),
+        new RubyDetector(),
+        new DockerDetector(),
+    ];
+}
 
 function stubScannerGitClient(array $files = [], array $tree = []): GitProviderInterface
 {
@@ -104,7 +124,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -143,7 +163,7 @@ describe('ProjectScanner', function () {
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -193,7 +213,7 @@ describe('ProjectScanner', function () {
             ],
         );
 
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
         $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(2);
@@ -223,7 +243,7 @@ describe('ProjectScanner', function () {
             ],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -242,7 +262,7 @@ describe('ProjectScanner', function () {
         );
 
         $client = \stubScannerGitClient();
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan($project);
 
@@ -257,7 +277,7 @@ describe('ProjectScanner', function () {
             files: ['requirements.txt' => $requirements],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -283,7 +303,7 @@ describe('ProjectScanner', function () {
             files: ['go.mod' => $goMod],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -301,7 +321,7 @@ describe('ProjectScanner', function () {
             files: ['Cargo.toml' => $cargoToml],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -319,7 +339,7 @@ describe('ProjectScanner', function () {
             files: ['Gemfile' => $gemfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -336,7 +356,7 @@ describe('ProjectScanner', function () {
             files: ['Dockerfile' => $dockerfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -353,7 +373,7 @@ describe('ProjectScanner', function () {
             files: ['Dockerfile' => $dockerfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -367,7 +387,7 @@ describe('ProjectScanner', function () {
             files: ['pyproject.toml' => $pyproject],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -396,7 +416,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -414,7 +434,7 @@ describe('ProjectScanner', function () {
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -432,7 +452,7 @@ describe('ProjectScanner', function () {
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -450,7 +470,7 @@ describe('ProjectScanner', function () {
             files: ['package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -464,7 +484,7 @@ describe('ProjectScanner', function () {
             files: ['go.mod' => $goMod],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -486,7 +506,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -506,7 +526,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -530,7 +550,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -573,7 +593,7 @@ describe('ProjectScanner', function () {
             ],
         );
 
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
         $result = $scanner->scan(\createLinkedProject());
 
         expect($result->stacks)->toHaveCount(2);
@@ -594,7 +614,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson, 'package.json' => $packageJson],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -609,7 +629,7 @@ describe('ProjectScanner', function () {
             files: ['requirements.txt' => $requirements],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -634,7 +654,7 @@ describe('ProjectScanner', function () {
             files: ['requirements.txt' => $requirements],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -651,7 +671,7 @@ describe('ProjectScanner', function () {
             files: ['go.mod' => $goMod],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -665,7 +685,7 @@ describe('ProjectScanner', function () {
             files: ['Cargo.toml' => $cargoToml],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -679,7 +699,7 @@ describe('ProjectScanner', function () {
             files: ['Gemfile' => $gemfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -694,7 +714,7 @@ describe('ProjectScanner', function () {
             files: ['requirements.txt' => $requirements, 'pyproject.toml' => $pyproject],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -717,7 +737,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -734,7 +754,7 @@ describe('ProjectScanner', function () {
             files: ['composer.json' => $composerJson, 'Dockerfile' => $dockerfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -756,7 +776,7 @@ describe('ProjectScanner', function () {
             ],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -772,7 +792,7 @@ describe('ProjectScanner', function () {
             files: ['Dockerfile' => $dockerfile],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -799,7 +819,7 @@ describe('ProjectScanner', function () {
             ],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -849,7 +869,7 @@ describe('ProjectScanner', function () {
         };
 
         $factory = \stubScannerFactory($gitClient);
-        $scanner = new ProjectScanner($factory);
+        $scanner = new ProjectScanner($factory, \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -877,7 +897,7 @@ describe('ProjectScanner', function () {
             ],
         );
 
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
         $result = $scanner->scan(\createLinkedProject());
 
         $vueCount = \count(\array_filter($result->dependencies, fn ($d) => $d->name === 'vue'));
@@ -911,7 +931,7 @@ YAML;
             files: ['package.json' => $packageJson, 'pnpm-lock.yaml' => $pnpmLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -948,7 +968,7 @@ YAML;
             files: ['package.json' => $packageJson, 'pnpm-lock.yaml' => $pnpmLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -972,7 +992,7 @@ YAML;
             files: ['package.json' => $packageJson, 'package-lock.json' => $npmLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -1010,7 +1030,7 @@ YARN;
             files: ['package.json' => $packageJson, 'yarn.lock' => $yarnLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
@@ -1040,7 +1060,7 @@ YARN;
             files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
             tree: ['' => []],
         );
-        $scanner = new ProjectScanner(\stubScannerFactory($client));
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
 
         $result = $scanner->scan(\createLinkedProject());
 
