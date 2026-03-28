@@ -134,7 +134,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
             $qb->andWhere('d.projectId = :projectId')
                 ->setParameter('projectId', $filters['projectId']);
         }
-        if (isset($filters['search']) && $filters['search'] !== '') {
+        if (isset($filters['search']) && \is_string($filters['search']) && $filters['search'] !== '') {
             $qb->andWhere('d.name LIKE :search')
                 ->setParameter('search', '%' . $filters['search'] . '%');
         }

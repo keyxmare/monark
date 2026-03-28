@@ -7,7 +7,6 @@ namespace App\Dependency\Application\CommandHandler;
 use App\Dependency\Application\Command\SyncDependencyVersionsCommand;
 use App\Dependency\Application\Command\SyncSingleDependencyVersionCommand;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
-use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
@@ -37,9 +36,7 @@ final readonly class SyncDependencyVersionsHandler
         $index = 0;
 
         foreach ($packages as $pkg) {
-            $manager = $pkg['packageManager'] instanceof PackageManager
-                ? $pkg['packageManager']->value
-                : (string) $pkg['packageManager'];
+            $manager = $pkg['packageManager'];
 
             $index++;
 

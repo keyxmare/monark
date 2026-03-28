@@ -7,7 +7,6 @@ namespace App\Dependency\Application\EventListener;
 use App\Dependency\Application\Command\SyncDependencyVersionsCommand;
 use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
 use App\Shared\Domain\Event\ProjectScannedEvent;
-use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 

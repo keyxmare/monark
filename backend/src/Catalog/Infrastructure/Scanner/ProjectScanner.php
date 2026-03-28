@@ -17,6 +17,8 @@ use App\Shared\Domain\DTO\ScanResult;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use Throwable;
+use Traversable;
 
 class ProjectScanner implements ProjectScannerInterface
 {
@@ -35,7 +37,7 @@ class ProjectScanner implements ProjectScannerInterface
         iterable $detectors,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
-        $this->detectorList = \array_values($detectors instanceof \Traversable ? \iterator_to_array($detectors) : $detectors);
+        $this->detectorList = \array_values($detectors instanceof Traversable ? \iterator_to_array($detectors) : $detectors);
 
         $manifests = [];
         foreach ($this->detectorList as $detector) {
@@ -50,7 +52,7 @@ class ProjectScanner implements ProjectScannerInterface
     {
         try {
             return $this->doScan($project);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Scan failed for project {project}: {error}', [
                 'project' => $project->getId()->toRfc4122(),
                 'error' => $e->getMessage(),

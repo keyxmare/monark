@@ -20,17 +20,48 @@ function stubSyncDepRepo(): DependencyRepositoryInterface&stdClass
         /** @var list<Dependency> */
         public array $saved = [];
 
-        public function findById(Uuid $id): ?Dependency { return null; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function count(): int { return 0; }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-        public function save(Dependency $dependency): void { $this->saved[] = $dependency; }
-        public function delete(Dependency $dependency): void {}
-        public function countByProjectId(Uuid $projectId): int { return 0; }
-        public function deleteByProjectId(Uuid $projectId): void {}
-        public function findFiltered(int $page, int $perPage, array $filters = []): array { return []; }
-        public function countFiltered(array $filters = []): int { return 0; }
-        public function getStats(array $filters = []): array { return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0]; }
+        public function findById(Uuid $id): ?Dependency
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function save(Dependency $dependency): void
+        {
+            $this->saved[] = $dependency;
+        }
+        public function delete(Dependency $dependency): void
+        {
+        }
+        public function countByProjectId(Uuid $projectId): int
+        {
+            return 0;
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+        }
+        public function findFiltered(int $page, int $perPage, array $filters = []): array
+        {
+            return [];
+        }
+        public function countFiltered(array $filters = []): int
+        {
+            return 0;
+        }
+        public function getStats(array $filters = []): array
+        {
+            return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
 
         public function findUniquePackages(): array
         {
@@ -65,11 +96,26 @@ function stubSyncVersionRepo(): DependencyVersionRepositoryInterface&stdClass
         public array $saved = [];
         public bool $clearedLatest = false;
 
-        public function findByNameAndManager(string $dependencyName, PackageManager $packageManager): array { return []; }
-        public function findLatestByNameAndManager(string $dependencyName, PackageManager $packageManager): ?DependencyVersion { return null; }
-        public function findByNameManagerAndVersion(string $dependencyName, PackageManager $packageManager, string $version): ?DependencyVersion { return null; }
-        public function save(DependencyVersion $version): void { $this->saved[] = $version; }
-        public function clearLatestFlag(string $dependencyName, PackageManager $packageManager): void { $this->clearedLatest = true; }
+        public function findByNameAndManager(string $dependencyName, PackageManager $packageManager): array
+        {
+            return [];
+        }
+        public function findLatestByNameAndManager(string $dependencyName, PackageManager $packageManager): ?DependencyVersion
+        {
+            return null;
+        }
+        public function findByNameManagerAndVersion(string $dependencyName, PackageManager $packageManager, string $version): ?DependencyVersion
+        {
+            return null;
+        }
+        public function save(DependencyVersion $version): void
+        {
+            $this->saved[] = $version;
+        }
+        public function clearLatestFlag(string $dependencyName, PackageManager $packageManager): void
+        {
+            $this->clearedLatest = true;
+        }
     };
 }
 
@@ -114,19 +160,55 @@ describe('SyncDependencyVersionsHandler', function () {
 
     it('returns 0 when no packages to sync', function () {
         $depRepo = new class () extends stdClass implements DependencyRepositoryInterface {
-            public function findById(Uuid $id): ?Dependency { return null; }
-            public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-            public function count(): int { return 0; }
-            public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array { return []; }
-            public function save(Dependency $dependency): void {}
-            public function delete(Dependency $dependency): void {}
-            public function countByProjectId(Uuid $projectId): int { return 0; }
-            public function deleteByProjectId(Uuid $projectId): void {}
-            public function findFiltered(int $page, int $perPage, array $filters = []): array { return []; }
-            public function countFiltered(array $filters = []): int { return 0; }
-            public function findUniquePackages(): array { return []; }
-            public function findByName(string $name, string $packageManager): array { return []; }
-            public function getStats(array $filters = []): array { return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0]; }
+            public function findById(Uuid $id): ?Dependency
+            {
+                return null;
+            }
+            public function findAll(int $page = 1, int $perPage = 20): array
+            {
+                return [];
+            }
+            public function count(): int
+            {
+                return 0;
+            }
+            public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+            {
+                return [];
+            }
+            public function save(Dependency $dependency): void
+            {
+            }
+            public function delete(Dependency $dependency): void
+            {
+            }
+            public function countByProjectId(Uuid $projectId): int
+            {
+                return 0;
+            }
+            public function deleteByProjectId(Uuid $projectId): void
+            {
+            }
+            public function findFiltered(int $page, int $perPage, array $filters = []): array
+            {
+                return [];
+            }
+            public function countFiltered(array $filters = []): int
+            {
+                return 0;
+            }
+            public function findUniquePackages(): array
+            {
+                return [];
+            }
+            public function findByName(string $name, string $packageManager): array
+            {
+                return [];
+            }
+            public function getStats(array $filters = []): array
+            {
+                return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+            }
         };
 
         $versionRepo = \stubSyncVersionRepo();

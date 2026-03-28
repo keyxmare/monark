@@ -16,6 +16,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
+use Throwable;
 
 #[AsMessageHandler(bus: 'command.bus')]
 final readonly class SyncProjectMetadataHandler
@@ -45,7 +46,7 @@ final readonly class SyncProjectMetadataHandler
 
         try {
             $remote = $client->getProject($provider, $project->getExternalId());
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Metadata sync failed for project {project}: {error}', [
                 'project' => $command->projectId,
                 'error' => $e->getMessage(),

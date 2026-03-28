@@ -20,6 +20,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
+use Throwable;
 
 #[AsMessageHandler(bus: 'command.bus')]
 final readonly class SyncMergeRequestsHandler
@@ -50,7 +51,7 @@ final readonly class SyncMergeRequestsHandler
 
         try {
             $this->doSync($client, $project, $provider, $command);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('MR sync failed for project {project}: {error}', [
                 'project' => $command->projectId,
                 'error' => $e->getMessage(),
@@ -87,7 +88,11 @@ final readonly class SyncMergeRequestsHandler
         $shouldContinue = true;
 
         while ($shouldContinue) {
-            $remoteMRs = $client->listMergeRequests($provider, $project->getExternalId(), null, $page, $perPage, $updatedAfter);
+            $externalId = $project->getExternalId();
+            if ($externalId === null) {
+                break;
+            }
+            $remoteMRs = $client->listMergeRequests($provider, $externalId, null, $page, $perPage, $updatedAfter);
 
             if (\count($remoteMRs) === 0) {
                 break;

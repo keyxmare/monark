@@ -29,7 +29,7 @@ final readonly class DependencyReaderAdapter implements DependencyReaderPort
                 latestVersion: $dep->getLatestVersion(),
                 packageManager: $dep->getPackageManager()->value,
                 isOutdated: $dep->isOutdated(),
-                vulnerabilities: \array_map(
+                vulnerabilities: \array_values(\array_map(
                     fn ($vuln) => new VulnerabilityReadDTO(
                         cveId: $vuln->getCveId(),
                         severity: $vuln->getSeverity()->value,
@@ -39,7 +39,7 @@ final readonly class DependencyReaderAdapter implements DependencyReaderPort
                         status: $vuln->getStatus()->value,
                     ),
                     $dep->getVulnerabilities()->toArray(),
-                ),
+                )),
             ),
             $dependencies,
         );

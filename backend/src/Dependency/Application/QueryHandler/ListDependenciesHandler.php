@@ -10,7 +10,6 @@ use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
-use App\Shared\Domain\ValueObject\PackageManager;
 use DateTimeInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

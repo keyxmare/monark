@@ -11,6 +11,7 @@ use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Throwable;
 
 final readonly class PackagistRegistryAdapter implements PackageRegistryPort
 {
@@ -43,7 +44,7 @@ final readonly class PackagistRegistryAdapter implements PackageRegistryPort
             }
 
             return [];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Packagist fetch failed for {package}: {error}', [
                 'package' => $packageName,
                 'error' => $e->getMessage(),
@@ -52,8 +53,10 @@ final readonly class PackagistRegistryAdapter implements PackageRegistryPort
             return [];
         }
 
+        /** @var array<string, list<array{version?: string, version_normalized?: string, time?: string}>> $packages */
+        $packages = \is_array($data['packages'] ?? null) ? $data['packages'] : [];
         /** @var list<array{version?: string, version_normalized?: string, time?: string}> $entries */
-        $entries = $data['packages'][$packageName] ?? [];
+        $entries = $packages[$packageName] ?? [];
         unset($data);
 
         $versions = [];
@@ -73,7 +76,7 @@ final readonly class PackagistRegistryAdapter implements PackageRegistryPort
             if (isset($entry['time'])) {
                 try {
                     $releaseDate = new DateTimeImmutable($entry['time']);
-                } catch (\Throwable) {
+                } catch (Throwable) {
                 }
             }
 

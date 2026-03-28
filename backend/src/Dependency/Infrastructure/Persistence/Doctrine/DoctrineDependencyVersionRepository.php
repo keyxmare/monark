@@ -32,6 +32,7 @@ final readonly class DoctrineDependencyVersionRepository implements DependencyVe
 
     public function findLatestByNameAndManager(string $dependencyName, PackageManager $packageManager): ?DependencyVersion
     {
+        /** @var DependencyVersion|null */
         return $this->entityManager->getRepository(DependencyVersion::class)
             ->createQueryBuilder('v')
             ->where('v.dependencyName = :name')
@@ -46,6 +47,7 @@ final readonly class DoctrineDependencyVersionRepository implements DependencyVe
 
     public function findByNameManagerAndVersion(string $dependencyName, PackageManager $packageManager, string $version): ?DependencyVersion
     {
+        /** @var DependencyVersion|null */
         return $this->entityManager->getRepository(DependencyVersion::class)
             ->createQueryBuilder('v')
             ->where('v.dependencyName = :name')

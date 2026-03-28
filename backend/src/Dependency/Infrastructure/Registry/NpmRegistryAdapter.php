@@ -11,6 +11,7 @@ use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Throwable;
 
 final readonly class NpmRegistryAdapter implements PackageRegistryPort
 {
@@ -43,7 +44,7 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
             }
 
             return [];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('npm registry fetch failed for {package}: {error}', [
                 'package' => $packageName,
                 'error' => $e->getMessage(),
@@ -54,7 +55,9 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
 
         /** @var array<string, string> $times */
         $times = \is_array($data['time'] ?? null) ? $data['time'] : [];
-        $latest = $data['dist-tags']['latest'] ?? null;
+        /** @var array<string, string> $distTags */
+        $distTags = \is_array($data['dist-tags'] ?? null) ? $data['dist-tags'] : [];
+        $latest = $distTags['latest'] ?? null;
         unset($data);
 
         $versions = [];
@@ -65,7 +68,7 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
                 continue;
             }
 
-            if (!$sinceReached) {
+            if (!$sinceReached && $sinceVersion !== null) {
                 if (\version_compare($version, $sinceVersion, '>')) {
                     $sinceReached = true;
                 } else {
@@ -76,7 +79,7 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
             $releaseDate = null;
             try {
                 $releaseDate = new DateTimeImmutable($dateStr);
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             $versions[] = new RegistryVersion(

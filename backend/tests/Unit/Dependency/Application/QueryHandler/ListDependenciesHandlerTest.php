@@ -46,6 +46,26 @@ function stubListDependenciesRepo(array $dependencies = [], int $count = 0): Dep
         public function deleteByProjectId(Uuid $projectId): void
         {
         }
+        public function findFiltered(int $page, int $perPage, array $filters = []): array
+        {
+            return [];
+        }
+        public function countFiltered(array $filters = []): int
+        {
+            return 0;
+        }
+        public function findUniquePackages(): array
+        {
+            return [];
+        }
+        public function findByName(string $name, string $packageManager): array
+        {
+            return [];
+        }
+        public function getStats(array $filters = []): array
+        {
+            return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
     };
 }
 

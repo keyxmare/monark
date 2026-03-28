@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Catalog\Infrastructure\Scanner\Detector;
 
 use App\Catalog\Domain\Port\StackDetectorInterface;
-use App\Shared\Domain\DTO\DetectedDependency;
 use App\Shared\Domain\DTO\DetectedStack;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
