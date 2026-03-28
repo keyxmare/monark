@@ -1,35 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { useSyncTaskStore } from '@/activity/stores/sync-task'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useSyncTaskStore } from '@/activity/stores/sync-task';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const { d, t } = useI18n()
-const syncTaskStore = useSyncTaskStore()
+const { d, t } = useI18n();
+const syncTaskStore = useSyncTaskStore();
 
-const filterStatus = ref('')
-const filterType = ref('')
-const filterSeverity = ref('')
+const filterStatus = ref('');
+const filterType = ref('');
+const filterSeverity = ref('');
 
 onMounted(async () => {
-  await Promise.all([
-    syncTaskStore.fetchAll(),
-    syncTaskStore.fetchStats(),
-  ])
-})
+  await Promise.all([syncTaskStore.fetchAll(), syncTaskStore.fetchStats()]);
+});
 
 async function applyFilters() {
   await syncTaskStore.fetchAll({
     severity: filterSeverity.value || undefined,
     status: filterStatus.value || undefined,
     type: filterType.value || undefined,
-  })
+  });
 }
 
 async function handleStatusChange(id: string, status: string) {
-  await syncTaskStore.updateStatus(id, status)
-  await syncTaskStore.fetchStats()
+  await syncTaskStore.updateStatus(id, status);
+  await syncTaskStore.fetchStats();
 }
 
 function severityClass(severity: string): string {
@@ -39,8 +36,8 @@ function severityClass(severity: string): string {
     info: 'bg-gray-100 text-gray-800',
     low: 'bg-blue-100 text-blue-800',
     medium: 'bg-yellow-100 text-yellow-800',
-  }
-  return classes[severity] ?? 'bg-gray-100 text-gray-800'
+  };
+  return classes[severity] ?? 'bg-gray-100 text-gray-800';
 }
 
 function statusClass(status: string): string {
@@ -49,18 +46,15 @@ function statusClass(status: string): string {
     dismissed: 'bg-gray-100 text-gray-800',
     open: 'bg-red-100 text-red-800',
     resolved: 'bg-green-100 text-green-800',
-  }
-  return classes[status] ?? 'bg-gray-100 text-gray-800'
+  };
+  return classes[status] ?? 'bg-gray-100 text-gray-800';
 }
 </script>
 
 <template>
   <DashboardLayout>
     <div data-testid="sync-task-list-page">
-      <h2
-        class="mb-6 text-2xl font-bold text-text"
-        data-testid="sync-task-title"
-      >
+      <h2 class="mb-6 text-2xl font-bold text-text" data-testid="sync-task-title">
         {{ t('activity.syncTasks.title') }}
       </h2>
 
@@ -83,10 +77,7 @@ function statusClass(status: string): string {
         </div>
       </div>
 
-      <div
-        class="mb-4 flex flex-wrap items-center gap-3"
-        data-testid="sync-task-filters"
-      >
+      <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="sync-task-filters">
         <select
           v-model="filterStatus"
           :aria-label="t('activity.syncTasks.allStatuses')"
@@ -222,7 +213,9 @@ function statusClass(status: string): string {
                 </p>
               </td>
               <td class="px-4 py-3">
-                <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
+                <span
+                  class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800"
+                >
                   {{ t(`activity.syncTasks.type.${task.type}`) }}
                 </span>
               </td>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import AppToast from '@/shared/components/AppToast.vue'
-import { useToastStore } from '@/shared/stores/toast'
+import AppToast from '@/shared/components/AppToast.vue';
+import { useToastStore } from '@/shared/stores/toast';
 
-const toastStore = useToastStore()
+const toastStore = useToastStore();
 </script>
 
 <template>

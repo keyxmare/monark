@@ -1,33 +1,36 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
-import { useAuthStore } from '@/identity/stores/auth'
-import LanguageSwitcher from '@/shared/components/LanguageSwitcher.vue'
-import { useSidebar } from '@/shared/composables/useSidebar'
+import { useAuthStore } from '@/identity/stores/auth';
+import LanguageSwitcher from '@/shared/components/LanguageSwitcher.vue';
+import { useSidebar } from '@/shared/composables/useSidebar';
 
-const { toggleMobile } = useSidebar()
-const router = useRouter()
-const { t } = useI18n()
-const authStore = useAuthStore()
-const menuOpen = ref(false)
+const { toggleMobile } = useSidebar();
+const router = useRouter();
+const { t } = useI18n();
+const authStore = useAuthStore();
+const menuOpen = ref(false);
 
 const userInitials = computed(() => {
-  const user = authStore.currentUser
-  if (!user) return '?'
-  return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || user.email[0].toUpperCase()
-})
+  const user = authStore.currentUser;
+  if (!user) return '?';
+  return (
+    `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() ||
+    user.email[0].toUpperCase()
+  );
+});
 
 const userName = computed(() => {
-  const user = authStore.currentUser
-  if (!user) return ''
-  return `${user.firstName} ${user.lastName}`.trim() || user.email
-})
+  const user = authStore.currentUser;
+  if (!user) return '';
+  return `${user.firstName} ${user.lastName}`.trim() || user.email;
+});
 
 async function handleLogout() {
-  await authStore.logout()
-  router.push({ name: 'login' })
+  await authStore.logout();
+  router.push({ name: 'login' });
 }
 </script>
 
@@ -46,15 +49,10 @@ async function handleLogout() {
         <span class="text-xl">☰</span>
       </button>
 
-      <h1 class="text-lg font-semibold text-text">
-        Monark
-      </h1>
+      <h1 class="text-lg font-semibold text-text">Monark</h1>
     </div>
 
-    <div
-      class="relative flex items-center gap-3"
-      data-testid="topbar-user-area"
-    >
+    <div class="relative flex items-center gap-3" data-testid="topbar-user-area">
       <LanguageSwitcher />
       <button
         class="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-muted"

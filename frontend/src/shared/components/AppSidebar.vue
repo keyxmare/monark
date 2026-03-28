@@ -1,30 +1,28 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRoute } from 'vue-router';
 
-import { useSidebar } from '@/shared/composables/useSidebar'
+import { useSidebar } from '@/shared/composables/useSidebar';
 
-const route = useRoute()
-const { t } = useI18n()
-const { collapsed, mobileOpen, toggle } = useSidebar()
+const route = useRoute();
+const { t } = useI18n();
+const { collapsed, mobileOpen, toggle } = useSidebar();
 
 interface NavItem {
-  icon: string
-  labelKey: string
-  to: string
+  icon: string;
+  labelKey: string;
+  to: string;
 }
 
 interface NavSection {
-  headingKey?: string
-  items: NavItem[]
+  headingKey?: string;
+  items: NavItem[];
 }
 
 const navSections = computed<NavSection[]>(() => [
   {
-    items: [
-      { icon: '▦', labelKey: 'nav.dashboard', to: '/' },
-    ],
+    items: [{ icon: '▦', labelKey: 'nav.dashboard', to: '/' }],
   },
   {
     headingKey: 'nav.sections.catalog',
@@ -57,30 +55,23 @@ const navSections = computed<NavSection[]>(() => [
       { icon: '🔑', labelKey: 'nav.accessTokens', to: '/identity/access-tokens' },
     ],
   },
-])
+]);
 
 const sidebarClasses = computed(() => [
   'fixed top-0 left-0 z-40 flex h-full flex-col bg-sidebar text-white transition-all duration-300',
   collapsed.value ? 'w-16' : 'w-64',
   mobileOpen.value ? 'max-md:translate-x-0' : 'max-md:-translate-x-full',
-])
+]);
 
 function isActive(path: string): boolean {
-  return route.path === path || route.path.startsWith(path + '/')
+  return route.path === path || route.path.startsWith(path + '/');
 }
 </script>
 
 <template>
-  <aside
-    :class="sidebarClasses"
-    :aria-label="t('aria.mainNavigation')"
-    data-testid="sidebar"
-  >
+  <aside :class="sidebarClasses" :aria-label="t('aria.mainNavigation')" data-testid="sidebar">
     <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
-      <span
-        v-if="!collapsed"
-        class="text-lg font-bold tracking-wide"
-      >Monark</span>
+      <span v-if="!collapsed" class="text-lg font-bold tracking-wide">Monark</span>
       <button
         class="rounded p-1.5 hover:bg-sidebar-hover"
         :aria-label="t('aria.toggleSidebar')"
@@ -95,10 +86,7 @@ function isActive(path: string): boolean {
       class="mt-4 flex-1 space-y-4 overflow-y-auto px-2"
       :aria-label="t('aria.sidebarNavigation')"
     >
-      <div
-        v-for="(section, sIdx) in navSections"
-        :key="sIdx"
-      >
+      <div v-for="(section, sIdx) in navSections" :key="sIdx">
         <p
           v-if="section.headingKey && !collapsed"
           class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/40"

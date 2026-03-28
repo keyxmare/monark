@@ -1,33 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRouter } from 'vue-router'
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRouter } from 'vue-router';
 
-import { useAuthStore } from '@/identity/stores/auth'
-import AuthLayout from '@/shared/layouts/AuthLayout.vue'
+import { useAuthStore } from '@/identity/stores/auth';
+import AuthLayout from '@/shared/layouts/AuthLayout.vue';
 
-const router = useRouter()
-const { t } = useI18n()
-const authStore = useAuthStore()
-const firstName = ref('')
-const lastName = ref('')
-const email = ref('')
-const password = ref('')
-const error = ref('')
-const submitting = ref(false)
+const router = useRouter();
+const { t } = useI18n();
+const authStore = useAuthStore();
+const firstName = ref('');
+const lastName = ref('');
+const email = ref('');
+const password = ref('');
+const error = ref('');
+const submitting = ref(false);
 
 async function handleSubmit() {
-  error.value = ''
-  submitting.value = true
+  error.value = '';
+  submitting.value = true;
 
   try {
-    await authStore.register(email.value, password.value, firstName.value, lastName.value)
-    await authStore.login(email.value, password.value)
-    router.push({ name: 'dashboard' })
+    await authStore.register(email.value, password.value, firstName.value, lastName.value);
+    await authStore.login(email.value, password.value);
+    router.push({ name: 'dashboard' });
   } catch {
-    error.value = t('identity.auth.registerFailed')
+    error.value = t('identity.auth.registerFailed');
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 </script>
@@ -39,10 +39,7 @@ async function handleSubmit() {
         {{ t('identity.auth.createAccount') }}
       </h1>
 
-      <form
-        data-testid="register-form"
-        @submit.prevent="handleSubmit"
-      >
+      <form data-testid="register-form" @submit.prevent="handleSubmit">
         <div
           v-if="error"
           class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
@@ -53,10 +50,9 @@ async function handleSubmit() {
         </div>
 
         <div class="mb-4">
-          <label
-            for="firstName"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{ t('identity.users.firstName') }}</label>
+          <label for="firstName" class="mb-1 block text-sm font-medium text-text">{{
+            t('identity.users.firstName')
+          }}</label>
           <input
             id="firstName"
             v-model="firstName"
@@ -65,14 +61,13 @@ async function handleSubmit() {
             autocomplete="given-name"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="register-first-name"
-          >
+          />
         </div>
 
         <div class="mb-4">
-          <label
-            for="lastName"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{ t('identity.users.lastName') }}</label>
+          <label for="lastName" class="mb-1 block text-sm font-medium text-text">{{
+            t('identity.users.lastName')
+          }}</label>
           <input
             id="lastName"
             v-model="lastName"
@@ -81,14 +76,13 @@ async function handleSubmit() {
             autocomplete="family-name"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="register-last-name"
-          >
+          />
         </div>
 
         <div class="mb-4">
-          <label
-            for="email"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{ t('identity.auth.email') }}</label>
+          <label for="email" class="mb-1 block text-sm font-medium text-text">{{
+            t('identity.auth.email')
+          }}</label>
           <input
             id="email"
             v-model="email"
@@ -97,14 +91,13 @@ async function handleSubmit() {
             autocomplete="email"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="register-email"
-          >
+          />
         </div>
 
         <div class="mb-6">
-          <label
-            for="password"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{ t('identity.auth.password') }}</label>
+          <label for="password" class="mb-1 block text-sm font-medium text-text">{{
+            t('identity.auth.password')
+          }}</label>
           <input
             id="password"
             v-model="password"
@@ -113,7 +106,7 @@ async function handleSubmit() {
             autocomplete="new-password"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="register-password"
-          >
+          />
         </div>
 
         <button
@@ -122,7 +115,9 @@ async function handleSubmit() {
           class="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           data-testid="register-submit"
         >
-          {{ submitting ? t('identity.auth.creatingAccount') : t('identity.auth.createAccountBtn') }}
+          {{
+            submitting ? t('identity.auth.creatingAccount') : t('identity.auth.createAccountBtn')
+          }}
         </button>
 
         <p class="mt-4 text-center text-sm text-text-muted">

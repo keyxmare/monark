@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router';
 
 export const catalogRoutes: RouteRecordRaw[] = [
   {
@@ -55,4 +55,4 @@ export const catalogRoutes: RouteRecordRaw[] = [
     name: 'catalog-merge-requests-list',
     path: '/catalog/projects/:projectId/merge-requests',
   },
-]
+];

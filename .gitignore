@@ -21,3 +21,4 @@ docker/.env
 *~
 .DS_Store
 Thumbs.db
+/docs/superpowers/

@@ -1,15 +1,15 @@
-import { createPinia } from 'pinia'
-import { createApp } from 'vue'
+import { createPinia } from 'pinia';
+import { createApp } from 'vue';
 
-import App from './App.vue'
-import './assets/main.css'
-import { i18n } from '@/shared/i18n'
-import { router } from './router'
+import App from './App.vue';
+import './assets/main.css';
+import { i18n } from '@/shared/i18n';
+import { router } from './router';
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(i18n)
-app.use(router)
+app.use(createPinia());
+app.use(i18n);
+app.use(router);
 
-app.mount('#app')
+app.mount('#app');

@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
 
-import type { Locale } from '@/shared/composables/useLocale'
+import type { Locale } from '@/shared/composables/useLocale';
 
-import { useLocale } from '@/shared/composables/useLocale'
+import { useLocale } from '@/shared/composables/useLocale';
 
-const { t } = useI18n()
-const { availableLocales, currentLocale, setLocale } = useLocale()
+const { t } = useI18n();
+const { availableLocales, currentLocale, setLocale } = useLocale();
 
 const labels: Record<Locale, string> = {
   en: 'EN',
   fr: 'FR',
-}
+};
 
 function toggle() {
-  setLocale(currentLocale.value === 'fr' ? 'en' : 'fr')
+  setLocale(currentLocale.value === 'fr' ? 'en' : 'fr');
 }
 </script>
 
@@ -30,9 +30,7 @@ function toggle() {
       :key="locale"
       :class="[
         'px-1 py-0.5 rounded text-xs font-semibold transition-colors',
-        locale === currentLocale
-          ? 'bg-primary text-white'
-          : 'text-text-muted',
+        locale === currentLocale ? 'bg-primary text-white' : 'text-text-muted',
       ]"
       :data-testid="`language-option-${locale}`"
     >

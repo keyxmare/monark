@@ -1,33 +1,35 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRoute } from 'vue-router';
 
-import { useProjectStore } from '@/catalog/stores/project'
-import { useDependencyStore } from '@/dependency/stores/dependency'
-import { useVulnerabilityStore } from '@/dependency/stores/vulnerability'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useProjectStore } from '@/catalog/stores/project';
+import { useDependencyStore } from '@/dependency/stores/dependency';
+import { useVulnerabilityStore } from '@/dependency/stores/vulnerability';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const route = useRoute()
-const { d, t } = useI18n()
-const dependencyStore = useDependencyStore()
-const projectStore = useProjectStore()
-const vulnerabilityStore = useVulnerabilityStore()
+const route = useRoute();
+const { d, t } = useI18n();
+const dependencyStore = useDependencyStore();
+const projectStore = useProjectStore();
+const vulnerabilityStore = useVulnerabilityStore();
 
 const linkedVulnerabilities = computed(() =>
-  vulnerabilityStore.vulnerabilities.filter(v => v.dependencyId === dependencyStore.selectedDependency?.id),
-)
+  vulnerabilityStore.vulnerabilities.filter(
+    (v) => v.dependencyId === dependencyStore.selectedDependency?.id,
+  ),
+);
 
 onMounted(async () => {
-  const id = route.params.id as string
-  await dependencyStore.fetchOne(id)
+  const id = route.params.id as string;
+  await dependencyStore.fetchOne(id);
   await Promise.all([
     dependencyStore.selectedDependency?.projectId
       ? projectStore.fetchOne(dependencyStore.selectedDependency.projectId)
       : Promise.resolve(),
     vulnerabilityStore.fetchAll(1, 200),
-  ])
-})
+  ]);
+});
 </script>
 
 <template>
@@ -41,10 +43,9 @@ onMounted(async () => {
           {{ t('dependency.dependencies.title') }}
         </RouterLink>
         <span>/</span>
-        <span
-          v-if="dependencyStore.selectedDependency"
-          class="font-medium text-text"
-        >{{ dependencyStore.selectedDependency.name }}</span>
+        <span v-if="dependencyStore.selectedDependency" class="font-medium text-text">{{
+          dependencyStore.selectedDependency.name
+        }}</span>
       </nav>
 
       <div class="mb-6 flex items-center justify-between">
@@ -68,10 +69,7 @@ onMounted(async () => {
         {{ dependencyStore.error }}
       </div>
 
-      <div
-        v-else-if="dependencyStore.selectedDependency"
-        class="space-y-6"
-      >
+      <div v-else-if="dependencyStore.selectedDependency" class="space-y-6">
         <div
           class="max-w-2xl rounded-xl border border-border bg-surface p-6"
           data-testid="dependency-detail-card"
@@ -87,7 +85,10 @@ onMounted(async () => {
               </dt>
               <dd class="mt-1">
                 <RouterLink
-                  :to="{ name: 'catalog-projects-detail', params: { id: projectStore.selected.id } }"
+                  :to="{
+                    name: 'catalog-projects-detail',
+                    params: { id: projectStore.selected.id },
+                  }"
                   class="text-primary hover:text-primary-dark"
                   data-testid="dependency-detail-project"
                 >
@@ -99,10 +100,7 @@ onMounted(async () => {
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('dependency.dependencies.currentVersion') }}
               </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="dependency-detail-current-version"
-              >
+              <dd class="mt-1 text-text" data-testid="dependency-detail-current-version">
                 {{ dependencyStore.selectedDependency.currentVersion }}
               </dd>
             </div>
@@ -110,10 +108,7 @@ onMounted(async () => {
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('dependency.dependencies.latestVersion') }}
               </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="dependency-detail-latest-version"
-              >
+              <dd class="mt-1 text-text" data-testid="dependency-detail-latest-version">
                 {{ dependencyStore.selectedDependency.latestVersion }}
               </dd>
             </div>
@@ -121,10 +116,7 @@ onMounted(async () => {
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('dependency.dependencies.ltsVersion') }}
               </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="dependency-detail-lts-version"
-              >
+              <dd class="mt-1 text-text" data-testid="dependency-detail-lts-version">
                 {{ dependencyStore.selectedDependency.ltsVersion }}
               </dd>
             </div>
@@ -148,15 +140,17 @@ onMounted(async () => {
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
-                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                    <path
+                      d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"
+                    />
+                    <path
+                      d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"
+                    />
                   </svg>
                 </a>
-                <span
-                  v-else
-                  class="text-text-muted"
-                  data-testid="dependency-detail-repository-url"
-                >—</span>
+                <span v-else class="text-text-muted" data-testid="dependency-detail-repository-url"
+                  >—</span
+                >
               </dd>
             </div>
             <div>
@@ -179,7 +173,8 @@ onMounted(async () => {
               <dd class="mt-1">
                 <span
                   :class="{
-                    'bg-purple-100 text-purple-800': dependencyStore.selectedDependency.type === 'runtime',
+                    'bg-purple-100 text-purple-800':
+                      dependencyStore.selectedDependency.type === 'runtime',
                     'bg-gray-100 text-gray-800': dependencyStore.selectedDependency.type === 'dev',
                   }"
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
@@ -202,7 +197,11 @@ onMounted(async () => {
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
                   data-testid="dependency-detail-outdated"
                 >
-                  {{ dependencyStore.selectedDependency.isOutdated ? t('dependency.dependencies.outdated') : t('dependency.dependencies.upToDate') }}
+                  {{
+                    dependencyStore.selectedDependency.isOutdated
+                      ? t('dependency.dependencies.outdated')
+                      : t('dependency.dependencies.upToDate')
+                  }}
                 </span>
               </dd>
             </div>
@@ -210,10 +209,7 @@ onMounted(async () => {
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('dependency.dependencies.vulnerabilities') }}
               </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="dependency-detail-vuln-count"
-              >
+              <dd class="mt-1 text-text" data-testid="dependency-detail-vuln-count">
                 {{ dependencyStore.selectedDependency.vulnerabilityCount }}
               </dd>
             </div>
@@ -221,10 +217,7 @@ onMounted(async () => {
               <dt class="text-sm font-medium text-text-muted">
                 {{ t('common.createdAt') }}
               </dt>
-              <dd
-                class="mt-1 text-text"
-                data-testid="dependency-detail-created-at"
-              >
+              <dd class="mt-1 text-text" data-testid="dependency-detail-created-at">
                 {{ d(new Date(dependencyStore.selectedDependency.createdAt), 'short') }}
               </dd>
             </div>
@@ -304,10 +297,7 @@ onMounted(async () => {
               </tbody>
             </table>
           </div>
-          <p
-            v-else
-            class="text-sm text-text-muted"
-          >
+          <p v-else class="text-sm text-text-muted">
             {{ t('dependency.vulnerabilities.noVulnerabilities') }}
           </p>
         </div>

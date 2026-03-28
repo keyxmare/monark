@@ -1,23 +1,23 @@
-import type { Ref } from 'vue'
+import type { Ref } from 'vue';
 
-import { computed, ref } from 'vue'
+import { computed, ref } from 'vue';
 
 export function useConfirmDelete<T = unknown>() {
-  const target = ref<T | null>(null) as Ref<T | null>
-  const isOpen = computed(() => target.value !== null)
+  const target = ref<T | null>(null) as Ref<T | null>;
+  const isOpen = computed(() => target.value !== null);
 
   function requestDelete(item: T) {
-    target.value = item
+    target.value = item;
   }
 
   function cancel() {
-    target.value = null
+    target.value = null;
   }
 
   async function confirm(deleteFn: () => Promise<void>) {
-    await deleteFn()
-    target.value = null
+    await deleteFn();
+    target.value = null;
   }
 
-  return { target, isOpen, requestDelete, cancel, confirm }
+  return { target, isOpen, requestDelete, cancel, confirm };
 }

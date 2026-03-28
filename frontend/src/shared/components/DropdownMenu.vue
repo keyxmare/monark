@@ -1,63 +1,59 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 export interface DropdownMenuItem {
-  action: string
-  disabled?: boolean
-  label: string
-  variant?: 'danger' | 'default'
+  action: string;
+  disabled?: boolean;
+  label: string;
+  variant?: 'danger' | 'default';
 }
 
 defineProps<{
-  items: DropdownMenuItem[]
-}>()
+  items: DropdownMenuItem[];
+}>();
 
 const emit = defineEmits<{
-  select: [action: string]
-}>()
+  select: [action: string];
+}>();
 
-const open = ref(false)
-const menuRef = ref<HTMLDivElement | null>(null)
+const open = ref(false);
+const menuRef = ref<HTMLDivElement | null>(null);
 
 function handleClickOutside(event: MouseEvent) {
   if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
-    open.value = false
+    open.value = false;
   }
 }
 
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
-    open.value = false
+    open.value = false;
   }
 }
 
 function selectItem(item: DropdownMenuItem) {
-  if (item.disabled) return
-  open.value = false
-  emit('select', item.action)
+  if (item.disabled) return;
+  open.value = false;
+  emit('select', item.action);
 }
 
 function toggle() {
-  open.value = !open.value
+  open.value = !open.value;
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-  document.addEventListener('keydown', handleKeydown)
-})
+  document.addEventListener('click', handleClickOutside);
+  document.addEventListener('keydown', handleKeydown);
+});
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-  document.removeEventListener('keydown', handleKeydown)
-})
+  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('keydown', handleKeydown);
+});
 </script>
 
 <template>
-  <div
-    ref="menuRef"
-    class="relative"
-    data-testid="dropdown-menu"
-  >
+  <div ref="menuRef" class="relative" data-testid="dropdown-menu">
     <button
       class="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:bg-background hover:text-text"
       data-testid="dropdown-trigger"
@@ -66,12 +62,10 @@ onBeforeUnmount(() => {
       aria-haspopup="true"
       @click.stop="toggle"
     >
-      <svg
-        class="h-5 w-5"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z" />
+      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+        <path
+          d="M10 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z"
+        />
       </svg>
     </button>
 

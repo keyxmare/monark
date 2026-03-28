@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink } from 'vue-router';
 
-import { useAccessTokenStore } from '@/identity/stores/access-token'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useAccessTokenStore } from '@/identity/stores/access-token';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const { d, t } = useI18n()
-const tokenStore = useAccessTokenStore()
+const { d, t } = useI18n();
+const tokenStore = useAccessTokenStore();
 
 onMounted(() => {
-  tokenStore.fetchAll()
-})
+  tokenStore.fetchAll();
+});
 
 async function handleDelete(id: string) {
-  await tokenStore.remove(id)
+  await tokenStore.remove(id);
 }
 </script>
 
@@ -51,14 +51,8 @@ async function handleDelete(id: string) {
         {{ tokenStore.error }}
       </div>
 
-      <div
-        v-else
-        class="overflow-hidden rounded-xl border border-border bg-surface"
-      >
-        <table
-          class="w-full"
-          data-testid="access-token-list-table"
-        >
+      <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
+        <table class="w-full" data-testid="access-token-list-table">
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
@@ -83,7 +77,9 @@ async function handleDelete(id: string) {
               data-testid="access-token-list-row"
             >
               <td class="px-4 py-3 text-sm text-text">
-                <span class="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary capitalize">
+                <span
+                  class="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary capitalize"
+                >
                   {{ token.provider }}
                 </span>
               </td>

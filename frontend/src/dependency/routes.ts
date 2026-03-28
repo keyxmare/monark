@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router';
 
 export const dependencyRoutes: RouteRecordRaw[] = [
   {
@@ -49,4 +49,4 @@ export const dependencyRoutes: RouteRecordRaw[] = [
     name: 'dependency-vulnerabilities-edit',
     path: '/dependency/vulnerabilities/:id/edit',
   },
-]
+];

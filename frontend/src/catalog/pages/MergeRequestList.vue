@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
-import { useMergeRequestStore } from '@/catalog/stores/merge-request'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useMergeRequestStore } from '@/catalog/stores/merge-request';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const route = useRoute()
-const { d, t } = useI18n()
-const store = useMergeRequestStore()
+const route = useRoute();
+const { d, t } = useI18n();
+const store = useMergeRequestStore();
 
-const projectId = computed(() => route.params.projectId as string)
-const STORAGE_KEY = 'monark:mr-status-filter'
-const savedFilter = localStorage.getItem(STORAGE_KEY) ?? 'active'
-const statusFilter = ref<string>(savedFilter)
-const authorFilter = ref('')
+const projectId = computed(() => route.params.projectId as string);
+const STORAGE_KEY = 'monark:mr-status-filter';
+const savedFilter = localStorage.getItem(STORAGE_KEY) ?? 'active';
+const statusFilter = ref<string>(savedFilter);
+const authorFilter = ref('');
 
 const statusOptions = [
   { label: t('catalog.mergeRequests.statusActive'), value: 'active' },
@@ -23,23 +23,35 @@ const statusOptions = [
   { label: t('catalog.mergeRequests.statusMerged'), value: 'merged' },
   { label: t('catalog.mergeRequests.statusClosed'), value: 'closed' },
   { label: t('catalog.mergeRequests.allStatuses'), value: '' },
-]
+];
 
 onMounted(() => {
-  store.fetchAll(projectId.value, 1, 20, statusFilter.value || undefined, authorFilter.value || undefined)
-})
+  store.fetchAll(
+    projectId.value,
+    1,
+    20,
+    statusFilter.value || undefined,
+    authorFilter.value || undefined,
+  );
+});
 
 watch([statusFilter, authorFilter], () => {
-  localStorage.setItem(STORAGE_KEY, statusFilter.value)
-  store.fetchAll(projectId.value, 1, 20, statusFilter.value || undefined, authorFilter.value || undefined)
-})
+  localStorage.setItem(STORAGE_KEY, statusFilter.value);
+  store.fetchAll(
+    projectId.value,
+    1,
+    20,
+    statusFilter.value || undefined,
+    authorFilter.value || undefined,
+  );
+});
 
 const statusBadgeClass: Record<string, string> = {
   closed: 'bg-danger/10 text-danger',
   draft: 'bg-warning/10 text-warning',
   merged: 'bg-info/10 text-info',
   open: 'bg-success/10 text-success',
-}
+};
 </script>
 
 <template>
@@ -52,10 +64,7 @@ const statusBadgeClass: Record<string, string> = {
       </div>
 
       <div class="mb-4 flex items-center gap-4">
-        <div
-          class="flex rounded-lg border border-border"
-          data-testid="mr-status-filter"
-        >
+        <div class="flex rounded-lg border border-border" data-testid="mr-status-filter">
           <button
             v-for="opt in statusOptions"
             :key="opt.value"
@@ -76,14 +85,10 @@ const statusBadgeClass: Record<string, string> = {
           :placeholder="t('catalog.mergeRequests.filterByAuthor')"
           class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text"
           data-testid="mr-author-filter"
-        >
+        />
       </div>
 
-      <div
-        v-if="store.loading"
-        class="py-8 text-center text-text-muted"
-        data-testid="mr-loading"
-      >
+      <div v-if="store.loading" class="py-8 text-center text-text-muted" data-testid="mr-loading">
         {{ t('common.actions.loading') }}
       </div>
 
@@ -96,10 +101,7 @@ const statusBadgeClass: Record<string, string> = {
         {{ store.error }}
       </div>
 
-      <div
-        v-else
-        class="overflow-hidden rounded-xl border border-border bg-surface"
-      >
+      <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
         <table class="w-full">
           <thead>
             <tr class="border-b border-border bg-surface-muted">
@@ -139,10 +141,17 @@ const statusBadgeClass: Record<string, string> = {
               </td>
               <td class="px-4 py-3">
                 <span
-                  :class="['inline-flex rounded-full px-2 py-0.5 text-xs font-medium', statusBadgeClass[mr.status]]"
+                  :class="[
+                    'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                    statusBadgeClass[mr.status],
+                  ]"
                   data-testid="mr-status-badge"
                 >
-                  {{ t(`catalog.mergeRequests.status${mr.status.charAt(0).toUpperCase() + mr.status.slice(1)}`) }}
+                  {{
+                    t(
+                      `catalog.mergeRequests.status${mr.status.charAt(0).toUpperCase() + mr.status.slice(1)}`,
+                    )
+                  }}
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
@@ -152,18 +161,13 @@ const statusBadgeClass: Record<string, string> = {
                 {{ mr.sourceBranch }} → {{ mr.targetBranch }}
               </td>
               <td class="px-4 py-3 text-sm">
-                <span
-                  v-if="mr.additions !== null"
-                  class="text-success"
-                >+{{ mr.additions }}</span>
-                <span
-                  v-if="mr.deletions !== null"
-                  class="ml-1 text-danger"
-                >-{{ mr.deletions }}</span>
-                <span
-                  v-if="mr.additions === null && mr.deletions === null"
-                  class="text-text-muted"
-                >—</span>
+                <span v-if="mr.additions !== null" class="text-success">+{{ mr.additions }}</span>
+                <span v-if="mr.deletions !== null" class="ml-1 text-danger"
+                  >-{{ mr.deletions }}</span
+                >
+                <span v-if="mr.additions === null && mr.deletions === null" class="text-text-muted"
+                  >—</span
+                >
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
                 {{ d(new Date(mr.updatedAt), 'short') }}

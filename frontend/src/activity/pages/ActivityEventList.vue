@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink } from 'vue-router';
 
-import { useActivityEventStore } from '@/activity/stores/activity-event'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useActivityEventStore } from '@/activity/stores/activity-event';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const { d, t } = useI18n()
-const eventStore = useActivityEventStore()
+const { d, t } = useI18n();
+const eventStore = useActivityEventStore();
 
 onMounted(() => {
-  eventStore.fetchAll()
-})
+  eventStore.fetchAll();
+});
 </script>
 
 <template>
@@ -40,14 +40,8 @@ onMounted(() => {
         {{ eventStore.error }}
       </div>
 
-      <div
-        v-else
-        class="overflow-hidden rounded-xl border border-border bg-surface"
-      >
-        <table
-          class="w-full"
-          data-testid="activity-event-list-table"
-        >
+      <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
+        <table class="w-full" data-testid="activity-event-list-table">
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">

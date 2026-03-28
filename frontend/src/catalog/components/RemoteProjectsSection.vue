@@ -1,113 +1,129 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink } from 'vue-router';
 
-import type { RemoteProject } from '@/catalog/types/provider'
+import type { RemoteProject } from '@/catalog/types/provider';
 
-import Pagination from '@/shared/components/Pagination.vue'
+import Pagination from '@/shared/components/Pagination.vue';
 
-type SortField = 'defaultBranch' | 'name' | 'visibility'
+type SortField = 'defaultBranch' | 'name' | 'visibility';
 
 const props = defineProps<{
-  error: string | null
-  importing: boolean
-  initialLoaded: boolean
-  projects: RemoteProject[]
-  remoteProjectsCurrentPage: number
-  remoteProjectsTotalPages: number
-  syncing: boolean
-}>()
+  error: null | string;
+  importing: boolean;
+  initialLoaded: boolean;
+  projects: RemoteProject[];
+  remoteProjectsCurrentPage: number;
+  remoteProjectsTotalPages: number;
+  syncing: boolean;
+}>();
 
 const emit = defineEmits<{
-  import: [projects: RemoteProject[]]
-  pageChange: [page: number]
-  syncAll: []
-  syncSelected: [localIds: string[]]
-}>()
+  import: [projects: RemoteProject[]];
+  pageChange: [page: number];
+  syncAll: [];
+  syncSelected: [localIds: string[]];
+}>();
 
-const MIN_SEARCH_LENGTH = 3
-const { t } = useI18n()
+const MIN_SEARCH_LENGTH = 3;
+const { t } = useI18n();
 
-const filterVisibility = ref('all')
-const searching = ref(false)
-const searchQuery = ref('')
-const selectedIds = ref<string[]>([])
-const sortDir = ref<'asc' | 'desc'>('asc')
-const sortField = ref<SortField>('name')
-let searchDebounce: null | ReturnType<typeof setTimeout> = null
+const filterVisibility = ref('all');
+const searching = ref(false);
+const searchQuery = ref('');
+const selectedIds = ref<string[]>([]);
+const sortDir = ref<'asc' | 'desc'>('asc');
+const sortField = ref<SortField>('name');
+let searchDebounce: null | ReturnType<typeof setTimeout> = null;
 
 const displayedProjects = computed(() => {
-  let projects = props.projects
+  let projects = props.projects;
   if (searchQuery.value && searchQuery.value.length < MIN_SEARCH_LENGTH) {
-    const q = searchQuery.value.toLowerCase()
-    projects = projects.filter(rp => rp.name.toLowerCase().includes(q) || rp.slug.toLowerCase().includes(q))
+    const q = searchQuery.value.toLowerCase();
+    projects = projects.filter(
+      (rp) => rp.name.toLowerCase().includes(q) || rp.slug.toLowerCase().includes(q),
+    );
   }
-  const field = sortField.value
-  const dir = sortDir.value === 'asc' ? 1 : -1
-  return [...projects].sort((a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase()) * dir)
-})
+  const field = sortField.value;
+  const dir = sortDir.value === 'asc' ? 1 : -1;
+  return [...projects].sort(
+    (a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase()) * dir,
+  );
+});
 
-const allSelected = computed(() =>
-  displayedProjects.value.length > 0 && selectedIds.value.length === displayedProjects.value.length,
-)
+const allSelected = computed(
+  () =>
+    displayedProjects.value.length > 0 &&
+    selectedIds.value.length === displayedProjects.value.length,
+);
 const selectedImportable = computed(() =>
-  selectedIds.value.filter(id => displayedProjects.value.some(rp => rp.externalId === id && !rp.alreadyImported)),
-)
+  selectedIds.value.filter((id) =>
+    displayedProjects.value.some((rp) => rp.externalId === id && !rp.alreadyImported),
+  ),
+);
 const selectedSyncable = computed(() =>
-  selectedIds.value.filter(id => displayedProjects.value.some(rp => rp.externalId === id && rp.alreadyImported && rp.localProjectId)),
-)
-const someSelected = computed(() =>
-  selectedIds.value.length > 0 && selectedIds.value.length < displayedProjects.value.length,
-)
+  selectedIds.value.filter((id) =>
+    displayedProjects.value.some(
+      (rp) => rp.externalId === id && rp.alreadyImported && rp.localProjectId,
+    ),
+  ),
+);
+const someSelected = computed(
+  () => selectedIds.value.length > 0 && selectedIds.value.length < displayedProjects.value.length,
+);
 
 watch(searchQuery, () => {
-  if (searchDebounce) clearTimeout(searchDebounce)
-  searchDebounce = setTimeout(() => handleFilterChange(), 300)
-})
+  if (searchDebounce) clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => handleFilterChange(), 300);
+});
 
 watch([filterVisibility, sortField, sortDir], () => {
-  handleFilterChange()
-})
+  handleFilterChange();
+});
 
 function handleFilterChange() {
-  selectedIds.value = []
-  searching.value = true
-  emit('pageChange', 1)
-  searching.value = false
+  selectedIds.value = [];
+  searching.value = true;
+  emit('pageChange', 1);
+  searching.value = false;
 }
 
 function handleImport() {
-  const selected = props.projects
-    .filter(rp => selectedIds.value.includes(rp.externalId) && !rp.alreadyImported)
-  if (selected.length === 0) return
-  emit('import', selected)
-  selectedIds.value = []
+  const selected = props.projects.filter(
+    (rp) => selectedIds.value.includes(rp.externalId) && !rp.alreadyImported,
+  );
+  if (selected.length === 0) return;
+  emit('import', selected);
+  selectedIds.value = [];
 }
 
 function handleSyncSelected() {
   const localIds = selectedSyncable.value
-    .map(externalId => displayedProjects.value.find(rp => rp.externalId === externalId)?.localProjectId)
-    .filter((id): id is string => id != null)
-  if (localIds.length === 0) return
-  emit('syncSelected', localIds)
-  selectedIds.value = []
+    .map(
+      (externalId) =>
+        displayedProjects.value.find((rp) => rp.externalId === externalId)?.localProjectId,
+    )
+    .filter((id): id is string => id != null);
+  if (localIds.length === 0) return;
+  emit('syncSelected', localIds);
+  selectedIds.value = [];
 }
 
 function toggleSelectAll() {
   if (allSelected.value) {
-    selectedIds.value = []
+    selectedIds.value = [];
   } else {
-    selectedIds.value = displayedProjects.value.map(rp => rp.externalId)
+    selectedIds.value = displayedProjects.value.map((rp) => rp.externalId);
   }
 }
 
 function toggleSort(field: SortField) {
   if (sortField.value === field) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
   } else {
-    sortField.value = field
-    sortDir.value = 'asc'
+    sortField.value = field;
+    sortDir.value = 'asc';
   }
 }
 </script>
@@ -134,7 +150,11 @@ function toggleSort(field: SortField) {
           data-testid="provider-import-selected"
           @click="handleImport"
         >
-          {{ importing ? t('catalog.providers.importing') : t('catalog.providers.importSelected', { count: selectedImportable.length }) }}
+          {{
+            importing
+              ? t('catalog.providers.importing')
+              : t('catalog.providers.importSelected', { count: selectedImportable.length })
+          }}
         </button>
         <button
           v-if="selectedSyncable.length > 0"
@@ -166,10 +186,7 @@ function toggleSort(field: SortField) {
         {{ error }}
       </div>
 
-      <div
-        class="mb-4 flex flex-wrap items-center gap-3"
-        data-testid="remote-projects-filters"
-      >
+      <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="remote-projects-filters">
         <div class="relative flex-1">
           <svg
             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
@@ -191,7 +208,7 @@ function toggleSort(field: SortField) {
             :placeholder="t('catalog.providers.searchProjects')"
             class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-9 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
             data-testid="remote-projects-search"
-          >
+          />
           <svg
             v-if="searching"
             class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-primary"
@@ -233,14 +250,15 @@ function toggleSort(field: SortField) {
             {{ t('catalog.providers.visibility.internal') }}
           </option>
         </select>
-        <div
-          class="flex items-center gap-1"
-          data-testid="remote-projects-sort"
-        >
+        <div class="flex items-center gap-1" data-testid="remote-projects-sort">
           <button
-            v-for="field in (['name', 'visibility', 'defaultBranch'] as const)"
+            v-for="field in ['name', 'visibility', 'defaultBranch'] as const"
             :key="field"
-            :class="sortField === field ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-muted hover:border-primary/50'"
+            :class="
+              sortField === field
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border text-text-muted hover:border-primary/50'
+            "
             class="rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors"
             :data-testid="`sort-${field}`"
             @click="toggleSort(field)"
@@ -265,7 +283,7 @@ function toggleSort(field: SortField) {
           :aria-label="t('catalog.providers.selectAll')"
           data-testid="select-all-checkbox"
           @change="toggleSelectAll"
-        >
+        />
         <span class="text-sm text-text-muted">
           {{ t('catalog.providers.selectAll') }}
         </span>
@@ -290,7 +308,7 @@ function toggleSort(field: SortField) {
                 :value="project.externalId"
                 :aria-label="t('catalog.providers.selectProject', { name: project.name })"
                 :data-testid="`select-${project.externalId}`"
-              >
+              />
               <div>
                 <p class="font-medium text-text">
                   {{ project.name }}

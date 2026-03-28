@@ -32,14 +32,23 @@ restart: ## Restart all containers
 	$(DC) restart
 
 ## —— Backend —————————————————————————————————————
-.PHONY: test-backend lint-backend quality-backend outdated-backend audit-backend
+.PHONY: test-backend lint-backend coverage-backend mutation-backend quality-backend outdated-backend audit-backend fix-backend
 
 test-backend: ## Run backend tests
-	$(EXEC_BACKEND) php vendor/bin/pest
+	$(EXEC_BACKEND) sh -c 'php -d memory_limit=512M vendor/bin/pest --colors=never'
 
-lint-backend: ## Lint backend code
-	$(EXEC_BACKEND) php vendor/bin/php-cs-fixer fix --dry-run --diff
-	$(EXEC_BACKEND) php -d memory_limit=512M vendor/bin/phpstan analyse
+lint-backend: ## Lint backend code (cs-fixer + phpstan)
+	$(EXEC_BACKEND) sh -c 'php vendor/bin/php-cs-fixer fix --dry-run --diff'
+	$(EXEC_BACKEND) sh -c 'php -d memory_limit=512M vendor/bin/phpstan analyse'
+
+fix-backend: ## Auto-fix backend code style
+	$(EXEC_BACKEND) sh -c 'php vendor/bin/php-cs-fixer fix'
+
+coverage-backend: ## Run backend tests with coverage
+	$(EXEC_BACKEND) sh -c 'php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --coverage'
+
+mutation-backend: ## Run mutation testing (infection)
+	@./scripts/mutation-backend.sh
 
 quality-backend: lint-backend test-backend ## Full backend quality check
 
@@ -53,7 +62,7 @@ audit-backend: ## Audit backend dependencies
 .PHONY: test-frontend lint-frontend quality-frontend outdated-frontend audit-frontend
 
 test-frontend: ## Run frontend tests
-	$(EXEC_FRONTEND) pnpm test
+	$(EXEC_FRONTEND) pnpm vitest run
 
 lint-frontend: ## Lint frontend code
 	$(EXEC_FRONTEND) pnpm lint
@@ -68,7 +77,7 @@ audit-frontend: ## Audit frontend dependencies
 	$(EXEC_FRONTEND) pnpm audit
 
 ## —— Global ——————————————————————————————————————
-.PHONY: test lint quality outdated audit
+.PHONY: test lint quality outdated audit ci
 
 test: test-backend test-frontend ## Run all tests
 
@@ -79,6 +88,9 @@ quality: quality-backend quality-frontend ## Full quality check
 outdated: outdated-backend outdated-frontend ## Check all outdated dependencies
 
 audit: audit-backend audit-frontend ## Audit all dependencies
+
+ci: ## CI dashboard — lint, tests, coverage, mutation
+	@./scripts/ci-dashboard.sh
 
 ## —— Database ————————————————————————————————————
 .PHONY: migration migrate seed

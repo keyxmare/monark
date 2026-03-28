@@ -1,406 +1,448 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRoute } from 'vue-router';
 
-import ProviderIcon from '@/catalog/components/ProviderIcon.vue'
-import { humanizeMs, humanizeTimeDiff, isVersionUpToDate, ltsUrgency, msUrgency, patchGap, useFrameworkLts } from '@/catalog/composables/useFrameworkLts'
-import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
-import { useProjectStore } from '@/catalog/stores/project'
-import { useProviderStore } from '@/catalog/stores/provider'
-import { useTechStackStore } from '@/catalog/stores/tech-stack'
-import { exportTechStacksPdf } from '@/catalog/services/techStackPdfExport'
-import ExportDropdown from '@/shared/components/ExportDropdown.vue'
-import Pagination from '@/shared/components/Pagination.vue'
-import TechBadge from '@/shared/components/TechBadge.vue'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import ProviderIcon from '@/catalog/components/ProviderIcon.vue';
+import {
+  humanizeMs,
+  humanizeTimeDiff,
+  isVersionUpToDate,
+  ltsUrgency,
+  msUrgency,
+  patchGap,
+  useFrameworkLts,
+} from '@/catalog/composables/useFrameworkLts';
+import { useSyncProgress } from '@/catalog/composables/useSyncProgress';
+import { exportTechStacksPdf } from '@/catalog/services/techStackPdfExport';
+import { useProjectStore } from '@/catalog/stores/project';
+import { useProviderStore } from '@/catalog/stores/provider';
+import { useTechStackStore } from '@/catalog/stores/tech-stack';
+import ExportDropdown from '@/shared/components/ExportDropdown.vue';
+import Pagination from '@/shared/components/Pagination.vue';
+import TechBadge from '@/shared/components/TechBadge.vue';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const route = useRoute()
-const { d, t } = useI18n()
-const techStackStore = useTechStackStore()
-const projectStore = useProjectStore()
-const providerStore = useProviderStore()
-const { loadForFrameworks, getLtsInfo, getVersionReleaseDate, getVersionMaintenanceStatus } = useFrameworkLts()
-const { track } = useSyncProgress()
-const syncing = ref(false)
+const route = useRoute();
+const { d, t } = useI18n();
+const techStackStore = useTechStackStore();
+const projectStore = useProjectStore();
+const providerStore = useProviderStore();
+const { getLtsInfo, getVersionMaintenanceStatus, getVersionReleaseDate, loadForFrameworks } =
+  useFrameworkLts();
+const { track } = useSyncProgress();
+const syncing = ref(false);
 
-const projectId = route.query.project_id as string | undefined
+const projectId = route.query.project_id as string | undefined;
 
-const search = ref('')
-const filterFramework = ref('')
-const filterProvider = ref('')
-const filterStatus = ref('')
+const search = ref('');
+const filterFramework = ref('');
+const filterProvider = ref('');
+const filterStatus = ref('');
 
-type GroupBy = 'project' | 'framework' | 'provider'
-const groupBy = ref<GroupBy>('project')
+type GroupBy = 'framework' | 'project' | 'provider';
+const groupBy = ref<GroupBy>('project');
 
-type SortField = 'project' | 'framework' | 'frameworkVersion' | 'ltsGap'
-const sortField = ref<SortField>('project')
-const sortDir = ref<'asc' | 'desc'>('asc')
+type SortField = 'framework' | 'frameworkVersion' | 'ltsGap' | 'project';
+const sortField = ref<SortField>('project');
+const sortDir = ref<'asc' | 'desc'>('asc');
+
+function sortIndicator(field: SortField): string {
+  if (sortField.value !== field) return '';
+  return sortDir.value === 'asc' ? ' ↑' : ' ↓';
+}
 
 function toggleSort(field: SortField) {
   if (sortField.value === field) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
   } else {
-    sortField.value = field
-    sortDir.value = 'asc'
+    sortField.value = field;
+    sortDir.value = 'asc';
   }
-}
-
-function sortIndicator(field: SortField): string {
-  if (sortField.value !== field) return ''
-  return sortDir.value === 'asc' ? ' ↑' : ' ↓'
 }
 
 const projectMap = computed(() => {
-  const map = new Map<string, { name: string; providerId: string | null }>()
+  const map = new Map<string, { name: string; providerId: null | string }>();
   for (const p of projectStore.projects) {
-    map.set(p.id, { name: p.name, providerId: p.providerId })
+    map.set(p.id, { name: p.name, providerId: p.providerId });
   }
-  return map
-})
+  return map;
+});
 
 const providerMap = computed(() => {
-  const map = new Map<string, { name: string; type: string }>()
+  const map = new Map<string, { name: string; type: string }>();
   for (const p of providerStore.providers) {
-    map.set(p.id, { name: p.name, type: p.type })
+    map.set(p.id, { name: p.name, type: p.type });
   }
-  return map
-})
+  return map;
+});
 
 interface ProviderAggregate {
-  id: string
-  name: string
-  type: string
-  projectCount: number
-  frameworks: { name: string; min: string; max: string }[]
+  frameworks: { max: string; min: string; name: string }[];
+  id: string;
+  name: string;
+  projectCount: number;
+  type: string;
 }
 
 const providerAggregates = computed<ProviderAggregate[]>(() => {
-  const agg = new Map<string, { name: string; type: string; projectIds: Set<string>; frameworks: Map<string, string[]> }>()
+  const agg = new Map<
+    string,
+    { frameworks: Map<string, string[]>; name: string; projectIds: Set<string>; type: string }
+  >();
 
   for (const ts of techStackStore.techStacks) {
-    if (ts.framework === 'none' || !ts.framework) continue
+    if (ts.framework === 'none' || !ts.framework) continue;
 
-    const proj = projectMap.value.get(ts.projectId)
-    if (!proj?.providerId) continue
+    const proj = projectMap.value.get(ts.projectId);
+    if (!proj?.providerId) continue;
 
-    const provider = providerMap.value.get(proj.providerId)
-    if (!provider) continue
+    const provider = providerMap.value.get(proj.providerId);
+    if (!provider) continue;
 
     if (!agg.has(proj.providerId)) {
-      agg.set(proj.providerId, { name: provider.name, type: provider.type, projectIds: new Set(), frameworks: new Map() })
+      agg.set(proj.providerId, {
+        frameworks: new Map(),
+        name: provider.name,
+        projectIds: new Set(),
+        type: provider.type,
+      });
     }
 
-    const entry = agg.get(proj.providerId)!
-    entry.projectIds.add(ts.projectId)
+    const entry = agg.get(proj.providerId)!;
+    entry.projectIds.add(ts.projectId);
 
     if (!entry.frameworks.has(ts.framework)) {
-      entry.frameworks.set(ts.framework, [])
+      entry.frameworks.set(ts.framework, []);
     }
     if (ts.frameworkVersion) {
-      entry.frameworks.get(ts.framework)!.push(ts.frameworkVersion)
+      entry.frameworks.get(ts.framework)!.push(ts.frameworkVersion);
     }
   }
 
   return [...agg.entries()].map(([id, entry]) => ({
+    frameworks: [...entry.frameworks.entries()].map(([name, versions]) => {
+      const sorted = [...versions].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+      return { max: sorted[sorted.length - 1] ?? '—', min: sorted[0] ?? '—', name };
+    }),
     id,
     name: entry.name,
-    type: entry.type,
     projectCount: entry.projectIds.size,
-    frameworks: [...entry.frameworks.entries()].map(([name, versions]) => {
-      const sorted = [...versions].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-      return { name, min: sorted[0] ?? '—', max: sorted[sorted.length - 1] ?? '—' }
-    }),
-  }))
-})
+    type: entry.type,
+  }));
+});
 
 const healthScore = computed(() => {
-  const stacks = filteredStacks.value
-  if (stacks.length === 0) return null
+  const stacks = filteredStacks.value;
+  if (stacks.length === 0) return null;
 
-  let active = 0
-  let eol = 0
-  let warning = 0
+  let active = 0;
+  let eol = 0;
+  let warning = 0;
 
   for (const ts of stacks) {
-    const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)
-    if (status?.status === 'eol') eol++
-    else if (status?.status === 'warning') warning++
-    else active++
+    const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
+    if (status?.status === 'eol') eol++;
+    else if (status?.status === 'warning') warning++;
+    else active++;
   }
 
   return {
-    total: stacks.length,
     active,
     eol,
-    warning,
     percent: Math.round((active / stacks.length) * 100),
-  }
-})
+    total: stacks.length,
+    warning,
+  };
+});
 
 const gapStats = computed(() => {
-  const gaps: number[] = []
+  const gaps: number[] = [];
 
   for (const ts of filteredStacks.value) {
-    const info = getLtsInfo(ts.framework)
-    if (!info || !ts.frameworkVersion) continue
-    if (isVersionUpToDate(ts.frameworkVersion, info.latestLts)) continue
+    const info = getLtsInfo(ts.framework);
+    if (!info || !ts.frameworkVersion) continue;
+    if (isVersionUpToDate(ts.frameworkVersion, info.latestLts)) continue;
 
-    const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion)
-    if (!vDate) continue
+    const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
+    if (!vDate) continue;
 
-    const gapMs = Math.abs(new Date(info.releaseDate).getTime() - new Date(vDate).getTime())
-    gaps.push(gapMs)
+    const gapMs = Math.abs(new Date(info.releaseDate).getTime() - new Date(vDate).getTime());
+    gaps.push(gapMs);
   }
 
-  if (gaps.length === 0) return null
+  if (gaps.length === 0) return null;
 
-  const sorted = [...gaps].sort((a, b) => a - b)
-  const cumulated = gaps.reduce((s, g) => s + g, 0)
-  const average = cumulated / gaps.length
-  const median = sorted.length % 2 === 0
-    ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-    : sorted[Math.floor(sorted.length / 2)]
+  const sorted = [...gaps].sort((a, b) => a - b);
+  const cumulated = gaps.reduce((s, g) => s + g, 0);
+  const average = cumulated / gaps.length;
+  const median =
+    sorted.length % 2 === 0
+      ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+      : sorted[Math.floor(sorted.length / 2)];
 
-  return { cumulated, average, median }
-})
+  return { average, cumulated, median };
+});
 
 const availableFrameworks = computed(() => {
-  const set = new Set<string>()
+  const set = new Set<string>();
   for (const ts of techStackStore.techStacks) {
-    if (ts.framework && ts.framework !== 'none') set.add(ts.framework)
+    if (ts.framework && ts.framework !== 'none') set.add(ts.framework);
   }
-  return [...set].sort()
-})
+  return [...set].sort();
+});
 
 const availableProviders = computed(() => {
-  const set = new Map<string, string>()
+  const set = new Map<string, string>();
   for (const p of providerStore.providers) {
-    set.set(p.id, p.name)
+    set.set(p.id, p.name);
   }
-  return [...set.entries()].map(([id, name]) => ({ id, name }))
-})
+  return [...set.entries()].map(([id, name]) => ({ id, name }));
+});
 
 const filteredStacks = computed(() => {
-  const filtered = techStackStore.techStacks.filter(ts => {
+  const filtered = techStackStore.techStacks.filter((ts) => {
     if (search.value) {
-      const q = search.value.toLowerCase()
-      const projName = projectMap.value.get(ts.projectId)?.name ?? ''
-      if (!projName.toLowerCase().includes(q) && !ts.framework.toLowerCase().includes(q)) return false
+      const q = search.value.toLowerCase();
+      const projName = projectMap.value.get(ts.projectId)?.name ?? '';
+      if (!projName.toLowerCase().includes(q) && !ts.framework.toLowerCase().includes(q))
+        return false;
     }
-    if (filterFramework.value && ts.framework !== filterFramework.value) return false
+    if (filterFramework.value && ts.framework !== filterFramework.value) return false;
     if (filterProvider.value) {
-      const proj = projectMap.value.get(ts.projectId)
-      if (proj?.providerId !== filterProvider.value) return false
+      const proj = projectMap.value.get(ts.projectId);
+      if (proj?.providerId !== filterProvider.value) return false;
     }
     if (filterStatus.value) {
-      const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)
-      if (filterStatus.value === 'eol' && status?.status !== 'eol') return false
-      if (filterStatus.value === 'warning' && status?.status !== 'warning') return false
-      if (filterStatus.value === 'active' && status?.status !== 'active') return false
+      const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
+      if (filterStatus.value === 'eol' && status?.status !== 'eol') return false;
+      if (filterStatus.value === 'warning' && status?.status !== 'warning') return false;
+      if (filterStatus.value === 'active' && status?.status !== 'active') return false;
     }
-    return true
-  })
-  return filtered
-})
+    return true;
+  });
+  return filtered;
+});
 
 interface GroupedStack {
-  projectId: string
-  projectName: string
-  isFirstInGroup: boolean
-  groupSize: number
-  groupIndex: number
-  ts: import('@/catalog/types/tech-stack').TechStack
+  groupIndex: number;
+  groupSize: number;
+  isFirstInGroup: boolean;
+  projectId: string;
+  projectName: string;
+  ts: import('@/catalog/types/tech-stack').TechStack;
 }
 
 function groupKey(ts: import('@/catalog/types/tech-stack').TechStack): string {
-  if (groupBy.value === 'framework') return ts.framework
+  if (groupBy.value === 'framework') return ts.framework;
   if (groupBy.value === 'provider') {
-    const proj = projectMap.value.get(ts.projectId)
-    return proj?.providerId ?? 'unknown'
+    const proj = projectMap.value.get(ts.projectId);
+    return proj?.providerId ?? 'unknown';
   }
-  return ts.projectId
+  return ts.projectId;
 }
 
 function groupLabel(key: string): string {
-  if (groupBy.value === 'framework') return key
+  if (groupBy.value === 'framework') return key;
   if (groupBy.value === 'provider') {
-    return providerMap.value.get(key)?.name ?? key
+    return providerMap.value.get(key)?.name ?? key;
   }
-  return projectMap.value.get(key)?.name ?? key
+  return projectMap.value.get(key)?.name ?? key;
+}
+
+function sortValueForGroup(
+  stacks: import('@/catalog/types/tech-stack').TechStack[],
+  key: string,
+): number | string {
+  switch (sortField.value) {
+    case 'framework':
+      return stacks[0]?.framework?.toLowerCase() ?? '';
+    case 'frameworkVersion':
+      return stacks[0]?.frameworkVersion ?? '';
+    case 'ltsGap':
+      return worstGapForGroup(stacks);
+    case 'project':
+      return groupLabel(key).toLowerCase();
+    default:
+      return 0;
+  }
 }
 
 function worstGapForGroup(stacks: import('@/catalog/types/tech-stack').TechStack[]): number {
-  let worst = -1
+  let worst = -1;
   for (const ts of stacks) {
-    const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion)
-    const ltsDate = getLtsInfo(ts.framework)?.releaseDate
+    const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
+    const ltsDate = getLtsInfo(ts.framework)?.releaseDate;
     if (vDate && ltsDate) {
-      const ltsVersion = getLtsInfo(ts.framework)?.latestLts ?? ''
+      const ltsVersion = getLtsInfo(ts.framework)?.latestLts ?? '';
       if (ltsVersion && isVersionUpToDate(ts.frameworkVersion, ltsVersion)) {
-        if (worst < 0) worst = 0
+        if (worst < 0) worst = 0;
       } else {
-        const gap = new Date(ltsDate).getTime() - new Date(vDate).getTime()
-        if (gap > worst) worst = gap
+        const gap = new Date(ltsDate).getTime() - new Date(vDate).getTime();
+        if (gap > worst) worst = gap;
       }
     }
   }
-  return worst
-}
-
-function sortValueForGroup(stacks: import('@/catalog/types/tech-stack').TechStack[], key: string): string | number {
-  switch (sortField.value) {
-    case 'project':
-      return groupLabel(key).toLowerCase()
-    case 'framework':
-      return stacks[0]?.framework?.toLowerCase() ?? ''
-    case 'frameworkVersion':
-      return stacks[0]?.frameworkVersion ?? ''
-    case 'ltsGap':
-      return worstGapForGroup(stacks)
-    default:
-      return 0
-  }
+  return worst;
 }
 
 const groupedStacks = computed<GroupedStack[]>(() => {
-  const groups = new Map<string, import('@/catalog/types/tech-stack').TechStack[]>()
+  const groups = new Map<string, import('@/catalog/types/tech-stack').TechStack[]>();
   for (const ts of filteredStacks.value) {
-    const key = groupKey(ts)
+    const key = groupKey(ts);
     if (!groups.has(key)) {
-      groups.set(key, [])
+      groups.set(key, []);
     }
-    groups.get(key)!.push(ts)
+    groups.get(key)!.push(ts);
   }
 
-  const dir = sortDir.value === 'asc' ? 1 : -1
+  const dir = sortDir.value === 'asc' ? 1 : -1;
   const sortedEntries = [...groups.entries()].sort(([keyA, stacksA], [keyB, stacksB]) => {
-    const valA = sortValueForGroup(stacksA, keyA)
-    const valB = sortValueForGroup(stacksB, keyB)
+    const valA = sortValueForGroup(stacksA, keyA);
+    const valB = sortValueForGroup(stacksB, keyB);
 
     if (sortField.value === 'ltsGap') {
-      const gapA = valA as number
-      const gapB = valB as number
-      if (gapA === -1 && gapB === -1) return 0
-      if (gapA === -1) return 1
-      if (gapB === -1) return -1
-      return (gapB - gapA) * dir
+      const gapA = valA as number;
+      const gapB = valB as number;
+      if (gapA === -1 && gapB === -1) return 0;
+      if (gapA === -1) return 1;
+      if (gapB === -1) return -1;
+      return (gapB - gapA) * dir;
     }
 
-    return String(valA).localeCompare(String(valB), undefined, { numeric: true }) * dir
-  })
+    return String(valA).localeCompare(String(valB), undefined, { numeric: true }) * dir;
+  });
 
-  const result: GroupedStack[] = []
-  let groupIndex = 0
+  const result: GroupedStack[] = [];
+  let groupIndex = 0;
   for (const [key, stacks] of sortedEntries) {
-    const label = groupLabel(key)
+    const label = groupLabel(key);
     stacks.forEach((ts, i) => {
       result.push({
+        groupIndex,
+        groupSize: stacks.length,
+        isFirstInGroup: i === 0,
         projectId: ts.projectId,
         projectName: label,
-        isFirstInGroup: i === 0,
-        groupSize: stacks.length,
-        groupIndex,
         ts,
-      })
-    })
-    groupIndex++
+      });
+    });
+    groupIndex++;
   }
-  return result
-})
+  return result;
+});
 
 onMounted(async () => {
   await Promise.all([
     techStackStore.fetchAll(1, 1000, projectId),
     projectStore.fetchAll(1, 200),
     providerStore.fetchAll(1, 50),
-  ])
+  ]);
   const frameworks = techStackStore.techStacks
-    .map(ts => ts.framework)
-    .filter(f => f && f !== 'none')
-  await loadForFrameworks(frameworks)
-})
+    .map((ts) => ts.framework)
+    .filter((f) => f && f !== 'none');
+  await loadForFrameworks(frameworks);
+});
 
 function changePage(page: number) {
-  techStackStore.fetchAll(page, 1000, projectId)
+  techStackStore.fetchAll(page, 1000, projectId);
 }
 
-async function handleSyncAll() {
-  syncing.value = true
-  try {
-    const result = await providerStore.syncAllGlobal()
-    track(result.id, result.projectsCount)
-  } catch {
-  } finally {
-    syncing.value = false
-  }
-}
+function exportCsv() {
+  const headers = [
+    'Projet',
+    'Langage',
+    'Framework',
+    'Version',
+    'Dernière LTS',
+    'Écart LTS',
+    'Statut',
+  ];
+  const rows = filteredStacks.value.map((ts) => {
+    const projName = projectMap.value.get(ts.projectId)?.name ?? ts.projectId;
+    const lts = getLtsInfo(ts.framework)?.latestLts ?? '';
+    const releaseDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
+    const ltsDate = getLtsInfo(ts.framework)?.releaseDate;
+    const gap = releaseDate && ltsDate ? humanizeTimeDiff(releaseDate, ltsDate) : '';
+    const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
+    const statusLabel =
+      status?.status === 'eol' ? 'Non maintenu' : status?.status === 'warning' ? 'Inactif' : 'OK';
+    return [projName, ts.language, ts.framework, ts.frameworkVersion, lts, gap, statusLabel];
+  });
 
-function handleExport(format: 'csv' | 'pdf') {
-  if (format === 'csv') exportCsv()
-  else exportPdf()
+  const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tech-stacks.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function exportPdf() {
-  const rows = filteredStacks.value.map(ts => {
-    const projName = projectMap.value.get(ts.projectId)?.name ?? ts.projectId
-    const lts = getLtsInfo(ts.framework)?.latestLts ?? ''
-    const releaseDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion) ?? ''
-    const info = getLtsInfo(ts.framework)
-    let gap = '—'
-    let status = 'OK'
+  const rows = filteredStacks.value.map((ts) => {
+    const projName = projectMap.value.get(ts.projectId)?.name ?? ts.projectId;
+    const lts = getLtsInfo(ts.framework)?.latestLts ?? '';
+    const releaseDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion) ?? '';
+    const info = getLtsInfo(ts.framework);
+    let gap = '—';
+    let status = 'OK';
 
     if (info && ts.frameworkVersion) {
       if (isVersionUpToDate(ts.frameworkVersion, info.latestLts)) {
-        gap = 'À jour'
+        gap = 'À jour';
       } else {
-        const pg = patchGap(ts.frameworkVersion, info.latestLts)
+        const pg = patchGap(ts.frameworkVersion, info.latestLts);
         if (pg !== null) {
-          gap = `${pg} patch(es)`
+          gap = `${pg} patch(es)`;
         } else {
-          const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion)
-          if (vDate) gap = humanizeTimeDiff(vDate, info.releaseDate)
+          const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
+          if (vDate) gap = humanizeTimeDiff(vDate, info.releaseDate);
         }
       }
     }
 
-    const maintenance = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)
-    if (maintenance?.status === 'eol') status = 'Non maintenu'
-    else if (maintenance?.status === 'warning') status = 'Inactif'
+    const maintenance = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
+    if (maintenance?.status === 'eol') status = 'Non maintenu';
+    else if (maintenance?.status === 'warning') status = 'Inactif';
 
-    return { project: projName, language: ts.language, framework: ts.framework, version: ts.frameworkVersion, latestLts: lts, ltsGap: gap, status, releaseDate }
-  })
+    return {
+      framework: ts.framework,
+      language: ts.language,
+      latestLts: lts,
+      ltsGap: gap,
+      project: projName,
+      releaseDate,
+      status,
+      version: ts.frameworkVersion,
+    };
+  });
 
-  const gapData = gapStats.value ? {
-    cumulated: humanizeMs(gapStats.value.cumulated),
-    average: humanizeMs(gapStats.value.average),
-    median: humanizeMs(gapStats.value.median),
-  } : null
-  exportTechStacksPdf(rows, healthScore.value, providerAggregates.value, gapData)
+  const gapData = gapStats.value
+    ? {
+        average: humanizeMs(gapStats.value.average),
+        cumulated: humanizeMs(gapStats.value.cumulated),
+        median: humanizeMs(gapStats.value.median),
+      }
+    : null;
+  exportTechStacksPdf(rows, healthScore.value, providerAggregates.value, gapData);
 }
 
-function exportCsv() {
-  const headers = ['Projet', 'Langage', 'Framework', 'Version', 'Dernière LTS', 'Écart LTS', 'Statut']
-  const rows = filteredStacks.value.map(ts => {
-    const projName = projectMap.value.get(ts.projectId)?.name ?? ts.projectId
-    const lts = getLtsInfo(ts.framework)?.latestLts ?? ''
-    const releaseDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion)
-    const ltsDate = getLtsInfo(ts.framework)?.releaseDate
-    const gap = releaseDate && ltsDate ? humanizeTimeDiff(releaseDate, ltsDate) : ''
-    const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)
-    const statusLabel = status?.status === 'eol' ? 'Non maintenu' : status?.status === 'warning' ? 'Inactif' : 'OK'
-    return [projName, ts.language, ts.framework, ts.frameworkVersion, lts, gap, statusLabel]
-  })
+function handleExport(format: 'csv' | 'pdf') {
+  if (format === 'csv') exportCsv();
+  else exportPdf();
+}
 
-  const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'tech-stacks.csv'
-  a.click()
-  URL.revokeObjectURL(url)
+async function handleSyncAll() {
+  syncing.value = true;
+  try {
+    const result = await providerStore.syncAllGlobal();
+    track(result.id, result.projectsCount);
+  } catch {
+  } finally {
+    syncing.value = false;
+  }
 }
 </script>
 
@@ -419,10 +461,9 @@ function exportCsv() {
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
           {{ t('catalog.techStacks.title') }}
-          <span
-            v-if="filteredStacks.length > 0"
-            class="text-lg font-normal text-text-muted"
-          >({{ filteredStacks.length }})</span>
+          <span v-if="filteredStacks.length > 0" class="text-lg font-normal text-text-muted"
+            >({{ filteredStacks.length }})</span
+          >
         </h2>
         <div class="flex items-center gap-3">
           <ExportDropdown @export="handleExport" />
@@ -463,7 +504,9 @@ function exportCsv() {
         >
           <div class="flex-1">
             <div class="mb-1 flex items-center justify-between text-sm">
-              <span class="font-medium text-text">{{ t('catalog.techStacks.healthScore', { percent: healthScore.percent }) }}</span>
+              <span class="font-medium text-text">{{
+                t('catalog.techStacks.healthScore', { percent: healthScore.percent })
+              }}</span>
               <span class="text-text-muted">{{ healthScore.active }}/{{ healthScore.total }}</span>
             </div>
             <div class="h-2 w-full overflow-hidden rounded-full bg-surface-muted">
@@ -488,11 +531,7 @@ function exportCsv() {
         </div>
 
         <!-- Gap stats -->
-        <div
-          v-if="gapStats"
-          class="mb-6 grid grid-cols-3 gap-4"
-          data-testid="gap-stats"
-        >
+        <div v-if="gapStats" class="mb-6 grid grid-cols-3 gap-4" data-testid="gap-stats">
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
             <p class="text-xs text-text-muted">
               {{ t('catalog.techStacks.gapCumulated') }}
@@ -554,14 +593,13 @@ function exportCsv() {
           >
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <ProviderIcon
-                  :type="(agg.type as any)"
-                  :size="20"
-                />
+                <ProviderIcon :type="agg.type as any" :size="20" />
                 <RouterLink
                   :to="{ name: 'catalog-providers-detail', params: { id: agg.id } }"
                   class="text-sm font-semibold text-primary hover:text-primary-dark"
-                >{{ agg.name }}</RouterLink>
+                >
+                  {{ agg.name }}
+                </RouterLink>
               </div>
               <span class="text-xs text-text-muted">
                 {{ t('catalog.techStacks.projectCount', { count: agg.projectCount }) }}
@@ -578,9 +616,7 @@ function exportCsv() {
                   <template v-if="fw.min === fw.max">
                     {{ fw.min }}
                   </template>
-                  <template v-else>
-                    {{ fw.min }} → {{ fw.max }}
-                  </template>
+                  <template v-else> {{ fw.min }} → {{ fw.max }} </template>
                   <span
                     v-if="getVersionMaintenanceStatus(fw.name, fw.min)?.status === 'eol'"
                     class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
@@ -594,10 +630,7 @@ function exportCsv() {
         </div>
 
         <!-- Filters -->
-        <div
-          class="mb-4 flex flex-wrap items-center gap-3"
-          data-testid="tech-stack-filters"
-        >
+        <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="tech-stack-filters">
           <div class="relative flex-1">
             <svg
               class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
@@ -619,7 +652,7 @@ function exportCsv() {
               :placeholder="t('catalog.techStacks.searchPlaceholder')"
               class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
               data-testid="tech-stack-search"
-            >
+            />
           </div>
           <select
             v-model="filterFramework"
@@ -630,11 +663,7 @@ function exportCsv() {
             <option value="">
               {{ t('catalog.techStacks.allFrameworks') }}
             </option>
-            <option
-              v-for="fw in availableFrameworks"
-              :key="fw"
-              :value="fw"
-            >
+            <option v-for="fw in availableFrameworks" :key="fw" :value="fw">
               {{ fw }}
             </option>
           </select>
@@ -647,11 +676,7 @@ function exportCsv() {
             <option value="">
               {{ t('catalog.techStacks.allProviders') }}
             </option>
-            <option
-              v-for="prov in availableProviders"
-              :key="prov.id"
-              :value="prov.id"
-            >
+            <option v-for="prov in availableProviders" :key="prov.id" :value="prov.id">
               {{ prov.name }}
             </option>
           </select>
@@ -677,14 +702,15 @@ function exportCsv() {
         </div>
 
         <!-- Group toggle -->
-        <div
-          class="mb-4 flex items-center gap-1"
-          data-testid="tech-stack-group-toggle"
-        >
+        <div class="mb-4 flex items-center gap-1" data-testid="tech-stack-group-toggle">
           <button
-            v-for="mode in (['project', 'framework', 'provider'] as const)"
+            v-for="mode in ['project', 'framework', 'provider'] as const"
             :key="mode"
-            :class="groupBy === mode ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-muted hover:border-primary/50'"
+            :class="
+              groupBy === mode
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border text-text-muted hover:border-primary/50'
+            "
             class="rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
             @click="groupBy = mode"
           >
@@ -694,10 +720,7 @@ function exportCsv() {
 
         <!-- Tech stacks table -->
         <div class="overflow-hidden rounded-xl border border-border bg-surface">
-          <table
-            class="w-full"
-            data-testid="tech-stack-list-table"
-          >
+          <table class="w-full" data-testid="tech-stack-list-table">
             <thead>
               <tr class="border-b border-border bg-surface-muted">
                 <th
@@ -719,7 +742,8 @@ function exportCsv() {
                   class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
                   @click="toggleSort('frameworkVersion')"
                 >
-                  {{ t('catalog.techStacks.frameworkVersion') }}{{ sortIndicator('frameworkVersion') }}
+                  {{ t('catalog.techStacks.frameworkVersion')
+                  }}{{ sortIndicator('frameworkVersion') }}
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
                   {{ t('catalog.techStacks.latestLts') }}
@@ -757,10 +781,7 @@ function exportCsv() {
                   >
                     {{ row.projectName }}
                   </RouterLink>
-                  <span
-                    v-else
-                    class="font-medium text-text"
-                  >{{ row.projectName }}</span>
+                  <span v-else class="font-medium text-text">{{ row.projectName }}</span>
                 </td>
                 <td class="px-4 py-3 text-sm text-text">
                   {{ row.ts.language }}
@@ -776,20 +797,45 @@ function exportCsv() {
                   <span class="inline-flex items-center gap-1.5">
                     {{ row.ts.frameworkVersion || '—' }}
                     <span
-                      v-if="getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.status === 'eol'"
+                      v-if="
+                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
+                          ?.status === 'eol'
+                      "
                       class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
-                      :title="getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.eolDate
-                        ? t('catalog.techStacks.unmaintainedSince', { date: getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)!.eolDate! })
-                        : t('catalog.techStacks.unmaintainedNoDate')"
+                      :title="
+                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
+                          ?.eolDate
+                          ? t('catalog.techStacks.unmaintainedSince', {
+                              date: getVersionMaintenanceStatus(
+                                row.ts.framework,
+                                row.ts.frameworkVersion,
+                              )!.eolDate!,
+                            })
+                          : t('catalog.techStacks.unmaintainedNoDate')
+                      "
                     >
                       {{ t('catalog.techStacks.unmaintained') }}
                     </span>
                     <span
-                      v-else-if="getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.status === 'warning'"
+                      v-else-if="
+                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
+                          ?.status === 'warning'
+                      "
                       class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
-                      :title="getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.lastRelease
-                        ? t('catalog.techStacks.inactiveSince', { duration: humanizeTimeDiff(getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)!.lastRelease!, new Date().toISOString()) })
-                        : t('catalog.techStacks.inactive')"
+                      :title="
+                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
+                          ?.lastRelease
+                          ? t('catalog.techStacks.inactiveSince', {
+                              duration: humanizeTimeDiff(
+                                getVersionMaintenanceStatus(
+                                  row.ts.framework,
+                                  row.ts.frameworkVersion,
+                                )!.lastRelease!,
+                                new Date().toISOString(),
+                              ),
+                            })
+                          : t('catalog.techStacks.inactive')
+                      "
                     >
                       {{ t('catalog.techStacks.inactive') }}
                     </span>
@@ -799,34 +845,71 @@ function exportCsv() {
                   {{ getLtsInfo(row.ts.framework)?.latestLts ?? '—' }}
                 </td>
                 <td class="px-4 py-3 text-sm">
-                  <template v-if="getLtsInfo(row.ts.framework) && row.ts.frameworkVersion && getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)">
+                  <template
+                    v-if="
+                      getLtsInfo(row.ts.framework) &&
+                      row.ts.frameworkVersion &&
+                      getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)
+                    "
+                  >
                     <span
-                      v-if="isVersionUpToDate(row.ts.frameworkVersion, getLtsInfo(row.ts.framework)!.latestLts)"
+                      v-if="
+                        isVersionUpToDate(
+                          row.ts.frameworkVersion,
+                          getLtsInfo(row.ts.framework)!.latestLts,
+                        )
+                      "
                       class="text-success"
                     >
                       {{ t('catalog.techStacks.upToDate') }}
                     </span>
                     <span
-                      v-else-if="patchGap(row.ts.frameworkVersion, getLtsInfo(row.ts.framework)!.latestLts) !== null"
+                      v-else-if="
+                        patchGap(
+                          row.ts.frameworkVersion,
+                          getLtsInfo(row.ts.framework)!.latestLts,
+                        ) !== null
+                      "
                       class="text-warning"
                     >
-                      {{ t('catalog.techStacks.patchesBehind', { count: patchGap(row.ts.frameworkVersion, getLtsInfo(row.ts.framework)!.latestLts) }) }}
+                      {{
+                        t('catalog.techStacks.patchesBehind', {
+                          count: patchGap(
+                            row.ts.frameworkVersion,
+                            getLtsInfo(row.ts.framework)!.latestLts,
+                          ),
+                        })
+                      }}
                     </span>
                     <span
                       v-else
                       :class="{
-                        'text-success': ltsUrgency(getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!, getLtsInfo(row.ts.framework)!.releaseDate) === 'fresh',
-                        'text-warning': ltsUrgency(getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!, getLtsInfo(row.ts.framework)!.releaseDate) === 'moderate',
-                        'text-danger': ltsUrgency(getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!, getLtsInfo(row.ts.framework)!.releaseDate) === 'outdated',
+                        'text-success':
+                          ltsUrgency(
+                            getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
+                            getLtsInfo(row.ts.framework)!.releaseDate,
+                          ) === 'fresh',
+                        'text-warning':
+                          ltsUrgency(
+                            getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
+                            getLtsInfo(row.ts.framework)!.releaseDate,
+                          ) === 'moderate',
+                        'text-danger':
+                          ltsUrgency(
+                            getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
+                            getLtsInfo(row.ts.framework)!.releaseDate,
+                          ) === 'outdated',
                       }"
                     >
-                      {{ humanizeTimeDiff(getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!, getLtsInfo(row.ts.framework)!.releaseDate) }}
+                      {{
+                        humanizeTimeDiff(
+                          getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
+                          getLtsInfo(row.ts.framework)!.releaseDate,
+                        )
+                      }}
                     </span>
                   </template>
-                  <span
-                    v-else
-                    class="text-text-muted"
-                  >—</span>
+                  <span v-else class="text-text-muted">—</span>
                 </td>
                 <td class="px-4 py-3 text-sm text-text-muted">
                   {{ getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion) ?? '—' }}

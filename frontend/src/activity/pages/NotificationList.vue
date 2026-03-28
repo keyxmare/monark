@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink } from 'vue-router';
 
-import { useNotificationStore } from '@/activity/stores/notification'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useNotificationStore } from '@/activity/stores/notification';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const { t } = useI18n()
-const notificationStore = useNotificationStore()
+const { t } = useI18n();
+const notificationStore = useNotificationStore();
 
 onMounted(() => {
-  notificationStore.fetchAll()
-})
+  notificationStore.fetchAll();
+});
 
 async function handleMarkAsRead(id: string) {
-  await notificationStore.markAsRead(id)
+  await notificationStore.markAsRead(id);
 }
 </script>
 
@@ -44,14 +44,8 @@ async function handleMarkAsRead(id: string) {
         {{ notificationStore.error }}
       </div>
 
-      <div
-        v-else
-        class="overflow-hidden rounded-xl border border-border bg-surface"
-      >
-        <table
-          class="w-full"
-          data-testid="notification-list-table"
-        >
+      <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
+        <table class="w-full" data-testid="notification-list-table">
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
@@ -99,7 +93,11 @@ async function handleMarkAsRead(id: string) {
                   ]"
                   data-testid="notification-status-badge"
                 >
-                  {{ notification.readAt ? t('activity.notifications.read') : t('activity.notifications.unread') }}
+                  {{
+                    notification.readAt
+                      ? t('activity.notifications.read')
+                      : t('activity.notifications.unread')
+                  }}
                 </span>
               </td>
               <td class="px-4 py-3 text-right">

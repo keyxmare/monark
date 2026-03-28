@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute } from 'vue-router'
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRoute } from 'vue-router';
 
-import { useNotificationStore } from '@/activity/stores/notification'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useNotificationStore } from '@/activity/stores/notification';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const route = useRoute()
-const { d, t } = useI18n()
-const notificationStore = useNotificationStore()
+const route = useRoute();
+const { d, t } = useI18n();
+const notificationStore = useNotificationStore();
 
 onMounted(() => {
-  const id = route.params.id as string
-  notificationStore.fetchOne(id)
-})
+  const id = route.params.id as string;
+  notificationStore.fetchOne(id);
+});
 
 async function handleMarkAsRead() {
   if (notificationStore.selectedNotification) {
-    await notificationStore.markAsRead(notificationStore.selectedNotification.id)
+    await notificationStore.markAsRead(notificationStore.selectedNotification.id);
   }
 }
 </script>
@@ -76,10 +76,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.channel') }}
             </dt>
-            <dd
-              class="mt-1"
-              data-testid="notification-detail-channel"
-            >
+            <dd class="mt-1" data-testid="notification-detail-channel">
               <span class="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 {{ notificationStore.selectedNotification.channel }}
               </span>
@@ -89,10 +86,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.status') }}
             </dt>
-            <dd
-              class="mt-1"
-              data-testid="notification-detail-status"
-            >
+            <dd class="mt-1" data-testid="notification-detail-status">
               <span
                 :class="[
                   'rounded-full px-3 py-1 text-xs font-medium',
@@ -101,7 +95,11 @@ async function handleMarkAsRead() {
                     : 'bg-warning/10 text-warning',
                 ]"
               >
-                {{ notificationStore.selectedNotification.readAt ? t('activity.notifications.read') : t('activity.notifications.unread') }}
+                {{
+                  notificationStore.selectedNotification.readAt
+                    ? t('activity.notifications.read')
+                    : t('activity.notifications.unread')
+                }}
               </span>
             </dd>
           </div>
@@ -109,10 +107,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.message') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="notification-detail-message"
-            >
+            <dd class="mt-1 text-text" data-testid="notification-detail-message">
               {{ notificationStore.selectedNotification.message }}
             </dd>
           </div>
@@ -120,10 +115,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.readAt') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="notification-detail-read-at"
-            >
+            <dd class="mt-1 text-text" data-testid="notification-detail-read-at">
               {{ d(new Date(notificationStore.selectedNotification.readAt), 'long') }}
             </dd>
           </div>
@@ -131,10 +123,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('common.createdAt') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="notification-detail-created-at"
-            >
+            <dd class="mt-1 text-text" data-testid="notification-detail-created-at">
               {{ d(new Date(notificationStore.selectedNotification.createdAt), 'long') }}
             </dd>
           </div>

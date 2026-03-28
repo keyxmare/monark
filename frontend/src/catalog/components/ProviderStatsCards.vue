@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
 
-import type { ProviderStatus } from '@/catalog/types/provider'
+import type { ProviderStatus } from '@/catalog/types/provider';
 
 defineProps<{
-  apiLatency: null | number
-  projectsCount: number
-  status: ProviderStatus
-  syncFreshness: 'fresh' | 'recent' | 'stale'
-}>()
+  apiLatency: null | number;
+  projectsCount: number;
+  status: ProviderStatus;
+  syncFreshness: 'fresh' | 'recent' | 'stale';
+}>();
 
-const { t } = useI18n()
+const { t } = useI18n();
 </script>
 
 <template>

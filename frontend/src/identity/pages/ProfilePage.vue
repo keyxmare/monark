@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { useAuthStore } from '@/identity/stores/auth'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useAuthStore } from '@/identity/stores/auth';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const { t } = useI18n()
-const authStore = useAuthStore()
+const { t } = useI18n();
+const authStore = useAuthStore();
 
 onMounted(() => {
-  authStore.fetchCurrentUser()
-})
+  authStore.fetchCurrentUser();
+});
 </script>
 
 <template>
@@ -37,10 +37,7 @@ onMounted(() => {
           <p class="text-sm font-medium text-text-muted">
             {{ t('identity.profile.firstName') }}
           </p>
-          <p
-            class="text-lg text-text"
-            data-testid="profile-first-name"
-          >
+          <p class="text-lg text-text" data-testid="profile-first-name">
             {{ authStore.currentUser.firstName }}
           </p>
         </div>
@@ -48,10 +45,7 @@ onMounted(() => {
           <p class="text-sm font-medium text-text-muted">
             {{ t('identity.profile.lastName') }}
           </p>
-          <p
-            class="text-lg text-text"
-            data-testid="profile-last-name"
-          >
+          <p class="text-lg text-text" data-testid="profile-last-name">
             {{ authStore.currentUser.lastName }}
           </p>
         </div>
@@ -59,10 +53,7 @@ onMounted(() => {
           <p class="text-sm font-medium text-text-muted">
             {{ t('identity.profile.email') }}
           </p>
-          <p
-            class="text-lg text-text"
-            data-testid="profile-email"
-          >
+          <p class="text-lg text-text" data-testid="profile-email">
             {{ authStore.currentUser.email }}
           </p>
         </div>

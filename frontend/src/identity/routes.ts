@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router';
 
 export const identityRoutes: RouteRecordRaw[] = [
   {
@@ -43,4 +43,4 @@ export const identityRoutes: RouteRecordRaw[] = [
     name: 'identity-access-tokens-create',
     path: '/identity/access-tokens/create',
   },
-]
+];

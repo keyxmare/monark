@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router';
 
 export const activityRoutes: RouteRecordRaw[] = [
   {
@@ -37,4 +37,4 @@ export const activityRoutes: RouteRecordRaw[] = [
     name: 'activity-messenger',
     path: '/activity/messenger',
   },
-]
+];

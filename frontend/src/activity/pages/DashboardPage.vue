@@ -1,41 +1,35 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink } from 'vue-router';
 
-import { useDashboardStore } from '@/activity/stores/dashboard'
-import { useSyncTaskStore } from '@/activity/stores/sync-task'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useDashboardStore } from '@/activity/stores/dashboard';
+import { useSyncTaskStore } from '@/activity/stores/sync-task';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const { t } = useI18n()
-const dashboardStore = useDashboardStore()
-const syncTaskStore = useSyncTaskStore()
+const { t } = useI18n();
+const dashboardStore = useDashboardStore();
+const syncTaskStore = useSyncTaskStore();
 
 onMounted(async () => {
-  await Promise.all([
-    dashboardStore.load(),
-    syncTaskStore.fetchStats(),
-  ])
-})
+  await Promise.all([dashboardStore.load(), syncTaskStore.fetchStats()]);
+});
 
-const metrics = computed(() => dashboardStore.metrics)
-const loading = computed(() => dashboardStore.loading)
+const metrics = computed(() => dashboardStore.metrics);
+const loading = computed(() => dashboardStore.loading);
 
 const urgentTaskCount = computed(() => {
-  if (!syncTaskStore.stats) return 0
+  if (!syncTaskStore.stats) return 0;
   return syncTaskStore.stats.bySeverity
-    .filter(e => e.label === 'critical' || e.label === 'high')
-    .reduce((sum, e) => sum + e.count, 0)
-})
+    .filter((e) => e.label === 'critical' || e.label === 'high')
+    .reduce((sum, e) => sum + e.count, 0);
+});
 </script>
 
 <template>
   <DashboardLayout>
     <div data-testid="dashboard-page">
-      <h2
-        class="mb-6 text-2xl font-bold text-text"
-        data-testid="dashboard-title"
-      >
+      <h2 class="mb-6 text-2xl font-bold text-text" data-testid="dashboard-title">
         {{ t('activity.dashboard.welcome') }}
       </h2>
 
@@ -67,9 +61,7 @@ const urgentTaskCount = computed(() => {
           <p
             v-if="metric.change !== undefined"
             class="mt-1 text-sm"
-            :class="[
-              metric.change >= 0 ? 'text-success' : 'text-danger',
-            ]"
+            :class="[metric.change >= 0 ? 'text-success' : 'text-danger']"
           >
             {{ metric.change >= 0 ? '+' : '' }}{{ metric.change }}%
           </p>

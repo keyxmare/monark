@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRouter } from 'vue-router'
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRouter } from 'vue-router';
 
-import { useAuthStore } from '@/identity/stores/auth'
-import AuthLayout from '@/shared/layouts/AuthLayout.vue'
+import { useAuthStore } from '@/identity/stores/auth';
+import AuthLayout from '@/shared/layouts/AuthLayout.vue';
 
-const router = useRouter()
-const { t } = useI18n()
-const authStore = useAuthStore()
-const email = ref('')
-const password = ref('')
-const error = ref('')
-const submitting = ref(false)
+const router = useRouter();
+const { t } = useI18n();
+const authStore = useAuthStore();
+const email = ref('');
+const password = ref('');
+const error = ref('');
+const submitting = ref(false);
 
 async function handleSubmit() {
-  error.value = ''
-  submitting.value = true
+  error.value = '';
+  submitting.value = true;
 
   try {
-    await authStore.login(email.value, password.value)
-    router.push({ name: 'dashboard' })
+    await authStore.login(email.value, password.value);
+    router.push({ name: 'dashboard' });
   } catch {
-    error.value = t('identity.auth.invalidCredentials')
+    error.value = t('identity.auth.invalidCredentials');
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 </script>
@@ -36,10 +36,7 @@ async function handleSubmit() {
         {{ t('identity.auth.signInTitle') }}
       </h1>
 
-      <form
-        data-testid="login-form"
-        @submit.prevent="handleSubmit"
-      >
+      <form data-testid="login-form" @submit.prevent="handleSubmit">
         <div
           v-if="error"
           class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
@@ -50,10 +47,9 @@ async function handleSubmit() {
         </div>
 
         <div class="mb-4">
-          <label
-            for="email"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{ t('identity.auth.email') }}</label>
+          <label for="email" class="mb-1 block text-sm font-medium text-text">{{
+            t('identity.auth.email')
+          }}</label>
           <input
             id="email"
             v-model="email"
@@ -62,14 +58,13 @@ async function handleSubmit() {
             autocomplete="email"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="login-email"
-          >
+          />
         </div>
 
         <div class="mb-6">
-          <label
-            for="password"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{ t('identity.auth.password') }}</label>
+          <label for="password" class="mb-1 block text-sm font-medium text-text">{{
+            t('identity.auth.password')
+          }}</label>
           <input
             id="password"
             v-model="password"
@@ -78,7 +73,7 @@ async function handleSubmit() {
             autocomplete="current-password"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="login-password"
-          >
+          />
         </div>
 
         <button

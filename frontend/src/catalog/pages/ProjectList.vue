@@ -1,70 +1,77 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRouter } from 'vue-router';
 
-import type { Project } from '@/catalog/types/project'
+import type { Project } from '@/catalog/types/project';
 
-import { useProjectStore } from '@/catalog/stores/project'
-import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
-import DropdownMenu from '@/shared/components/DropdownMenu.vue'
-import Pagination from '@/shared/components/Pagination.vue'
-import TechBadge from '@/shared/components/TechBadge.vue'
-import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
+import { useProjectStore } from '@/catalog/stores/project';
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
+import DropdownMenu from '@/shared/components/DropdownMenu.vue';
+import Pagination from '@/shared/components/Pagination.vue';
+import TechBadge from '@/shared/components/TechBadge.vue';
+import { useConfirmDelete } from '@/shared/composables/useConfirmDelete';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
-const router = useRouter()
-const { t } = useI18n()
-const projectStore = useProjectStore()
-const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
+const router = useRouter();
+const { t } = useI18n();
+const projectStore = useProjectStore();
+const {
+  cancel: cancelDelete,
+  confirm: confirmDelete,
+  isOpen: deleteOpen,
+  requestDelete,
+  target: deleteTarget,
+} = useConfirmDelete<{ id: string; name: string }>();
 
-const search = ref('')
-const visibilityFilter = ref('')
+const search = ref('');
+const visibilityFilter = ref('');
 
 const filteredProjects = computed(() => {
   return projectStore.projects.filter((p) => {
-    if (search.value && !p.name.toLowerCase().includes(search.value.toLowerCase())) return false
-    if (visibilityFilter.value && p.visibility !== visibilityFilter.value) return false
-    return true
-  })
-})
+    if (search.value && !p.name.toLowerCase().includes(search.value.toLowerCase())) return false;
+    if (visibilityFilter.value && p.visibility !== visibilityFilter.value) return false;
+    return true;
+  });
+});
 
-const hasActiveFilters = computed(() => search.value !== '' || visibilityFilter.value !== '')
-const hasPagination = computed(() => projectStore.totalPages > 1)
+const hasActiveFilters = computed(() => search.value !== '' || visibilityFilter.value !== '');
+const hasPagination = computed(() => projectStore.totalPages > 1);
 
 onMounted(() => {
-  projectStore.fetchAll()
-})
+  projectStore.fetchAll();
+});
 
 function getDropdownItems() {
   return [
     { action: 'view', label: t('common.actions.view') },
     { action: 'delete', label: t('common.actions.delete'), variant: 'danger' as const },
-  ]
+  ];
 }
 
 function handleDropdownAction(action: string, project: Project) {
-  if (action === 'view') router.push({ name: 'catalog-projects-detail', params: { id: project.id } })
-  else if (action === 'delete') requestDelete({ id: project.id, name: project.name })
+  if (action === 'view')
+    router.push({ name: 'catalog-projects-detail', params: { id: project.id } });
+  else if (action === 'delete') requestDelete({ id: project.id, name: project.name });
 }
 
 function navigateToDetail(id: string) {
-  router.push({ name: 'catalog-projects-detail', params: { id } })
+  router.push({ name: 'catalog-projects-detail', params: { id } });
 }
 
-const MAX_BADGES = 5
-
-function getUniqueTechNames(project: Project): string[] {
-  const names = new Set<string>()
-  for (const ts of project.techStacks ?? []) {
-    const name = ts.framework && ts.framework !== 'none' ? ts.framework : null
-    if (name) names.add(name)
-  }
-  return [...names]
-}
+const MAX_BADGES = 5;
 
 function changePage(page: number) {
-  projectStore.fetchAll(page)
+  projectStore.fetchAll(page);
+}
+
+function getUniqueTechNames(project: Project): string[] {
+  const names = new Set<string>();
+  for (const ts of project.techStacks ?? []) {
+    const name = ts.framework && ts.framework !== 'none' ? ts.framework : null;
+    if (name) names.add(name);
+  }
+  return [...names];
 }
 </script>
 
@@ -130,7 +137,7 @@ function changePage(page: number) {
               :placeholder="t('catalog.projects.searchProjects')"
               class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
               data-testid="project-search"
-            >
+            />
           </div>
           <select
             v-model="visibilityFilter"
@@ -174,10 +181,7 @@ function changePage(page: number) {
                   {{ project.repositoryUrl }}
                 </p>
               </div>
-              <div
-                class="ml-2 flex shrink-0 items-center gap-2"
-                @click.stop
-              >
+              <div class="ml-2 flex shrink-0 items-center gap-2" @click.stop>
                 <span
                   :class="[
                     'rounded-full px-2 py-0.5 text-xs font-medium',
@@ -224,13 +228,7 @@ function changePage(page: number) {
                     +{{ getUniqueTechNames(project).length - MAX_BADGES }}
                   </span>
                 </div>
-                <p
-                  v-else
-                  class="text-xs text-text-muted"
-                  data-testid="project-stacks-count"
-                >
-                  —
-                </p>
+                <p v-else class="text-xs text-text-muted" data-testid="project-stacks-count">—</p>
               </div>
             </div>
           </div>

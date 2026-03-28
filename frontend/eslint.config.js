@@ -1,10 +1,10 @@
-import boundaries from 'eslint-plugin-boundaries'
-import perfectionist from 'eslint-plugin-perfectionist'
-import pluginVue from 'eslint-plugin-vue'
-import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility'
-import tseslint from 'typescript-eslint'
+import boundaries from 'eslint-plugin-boundaries';
+import perfectionist from 'eslint-plugin-perfectionist';
+import pluginVue from 'eslint-plugin-vue';
+import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
+import tseslint from 'typescript-eslint';
 
-const BOUNDED_CONTEXTS = ['shared', 'identity', 'catalog', 'dependency', 'assessment', 'activity']
+const BOUNDED_CONTEXTS = ['shared', 'identity', 'catalog', 'dependency', 'assessment', 'activity'];
 
 export default [
   ...pluginVue.configs['flat/recommended'],
@@ -53,4 +53,4 @@ export default [
   {
     ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
   },
-]
+];

@@ -1,138 +1,156 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 
-import { humanizeTimeDiff, isVersionUpToDate, ltsUrgency, patchGap, useFrameworkLts } from '@/catalog/composables/useFrameworkLts'
-import type { MaintenanceInfo } from '@/catalog/composables/useFrameworkLts'
-import { useMergeRequestStore } from '@/catalog/stores/merge-request'
-import { useProjectStore } from '@/catalog/stores/project'
-import { useTechStackStore } from '@/catalog/stores/tech-stack'
-import { useDependencyStore } from '@/dependency/stores/dependency'
-import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
-import Pagination from '@/shared/components/Pagination.vue'
-import TechBadge from '@/shared/components/TechBadge.vue'
-import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
-import { useToastStore } from '@/shared/stores/toast'
+import type { MaintenanceInfo } from '@/catalog/composables/useFrameworkLts';
 
-const PER_PAGE = 20
+import {
+  humanizeTimeDiff,
+  isVersionUpToDate,
+  ltsUrgency,
+  patchGap,
+  useFrameworkLts,
+} from '@/catalog/composables/useFrameworkLts';
+import { useMergeRequestStore } from '@/catalog/stores/merge-request';
+import { useProjectStore } from '@/catalog/stores/project';
+import { useTechStackStore } from '@/catalog/stores/tech-stack';
+import { useDependencyStore } from '@/dependency/stores/dependency';
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
+import Pagination from '@/shared/components/Pagination.vue';
+import TechBadge from '@/shared/components/TechBadge.vue';
+import { useConfirmDelete } from '@/shared/composables/useConfirmDelete';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
+import { useToastStore } from '@/shared/stores/toast';
 
-const route = useRoute()
-const router = useRouter()
-const showUnfollow = ref(false)
-const { d, t } = useI18n()
-const projectStore = useProjectStore()
-const techStackStore = useTechStackStore()
-const dependencyStore = useDependencyStore()
-const mergeRequestStore = useMergeRequestStore()
-const toastStore = useToastStore()
-const { loadForFrameworks, getLtsInfo, getVersionReleaseDate, getVersionMaintenanceStatus } = useFrameworkLts()
-const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
+const PER_PAGE = 20;
 
-const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-stacks')
-const projectId = computed(() => route.params.id as string)
-const depSearch = ref('')
-const depFilterPm = ref('all')
-const depTypeFilter = ref('')
-const mrStatusFilter = ref('')
-const mrAuthorSearch = ref('')
+const route = useRoute();
+const router = useRouter();
+const showUnfollow = ref(false);
+const { d, t } = useI18n();
+const projectStore = useProjectStore();
+const techStackStore = useTechStackStore();
+const dependencyStore = useDependencyStore();
+const mergeRequestStore = useMergeRequestStore();
+const toastStore = useToastStore();
+const { getLtsInfo, getVersionMaintenanceStatus, getVersionReleaseDate, loadForFrameworks } =
+  useFrameworkLts();
+const {
+  cancel: cancelDelete,
+  confirm: confirmDelete,
+  isOpen: deleteOpen,
+  requestDelete,
+  target: deleteTarget,
+} = useConfirmDelete<{ id: string; name: string }>();
+
+const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-stacks');
+const projectId = computed(() => route.params.id as string);
+const depSearch = ref('');
+const depFilterPm = ref('all');
+const depTypeFilter = ref('');
+const mrStatusFilter = ref('');
+const mrAuthorSearch = ref('');
 
 const scanFreshness = computed(() => {
-  if (!projectStore.selected?.updatedAt) return 'stale'
-  const diff = Date.now() - new Date(projectStore.selected.updatedAt).getTime()
-  const hours = diff / (1000 * 60 * 60)
-  if (hours < 1) return 'fresh'
-  if (hours < 24) return 'recent'
-  return 'stale'
-})
+  if (!projectStore.selected?.updatedAt) return 'stale';
+  const diff = Date.now() - new Date(projectStore.selected.updatedAt).getTime();
+  const hours = diff / (1000 * 60 * 60);
+  if (hours < 1) return 'fresh';
+  if (hours < 24) return 'recent';
+  return 'stale';
+});
 
 const uniqueTechs = computed(() => {
-  const seen = new Map<string, string>()
+  const seen = new Map<string, string>();
   for (const ts of techStackStore.techStacks) {
     if (ts.framework && ts.framework !== 'none' && !seen.has(ts.framework)) {
-      seen.set(ts.framework, ts.frameworkVersion)
+      seen.set(ts.framework, ts.frameworkVersion);
     }
   }
-  return [...seen.entries()].map(([name, version]) => ({ name, version }))
-})
+  return [...seen.entries()].map(([name, version]) => ({ name, version }));
+});
 
 const filteredDependencies = computed(() => {
-  let deps = dependencyStore.dependencies
+  let deps = dependencyStore.dependencies;
   if (depSearch.value.trim()) {
-    const q = depSearch.value.toLowerCase()
-    deps = deps.filter(dep => dep.name.toLowerCase().includes(q))
+    const q = depSearch.value.toLowerCase();
+    deps = deps.filter((dep) => dep.name.toLowerCase().includes(q));
   }
   if (depFilterPm.value !== 'all') {
-    deps = deps.filter(dep => dep.packageManager === depFilterPm.value)
+    deps = deps.filter((dep) => dep.packageManager === depFilterPm.value);
   }
   if (depTypeFilter.value) {
-    deps = deps.filter(dep => dep.type === depTypeFilter.value)
+    deps = deps.filter((dep) => dep.type === depTypeFilter.value);
   }
-  return deps
-})
+  return deps;
+});
 
 const filteredMergeRequests = computed(() => {
-  return mergeRequestStore.mergeRequests.filter(mr => {
-    if (mrStatusFilter.value && mr.status !== mrStatusFilter.value) return false
-    if (mrAuthorSearch.value && !mr.author.toLowerCase().includes(mrAuthorSearch.value.toLowerCase())) return false
-    return true
-  })
-})
+  return mergeRequestStore.mergeRequests.filter((mr) => {
+    if (mrStatusFilter.value && mr.status !== mrStatusFilter.value) return false;
+    if (
+      mrAuthorSearch.value &&
+      !mr.author.toLowerCase().includes(mrAuthorSearch.value.toLowerCase())
+    )
+      return false;
+    return true;
+  });
+});
 
 function truncateUrl(url: string, max = 50): string {
-  if (url.length <= max) return url
-  return `${url.slice(0, max)}…`
+  if (url.length <= max) return url;
+  return `${url.slice(0, max)}…`;
 }
 
 onMounted(async () => {
-  await projectStore.fetchOne(projectId.value)
+  await projectStore.fetchOne(projectId.value);
   await Promise.all([
     techStackStore.fetchAll(1, PER_PAGE, projectId.value),
     dependencyStore.fetchAll(1, PER_PAGE, projectId.value),
     mergeRequestStore.fetchAll(projectId.value, 1, PER_PAGE, 'active'),
-  ])
+  ]);
   const frameworks = techStackStore.techStacks
-    .map(ts => ts.framework)
-    .filter(f => f && f !== 'none')
-  await loadForFrameworks(frameworks)
-})
+    .map((ts) => ts.framework)
+    .filter((f) => f && f !== 'none');
+  await loadForFrameworks(frameworks);
+});
 
 watch(activeTab, (tab) => {
   if (tab === 'tech-stacks' && techStackStore.currentPage !== 1) {
-    techStackStore.fetchAll(1, PER_PAGE, projectId.value)
+    techStackStore.fetchAll(1, PER_PAGE, projectId.value);
   } else if (tab === 'dependencies' && dependencyStore.currentPage !== 1) {
-    dependencyStore.fetchAll(1, PER_PAGE, projectId.value)
+    dependencyStore.fetchAll(1, PER_PAGE, projectId.value);
   } else if (tab === 'merge-requests' && mergeRequestStore.currentPage !== 1) {
-    mergeRequestStore.fetchAll(projectId.value, 1, PER_PAGE, 'active')
+    mergeRequestStore.fetchAll(projectId.value, 1, PER_PAGE, 'active');
   }
-})
+});
+
+function changeDependencyPage(page: number) {
+  dependencyStore.fetchAll(page, PER_PAGE, projectId.value);
+}
+
+function changeMergeRequestPage(page: number) {
+  mergeRequestStore.fetchAll(projectId.value, page, PER_PAGE, 'active');
+}
+
+function changeTechStackPage(page: number) {
+  techStackStore.fetchAll(page, PER_PAGE, projectId.value);
+}
 
 async function handleScan() {
-  await projectStore.scan(projectId.value)
+  await projectStore.scan(projectId.value);
   toastStore.addToast({
     title: t('catalog.projects.scanComplete', {
       deps: projectStore.scanResult?.dependenciesDetected ?? 0,
       stacks: projectStore.scanResult?.stacksDetected ?? 0,
     }),
     variant: 'success',
-  })
+  });
   await Promise.all([
     techStackStore.fetchAll(1, PER_PAGE, projectId.value),
     dependencyStore.fetchAll(1, PER_PAGE, projectId.value),
-  ])
-}
-
-function changeTechStackPage(page: number) {
-  techStackStore.fetchAll(page, PER_PAGE, projectId.value)
-}
-
-function changeDependencyPage(page: number) {
-  dependencyStore.fetchAll(page, PER_PAGE, projectId.value)
-}
-
-function changeMergeRequestPage(page: number) {
-  mergeRequestStore.fetchAll(projectId.value, page, PER_PAGE, 'active')
+  ]);
 }
 </script>
 
@@ -150,10 +168,7 @@ function changeMergeRequestPage(page: number) {
           {{ t('catalog.projects.title') }}
         </RouterLink>
         <span>/</span>
-        <span
-          v-if="projectStore.selected"
-          class="font-medium text-text"
-        >
+        <span v-if="projectStore.selected" class="font-medium text-text">
           {{ projectStore.selected.name }}
         </span>
       </nav>
@@ -196,7 +211,8 @@ function changeMergeRequestPage(page: number) {
                 class="text-primary hover:text-primary-dark"
                 data-testid="project-detail-repository-url"
                 :title="projectStore.selected.repositoryUrl"
-              >{{ truncateUrl(projectStore.selected.repositoryUrl) }} ↗</a>
+                >{{ truncateUrl(projectStore.selected.repositoryUrl) }} ↗</a
+              >
             </p>
           </div>
           <div class="flex gap-2">
@@ -207,7 +223,11 @@ function changeMergeRequestPage(page: number) {
               data-testid="project-scan-btn"
               @click="handleScan"
             >
-              {{ projectStore.scanning ? t('catalog.projects.scanning') : t('catalog.projects.scanProject') }}
+              {{
+                projectStore.scanning
+                  ? t('catalog.projects.scanning')
+                  : t('catalog.projects.scanProject')
+              }}
             </button>
             <button
               class="rounded-lg border border-danger bg-transparent px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger hover:text-white"
@@ -219,10 +239,7 @@ function changeMergeRequestPage(page: number) {
           </div>
         </div>
 
-        <div
-          class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4"
-          data-testid="project-stats-cards"
-        >
+        <div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4" data-testid="project-stats-cards">
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
             <div class="text-lg font-bold text-text">
               <span
@@ -259,20 +276,11 @@ function changeMergeRequestPage(page: number) {
                 size="md"
               />
             </div>
-            <p
-              v-else
-              class="text-sm text-text-muted"
-              data-testid="project-stat-stacks"
-            >
-              —
-            </p>
+            <p v-else class="text-sm text-text-muted" data-testid="project-stat-stacks">—</p>
           </div>
 
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
-            <div
-              class="text-lg font-bold tabular-nums text-text"
-              data-testid="project-stat-mrs"
-            >
+            <div class="text-lg font-bold tabular-nums text-text" data-testid="project-stat-mrs">
               {{ mergeRequestStore.total }}
             </div>
             <p class="mt-1 text-xs text-text-muted">
@@ -338,10 +346,7 @@ function changeMergeRequestPage(page: number) {
         </div>
 
         <!-- Tech Stacks Tab -->
-        <div
-          v-if="activeTab === 'tech-stacks'"
-          data-testid="tech-stacks-panel"
-        >
+        <div v-if="activeTab === 'tech-stacks'" data-testid="tech-stacks-panel">
           <div class="overflow-hidden rounded-xl border border-border bg-surface">
             <table class="w-full">
               <thead>
@@ -389,21 +394,43 @@ function changeMergeRequestPage(page: number) {
                     <span class="inline-flex items-center gap-1.5">
                       {{ ts.frameworkVersion || '—' }}
                       <span
-                        v-if="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status === 'eol'"
+                        v-if="
+                          getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status ===
+                          'eol'
+                        "
                         class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
-                        :title="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.eolDate
-                          ? t('catalog.techStacks.unmaintainedSince', { date: getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!.eolDate! })
-                          : t('catalog.techStacks.unmaintainedNoDate')"
+                        :title="
+                          getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.eolDate
+                            ? t('catalog.techStacks.unmaintainedSince', {
+                                date: getVersionMaintenanceStatus(
+                                  ts.framework,
+                                  ts.frameworkVersion,
+                                )!.eolDate!,
+                              })
+                            : t('catalog.techStacks.unmaintainedNoDate')
+                        "
                         data-testid="tech-stack-eol-badge"
                       >
                         {{ t('catalog.techStacks.unmaintained') }}
                       </span>
                       <span
-                        v-else-if="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status === 'warning'"
+                        v-else-if="
+                          getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status ===
+                          'warning'
+                        "
                         class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
-                        :title="getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.lastRelease
-                          ? t('catalog.techStacks.inactiveSince', { duration: humanizeTimeDiff(getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!.lastRelease!, new Date().toISOString()) })
-                          : t('catalog.techStacks.inactive')"
+                        :title="
+                          getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)
+                            ?.lastRelease
+                            ? t('catalog.techStacks.inactiveSince', {
+                                duration: humanizeTimeDiff(
+                                  getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!
+                                    .lastRelease!,
+                                  new Date().toISOString(),
+                                ),
+                              })
+                            : t('catalog.techStacks.inactive')
+                        "
                         data-testid="tech-stack-inactive-badge"
                       >
                         {{ t('catalog.techStacks.inactive') }}
@@ -414,34 +441,69 @@ function changeMergeRequestPage(page: number) {
                     {{ getLtsInfo(ts.framework)?.latestLts ?? '—' }}
                   </td>
                   <td class="px-4 py-3 text-sm">
-                    <template v-if="getLtsInfo(ts.framework) && ts.frameworkVersion && getVersionReleaseDate(ts.framework, ts.frameworkVersion)">
+                    <template
+                      v-if="
+                        getLtsInfo(ts.framework) &&
+                        ts.frameworkVersion &&
+                        getVersionReleaseDate(ts.framework, ts.frameworkVersion)
+                      "
+                    >
                       <span
-                        v-if="isVersionUpToDate(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts)"
+                        v-if="
+                          isVersionUpToDate(
+                            ts.frameworkVersion,
+                            getLtsInfo(ts.framework)!.latestLts,
+                          )
+                        "
                         class="text-success"
                       >
                         {{ t('catalog.techStacks.upToDate') }}
                       </span>
                       <span
-                        v-else-if="patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) !== null"
+                        v-else-if="
+                          patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) !==
+                          null
+                        "
                         class="text-warning"
                       >
-                        {{ t('catalog.techStacks.patchesBehind', { count: patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) }) }}
+                        {{
+                          t('catalog.techStacks.patchesBehind', {
+                            count: patchGap(
+                              ts.frameworkVersion,
+                              getLtsInfo(ts.framework)!.latestLts,
+                            ),
+                          })
+                        }}
                       </span>
                       <span
                         v-else
                         :class="{
-                          'text-success': ltsUrgency(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) === 'fresh',
-                          'text-warning': ltsUrgency(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) === 'moderate',
-                          'text-danger': ltsUrgency(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) === 'outdated',
+                          'text-success':
+                            ltsUrgency(
+                              getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
+                              getLtsInfo(ts.framework)!.releaseDate,
+                            ) === 'fresh',
+                          'text-warning':
+                            ltsUrgency(
+                              getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
+                              getLtsInfo(ts.framework)!.releaseDate,
+                            ) === 'moderate',
+                          'text-danger':
+                            ltsUrgency(
+                              getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
+                              getLtsInfo(ts.framework)!.releaseDate,
+                            ) === 'outdated',
                         }"
                       >
-                        {{ humanizeTimeDiff(getVersionReleaseDate(ts.framework, ts.frameworkVersion)!, getLtsInfo(ts.framework)!.releaseDate) }}
+                        {{
+                          humanizeTimeDiff(
+                            getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
+                            getLtsInfo(ts.framework)!.releaseDate,
+                          )
+                        }}
                       </span>
                     </template>
-                    <span
-                      v-else
-                      class="text-text-muted"
-                    >—</span>
+                    <span v-else class="text-text-muted">—</span>
                   </td>
                   <td class="px-4 py-3 text-sm text-text-muted">
                     {{ getVersionReleaseDate(ts.framework, ts.frameworkVersion) ?? '—' }}
@@ -467,14 +529,8 @@ function changeMergeRequestPage(page: number) {
         </div>
 
         <!-- Dependencies Tab -->
-        <div
-          v-if="activeTab === 'dependencies'"
-          data-testid="dependencies-panel"
-        >
-          <div
-            class="mb-4 flex flex-wrap items-center gap-3"
-            data-testid="dependencies-filters"
-          >
+        <div v-if="activeTab === 'dependencies'" data-testid="dependencies-panel">
+          <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="dependencies-filters">
             <div class="relative flex-1">
               <svg
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
@@ -496,7 +552,7 @@ function changeMergeRequestPage(page: number) {
                 :placeholder="t('catalog.projects.searchDependencies')"
                 class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
                 data-testid="dependencies-search"
-              >
+              />
             </div>
             <select
               v-model="depFilterPm"
@@ -507,15 +563,9 @@ function changeMergeRequestPage(page: number) {
               <option value="all">
                 {{ t('catalog.projects.allPackageManagers') }}
               </option>
-              <option value="composer">
-                Composer
-              </option>
-              <option value="npm">
-                npm
-              </option>
-              <option value="pip">
-                pip
-              </option>
+              <option value="composer">Composer</option>
+              <option value="npm">npm</option>
+              <option value="pip">pip</option>
             </select>
             <select
               v-model="depTypeFilter"
@@ -575,19 +625,21 @@ function changeMergeRequestPage(page: number) {
                     {{ dep.currentVersion }}
                   </td>
                   <td class="px-4 py-3">
-                    <span class="inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info">
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info"
+                    >
                       <img
                         v-if="dep.packageManager === 'npm'"
                         src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg"
                         alt="npm"
                         class="h-3 w-3"
-                      >
+                      />
                       <img
                         v-else-if="dep.packageManager === 'composer'"
                         src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/composer/composer-original.svg"
                         alt="composer"
                         class="h-3 w-3"
-                      >
+                      />
                       {{ dep.packageManager }}
                     </span>
                   </td>
@@ -602,11 +654,9 @@ function changeMergeRequestPage(page: number) {
                       rel="noopener"
                       class="text-primary hover:text-primary-dark"
                       :title="dep.repositoryUrl"
-                    >{{ truncateUrl(dep.repositoryUrl, 35) }} ↗</a>
-                    <span
-                      v-else
-                      class="text-text-muted"
-                    >—</span>
+                      >{{ truncateUrl(dep.repositoryUrl, 35) }} ↗</a
+                    >
+                    <span v-else class="text-text-muted">—</span>
                   </td>
                 </tr>
               </tbody>
@@ -616,7 +666,11 @@ function changeMergeRequestPage(page: number) {
               class="py-8 text-center text-text-muted"
               data-testid="dependencies-empty"
             >
-              {{ depSearch || depFilterPm !== 'all' || depTypeFilter ? t('catalog.projects.noMatchingDependencies') : t('catalog.projects.noDependencies') }}
+              {{
+                depSearch || depFilterPm !== 'all' || depTypeFilter
+                  ? t('catalog.projects.noMatchingDependencies')
+                  : t('catalog.projects.noDependencies')
+              }}
             </div>
           </div>
           <Pagination
@@ -629,14 +683,8 @@ function changeMergeRequestPage(page: number) {
         </div>
 
         <!-- Merge Requests Tab -->
-        <div
-          v-if="activeTab === 'merge-requests'"
-          data-testid="merge-requests-panel"
-        >
-          <div
-            class="mb-4 flex flex-wrap items-center gap-3"
-            data-testid="merge-requests-filters"
-          >
+        <div v-if="activeTab === 'merge-requests'" data-testid="merge-requests-panel">
+          <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="merge-requests-filters">
             <select
               v-model="mrStatusFilter"
               :aria-label="t('catalog.projects.filterByStatus')"
@@ -680,7 +728,7 @@ function changeMergeRequestPage(page: number) {
                 :placeholder="t('catalog.mergeRequests.filterByAuthor')"
                 class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
                 data-testid="mr-search-author"
-              >
+              />
             </div>
           </div>
           <div class="overflow-hidden rounded-xl border border-border bg-surface">
@@ -762,7 +810,11 @@ function changeMergeRequestPage(page: number) {
               class="py-8 text-center text-text-muted"
               data-testid="merge-requests-empty"
             >
-              {{ mrStatusFilter || mrAuthorSearch ? t('catalog.projects.noMatchingMergeRequests') : t('catalog.mergeRequests.noMergeRequests') }}
+              {{
+                mrStatusFilter || mrAuthorSearch
+                  ? t('catalog.projects.noMatchingMergeRequests')
+                  : t('catalog.mergeRequests.noMergeRequests')
+              }}
             </div>
           </div>
           <Pagination
@@ -778,10 +830,18 @@ function changeMergeRequestPage(page: number) {
       <ConfirmDialog
         :open="showUnfollow"
         :title="t('catalog.projects.unfollowTitle')"
-        :message="t('catalog.projects.unfollowMessage', { name: projectStore.selected?.name ?? '' })"
+        :message="
+          t('catalog.projects.unfollowMessage', { name: projectStore.selected?.name ?? '' })
+        "
         :confirm-label="t('catalog.projects.unfollow')"
         variant="danger"
-        @confirm="async () => { showUnfollow = false; await projectStore.remove(projectId); router.push({ name: 'catalog-projects-list' }) }"
+        @confirm="
+          async () => {
+            showUnfollow = false;
+            await projectStore.remove(projectId);
+            router.push({ name: 'catalog-projects-list' });
+          }
+        "
         @cancel="showUnfollow = false"
       />
     </div>

@@ -1,87 +1,104 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { RouterLink, useRouter } from 'vue-router';
 
-import type { Provider } from '@/catalog/types/provider'
+import type { Provider } from '@/catalog/types/provider';
 
-import ProviderCard from '@/catalog/components/ProviderCard.vue'
-import { useSyncProgress } from '@/catalog/composables/useSyncProgress'
-import { useProviderStore } from '@/catalog/stores/provider'
-import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
-import { useConfirmDelete } from '@/shared/composables/useConfirmDelete'
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue'
-import { useToastStore } from '@/shared/stores/toast'
+import ProviderCard from '@/catalog/components/ProviderCard.vue';
+import { useSyncProgress } from '@/catalog/composables/useSyncProgress';
+import { useProviderStore } from '@/catalog/stores/provider';
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
+import { useConfirmDelete } from '@/shared/composables/useConfirmDelete';
+import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
+import { useToastStore } from '@/shared/stores/toast';
 
-const router = useRouter()
-const { t } = useI18n()
-const providerStore = useProviderStore()
-const toastStore = useToastStore()
-const { track } = useSyncProgress()
-const testingId = ref<null | string>(null)
-const syncing = ref(false)
-const search = ref('')
-const typeFilter = ref('')
-const statusFilter = ref('')
-const { target: deleteTarget, isOpen: deleteOpen, requestDelete, cancel: cancelDelete, confirm: confirmDelete } = useConfirmDelete<{ id: string; name: string }>()
+const router = useRouter();
+const { t } = useI18n();
+const providerStore = useProviderStore();
+const toastStore = useToastStore();
+const { track } = useSyncProgress();
+const testingId = ref<null | string>(null);
+const syncing = ref(false);
+const search = ref('');
+const typeFilter = ref('');
+const statusFilter = ref('');
+const {
+  cancel: cancelDelete,
+  confirm: confirmDelete,
+  isOpen: deleteOpen,
+  requestDelete,
+  target: deleteTarget,
+} = useConfirmDelete<{ id: string; name: string }>();
 
 const filteredProviders = computed(() => {
   return providerStore.providers.filter((p) => {
-    if (search.value && !p.name.toLowerCase().includes(search.value.toLowerCase())) return false
-    if (typeFilter.value && p.type !== typeFilter.value) return false
-    if (statusFilter.value && p.status !== statusFilter.value) return false
-    return true
-  })
-})
+    if (search.value && !p.name.toLowerCase().includes(search.value.toLowerCase())) return false;
+    if (typeFilter.value && p.type !== typeFilter.value) return false;
+    if (statusFilter.value && p.status !== statusFilter.value) return false;
+    return true;
+  });
+});
 
-const hasActiveFilters = computed(() => search.value !== '' || typeFilter.value !== '' || statusFilter.value !== '')
+const hasActiveFilters = computed(
+  () => search.value !== '' || typeFilter.value !== '' || statusFilter.value !== '',
+);
 
 onMounted(() => {
-  providerStore.fetchAll()
-})
+  providerStore.fetchAll();
+});
 
 function getDropdownItems(provider: Provider) {
   return [
-    { action: 'test', disabled: testingId.value === provider.id, label: testingId.value === provider.id ? t('catalog.providers.testing') : t('catalog.providers.test') },
+    {
+      action: 'test',
+      disabled: testingId.value === provider.id,
+      label:
+        testingId.value === provider.id
+          ? t('catalog.providers.testing')
+          : t('catalog.providers.test'),
+    },
     { action: 'view', label: t('common.actions.view') },
     { action: 'edit', label: t('common.actions.edit') },
     { action: 'delete', label: t('common.actions.delete'), variant: 'danger' as const },
-  ]
+  ];
 }
 
 function handleDropdownAction(action: string, provider: Provider) {
-  if (action === 'test') handleTestConnection(provider)
-  else if (action === 'view') router.push({ name: 'catalog-providers-detail', params: { id: provider.id } })
-  else if (action === 'edit') router.push({ name: 'catalog-providers-edit', params: { id: provider.id } })
-  else if (action === 'delete') requestDelete(provider)
+  if (action === 'test') handleTestConnection(provider);
+  else if (action === 'view')
+    router.push({ name: 'catalog-providers-detail', params: { id: provider.id } });
+  else if (action === 'edit')
+    router.push({ name: 'catalog-providers-edit', params: { id: provider.id } });
+  else if (action === 'delete') requestDelete(provider);
 }
 
 async function handleSyncAll() {
-  syncing.value = true
+  syncing.value = true;
   try {
-    const result = await providerStore.syncAllGlobal()
-    track(result.id, result.projectsCount)
+    const result = await providerStore.syncAllGlobal();
+    track(result.id, result.projectsCount);
   } catch {
     // error handled by store
   } finally {
-    syncing.value = false
+    syncing.value = false;
   }
 }
 
 async function handleTestConnection(provider: { id: string; name: string }) {
-  testingId.value = provider.id
-  const connected = await providerStore.testConnection(provider.id)
-  testingId.value = null
+  testingId.value = provider.id;
+  const connected = await providerStore.testConnection(provider.id);
+  testingId.value = null;
   toastStore.addToast({
     title: connected
       ? t('catalog.providers.connectionSuccess', { name: provider.name })
       : t('catalog.providers.connectionFailed', { name: provider.name }),
     variant: connected ? 'success' : 'error',
-  })
+  });
 }
 
 function navigateToDetail(id: string) {
-  router.push({ name: 'catalog-providers-detail', params: { id } })
+  router.push({ name: 'catalog-providers-detail', params: { id } });
 }
 </script>
 
@@ -163,7 +180,7 @@ function navigateToDetail(id: string) {
               :placeholder="t('catalog.providers.searchProviders')"
               class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
               data-testid="provider-search"
-            >
+            />
           </div>
           <select
             v-model="typeFilter"

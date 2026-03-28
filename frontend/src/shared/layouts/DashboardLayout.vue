@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import AppSidebar from '@/shared/components/AppSidebar.vue'
-import AppTopbar from '@/shared/components/AppTopbar.vue'
-import { useSidebar } from '@/shared/composables/useSidebar'
+import AppSidebar from '@/shared/components/AppSidebar.vue';
+import AppTopbar from '@/shared/components/AppTopbar.vue';
+import { useSidebar } from '@/shared/composables/useSidebar';
 
-const { t } = useI18n()
-const { collapsed, mobileOpen } = useSidebar()
+const { t } = useI18n();
+const { collapsed, mobileOpen } = useSidebar();
 
 const mainClasses = computed(() => [
   'min-h-screen transition-all duration-300',
   collapsed.value ? 'ml-16' : 'ml-64',
   'max-md:ml-0',
-])
+]);
 </script>
 
 <template>
@@ -31,16 +31,10 @@ const mainClasses = computed(() => [
       @keydown.escape="mobileOpen = false"
     />
 
-    <div
-      :class="mainClasses"
-      class="flex-1"
-    >
+    <div :class="mainClasses" class="flex-1">
       <AppTopbar />
 
-      <main
-        class="w-full p-6"
-        data-testid="main-content"
-      >
+      <main class="w-full p-6" data-testid="main-content">
         <slot />
       </main>
     </div>
