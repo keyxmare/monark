@@ -115,11 +115,11 @@ function throwingStack(\Throwable $exception): StackInterface
 
 describe('LoggingMiddleware', function () {
     it('adds a CorrelationIdStamp when none exists', function () {
-        $logger = stubLogger();
+        $logger = \stubLogger();
         $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
-        $result = $middleware->handle($envelope, stubStack());
+        $result = $middleware->handle($envelope, \stubStack());
 
         $stamp = $result->last(CorrelationIdStamp::class);
         expect($stamp)->not->toBeNull();
@@ -127,23 +127,23 @@ describe('LoggingMiddleware', function () {
     });
 
     it('reuses existing CorrelationIdStamp', function () {
-        $logger = stubLogger();
+        $logger = \stubLogger();
         $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $existingId = 'existing-correlation-id';
         $envelope = (new Envelope(new \stdClass()))->with(new CorrelationIdStamp($existingId));
 
-        $result = $middleware->handle($envelope, stubStack());
+        $result = $middleware->handle($envelope, \stubStack());
 
         $stamp = $result->last(CorrelationIdStamp::class);
         expect($stamp->correlationId)->toBe($existingId);
     });
 
     it('logs handling and handled info messages on success', function () {
-        $logger = stubLogger();
+        $logger = \stubLogger();
         $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
-        $middleware->handle($envelope, stubStack());
+        $middleware->handle($envelope, \stubStack());
 
         expect($logger->logs)->toHaveCount(2);
         expect($logger->logs[0]['level'])->toBe('info');
@@ -155,12 +155,12 @@ describe('LoggingMiddleware', function () {
     });
 
     it('logs error message on failure and rethrows exception', function () {
-        $logger = stubLogger();
+        $logger = \stubLogger();
         $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
         $exception = new \RuntimeException('Something went wrong');
 
-        expect(fn () => $middleware->handle($envelope, throwingStack($exception)))
+        expect(fn () => $middleware->handle($envelope, \throwingStack($exception)))
             ->toThrow(\RuntimeException::class, 'Something went wrong');
 
         expect($logger->logs)->toHaveCount(2);
@@ -173,32 +173,32 @@ describe('LoggingMiddleware', function () {
     });
 
     it('uses short class name in log context', function () {
-        $logger = stubLogger();
+        $logger = \stubLogger();
         $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
-        $middleware->handle($envelope, stubStack());
+        $middleware->handle($envelope, \stubStack());
 
         expect($logger->logs[0]['context']['message'])->toBe('stdClass');
         expect($logger->logs[0]['context']['class'])->toBe('stdClass');
     });
 
     it('includes duration in milliseconds', function () {
-        $logger = stubLogger();
+        $logger = \stubLogger();
         $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
-        $middleware->handle($envelope, stubStack());
+        $middleware->handle($envelope, \stubStack());
 
         expect($logger->logs[1]['context']['duration_ms'])->toBeFloat()->toBeGreaterThanOrEqual(0);
     });
 
     it('uses same correlation ID across handling and handled logs', function () {
-        $logger = stubLogger();
+        $logger = \stubLogger();
         $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
-        $middleware->handle($envelope, stubStack());
+        $middleware->handle($envelope, \stubStack());
 
         $handlingCorrelationId = $logger->logs[0]['context']['correlation_id'];
         $handledCorrelationId = $logger->logs[1]['context']['correlation_id'];

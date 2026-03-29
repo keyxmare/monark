@@ -15,10 +15,10 @@ beforeEach(function () {
     $this->token = $auth['token'];
 
     // Create a project to associate tech stacks with
-    $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
+    $this->client->request('POST', '/api/v1/catalog/projects', [], [], \array_merge(
         $this->authHeader($this->token),
         ['CONTENT_TYPE' => 'application/json'],
-    ), json_encode([
+    ), \json_encode([
         'name' => 'Tech Stack Project',
         'slug' => 'tech-stack-project',
         'description' => 'Project for tech stack tests',
@@ -28,13 +28,13 @@ beforeEach(function () {
         'ownerId' => $this->user->getId()->toRfc4122(),
     ]));
 
-    $createBody = json_decode($this->client->getResponse()->getContent(), true);
+    $createBody = \json_decode($this->client->getResponse()->getContent(), true);
     $this->projectId = $createBody['data']['id'];
 });
 
 function createTechStackPayload(string $projectId, array $overrides = []): array
 {
-    return array_merge([
+    return \array_merge([
         'language' => 'PHP',
         'framework' => 'Symfony',
         'version' => '8.4',
@@ -46,17 +46,17 @@ function createTechStackPayload(string $projectId, array $overrides = []): array
 
 describe('POST /api/v1/catalog/tech-stacks', function () {
     it('creates a tech stack and returns 201', function () {
-        $payload = createTechStackPayload($this->projectId);
+        $payload = \createTechStackPayload($this->projectId);
 
-        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode($payload));
+        ), \json_encode($payload));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(201);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['language'])->toBe('PHP');
         expect($body['data']['framework'])->toBe('Symfony');
@@ -65,15 +65,15 @@ describe('POST /api/v1/catalog/tech-stacks', function () {
 
 describe('GET /api/v1/catalog/tech-stacks', function () {
     it('lists tech stacks with pagination', function () {
-        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createTechStackPayload($this->projectId)));
+        ), \json_encode(\createTechStackPayload($this->projectId)));
 
-        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createTechStackPayload($this->projectId, [
+        ), \json_encode(\createTechStackPayload($this->projectId, [
             'language' => 'TypeScript',
             'framework' => 'Vue',
             'version' => '5.0',
@@ -85,7 +85,7 @@ describe('GET /api/v1/catalog/tech-stacks', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toHaveKeys(['items', 'total', 'page', 'per_page', 'total_pages']);
         expect($body['data']['total'])->toBe(2);
@@ -95,12 +95,12 @@ describe('GET /api/v1/catalog/tech-stacks', function () {
 
 describe('GET /api/v1/catalog/tech-stacks/{id}', function () {
     it('gets a tech stack by id', function () {
-        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createTechStackPayload($this->projectId)));
+        ), \json_encode(\createTechStackPayload($this->projectId)));
 
-        $createBody = json_decode($this->client->getResponse()->getContent(), true);
+        $createBody = \json_decode($this->client->getResponse()->getContent(), true);
         $techStackId = $createBody['data']['id'];
 
         $this->client->request('GET', "/api/v1/catalog/tech-stacks/{$techStackId}", [], [], $this->authHeader($this->token));
@@ -108,7 +108,7 @@ describe('GET /api/v1/catalog/tech-stacks/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['id'])->toBe($techStackId);
         expect($body['data']['language'])->toBe('PHP');
@@ -117,12 +117,12 @@ describe('GET /api/v1/catalog/tech-stacks/{id}', function () {
 
 describe('DELETE /api/v1/catalog/tech-stacks/{id}', function () {
     it('deletes a tech stack', function () {
-        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/tech-stacks', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createTechStackPayload($this->projectId)));
+        ), \json_encode(\createTechStackPayload($this->projectId)));
 
-        $createBody = json_decode($this->client->getResponse()->getContent(), true);
+        $createBody = \json_decode($this->client->getResponse()->getContent(), true);
         $techStackId = $createBody['data']['id'];
 
         $this->client->request('DELETE', "/api/v1/catalog/tech-stacks/{$techStackId}", [], [], $this->authHeader($this->token));

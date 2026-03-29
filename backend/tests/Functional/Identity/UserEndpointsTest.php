@@ -26,7 +26,7 @@ describe('GET /api/v1/identity/users', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['items'])->toBeArray();
         expect($body['data']['total'])->toBeGreaterThanOrEqual(1);
@@ -50,7 +50,7 @@ describe('GET /api/v1/identity/users/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['email'])->toBe('admin@example.com');
         expect($body['data']['id'])->toBe($userId);
@@ -64,7 +64,7 @@ describe('GET /api/v1/identity/users/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(404);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeFalse();
     });
 });
@@ -73,10 +73,10 @@ describe('PUT /api/v1/identity/users/{id}', function () {
     it('updates user fields', function () {
         $userId = $this->user->getId()->toRfc4122();
 
-        $this->client->request('PUT', "/api/v1/identity/users/{$userId}", [], [], array_merge(
+        $this->client->request('PUT', "/api/v1/identity/users/{$userId}", [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode([
+        ), \json_encode([
             'firstName' => 'Updated',
             'lastName' => 'Name',
         ]));
@@ -84,7 +84,7 @@ describe('PUT /api/v1/identity/users/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['firstName'])->toBe('Updated');
         expect($body['data']['lastName'])->toBe('Name');

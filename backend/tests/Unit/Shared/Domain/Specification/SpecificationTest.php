@@ -9,7 +9,7 @@ use App\Shared\Domain\Specification\SpecificationInterface;
 
 function alwaysTrue(): SpecificationInterface
 {
-    return new class implements SpecificationInterface {
+    return new class () implements SpecificationInterface {
         public function isSatisfiedBy(mixed $candidate): bool
         {
             return true;
@@ -19,7 +19,7 @@ function alwaysTrue(): SpecificationInterface
 
 function alwaysFalse(): SpecificationInterface
 {
-    return new class implements SpecificationInterface {
+    return new class () implements SpecificationInterface {
         public function isSatisfiedBy(mixed $candidate): bool
         {
             return false;
@@ -29,12 +29,12 @@ function alwaysFalse(): SpecificationInterface
 
 describe('AndSpecification', function () {
     it('returns true when all specs are satisfied', function () {
-        $spec = new AndSpecification([alwaysTrue(), alwaysTrue()]);
+        $spec = new AndSpecification([\alwaysTrue(), \alwaysTrue()]);
         expect($spec->isSatisfiedBy('anything'))->toBeTrue();
     });
 
     it('returns false when any spec is not satisfied', function () {
-        $spec = new AndSpecification([alwaysTrue(), alwaysFalse()]);
+        $spec = new AndSpecification([\alwaysTrue(), \alwaysFalse()]);
         expect($spec->isSatisfiedBy('anything'))->toBeFalse();
     });
 
@@ -44,19 +44,19 @@ describe('AndSpecification', function () {
     });
 
     it('returns false when all specs are not satisfied', function () {
-        $spec = new AndSpecification([alwaysFalse(), alwaysFalse()]);
+        $spec = new AndSpecification([\alwaysFalse(), \alwaysFalse()]);
         expect($spec->isSatisfiedBy('anything'))->toBeFalse();
     });
 });
 
 describe('OrSpecification', function () {
     it('returns true when any spec is satisfied', function () {
-        $spec = new OrSpecification([alwaysFalse(), alwaysTrue()]);
+        $spec = new OrSpecification([\alwaysFalse(), \alwaysTrue()]);
         expect($spec->isSatisfiedBy('anything'))->toBeTrue();
     });
 
     it('returns false when no spec is satisfied', function () {
-        $spec = new OrSpecification([alwaysFalse(), alwaysFalse()]);
+        $spec = new OrSpecification([\alwaysFalse(), \alwaysFalse()]);
         expect($spec->isSatisfiedBy('anything'))->toBeFalse();
     });
 
@@ -66,19 +66,19 @@ describe('OrSpecification', function () {
     });
 
     it('returns true when all specs are satisfied', function () {
-        $spec = new OrSpecification([alwaysTrue(), alwaysTrue()]);
+        $spec = new OrSpecification([\alwaysTrue(), \alwaysTrue()]);
         expect($spec->isSatisfiedBy('anything'))->toBeTrue();
     });
 });
 
 describe('NotSpecification', function () {
     it('negates a true spec', function () {
-        $spec = new NotSpecification(alwaysTrue());
+        $spec = new NotSpecification(\alwaysTrue());
         expect($spec->isSatisfiedBy('anything'))->toBeFalse();
     });
 
     it('negates a false spec', function () {
-        $spec = new NotSpecification(alwaysFalse());
+        $spec = new NotSpecification(\alwaysFalse());
         expect($spec->isSatisfiedBy('anything'))->toBeTrue();
     });
 });

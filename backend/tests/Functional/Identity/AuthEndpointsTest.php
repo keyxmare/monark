@@ -16,7 +16,7 @@ describe('POST /api/v1/auth/register', function () {
     it('registers a new user and returns 201', function () {
         $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], \json_encode([
             'email' => 'new@example.com',
             'password' => 'securepass123',
             'firstName' => 'Jane',
@@ -26,7 +26,7 @@ describe('POST /api/v1/auth/register', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(201);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['email'])->toBe('new@example.com');
         expect($body['data']['firstName'])->toBe('Jane');
@@ -39,7 +39,7 @@ describe('POST /api/v1/auth/register', function () {
 
         $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], \json_encode([
             'email' => 'dup@example.com',
             'password' => 'securepass123',
             'firstName' => 'Jane',
@@ -49,14 +49,14 @@ describe('POST /api/v1/auth/register', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(422);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeFalse();
     });
 
     it('returns 422 for invalid email', function () {
         $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], \json_encode([
             'email' => 'not-an-email',
             'password' => 'securepass123',
             'firstName' => 'Jane',
@@ -66,14 +66,14 @@ describe('POST /api/v1/auth/register', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(422);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeFalse();
     });
 
     it('returns 422 for short password', function () {
         $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], \json_encode([
             'email' => 'valid@example.com',
             'password' => 'short',
             'firstName' => 'Jane',
@@ -83,7 +83,7 @@ describe('POST /api/v1/auth/register', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(422);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeFalse();
     });
 });
@@ -97,7 +97,7 @@ describe('POST /api/v1/auth/login', function () {
 
         $this->client->request('POST', '/api/v1/auth/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], \json_encode([
             'email' => 'login@example.com',
             'password' => 'password123',
         ]));
@@ -105,7 +105,7 @@ describe('POST /api/v1/auth/login', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['token'])->toBeString();
         expect($body['data']['user']['email'])->toBe('login@example.com');
@@ -119,7 +119,7 @@ describe('POST /api/v1/auth/login', function () {
 
         $this->client->request('POST', '/api/v1/auth/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], \json_encode([
             'email' => 'login@example.com',
             'password' => 'wrongpassword',
         ]));
@@ -127,7 +127,7 @@ describe('POST /api/v1/auth/login', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(401);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeFalse();
     });
 });
@@ -136,7 +136,7 @@ describe('POST /api/v1/auth/logout', function () {
     it('returns a successful response on logout', function () {
         $auth = $this->createAuthenticatedUser();
 
-        $this->client->request('POST', '/api/v1/auth/logout', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/auth/logout', [], [], \array_merge(
             $this->authHeader($auth['token']),
             ['CONTENT_TYPE' => 'application/json'],
         ));
@@ -161,7 +161,7 @@ describe('GET /api/v1/auth/profile', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['email'])->toBe('profile@example.com');
         expect($body['data']['firstName'])->toBe('Profile');

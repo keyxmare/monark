@@ -37,7 +37,7 @@ function createSyncTask(
 
 describe('DoctrineSyncTaskRepository', function () {
     it('saves and finds a sync task by id', function () {
-        $task = createSyncTask();
+        $task = \createSyncTask();
         $this->repo->save($task);
 
         $found = $this->repo->findById($task->getId());
@@ -55,10 +55,10 @@ describe('DoctrineSyncTaskRepository', function () {
     });
 
     it('filters by status', function () {
-        $open = createSyncTask(title: 'Open Task');
+        $open = \createSyncTask(title: 'Open Task');
         $this->repo->save($open);
 
-        $resolved = createSyncTask(title: 'Resolved Task');
+        $resolved = \createSyncTask(title: 'Resolved Task');
         $resolved->changeStatus(SyncTaskStatus::Resolved);
         $this->repo->save($resolved);
 
@@ -68,16 +68,16 @@ describe('DoctrineSyncTaskRepository', function () {
     });
 
     it('filters by type and severity', function () {
-        $this->repo->save(createSyncTask(
+        $this->repo->save(\createSyncTask(
             type: SyncTaskType::Vulnerability,
             severity: SyncTaskSeverity::Critical,
         ));
-        $this->repo->save(createSyncTask(
+        $this->repo->save(\createSyncTask(
             type: SyncTaskType::OutdatedDependency,
             severity: SyncTaskSeverity::Low,
             metadata: ['dependencyName' => 'lodash'],
         ));
-        $this->repo->save(createSyncTask(
+        $this->repo->save(\createSyncTask(
             type: SyncTaskType::Vulnerability,
             severity: SyncTaskSeverity::Low,
             metadata: ['cveId' => 'CVE-2024-0002'],
@@ -99,9 +99,9 @@ describe('DoctrineSyncTaskRepository', function () {
     it('filters by project id', function () {
         $projectId = Uuid::v7();
 
-        $this->repo->save(createSyncTask(projectId: $projectId));
-        $this->repo->save(createSyncTask(projectId: $projectId));
-        $this->repo->save(createSyncTask());
+        $this->repo->save(\createSyncTask(projectId: $projectId));
+        $this->repo->save(\createSyncTask(projectId: $projectId));
+        $this->repo->save(\createSyncTask());
 
         $results = $this->repo->findFiltered(projectId: $projectId);
         expect($results)->toHaveCount(2);
@@ -110,16 +110,16 @@ describe('DoctrineSyncTaskRepository', function () {
     it('counts filtered tasks', function () {
         $projectId = Uuid::v7();
 
-        $this->repo->save(createSyncTask(
+        $this->repo->save(\createSyncTask(
             type: SyncTaskType::Vulnerability,
             projectId: $projectId,
         ));
-        $this->repo->save(createSyncTask(
+        $this->repo->save(\createSyncTask(
             type: SyncTaskType::OutdatedDependency,
             projectId: $projectId,
             metadata: ['dependencyName' => 'lodash'],
         ));
-        $this->repo->save(createSyncTask(type: SyncTaskType::Vulnerability));
+        $this->repo->save(\createSyncTask(type: SyncTaskType::Vulnerability));
 
         expect($this->repo->countFiltered(projectId: $projectId))->toBe(2);
         expect($this->repo->countFiltered(type: SyncTaskType::Vulnerability))->toBe(2);
@@ -132,7 +132,7 @@ describe('DoctrineSyncTaskRepository', function () {
     it('finds open task by project type and metadata key', function () {
         $projectId = Uuid::v7();
 
-        $task = createSyncTask(
+        $task = \createSyncTask(
             type: SyncTaskType::Vulnerability,
             metadata: ['cveId' => 'CVE-2024-9999'],
             projectId: $projectId,
@@ -140,7 +140,7 @@ describe('DoctrineSyncTaskRepository', function () {
         $this->repo->save($task);
 
         // Different CVE - should not match
-        $this->repo->save(createSyncTask(
+        $this->repo->save(\createSyncTask(
             type: SyncTaskType::Vulnerability,
             metadata: ['cveId' => 'CVE-2024-0000'],
             projectId: $projectId,
@@ -159,7 +159,7 @@ describe('DoctrineSyncTaskRepository', function () {
     it('does not find resolved task by project type and key', function () {
         $projectId = Uuid::v7();
 
-        $task = createSyncTask(
+        $task = \createSyncTask(
             type: SyncTaskType::Vulnerability,
             metadata: ['cveId' => 'CVE-2024-9999'],
             projectId: $projectId,
@@ -177,9 +177,9 @@ describe('DoctrineSyncTaskRepository', function () {
     });
 
     it('counts grouped by type', function () {
-        $this->repo->save(createSyncTask(type: SyncTaskType::Vulnerability));
-        $this->repo->save(createSyncTask(type: SyncTaskType::Vulnerability, metadata: ['cveId' => 'CVE-2024-0002']));
-        $this->repo->save(createSyncTask(
+        $this->repo->save(\createSyncTask(type: SyncTaskType::Vulnerability));
+        $this->repo->save(\createSyncTask(type: SyncTaskType::Vulnerability, metadata: ['cveId' => 'CVE-2024-0002']));
+        $this->repo->save(\createSyncTask(
             type: SyncTaskType::OutdatedDependency,
             metadata: ['dependencyName' => 'lodash'],
         ));
@@ -187,38 +187,38 @@ describe('DoctrineSyncTaskRepository', function () {
         $grouped = $this->repo->countGroupedByType();
 
         expect($grouped)->toBeArray();
-        $map = array_column($grouped, 'count', 'label');
+        $map = \array_column($grouped, 'count', 'label');
         expect($map[SyncTaskType::Vulnerability->value])->toBe(2);
         expect($map[SyncTaskType::OutdatedDependency->value])->toBe(1);
     });
 
     it('counts grouped by severity', function () {
-        $this->repo->save(createSyncTask(severity: SyncTaskSeverity::Critical));
-        $this->repo->save(createSyncTask(severity: SyncTaskSeverity::Critical, metadata: ['cveId' => 'CVE-2024-0002']));
-        $this->repo->save(createSyncTask(severity: SyncTaskSeverity::Low, metadata: ['cveId' => 'CVE-2024-0003']));
+        $this->repo->save(\createSyncTask(severity: SyncTaskSeverity::Critical));
+        $this->repo->save(\createSyncTask(severity: SyncTaskSeverity::Critical, metadata: ['cveId' => 'CVE-2024-0002']));
+        $this->repo->save(\createSyncTask(severity: SyncTaskSeverity::Low, metadata: ['cveId' => 'CVE-2024-0003']));
 
         $grouped = $this->repo->countGroupedBySeverity();
 
-        $map = array_column($grouped, 'count', 'label');
+        $map = \array_column($grouped, 'count', 'label');
         expect($map[SyncTaskSeverity::Critical->value])->toBe(2);
         expect($map[SyncTaskSeverity::Low->value])->toBe(1);
     });
 
     it('counts grouped by status', function () {
-        $open = createSyncTask();
+        $open = \createSyncTask();
         $this->repo->save($open);
 
-        $resolved = createSyncTask(metadata: ['cveId' => 'CVE-2024-0002']);
+        $resolved = \createSyncTask(metadata: ['cveId' => 'CVE-2024-0002']);
         $resolved->changeStatus(SyncTaskStatus::Resolved);
         $this->repo->save($resolved);
 
-        $dismissed = createSyncTask(metadata: ['cveId' => 'CVE-2024-0003']);
+        $dismissed = \createSyncTask(metadata: ['cveId' => 'CVE-2024-0003']);
         $dismissed->changeStatus(SyncTaskStatus::Dismissed);
         $this->repo->save($dismissed);
 
         $grouped = $this->repo->countGroupedByStatus();
 
-        $map = array_column($grouped, 'count', 'label');
+        $map = \array_column($grouped, 'count', 'label');
         expect($map[SyncTaskStatus::Open->value])->toBe(1);
         expect($map[SyncTaskStatus::Resolved->value])->toBe(1);
         expect($map[SyncTaskStatus::Dismissed->value])->toBe(1);

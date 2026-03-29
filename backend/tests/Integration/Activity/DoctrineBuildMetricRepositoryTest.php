@@ -34,7 +34,7 @@ function createBuildMetric(
 
 describe('DoctrineBuildMetricRepository', function () {
     it('saves and finds a build metric by id', function () {
-        $metric = createBuildMetric();
+        $metric = \createBuildMetric();
         $this->repo->save($metric);
 
         $found = $this->repo->findById($metric->getId());
@@ -55,12 +55,12 @@ describe('DoctrineBuildMetricRepository', function () {
         $projectId = Uuid::v7();
 
         for ($i = 0; $i < 5; $i++) {
-            $this->repo->save(createBuildMetric(
+            $this->repo->save(\createBuildMetric(
                 projectId: $projectId,
-                commitSha: str_repeat(dechex($i), 40),
+                commitSha: \str_repeat(\dechex($i), 40),
             ));
         }
-        $this->repo->save(createBuildMetric(commitSha: str_repeat('f', 40)));
+        $this->repo->save(\createBuildMetric(commitSha: \str_repeat('f', 40)));
 
         $page1 = $this->repo->findByProjectId($projectId, page: 1, perPage: 3);
         expect($page1)->toHaveCount(3);
@@ -72,9 +72,9 @@ describe('DoctrineBuildMetricRepository', function () {
     it('counts build metrics by project id', function () {
         $projectId = Uuid::v7();
 
-        $this->repo->save(createBuildMetric(projectId: $projectId, commitSha: str_repeat('a', 40)));
-        $this->repo->save(createBuildMetric(projectId: $projectId, commitSha: str_repeat('b', 40)));
-        $this->repo->save(createBuildMetric(commitSha: str_repeat('c', 40)));
+        $this->repo->save(\createBuildMetric(projectId: $projectId, commitSha: \str_repeat('a', 40)));
+        $this->repo->save(\createBuildMetric(projectId: $projectId, commitSha: \str_repeat('b', 40)));
+        $this->repo->save(\createBuildMetric(commitSha: \str_repeat('c', 40)));
 
         expect($this->repo->countByProjectId($projectId))->toBe(2);
     });
@@ -82,16 +82,16 @@ describe('DoctrineBuildMetricRepository', function () {
     it('finds latest build metric by project id', function () {
         $projectId = Uuid::v7();
 
-        $first = createBuildMetric(projectId: $projectId, commitSha: str_repeat('a', 40));
+        $first = \createBuildMetric(projectId: $projectId, commitSha: \str_repeat('a', 40));
         $this->repo->save($first);
 
-        $latest = createBuildMetric(projectId: $projectId, commitSha: str_repeat('b', 40));
+        $latest = \createBuildMetric(projectId: $projectId, commitSha: \str_repeat('b', 40));
         $this->repo->save($latest);
 
         $found = $this->repo->findLatestByProjectId($projectId);
 
         expect($found)->not->toBeNull();
-        expect($found->getCommitSha())->toBe(str_repeat('b', 40));
+        expect($found->getCommitSha())->toBe(\str_repeat('b', 40));
     });
 
     it('returns null when no build metrics for project', function () {

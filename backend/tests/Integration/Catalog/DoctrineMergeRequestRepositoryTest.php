@@ -52,7 +52,7 @@ function createMR(
 
 describe('DoctrineMergeRequestRepository', function () {
     it('saves and finds by id', function () {
-        $mr = createMR('ext-1', 'Fix bug', MergeRequestStatus::Open, 'Alice', $this->project);
+        $mr = \createMR('ext-1', 'Fix bug', MergeRequestStatus::Open, 'Alice', $this->project);
         $this->repo->save($mr);
 
         $found = $this->repo->findById($mr->getId());
@@ -61,9 +61,9 @@ describe('DoctrineMergeRequestRepository', function () {
     });
 
     it('finds by project id with status filter', function () {
-        $this->repo->save(createMR('e1', 'Open MR', MergeRequestStatus::Open, 'Alice', $this->project));
-        $this->repo->save(createMR('e2', 'Merged MR', MergeRequestStatus::Merged, 'Bob', $this->project, new DateTimeImmutable()));
-        $this->repo->save(createMR('e3', 'Another Open', MergeRequestStatus::Open, 'Charlie', $this->project));
+        $this->repo->save(\createMR('e1', 'Open MR', MergeRequestStatus::Open, 'Alice', $this->project));
+        $this->repo->save(\createMR('e2', 'Merged MR', MergeRequestStatus::Merged, 'Bob', $this->project, new DateTimeImmutable()));
+        $this->repo->save(\createMR('e3', 'Another Open', MergeRequestStatus::Open, 'Charlie', $this->project));
 
         $openOnly = $this->repo->findByProjectId($this->project->getId(), 1, 20, [MergeRequestStatus::Open]);
         expect($openOnly)->toHaveCount(2);
@@ -73,23 +73,23 @@ describe('DoctrineMergeRequestRepository', function () {
     });
 
     it('filters by author', function () {
-        $this->repo->save(createMR('e1', 'MR1', MergeRequestStatus::Open, 'Alice', $this->project));
-        $this->repo->save(createMR('e2', 'MR2', MergeRequestStatus::Open, 'Bob', $this->project));
+        $this->repo->save(\createMR('e1', 'MR1', MergeRequestStatus::Open, 'Alice', $this->project));
+        $this->repo->save(\createMR('e2', 'MR2', MergeRequestStatus::Open, 'Bob', $this->project));
 
         $aliceOnly = $this->repo->findByProjectId($this->project->getId(), 1, 20, [], 'Alice');
         expect($aliceOnly)->toHaveCount(1);
     });
 
     it('counts by project id with filters', function () {
-        $this->repo->save(createMR('e1', 'MR1', MergeRequestStatus::Open, 'A', $this->project));
-        $this->repo->save(createMR('e2', 'MR2', MergeRequestStatus::Closed, 'B', $this->project, closedAt: new DateTimeImmutable()));
+        $this->repo->save(\createMR('e1', 'MR1', MergeRequestStatus::Open, 'A', $this->project));
+        $this->repo->save(\createMR('e2', 'MR2', MergeRequestStatus::Closed, 'B', $this->project, closedAt: new DateTimeImmutable()));
 
         expect($this->repo->countByProjectId($this->project->getId()))->toBe(2);
         expect($this->repo->countByProjectId($this->project->getId(), [MergeRequestStatus::Open]))->toBe(1);
     });
 
     it('finds by external id and project', function () {
-        $mr = createMR('unique-ext', 'Title', MergeRequestStatus::Open, 'A', $this->project);
+        $mr = \createMR('unique-ext', 'Title', MergeRequestStatus::Open, 'A', $this->project);
         $this->repo->save($mr);
 
         $found = $this->repo->findByExternalIdAndProject('unique-ext', $this->project->getId());
@@ -99,7 +99,7 @@ describe('DoctrineMergeRequestRepository', function () {
     });
 
     it('deletes a merge request', function () {
-        $mr = createMR('del', 'Del', MergeRequestStatus::Open, 'A', $this->project);
+        $mr = \createMR('del', 'Del', MergeRequestStatus::Open, 'A', $this->project);
         $this->repo->save($mr);
 
         $this->repo->delete($mr);

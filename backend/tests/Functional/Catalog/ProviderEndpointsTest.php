@@ -17,7 +17,7 @@ beforeEach(function () {
 
 function createProviderPayload(array $overrides = []): array
 {
-    return array_merge([
+    return \array_merge([
         'name' => 'My GitLab',
         'type' => 'gitlab',
         'url' => 'https://gitlab.example.com',
@@ -28,17 +28,17 @@ function createProviderPayload(array $overrides = []): array
 
 describe('POST /api/v1/catalog/providers', function () {
     it('creates a provider and returns 201', function () {
-        $payload = createProviderPayload();
+        $payload = \createProviderPayload();
 
-        $this->client->request('POST', '/api/v1/catalog/providers', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/providers', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode($payload));
+        ), \json_encode($payload));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(201);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['name'])->toBe('My GitLab');
         expect($body['data']['type'])->toBe('gitlab');
@@ -47,15 +47,15 @@ describe('POST /api/v1/catalog/providers', function () {
 
 describe('GET /api/v1/catalog/providers', function () {
     it('lists providers with pagination', function () {
-        $this->client->request('POST', '/api/v1/catalog/providers', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/providers', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createProviderPayload()));
+        ), \json_encode(\createProviderPayload()));
 
-        $this->client->request('POST', '/api/v1/catalog/providers', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/providers', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createProviderPayload([
+        ), \json_encode(\createProviderPayload([
             'name' => 'GitHub Provider',
             'type' => 'github',
             'url' => 'https://github.com',
@@ -66,7 +66,7 @@ describe('GET /api/v1/catalog/providers', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toHaveKeys(['items', 'total', 'page', 'per_page', 'total_pages']);
         expect($body['data']['total'])->toBe(2);
@@ -76,12 +76,12 @@ describe('GET /api/v1/catalog/providers', function () {
 
 describe('GET /api/v1/catalog/providers/{id}', function () {
     it('gets a provider by id', function () {
-        $this->client->request('POST', '/api/v1/catalog/providers', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/providers', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createProviderPayload()));
+        ), \json_encode(\createProviderPayload()));
 
-        $createBody = json_decode($this->client->getResponse()->getContent(), true);
+        $createBody = \json_decode($this->client->getResponse()->getContent(), true);
         $providerId = $createBody['data']['id'];
 
         $this->client->request('GET', "/api/v1/catalog/providers/{$providerId}", [], [], $this->authHeader($this->token));
@@ -89,7 +89,7 @@ describe('GET /api/v1/catalog/providers/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['id'])->toBe($providerId);
         expect($body['data']['name'])->toBe('My GitLab');
@@ -103,25 +103,25 @@ describe('GET /api/v1/catalog/providers/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(404);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeFalse();
     });
 });
 
 describe('PUT /api/v1/catalog/providers/{id}', function () {
     it('updates a provider', function () {
-        $this->client->request('POST', '/api/v1/catalog/providers', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/providers', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createProviderPayload()));
+        ), \json_encode(\createProviderPayload()));
 
-        $createBody = json_decode($this->client->getResponse()->getContent(), true);
+        $createBody = \json_decode($this->client->getResponse()->getContent(), true);
         $providerId = $createBody['data']['id'];
 
-        $this->client->request('PUT', "/api/v1/catalog/providers/{$providerId}", [], [], array_merge(
+        $this->client->request('PUT', "/api/v1/catalog/providers/{$providerId}", [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode([
+        ), \json_encode([
             'name' => 'Updated Provider',
             'url' => 'https://updated.example.com',
         ]));
@@ -129,7 +129,7 @@ describe('PUT /api/v1/catalog/providers/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['name'])->toBe('Updated Provider');
     });
@@ -137,12 +137,12 @@ describe('PUT /api/v1/catalog/providers/{id}', function () {
 
 describe('DELETE /api/v1/catalog/providers/{id}', function () {
     it('deletes a provider', function () {
-        $this->client->request('POST', '/api/v1/catalog/providers', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/providers', [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(createProviderPayload()));
+        ), \json_encode(\createProviderPayload()));
 
-        $createBody = json_decode($this->client->getResponse()->getContent(), true);
+        $createBody = \json_decode($this->client->getResponse()->getContent(), true);
         $providerId = $createBody['data']['id'];
 
         $this->client->request('DELETE', "/api/v1/catalog/providers/{$providerId}", [], [], $this->authHeader($this->token));

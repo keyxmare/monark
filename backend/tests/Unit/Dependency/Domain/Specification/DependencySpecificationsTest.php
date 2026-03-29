@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\RegistryStatus;
 use App\Dependency\Domain\Model\Severity;
-use App\Dependency\Domain\Model\VulnerabilityStatus;
 use App\Dependency\Domain\Specification\HasCriticalVulnerabilitySpecification;
 use App\Dependency\Domain\Specification\IsDeprecatedSpecification;
 use App\Dependency\Domain\Specification\IsOutdatedSpecification;
@@ -40,7 +39,7 @@ describe('HasCriticalVulnerabilitySpecification', function () {
     it('returns true when dependency has a critical vulnerability', function () {
         $dependency = DependencyFactory::create();
         $vuln = VulnerabilityFactory::create($dependency, ['severity' => Severity::Critical]);
-        addVulnerabilityToCollection($dependency, $vuln);
+        \addVulnerabilityToCollection($dependency, $vuln);
 
         $spec = new HasCriticalVulnerabilitySpecification();
 
@@ -50,7 +49,7 @@ describe('HasCriticalVulnerabilitySpecification', function () {
     it('returns false when dependency has only non-critical vulnerabilities', function () {
         $dependency = DependencyFactory::create();
         $vuln = VulnerabilityFactory::create($dependency, ['severity' => Severity::Low]);
-        addVulnerabilityToCollection($dependency, $vuln);
+        \addVulnerabilityToCollection($dependency, $vuln);
 
         $spec = new HasCriticalVulnerabilitySpecification();
 
@@ -89,7 +88,7 @@ describe('Specification composition', function () {
     it('combines outdated AND critical vulnerability', function () {
         $dependency = DependencyFactory::create(['isOutdated' => true]);
         $vuln = VulnerabilityFactory::create($dependency, ['severity' => Severity::Critical]);
-        addVulnerabilityToCollection($dependency, $vuln);
+        \addVulnerabilityToCollection($dependency, $vuln);
 
         $spec = new AndSpecification([
             new IsOutdatedSpecification(),

@@ -16,7 +16,7 @@ return (new PhpCsFixer\Config())
             'include' => ['@all'],
             'exclude' => ['it', 'test', 'expect', 'describe', 'beforeEach', 'afterEach', 'beforeAll', 'afterAll', 'dataset', 'covers', 'uses', 'pest'],
             'scope' => 'all',
-            'strict' => true,
+            'strict' => false,
         ],
         'global_namespace_import' => [
             'import_classes' => true,

@@ -42,7 +42,7 @@ function createDependency(
 
 describe('DoctrineDependencyRepository', function () {
     it('saves and finds a dependency by id', function () {
-        $dep = createDependency();
+        $dep = \createDependency();
         $this->repo->save($dep);
 
         $found = $this->repo->findById($dep->getId());
@@ -60,7 +60,7 @@ describe('DoctrineDependencyRepository', function () {
         $projectId = Uuid::v7();
 
         for ($i = 0; $i < 5; $i++) {
-            $this->repo->save(createDependency(name: "pkg/{$i}", projectId: $projectId));
+            $this->repo->save(\createDependency(name: "pkg/{$i}", projectId: $projectId));
         }
 
         $page1 = $this->repo->findByProjectId($projectId, page: 1, perPage: 3);
@@ -74,8 +74,8 @@ describe('DoctrineDependencyRepository', function () {
         $projectId = Uuid::v7();
         expect($this->repo->countByProjectId($projectId))->toBe(0);
 
-        $this->repo->save(createDependency(projectId: $projectId));
-        $this->repo->save(createDependency(name: 'other/pkg', projectId: $projectId));
+        $this->repo->save(\createDependency(projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'other/pkg', projectId: $projectId));
 
         expect($this->repo->countByProjectId($projectId))->toBe(2);
     });
@@ -83,9 +83,9 @@ describe('DoctrineDependencyRepository', function () {
     it('deletes by project id (bulk)', function () {
         $projectId = Uuid::v7();
 
-        $this->repo->save(createDependency(name: 'a/a', projectId: $projectId));
-        $this->repo->save(createDependency(name: 'b/b', projectId: $projectId));
-        $this->repo->save(createDependency(name: 'c/c'));
+        $this->repo->save(\createDependency(name: 'a/a', projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'b/b', projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'c/c'));
 
         $this->repo->deleteByProjectId($projectId);
         $this->getEntityManager()->clear();
@@ -96,8 +96,8 @@ describe('DoctrineDependencyRepository', function () {
 
     it('filters by packageManager', function () {
         $projectId = Uuid::v7();
-        $this->repo->save(createDependency(name: 'a', pm: PackageManager::Composer, projectId: $projectId));
-        $this->repo->save(createDependency(name: 'b', pm: PackageManager::Npm, projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'a', pm: PackageManager::Composer, projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'b', pm: PackageManager::Npm, projectId: $projectId));
 
         $filtered = $this->repo->findFiltered(1, 20, [
             'projectId' => $projectId->toRfc4122(),
@@ -110,8 +110,8 @@ describe('DoctrineDependencyRepository', function () {
 
     it('filters by isOutdated', function () {
         $projectId = Uuid::v7();
-        $this->repo->save(createDependency(name: 'outdated', isOutdated: true, projectId: $projectId));
-        $this->repo->save(createDependency(name: 'current', isOutdated: false, projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'outdated', isOutdated: true, projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'current', isOutdated: false, projectId: $projectId));
 
         $filtered = $this->repo->findFiltered(1, 20, [
             'projectId' => $projectId->toRfc4122(),
@@ -124,8 +124,8 @@ describe('DoctrineDependencyRepository', function () {
 
     it('filters by search term', function () {
         $projectId = Uuid::v7();
-        $this->repo->save(createDependency(name: 'symfony/console', projectId: $projectId));
-        $this->repo->save(createDependency(name: 'laravel/framework', projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'symfony/console', projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'laravel/framework', projectId: $projectId));
 
         $filtered = $this->repo->findFiltered(1, 20, [
             'projectId' => $projectId->toRfc4122(),
@@ -138,9 +138,9 @@ describe('DoctrineDependencyRepository', function () {
 
     it('counts filtered results', function () {
         $projectId = Uuid::v7();
-        $this->repo->save(createDependency(name: 'a', pm: PackageManager::Composer, projectId: $projectId));
-        $this->repo->save(createDependency(name: 'b', pm: PackageManager::Npm, projectId: $projectId));
-        $this->repo->save(createDependency(name: 'c', pm: PackageManager::Composer, projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'a', pm: PackageManager::Composer, projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'b', pm: PackageManager::Npm, projectId: $projectId));
+        $this->repo->save(\createDependency(name: 'c', pm: PackageManager::Composer, projectId: $projectId));
 
         $count = $this->repo->countFiltered([
             'projectId' => $projectId->toRfc4122(),
@@ -154,9 +154,9 @@ describe('DoctrineDependencyRepository', function () {
         $p1 = Uuid::v7();
         $p2 = Uuid::v7();
 
-        $this->repo->save(createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p1));
-        $this->repo->save(createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p2));
-        $this->repo->save(createDependency(name: 'react', pm: PackageManager::Npm, projectId: $p1));
+        $this->repo->save(\createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p1));
+        $this->repo->save(\createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p2));
+        $this->repo->save(\createDependency(name: 'react', pm: PackageManager::Npm, projectId: $p1));
 
         $packages = $this->repo->findUniquePackages();
 
@@ -167,9 +167,9 @@ describe('DoctrineDependencyRepository', function () {
         $p1 = Uuid::v7();
         $p2 = Uuid::v7();
 
-        $this->repo->save(createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p1));
-        $this->repo->save(createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p2));
-        $this->repo->save(createDependency(name: 'react', pm: PackageManager::Npm, projectId: $p1));
+        $this->repo->save(\createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p1));
+        $this->repo->save(\createDependency(name: 'symfony/console', pm: PackageManager::Composer, projectId: $p2));
+        $this->repo->save(\createDependency(name: 'react', pm: PackageManager::Npm, projectId: $p1));
 
         $found = $this->repo->findByName('symfony/console', PackageManager::Composer->value);
 
@@ -179,10 +179,10 @@ describe('DoctrineDependencyRepository', function () {
     it('gets stats with total, outdated, and vulnerability counts', function () {
         $projectId = Uuid::v7();
 
-        $dep1 = createDependency(name: 'a', isOutdated: true, projectId: $projectId);
+        $dep1 = \createDependency(name: 'a', isOutdated: true, projectId: $projectId);
         $this->repo->save($dep1);
 
-        $dep2 = createDependency(name: 'b', isOutdated: false, projectId: $projectId);
+        $dep2 = \createDependency(name: 'b', isOutdated: false, projectId: $projectId);
         $this->repo->save($dep2);
 
         // Add a vulnerability to dep1 via the entity manager (cascade persist)
@@ -207,7 +207,7 @@ describe('DoctrineDependencyRepository', function () {
     });
 
     it('deletes a single dependency', function () {
-        $dep = createDependency();
+        $dep = \createDependency();
         $this->repo->save($dep);
         $id = $dep->getId();
 

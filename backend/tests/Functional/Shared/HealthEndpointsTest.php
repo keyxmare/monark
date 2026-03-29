@@ -9,7 +9,7 @@ describe('GET /healthz', function () {
 
         expect($client->getResponse()->getStatusCode())->toBe(200);
 
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true);
         expect($data['status'])->toBe('healthy');
         expect($data['checks']['database'])->toBe('ok');
     });
@@ -22,7 +22,7 @@ describe('GET /readyz', function () {
 
         expect($client->getResponse()->getStatusCode())->toBe(200);
 
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true);
         expect($data['status'])->toBe('ready');
     });
 });

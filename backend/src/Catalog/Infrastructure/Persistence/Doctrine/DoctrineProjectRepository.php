@@ -80,7 +80,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
             ->getQuery();
 
         /** @var list<Project> */
-        return iterator_to_array(new Paginator($query));
+        return \iterator_to_array(new Paginator($query));
     }
 
     /** @return list<Project> */

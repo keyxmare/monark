@@ -19,10 +19,10 @@ beforeEach(function () {
     $this->token = $auth['token'];
 
     // Create a project via API
-    $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
+    $this->client->request('POST', '/api/v1/catalog/projects', [], [], \array_merge(
         $this->authHeader($this->token),
         ['CONTENT_TYPE' => 'application/json'],
-    ), json_encode([
+    ), \json_encode([
         'name' => 'MR Project',
         'slug' => 'mr-project',
         'description' => 'Project for merge request tests',
@@ -32,7 +32,7 @@ beforeEach(function () {
         'ownerId' => $this->user->getId()->toRfc4122(),
     ]));
 
-    $createBody = json_decode($this->client->getResponse()->getContent(), true);
+    $createBody = \json_decode($this->client->getResponse()->getContent(), true);
     $this->projectId = $createBody['data']['id'];
 
     // Insert a merge request directly via the entity manager
@@ -76,7 +76,7 @@ describe('GET /api/v1/catalog/projects/{projectId}/merge-requests', function () 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toHaveKeys(['items', 'total', 'page', 'per_page', 'total_pages']);
         expect($body['data']['total'])->toBe(1);
@@ -98,7 +98,7 @@ describe('GET /api/v1/catalog/merge-requests/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['id'])->toBe($this->mergeRequestId);
         expect($body['data']['title'])->toBe('Fix login bug');

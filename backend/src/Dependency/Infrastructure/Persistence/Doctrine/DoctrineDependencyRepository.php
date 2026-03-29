@@ -41,7 +41,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
             ->getQuery();
 
         /** @var list<Dependency> */
-        return iterator_to_array(new Paginator($query));
+        return \iterator_to_array(new Paginator($query));
     }
 
     public function count(): int
@@ -73,7 +73,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
             ->getQuery();
 
         /** @var list<Dependency> */
-        return iterator_to_array(new Paginator($query));
+        return \iterator_to_array(new Paginator($query));
     }
 
     public function delete(Dependency $dependency): void
@@ -128,7 +128,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
             ->getQuery();
 
         /** @var list<Dependency> */
-        return iterator_to_array(new Paginator($query));
+        return \iterator_to_array(new Paginator($query));
     }
 
     /** @param array{projectId?: string, search?: string, packageManager?: string, type?: string, isOutdated?: bool} $filters */

@@ -31,7 +31,7 @@ function createNotification(
 
 describe('DoctrineNotificationRepository', function () {
     it('saves and finds a notification by id', function () {
-        $notification = createNotification();
+        $notification = \createNotification();
         $this->repo->save($notification);
 
         $found = $this->repo->findById($notification->getId());
@@ -50,9 +50,9 @@ describe('DoctrineNotificationRepository', function () {
 
     it('finds notifications by user with pagination', function () {
         for ($i = 0; $i < 5; $i++) {
-            $this->repo->save(createNotification(title: "Notification {$i}", userId: 'user-1'));
+            $this->repo->save(\createNotification(title: "Notification {$i}", userId: 'user-1'));
         }
-        $this->repo->save(createNotification(title: 'Other User', userId: 'user-2'));
+        $this->repo->save(\createNotification(title: 'Other User', userId: 'user-2'));
 
         $page1 = $this->repo->findByUser('user-1', page: 1, perPage: 3);
         expect($page1)->toHaveCount(3);
@@ -62,9 +62,9 @@ describe('DoctrineNotificationRepository', function () {
     });
 
     it('counts notifications by user', function () {
-        $this->repo->save(createNotification(userId: 'user-1'));
-        $this->repo->save(createNotification(userId: 'user-1'));
-        $this->repo->save(createNotification(userId: 'user-2'));
+        $this->repo->save(\createNotification(userId: 'user-1'));
+        $this->repo->save(\createNotification(userId: 'user-1'));
+        $this->repo->save(\createNotification(userId: 'user-2'));
 
         expect($this->repo->countByUser('user-1'))->toBe(2);
         expect($this->repo->countByUser('user-2'))->toBe(1);
@@ -72,13 +72,13 @@ describe('DoctrineNotificationRepository', function () {
     });
 
     it('counts unread notifications by user', function () {
-        $read = createNotification(title: 'Read', userId: 'user-1');
+        $read = \createNotification(title: 'Read', userId: 'user-1');
         $read->markAsRead();
         $this->repo->save($read);
 
-        $this->repo->save(createNotification(title: 'Unread 1', userId: 'user-1'));
-        $this->repo->save(createNotification(title: 'Unread 2', userId: 'user-1'));
-        $this->repo->save(createNotification(title: 'Other user', userId: 'user-2'));
+        $this->repo->save(\createNotification(title: 'Unread 1', userId: 'user-1'));
+        $this->repo->save(\createNotification(title: 'Unread 2', userId: 'user-1'));
+        $this->repo->save(\createNotification(title: 'Other user', userId: 'user-2'));
 
         expect($this->repo->countUnreadByUser('user-1'))->toBe(2);
         expect($this->repo->countUnreadByUser('user-2'))->toBe(1);

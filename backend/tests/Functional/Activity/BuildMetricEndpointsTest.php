@@ -37,7 +37,7 @@ beforeEach(function () {
 
 function createBuildMetricPayload(array $overrides = []): array
 {
-    return array_merge([
+    return \array_merge([
         'commitSha' => 'abc123def456789012345678901234abcdef1234',
         'ref' => 'refs/heads/main',
         'backendCoverage' => 82.5,
@@ -48,29 +48,29 @@ function createBuildMetricPayload(array $overrides = []): array
 
 function createBuildMetricViaApi(object $context, array $overrides = []): array
 {
-    $payload = createBuildMetricPayload($overrides);
+    $payload = \createBuildMetricPayload($overrides);
 
     $context->client->request('POST', "/api/v1/activity/projects/{$context->projectId}/build-metrics", [], [], [
         'HTTP_AUTHORIZATION' => 'Bearer ' . $context->token,
         'CONTENT_TYPE' => 'application/json',
-    ], json_encode($payload));
+    ], \json_encode($payload));
 
-    return json_decode($context->client->getResponse()->getContent(), true);
+    return \json_decode($context->client->getResponse()->getContent(), true);
 }
 
 describe('POST /api/v1/activity/projects/{projectId}/build-metrics', function () {
     it('creates a build metric and returns 201', function () {
-        $payload = createBuildMetricPayload();
+        $payload = \createBuildMetricPayload();
 
-        $this->client->request('POST', "/api/v1/activity/projects/{$this->projectId}/build-metrics", [], [], array_merge(
+        $this->client->request('POST', "/api/v1/activity/projects/{$this->projectId}/build-metrics", [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode($payload));
+        ), \json_encode($payload));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(201);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['commitSha'])->toBe('abc123def456789012345678901234abcdef1234');
         expect($body['data']['ref'])->toBe('refs/heads/main');
@@ -83,15 +83,15 @@ describe('POST /api/v1/activity/projects/{projectId}/build-metrics', function ()
 
 describe('GET /api/v1/activity/projects/{projectId}/build-metrics', function () {
     it('lists build metrics with pagination', function () {
-        createBuildMetricViaApi($this, ['commitSha' => 'aaa1111111111111111111111111111111111111']);
-        createBuildMetricViaApi($this, ['commitSha' => 'bbb2222222222222222222222222222222222222']);
+        \createBuildMetricViaApi($this, ['commitSha' => 'aaa1111111111111111111111111111111111111']);
+        \createBuildMetricViaApi($this, ['commitSha' => 'bbb2222222222222222222222222222222222222']);
 
         $this->client->request('GET', "/api/v1/activity/projects/{$this->projectId}/build-metrics?page=1&per_page=10", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toHaveKeys(['items', 'total', 'page', 'per_page', 'total_pages']);
         expect($body['data']['total'])->toBe(2);
@@ -101,15 +101,15 @@ describe('GET /api/v1/activity/projects/{projectId}/build-metrics', function () 
 
 describe('GET /api/v1/activity/projects/{projectId}/build-metrics/latest', function () {
     it('gets the latest build metric', function () {
-        createBuildMetricViaApi($this, ['commitSha' => 'aaa1111111111111111111111111111111111111']);
-        createBuildMetricViaApi($this, ['commitSha' => 'bbb2222222222222222222222222222222222222']);
+        \createBuildMetricViaApi($this, ['commitSha' => 'aaa1111111111111111111111111111111111111']);
+        \createBuildMetricViaApi($this, ['commitSha' => 'bbb2222222222222222222222222222222222222']);
 
         $this->client->request('GET', "/api/v1/activity/projects/{$this->projectId}/build-metrics/latest", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['projectId'])->toBe($this->projectId);
     });

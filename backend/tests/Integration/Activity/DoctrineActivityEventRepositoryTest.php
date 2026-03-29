@@ -32,7 +32,7 @@ function createActivityEvent(
 
 describe('DoctrineActivityEventRepository', function () {
     it('saves and finds an activity event by id', function () {
-        $event = createActivityEvent();
+        $event = \createActivityEvent();
         $this->repo->save($event);
 
         $found = $this->repo->findById($event->getId());
@@ -50,7 +50,7 @@ describe('DoctrineActivityEventRepository', function () {
 
     it('lists events with pagination', function () {
         for ($i = 0; $i < 5; $i++) {
-            $this->repo->save(createActivityEvent(entityId: Uuid::v7()->toRfc4122()));
+            $this->repo->save(\createActivityEvent(entityId: Uuid::v7()->toRfc4122()));
         }
 
         $page1 = $this->repo->findAll(page: 1, perPage: 3);
@@ -63,8 +63,8 @@ describe('DoctrineActivityEventRepository', function () {
     it('counts events', function () {
         expect($this->repo->count())->toBe(0);
 
-        $this->repo->save(createActivityEvent());
-        $this->repo->save(createActivityEvent());
+        $this->repo->save(\createActivityEvent());
+        $this->repo->save(\createActivityEvent());
 
         expect($this->repo->count())->toBe(2);
     });

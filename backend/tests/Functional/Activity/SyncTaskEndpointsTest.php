@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Activity\Domain\Model\SyncTask;
 use App\Activity\Domain\Model\SyncTaskSeverity;
-use App\Activity\Domain\Model\SyncTaskStatus;
 use App\Activity\Domain\Model\SyncTaskType;
 use App\Tests\Helpers\AuthHelper;
 use App\Tests\Helpers\DatabaseHelper;
@@ -45,15 +44,15 @@ function seedSyncTask(object $context, array $overrides = []): SyncTask
 
 describe('GET /api/v1/activity/sync-tasks', function () {
     it('lists sync tasks with pagination', function () {
-        seedSyncTask($this, ['title' => 'Task A']);
-        seedSyncTask($this, ['title' => 'Task B']);
+        \seedSyncTask($this, ['title' => 'Task A']);
+        \seedSyncTask($this, ['title' => 'Task B']);
 
         $this->client->request('GET', '/api/v1/activity/sync-tasks?page=1&per_page=10', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toHaveKeys(['items', 'total', 'page', 'per_page', 'total_pages']);
         expect($body['data']['total'])->toBe(2);
@@ -61,32 +60,32 @@ describe('GET /api/v1/activity/sync-tasks', function () {
     });
 
     it('filters sync tasks by status', function () {
-        $task = seedSyncTask($this, ['title' => 'Open Task']);
-        seedSyncTask($this, ['title' => 'Another Task']);
+        $task = \seedSyncTask($this, ['title' => 'Open Task']);
+        \seedSyncTask($this, ['title' => 'Another Task']);
 
         // Resolve the first task via PATCH
-        $this->client->request('PATCH', '/api/v1/activity/sync-tasks/' . $task->getId()->toRfc4122(), [], [], array_merge(
+        $this->client->request('PATCH', '/api/v1/activity/sync-tasks/' . $task->getId()->toRfc4122(), [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(['status' => 'resolved']));
+        ), \json_encode(['status' => 'resolved']));
 
         $this->client->request('GET', '/api/v1/activity/sync-tasks?status=open', [], [], $this->authHeader($this->token));
 
-        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $body = \json_decode($this->client->getResponse()->getContent(), true);
         expect($body['data']['total'])->toBe(1);
     });
 });
 
 describe('GET /api/v1/activity/sync-tasks/{id}', function () {
     it('gets a sync task by id', function () {
-        $task = seedSyncTask($this);
+        $task = \seedSyncTask($this);
 
         $this->client->request('GET', '/api/v1/activity/sync-tasks/' . $task->getId()->toRfc4122(), [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['id'])->toBe($task->getId()->toRfc4122());
         expect($body['data']['title'])->toBe('Outdated symfony/http-kernel');
@@ -103,37 +102,37 @@ describe('GET /api/v1/activity/sync-tasks/{id}', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(404);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeFalse();
     });
 });
 
 describe('PATCH /api/v1/activity/sync-tasks/{id}', function () {
     it('updates sync task status', function () {
-        $task = seedSyncTask($this);
+        $task = \seedSyncTask($this);
 
-        $this->client->request('PATCH', '/api/v1/activity/sync-tasks/' . $task->getId()->toRfc4122(), [], [], array_merge(
+        $this->client->request('PATCH', '/api/v1/activity/sync-tasks/' . $task->getId()->toRfc4122(), [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(['status' => 'acknowledged']));
+        ), \json_encode(['status' => 'acknowledged']));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data']['status'])->toBe('acknowledged');
     });
 
     it('sets resolvedAt when status is resolved', function () {
-        $task = seedSyncTask($this);
+        $task = \seedSyncTask($this);
 
-        $this->client->request('PATCH', '/api/v1/activity/sync-tasks/' . $task->getId()->toRfc4122(), [], [], array_merge(
+        $this->client->request('PATCH', '/api/v1/activity/sync-tasks/' . $task->getId()->toRfc4122(), [], [], \array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
-        ), json_encode(['status' => 'resolved']));
+        ), \json_encode(['status' => 'resolved']));
 
-        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $body = \json_decode($this->client->getResponse()->getContent(), true);
         expect($body['data']['status'])->toBe('resolved');
         expect($body['data']['resolvedAt'])->not->toBeNull();
     });
@@ -141,15 +140,15 @@ describe('PATCH /api/v1/activity/sync-tasks/{id}', function () {
 
 describe('GET /api/v1/activity/sync-tasks/stats', function () {
     it('returns sync task stats', function () {
-        seedSyncTask($this, ['type' => SyncTaskType::OutdatedDependency, 'severity' => SyncTaskSeverity::High]);
-        seedSyncTask($this, ['type' => SyncTaskType::Vulnerability, 'severity' => SyncTaskSeverity::Critical]);
+        \seedSyncTask($this, ['type' => SyncTaskType::OutdatedDependency, 'severity' => SyncTaskSeverity::High]);
+        \seedSyncTask($this, ['type' => SyncTaskType::Vulnerability, 'severity' => SyncTaskSeverity::Critical]);
 
         $this->client->request('GET', '/api/v1/activity/sync-tasks/stats', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toHaveKeys(['by_type', 'by_severity', 'by_status']);
     });

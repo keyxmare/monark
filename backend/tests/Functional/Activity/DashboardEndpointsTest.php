@@ -22,7 +22,7 @@ describe('GET /api/v1/activity/dashboard', function () {
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
 
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toBeArray();
         expect($body['data']['metrics'])->toBeArray();
