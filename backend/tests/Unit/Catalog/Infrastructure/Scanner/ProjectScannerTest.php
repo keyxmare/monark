@@ -1042,6 +1042,231 @@ YARN;
         expect($nuxtDep->currentVersion)->toBe('3.21.1');
     });
 
+    it('enriches JS dep versions from subdirectory pnpm-lock.yaml', function () {
+        $packageJson = \json_encode([
+            'dependencies' => ['vue' => '^3.5.0'],
+            'devDependencies' => ['typescript' => '^5.7.0'],
+        ]);
+        $pnpmLock = <<<'YAML'
+lockfileVersion: '9.0'
+
+importers:
+  .:
+    dependencies:
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.13
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.7.3
+YAML;
+
+        $client = \stubScannerGitClient(
+            files: [
+                'frontend/package.json' => $packageJson,
+                'frontend/pnpm-lock.yaml' => $pnpmLock,
+            ],
+            tree: [
+                '' => [
+                    ['name' => 'frontend', 'type' => 'tree', 'path' => 'frontend'],
+                ],
+                'frontend' => [
+                    ['name' => 'package.json', 'type' => 'blob', 'path' => 'frontend/package.json'],
+                    ['name' => 'pnpm-lock.yaml', 'type' => 'blob', 'path' => 'frontend/pnpm-lock.yaml'],
+                ],
+            ],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        $vueDep = \array_values(\array_filter($result->dependencies, fn ($d) => $d->name === 'vue'))[0];
+        expect($vueDep->currentVersion)->toBe('3.5.13');
+    });
+
+    it('handles npm lock with invalid JSON gracefully', function () {
+        $packageJson = \json_encode([
+            'dependencies' => ['react' => '^18.0.0'],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: [
+                'package.json' => $packageJson,
+                'package-lock.json' => 'not valid json',
+            ],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toHaveCount(1);
+        expect($result->dependencies[0]->name)->toBe('react');
+        expect($result->dependencies[0]->currentVersion)->toBe('18.0.0');
+    });
+
+    it('handles composer.lock with invalid JSON gracefully', function () {
+        $composerJson = \json_encode([
+            'require' => ['symfony/framework-bundle' => '^8.0'],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: [
+                'composer.json' => $composerJson,
+                'composer.lock' => 'not valid json',
+            ],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->framework)->toBe('Symfony');
+        expect($result->dependencies[0]->currentVersion)->toBe('8.0');
+    });
+
+    it('deduplicates stacks with two different frameworks for same language', function () {
+        $composerJson1 = \json_encode([
+            'require' => ['php' => '>=8.4', 'symfony/framework-bundle' => '^8.0'],
+        ]);
+        $composerJson2 = \json_encode([
+            'require' => ['php' => '>=8.4', 'laravel/framework' => '^11.0'],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: [
+                'api/composer.json' => $composerJson1,
+                'admin/composer.json' => $composerJson2,
+            ],
+            tree: [
+                '' => [
+                    ['name' => 'api', 'type' => 'tree', 'path' => 'api'],
+                    ['name' => 'admin', 'type' => 'tree', 'path' => 'admin'],
+                ],
+                'api' => [
+                    ['name' => 'composer.json', 'type' => 'blob', 'path' => 'api/composer.json'],
+                ],
+                'admin' => [
+                    ['name' => 'composer.json', 'type' => 'blob', 'path' => 'admin/composer.json'],
+                ],
+            ],
+        );
+
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+        $result = $scanner->scan(\createLinkedProject());
+
+        $phpStacks = \array_filter($result->stacks, fn ($s) => $s->language === 'PHP');
+        expect(\count($phpStacks))->toBe(2);
+
+        $frameworks = \array_map(fn ($s) => $s->framework, \array_values($phpStacks));
+        expect($frameworks)->toContain('Symfony');
+        expect($frameworks)->toContain('Laravel');
+    });
+
+    it('deduplicates same framework for same language', function () {
+        $composerJson1 = \json_encode([
+            'require' => ['php' => '>=8.4', 'symfony/framework-bundle' => '^8.0'],
+        ]);
+        $composerJson2 = \json_encode([
+            'require' => ['php' => '>=8.3', 'symfony/framework-bundle' => '^7.0'],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: [
+                'api/composer.json' => $composerJson1,
+                'admin/composer.json' => $composerJson2,
+            ],
+            tree: [
+                '' => [
+                    ['name' => 'api', 'type' => 'tree', 'path' => 'api'],
+                    ['name' => 'admin', 'type' => 'tree', 'path' => 'admin'],
+                ],
+                'api' => [
+                    ['name' => 'composer.json', 'type' => 'blob', 'path' => 'api/composer.json'],
+                ],
+                'admin' => [
+                    ['name' => 'composer.json', 'type' => 'blob', 'path' => 'admin/composer.json'],
+                ],
+            ],
+        );
+
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+        $result = $scanner->scan(\createLinkedProject());
+
+        $phpStacks = \array_filter($result->stacks, fn ($s) => $s->language === 'PHP');
+        expect(\count($phpStacks))->toBe(1);
+        expect(\array_values($phpStacks)[0]->framework)->toBe('Symfony');
+    });
+
+    it('skips non-manifest files in subdirectory discovery', function () {
+        $client = \stubScannerGitClient(
+            files: [],
+            tree: [
+                '' => [
+                    ['name' => 'docs', 'type' => 'tree', 'path' => 'docs'],
+                    ['name' => 'README.md', 'type' => 'blob', 'path' => 'README.md'],
+                ],
+                'docs' => [
+                    ['name' => 'guide.md', 'type' => 'blob', 'path' => 'docs/guide.md'],
+                    ['name' => 'images', 'type' => 'tree', 'path' => 'docs/images'],
+                ],
+            ],
+        );
+
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks)->toBeEmpty();
+        expect($result->dependencies)->toBeEmpty();
+    });
+
+    it('enriches PHP stack version from platform-overrides in composer.lock', function () {
+        $composerJson = \json_encode([
+            'require' => ['php' => '>=8.3', 'symfony/framework-bundle' => '^7.2'],
+        ]);
+        $composerLock = \json_encode([
+            'packages' => [
+                ['name' => 'symfony/framework-bundle', 'version' => 'v7.2.5'],
+            ],
+            'packages-dev' => [],
+            'platform' => ['php' => '8.3.0'],
+            'platform-overrides' => ['php' => '8.4.1'],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->version)->toBe('8.4.1');
+    });
+
+    it('does not override PHP version when composer.lock has no platform', function () {
+        $composerJson = \json_encode([
+            'require' => ['php' => '>=8.4', 'symfony/framework-bundle' => '^8.0'],
+        ]);
+        $composerLock = \json_encode([
+            'packages' => [
+                ['name' => 'symfony/framework-bundle', 'version' => 'v8.0.3'],
+            ],
+            'packages-dev' => [],
+        ]);
+
+        $client = \stubScannerGitClient(
+            files: ['composer.json' => $composerJson, 'composer.lock' => $composerLock],
+            tree: ['' => []],
+        );
+        $scanner = new ProjectScanner(\stubScannerFactory($client), \allDetectors());
+
+        $result = $scanner->scan(\createLinkedProject());
+
+        expect($result->stacks[0]->version)->toBe('8.4');
+    });
+
     it('enriches PHP framework version via symfony prefix fallback from lock', function () {
         $composerJson = \json_encode([
             'require' => [
