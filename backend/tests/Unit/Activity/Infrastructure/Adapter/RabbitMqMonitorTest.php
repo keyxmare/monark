@@ -45,7 +45,7 @@ function stubRabbitMqResponse(array $data): ResponseInterface
 }
 
 describe('RabbitMqMonitor', function () {
-    it('calls correct management API URL for queues', function () {
+    it('calls correct management API URL for queues with vhost encoding', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
         $httpClient->expects($this->once())
             ->method('request')
@@ -65,6 +65,80 @@ describe('RabbitMqMonitor', function () {
 
         $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
         $monitor->getWorkers();
+    });
+
+    it('uses custom management URL', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->once())
+            ->method('request')
+            ->with('GET', 'https://mq.example.com:8080/api/queues/%2f')
+            ->willReturn(\stubRabbitMqResponse([]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'https://mq.example.com:8080');
+        $monitor->getQueues();
+    });
+
+    it('returns queue stats from management API with all fields', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            [
+                'name' => 'async',
+                'messages' => 5,
+                'messages_ready' => 3,
+                'messages_unacknowledged' => 2,
+                'consumers' => 1,
+                'message_stats' => [
+                    'publish_details' => ['rate' => 1.5],
+                    'deliver_get_details' => ['rate' => 1.0],
+                ],
+            ],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $queues = $monitor->getQueues();
+
+        expect($queues)->toHaveCount(1);
+        expect($queues[0])->toBe([
+            'name' => 'async',
+            'messages' => 5,
+            'messages_ready' => 3,
+            'messages_unacknowledged' => 2,
+            'consumers' => 1,
+            'publish_rate' => 1.5,
+            'deliver_rate' => 1.0,
+        ]);
+    });
+
+    it('returns multiple queues', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            [
+                'name' => 'queue-a',
+                'messages' => 10,
+                'messages_ready' => 8,
+                'messages_unacknowledged' => 2,
+                'consumers' => 3,
+            ],
+            [
+                'name' => 'queue-b',
+                'messages' => 0,
+                'messages_ready' => 0,
+                'messages_unacknowledged' => 0,
+                'consumers' => 0,
+            ],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $queues = $monitor->getQueues();
+
+        expect($queues)->toHaveCount(2);
+        expect($queues[0]['name'])->toBe('queue-a');
+        expect($queues[0]['messages'])->toBe(10);
+        expect($queues[0]['messages_ready'])->toBe(8);
+        expect($queues[0]['messages_unacknowledged'])->toBe(2);
+        expect($queues[0]['consumers'])->toBe(3);
+        expect($queues[1]['name'])->toBe('queue-b');
+        expect($queues[1]['messages'])->toBe(0);
     });
 
     it('handles non-int/non-string values in queue stats', function () {
@@ -96,18 +170,15 @@ describe('RabbitMqMonitor', function () {
         expect($queues[0]['deliver_rate'])->toBe(0.0);
     });
 
-    it('returns queue stats from management API', function () {
+    it('handles integer rate values (int coerced to float)', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
         $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             [
-                'name' => 'async',
-                'messages' => 5,
-                'messages_ready' => 3,
-                'messages_unacknowledged' => 2,
-                'consumers' => 1,
+                'name' => 'q1',
+                'messages' => 0,
                 'message_stats' => [
-                    'publish_details' => ['rate' => 1.5],
-                    'deliver_get_details' => ['rate' => 1.0],
+                    'publish_details' => ['rate' => 5],
+                    'deliver_get_details' => ['rate' => 3],
                 ],
             ],
         ]));
@@ -115,17 +186,11 @@ describe('RabbitMqMonitor', function () {
         $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
         $queues = $monitor->getQueues();
 
-        expect($queues)->toHaveCount(1);
-        expect($queues[0]['name'])->toBe('async');
-        expect($queues[0]['messages'])->toBe(5);
-        expect($queues[0]['messages_ready'])->toBe(3);
-        expect($queues[0]['messages_unacknowledged'])->toBe(2);
-        expect($queues[0]['consumers'])->toBe(1);
-        expect($queues[0]['publish_rate'])->toBe(1.5);
-        expect($queues[0]['deliver_rate'])->toBe(1.0);
+        expect($queues[0]['publish_rate'])->toBe(5.0);
+        expect($queues[0]['deliver_rate'])->toBe(3.0);
     });
 
-    it('handles empty queue stats gracefully', function () {
+    it('handles empty queue stats gracefully (missing message_stats)', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
         $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             ['name' => 'test', 'messages' => 0],
@@ -144,10 +209,39 @@ describe('RabbitMqMonitor', function () {
         expect($queues[0]['deliver_rate'])->toBe(0.0);
     });
 
+    it('handles message_stats as non-array value', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['name' => 'q', 'messages' => 1, 'message_stats' => 'invalid'],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $queues = $monitor->getQueues();
+
+        expect($queues)->toHaveCount(1);
+        expect($queues[0]['publish_rate'])->toBe(0.0);
+        expect($queues[0]['deliver_rate'])->toBe(0.0);
+    });
+
+    it('handles publish_details as non-array', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['name' => 'q', 'messages' => 1, 'message_stats' => ['publish_details' => 'invalid', 'deliver_get_details' => 'invalid']],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $queues = $monitor->getQueues();
+
+        expect($queues[0]['publish_rate'])->toBe(0.0);
+        expect($queues[0]['deliver_rate'])->toBe(0.0);
+    });
+
     it('skips non-array queue entries', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
         $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             'not-an-array',
+            42,
+            null,
             ['name' => 'real', 'messages' => 1],
         ]));
 
@@ -156,6 +250,7 @@ describe('RabbitMqMonitor', function () {
 
         expect($queues)->toHaveCount(1);
         expect($queues[0]['name'])->toBe('real');
+        expect($queues[0]['messages'])->toBe(1);
     });
 
     it('handles non-array channel entries in getWorkers', function () {
@@ -171,6 +266,7 @@ describe('RabbitMqMonitor', function () {
         expect($workers)->toHaveCount(1);
         expect($workers[0]['connection'])->toBe('10.0.0.1');
         expect($workers[0]['prefetch'])->toBe(5);
+        expect($workers[0]['state'])->toBe('running');
     });
 
     it('handles missing connection_details in worker', function () {
@@ -184,7 +280,21 @@ describe('RabbitMqMonitor', function () {
 
         expect($workers)->toHaveCount(1);
         expect($workers[0]['connection'])->toBe('unknown');
+        expect($workers[0]['prefetch'])->toBe(3);
         expect($workers[0]['state'])->toBe('idle');
+    });
+
+    it('handles connection_details as non-array', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['prefetch_count' => 2, 'connection_details' => 'not-array', 'state' => 'running'],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $workers = $monitor->getWorkers();
+
+        expect($workers)->toHaveCount(1);
+        expect($workers[0]['connection'])->toBe('unknown');
     });
 
     it('returns worker stats from channels API', function () {
@@ -201,9 +311,28 @@ describe('RabbitMqMonitor', function () {
         $workers = $monitor->getWorkers();
 
         expect($workers)->toHaveCount(1);
-        expect($workers[0]['connection'])->toBe('172.18.0.5');
+        expect($workers[0])->toBe([
+            'connection' => '172.18.0.5',
+            'prefetch' => 10,
+            'state' => 'running',
+        ]);
+    });
+
+    it('returns multiple workers', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['prefetch_count' => 10, 'connection_details' => ['peer_host' => '10.0.0.1'], 'state' => 'running'],
+            ['prefetch_count' => 5, 'connection_details' => ['peer_host' => '10.0.0.2'], 'state' => 'idle'],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $workers = $monitor->getWorkers();
+
+        expect($workers)->toHaveCount(2);
+        expect($workers[0]['connection'])->toBe('10.0.0.1');
         expect($workers[0]['prefetch'])->toBe(10);
-        expect($workers[0]['state'])->toBe('running');
+        expect($workers[1]['connection'])->toBe('10.0.0.2');
+        expect($workers[1]['prefetch'])->toBe(5);
     });
 
     it('handles non-string values in worker data', function () {
@@ -225,7 +354,7 @@ describe('RabbitMqMonitor', function () {
         expect($workers[0]['prefetch'])->toBe(5);
     });
 
-    it('handles non-int prefetch_count', function () {
+    it('handles non-int prefetch_count (not included as worker)', function () {
         $httpClient = $this->createMock(HttpClientInterface::class);
         $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
             ['prefetch_count' => 'ten', 'state' => 'running'],
@@ -247,5 +376,74 @@ describe('RabbitMqMonitor', function () {
         $workers = $monitor->getWorkers();
 
         expect($workers)->toBeEmpty();
+    });
+
+    it('skips channels with missing prefetch_count', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['state' => 'idle', 'connection_details' => ['peer_host' => '10.0.0.1']],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $workers = $monitor->getWorkers();
+
+        expect($workers)->toBeEmpty();
+    });
+
+    it('handles missing state in worker', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['prefetch_count' => 1, 'connection_details' => ['peer_host' => '10.0.0.1']],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $workers = $monitor->getWorkers();
+
+        expect($workers)->toHaveCount(1);
+        expect($workers[0]['state'])->toBe('unknown');
+    });
+
+    it('handles missing peer_host in connection_details', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['prefetch_count' => 1, 'connection_details' => ['other' => 'data'], 'state' => 'running'],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $workers = $monitor->getWorkers();
+
+        expect($workers)->toHaveCount(1);
+        expect($workers[0]['connection'])->toBe('unknown');
+    });
+
+    it('returns empty arrays for no data', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+
+        expect($monitor->getQueues())->toBe([]);
+    });
+
+    it('returns empty workers for no channel data', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+
+        expect($monitor->getWorkers())->toBe([]);
+    });
+
+    it('handles missing name key in queue', function () {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn(\stubRabbitMqResponse([
+            ['messages' => 5],
+        ]));
+
+        $monitor = new RabbitMqMonitor($httpClient, 'http://rabbitmq:15672');
+        $queues = $monitor->getQueues();
+
+        expect($queues)->toHaveCount(1);
+        expect($queues[0]['name'])->toBe('');
     });
 });

@@ -83,6 +83,52 @@ it('updates sync task status via PATCH', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(UpdateSyncTaskStatusCommand::class);
+    expect($bus->dispatched->id)->toBe('st-1');
+    expect($bus->dispatched->status)->toBe('resolved');
+
+    $data = \json_decode((string) $response->getContent(), true);
+    expect($data['success'])->toBeTrue();
+    expect($data['data'])->toBe(['id' => 'st-1', 'status' => 'resolved']);
+});
+
+it('dispatches correct id and status from request body', function () {
+    $bus = \stubActivityBus(['id' => 'abc-123', 'status' => 'dismissed']);
+    $controller = new UpdateSyncTaskStatusController($bus);
+
+    $request = Request::create('/api/activity/sync-tasks/abc-123', 'PATCH', [], [], [], [], \json_encode(['status' => 'dismissed']));
+    $response = $controller('abc-123', $request);
+
+    expect($bus->dispatched->id)->toBe('abc-123');
+    expect($bus->dispatched->status)->toBe('dismissed');
+    expect($response->getStatusCode())->toBe(200);
+});
+
+it('defaults status to empty string when missing from request body', function () {
+    $bus = \stubActivityBus(['id' => 'st-2', 'status' => '']);
+    $controller = new UpdateSyncTaskStatusController($bus);
+
+    $request = Request::create('/api/activity/sync-tasks/st-2', 'PATCH', [], [], [], [], \json_encode([]));
+    $response = $controller('st-2', $request);
+
+    expect($bus->dispatched)->toBeInstanceOf(UpdateSyncTaskStatusCommand::class);
+    expect($bus->dispatched->id)->toBe('st-2');
+    expect($bus->dispatched->status)->toBe('');
+    expect($response->getStatusCode())->toBe(200);
+});
+
+it('wraps result in ApiResponse success envelope', function () {
+    $resultPayload = ['id' => 'st-x', 'status' => 'acknowledged', 'extra' => 'field'];
+    $bus = \stubActivityBus($resultPayload);
+    $controller = new UpdateSyncTaskStatusController($bus);
+
+    $request = Request::create('/api/activity/sync-tasks/st-x', 'PATCH', [], [], [], [], \json_encode(['status' => 'acknowledged']));
+    $response = $controller('st-x', $request);
+
+    $data = \json_decode((string) $response->getContent(), true);
+    expect($data)->toHaveKeys(['success', 'data', 'error']);
+    expect($data['success'])->toBeTrue();
+    expect($data['data'])->toBe($resultPayload);
+    expect($data['error'])->toBeNull();
 });
 
 it('gets sync task stats', function () {
