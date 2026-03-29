@@ -73,12 +73,12 @@ echo ""
 printf "${BLUE}  BACKEND ${DIM}PHP / Symfony / Pest${RESET}\n\n"
 
 step "Lint" 2
-$BACK 'php vendor/bin/php-cs-fixer fix --dry-run -q 2>&1' >/tmp/ci-out.txt 2>&1 &
+$BACK 'php vendor/bin/php-cs-fixer fix --dry-run -q > /tmp/ci-lint.txt 2>&1; echo $? > /tmp/ci-lint-rc.txt' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Lint" "$STEP_ESTIMATE"
 wait $BG_PID
-BG_RC=$?
-if [ "$BG_RC" -eq 0 ]; then
+BG_RC=$($BACK 'cat /tmp/ci-lint-rc.txt' 2>/dev/null | tr -dc '0-9')
+if [ "${BG_RC:-1}" -eq 0 ]; then
   ok "Lint" "CS Fixer OK"
 else
   fail "Lint" "CS Fixer issues"
@@ -86,11 +86,11 @@ else
 fi
 
 step "Static analysis" 5
-$BACK 'php -d memory_limit=512M vendor/bin/phpstan analyse --no-progress --error-format=raw 2>&1' >/tmp/ci-out.txt 2>&1 &
+$BACK 'php -d memory_limit=512M vendor/bin/phpstan analyse --no-progress --error-format=raw > /tmp/ci-phpstan.txt 2>&1' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Static analysis" "$STEP_ESTIMATE"
 wait $BG_PID
-PHPSTAN_ERRORS=$(grep "^/app/" /tmp/ci-out.txt | wc -l | tr -d ' ')
+PHPSTAN_ERRORS=$($BACK 'grep "^/app/" /tmp/ci-phpstan.txt | wc -l' 2>/dev/null | tr -d ' \r')
 if [ "$PHPSTAN_ERRORS" = "0" ]; then
   ok "Static analysis" "PHPStan 0 errors"
 else
@@ -148,11 +148,11 @@ else
 fi
 
 step "Mutation" 150
-$BACK "php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 2>&1" >/tmp/ci-mutate.txt 2>&1 &
+$BACK "php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1" >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Mutation" "$STEP_ESTIMATE"
 wait $BG_PID
-MUTATE_OUT=$(strip_ansi < /tmp/ci-mutate.txt)
+MUTATE_OUT=$($BACK "cat /tmp/ci-mutate.txt" 2>/dev/null | strip_ansi)
 MSI_SCORE=$(echo "$MUTATE_OUT" | grep -oE 'Score:[[:space:]]+[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+' | head -1)
 MSI_TESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ tested' | grep -oE '[0-9]+' | head -1)
 MSI_UNTESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ untested' | grep -oE '[0-9]+' | head -1)
@@ -169,12 +169,12 @@ echo ""
 printf "${BLUE}  FRONTEND ${DIM}TypeScript / Vue / Vitest${RESET}\n\n"
 
 step "Lint" 5
-$FRONT 'pnpm lint -q 2>&1' >/tmp/ci-out.txt 2>&1 &
+$FRONT 'pnpm lint -q > /tmp/ci-eslint.txt 2>&1; echo $? > /tmp/ci-eslint-rc.txt' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Lint" "$STEP_ESTIMATE"
 wait $BG_PID
-BG_RC=$?
-if [ "$BG_RC" -eq 0 ]; then
+BG_RC=$($FRONT 'cat /tmp/ci-eslint-rc.txt' 2>/dev/null | tr -dc '0-9')
+if [ "${BG_RC:-1}" -eq 0 ]; then
   ok "Lint" "ESLint OK"
 else
   fail "Lint" "ESLint issues"
@@ -182,12 +182,12 @@ else
 fi
 
 step "Format" 10
-$FRONT 'pnpm format:check 2>&1' >/tmp/ci-out.txt 2>&1 &
+$FRONT 'pnpm format:check > /tmp/ci-prettier.txt 2>&1; echo $? > /tmp/ci-prettier-rc.txt' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Format" "$STEP_ESTIMATE"
 wait $BG_PID
-BG_RC=$?
-if [ "$BG_RC" -eq 0 ]; then
+BG_RC=$($FRONT 'cat /tmp/ci-prettier-rc.txt' 2>/dev/null | tr -dc '0-9')
+if [ "${BG_RC:-1}" -eq 0 ]; then
   ok "Format" "Prettier OK"
 else
   fail "Format" "Prettier issues"
@@ -195,26 +195,25 @@ else
 fi
 
 step "Tests" 5
-$FRONT 'pnpm vitest run 2>&1' >/tmp/ci-vitest.txt 2>&1 &
+$FRONT 'pnpm vitest run > /tmp/ci-vitest.txt 2>&1' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Tests" "$STEP_ESTIMATE"
 wait $BG_PID
-VITEST_OUT=$(cat /tmp/ci-vitest.txt)
+VITEST_OUT=$($FRONT 'cat /tmp/ci-vitest.txt' 2>/dev/null)
 VITEST_TESTS=$(echo "$VITEST_OUT" | grep "Tests" | grep -oE "[0-9]+ passed" | head -1)
-VITEST_FILES=$(echo "$VITEST_OUT" | grep "Test Files" | grep -oE "[0-9]+ passed" | head -1)
 if [ -n "$VITEST_TESTS" ]; then
-  ok "Tests" "Vitest ${VITEST_TESTS}, ${VITEST_FILES} files"
+  ok "Tests" "Vitest ${VITEST_TESTS}"
 else
   fail "Tests" "Vitest failures"
   hint "test-frontend"
 fi
 
 step "Coverage" 10
-$FRONT 'pnpm vitest run --coverage --reporter=dot 2>&1' >/tmp/ci-fcov.txt 2>&1 &
+$FRONT 'pnpm vitest run --coverage --reporter=dot > /tmp/ci-fcov.txt 2>&1' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Coverage" "$STEP_ESTIMATE"
 wait $BG_PID
-FCOV_OUT=$(cat /tmp/ci-fcov.txt)
+FCOV_OUT=$($FRONT 'cat /tmp/ci-fcov.txt' 2>/dev/null)
 FCOV=$(echo "$FCOV_OUT" | grep "All files" | grep -oE "[0-9]+\.[0-9]+" | head -1)
 if [ -n "$FCOV" ]; then
   ok "Coverage" "${FCOV}%"
