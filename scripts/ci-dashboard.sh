@@ -17,48 +17,39 @@ ESC=$(printf '\033')
 
 TOTAL=0
 PASSED=0
-STEP_LABEL=""
-STEP_ESTIMATE=0
 
-step() {
-  TOTAL=$((TOTAL + 1))
-  START_T=$(date +%s)
-  STEP_LABEL="$1"
-  STEP_ESTIMATE="$2"
-}
-elapsed() { END_T=$(date +%s); echo "$((END_T - START_T))s"; }
-
+elapsed() { echo "$(( $(date +%s) - START_T ))s"; }
 ok()   { printf "\r\033[K    ${GREEN}✓${RESET} %-16s %-28s ${DIM}%s${RESET}\n" "$1" "$2" "$(elapsed)"; PASSED=$((PASSED + 1)); }
 fail() { printf "\r\033[K    ${RED}✗${RESET} %-16s %-28s ${DIM}%s${RESET}\n" "$1" "$2" "$(elapsed)"; }
 warn() { printf "\r\033[K    ${YELLOW}~${RESET} %-16s %-28s ${DIM}%s${RESET}\n" "$1" "$2" "$(elapsed)"; }
 hint() { printf "      ${DIM}-> make %s${RESET}\n" "$1"; }
 
-format_countdown() {
-  _remaining=$1
-  if [ "$_remaining" -le 0 ]; then
-    _el=$(($(date +%s) - START_T))
-    printf "+%ds" "$_el"
-  elif [ "$_remaining" -ge 60 ]; then
-    printf "%dm%02ds" "$((_remaining / 60))" "$((_remaining % 60))"
-  else
-    printf "%ds" "$_remaining"
-  fi
-}
-
-countdown_loop() {
-  _pid=$1
-  _label=$2
-  _est=$3
-  while kill -0 "$_pid" 2>/dev/null; do
-    _elapsed=$(($(date +%s) - START_T))
-    _remain=$((_est - _elapsed))
-    _display=$(format_countdown "$_remain")
-    printf "\r\033[K    ${DIM}⏳ %-16s %s remaining${RESET}" "$_label" "$_display"
-    sleep 1
-  done
-}
-
 strip_ansi() { sed "s/${ESC}\[[0-9;]*[a-zA-Z]//g" | tr -d '\r'; }
+
+start_countdown() {
+  _label=$1; _est=$2
+  (
+    _start=$(date +%s)
+    while true; do
+      _elapsed=$(( $(date +%s) - _start ))
+      _remain=$(( _est - _elapsed ))
+      if [ "$_remain" -le 0 ]; then
+        printf "\r\033[K    ${DIM}⏳ %-16s +%ds${RESET}" "$_label" "$(( -_remain ))"
+      elif [ "$_remain" -ge 60 ]; then
+        printf "\r\033[K    ${DIM}⏳ %-16s %dm%02ds${RESET}" "$_label" "$((_remain / 60))" "$((_remain % 60))"
+      else
+        printf "\r\033[K    ${DIM}⏳ %-16s %ds${RESET}" "$_label" "$_remain"
+      fi
+      sleep 1
+    done
+  ) &
+  COUNTDOWN_PID=$!
+}
+
+stop_countdown() {
+  kill $COUNTDOWN_PID 2>/dev/null
+  wait $COUNTDOWN_PID 2>/dev/null
+}
 
 GLOBAL_START=$(date +%s)
 
@@ -72,37 +63,31 @@ printf "${CYAN}  ╚════════════════════
 echo ""
 printf "${BLUE}  BACKEND ${DIM}PHP / Symfony / Pest${RESET}\n\n"
 
-step "Lint" 2
-$BACK 'php vendor/bin/php-cs-fixer fix --dry-run -q > /tmp/ci-lint.txt 2>&1; echo $? > /tmp/ci-lint-rc.txt' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Lint" "$STEP_ESTIMATE"
-wait $BG_PID
-BG_RC=$($BACK 'cat /tmp/ci-lint-rc.txt' 2>/dev/null | tr -dc '0-9')
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Lint" 2
+$BACK 'php vendor/bin/php-cs-fixer fix --dry-run -q 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
+stop_countdown
+BG_RC=$($BACK 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
 if [ "${BG_RC:-1}" -eq 0 ]; then
   ok "Lint" "CS Fixer OK"
 else
   fail "Lint" "CS Fixer issues"
-  hint "lint-backend"
+  hint "fix-backend"
 fi
 
-step "Static analysis" 5
-$BACK 'php -d memory_limit=512M vendor/bin/phpstan analyse --no-progress --error-format=raw > /tmp/ci-phpstan.txt 2>&1' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Static analysis" "$STEP_ESTIMATE"
-wait $BG_PID
-PHPSTAN_ERRORS=$($BACK 'grep "^/app/" /tmp/ci-phpstan.txt | wc -l' 2>/dev/null | tr -d ' \r')
-if [ "$PHPSTAN_ERRORS" = "0" ]; then
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Static analysis" 5
+$BACK 'php -d memory_limit=512M vendor/bin/phpstan analyse --no-progress --error-format=raw > /tmp/ci-phpstan.txt 2>&1' >/dev/null 2>&1
+stop_countdown
+PHPSTAN_ERRORS=$($BACK 'grep -c "^/app/" /tmp/ci-phpstan.txt 2>/dev/null || echo 0' 2>/dev/null | tr -dc '0-9')
+if [ "${PHPSTAN_ERRORS:-0}" -eq 0 ]; then
   ok "Static analysis" "PHPStan 0 errors"
 else
   fail "Static analysis" "PHPStan ${PHPSTAN_ERRORS} errors"
   hint "lint-backend"
 fi
 
-step "Tests" 3
-$BACK 'php -d memory_limit=512M vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Tests" "$STEP_ESTIMATE"
-wait $BG_PID
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests" 3
+$BACK 'php -d memory_limit=512M vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null' >/dev/null 2>&1
+stop_countdown
 T=$($BACK "grep -o 'tests=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
 F=$($BACK "grep -o 'failures=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
 E=$($BACK "grep -o 'errors=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
@@ -119,17 +104,15 @@ else
   hint "test-backend"
 fi
 
-step "Coverage" 10
-$BACK 'php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Coverage" "$STEP_ESTIMATE"
-wait $BG_PID
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 10
+$BACK 'php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null' >/dev/null 2>&1
+stop_countdown
 COV_RESULT=$($BACK 'php -r "
 \$xml = @simplexml_load_file(\"/tmp/clover-ci.xml\");
 if (!\$xml) { echo \"statements=\\\"0\\\" coveredstatements=\\\"0\\\"\"; exit; }
 \$m = \$xml->project->metrics;
 echo \"statements=\\\"\" . (int)\$m[\"statements\"] . \"\\\" coveredstatements=\\\"\" . (int)\$m[\"coveredstatements\"] . \"\\\"\";
-" 2>/dev/null' 2>/dev/null | cat | tr -d '\r')
+" 2>/dev/null' 2>/dev/null | tr -d '\r')
 S=$(echo "$COV_RESULT" | grep -oE 'statements="[0-9]+"' | head -1 | grep -oE '[0-9]+')
 C=$(echo "$COV_RESULT" | grep -oE 'coveredstatements="[0-9]+"' | head -1 | grep -oE '[0-9]+')
 COV_STMTS=${S:-0}
@@ -147,11 +130,9 @@ else
   warn "Coverage" "N/A"
 fi
 
-step "Mutation" 150
-$BACK 'php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Mutation" "$STEP_ESTIMATE"
-wait $BG_PID
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 150
+$BACK 'php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1' >/dev/null 2>&1
+stop_countdown
 MUTATE_OUT=$($BACK 'cat /tmp/ci-mutate.txt' 2>/dev/null | strip_ansi)
 MSI_SCORE=$(echo "$MUTATE_OUT" | grep -oE 'Score:[[:space:]]+[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+' | head -1)
 MSI_TESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ tested' | grep -oE '[0-9]+' | head -1)
@@ -168,12 +149,10 @@ fi
 echo ""
 printf "${BLUE}  FRONTEND ${DIM}TypeScript / Vue / Vitest${RESET}\n\n"
 
-step "Lint" 5
-$FRONT 'pnpm lint -q > /tmp/ci-eslint.txt 2>&1; echo $? > /tmp/ci-eslint-rc.txt' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Lint" "$STEP_ESTIMATE"
-wait $BG_PID
-BG_RC=$($FRONT 'cat /tmp/ci-eslint-rc.txt' 2>/dev/null | tr -dc '0-9')
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Lint" 5
+$FRONT 'pnpm lint -q 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
+stop_countdown
+BG_RC=$($FRONT 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
 if [ "${BG_RC:-1}" -eq 0 ]; then
   ok "Lint" "ESLint OK"
 else
@@ -181,12 +160,10 @@ else
   hint "lint-frontend"
 fi
 
-step "Format" 10
-$FRONT 'pnpm format:check > /tmp/ci-prettier.txt 2>&1; echo $? > /tmp/ci-prettier-rc.txt' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Format" "$STEP_ESTIMATE"
-wait $BG_PID
-BG_RC=$($FRONT 'cat /tmp/ci-prettier-rc.txt' 2>/dev/null | tr -dc '0-9')
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Format" 10
+$FRONT 'pnpm format:check 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
+stop_countdown
+BG_RC=$($FRONT 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
 if [ "${BG_RC:-1}" -eq 0 ]; then
   ok "Format" "Prettier OK"
 else
@@ -194,11 +171,9 @@ else
   hint "lint-frontend"
 fi
 
-step "Tests" 5
-$FRONT 'pnpm vitest run > /tmp/ci-vitest.txt 2>&1' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Tests" "$STEP_ESTIMATE"
-wait $BG_PID
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests" 5
+$FRONT 'pnpm vitest run > /tmp/ci-vitest.txt 2>&1' >/dev/null 2>&1
+stop_countdown
 VITEST_OUT=$($FRONT 'cat /tmp/ci-vitest.txt' 2>/dev/null)
 VITEST_TESTS=$(echo "$VITEST_OUT" | grep "Tests" | grep -oE "[0-9]+ passed" | head -1)
 if [ -n "$VITEST_TESTS" ]; then
@@ -208,11 +183,9 @@ else
   hint "test-frontend"
 fi
 
-step "Coverage" 10
-$FRONT 'pnpm vitest run --coverage --reporter=dot > /tmp/ci-fcov.txt 2>&1' >/dev/null 2>&1 &
-BG_PID=$!
-countdown_loop $BG_PID "Coverage" "$STEP_ESTIMATE"
-wait $BG_PID
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 10
+$FRONT 'pnpm vitest run --coverage --reporter=dot > /tmp/ci-fcov.txt 2>&1' >/dev/null 2>&1
+stop_countdown
 FCOV_OUT=$($FRONT 'cat /tmp/ci-fcov.txt' 2>/dev/null)
 FCOV=$(echo "$FCOV_OUT" | grep "All files" | grep -oE "[0-9]+\.[0-9]+" | head -1)
 if [ -n "$FCOV" ]; then
