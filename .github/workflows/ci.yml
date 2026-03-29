@@ -75,7 +75,12 @@ jobs:
       - name: Tests with coverage
         run: >
           ${{ env.DC }} exec -T frontend
-          pnpm vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary
+          pnpm vitest run --coverage
+          --coverage.thresholds.lines=80
+          --coverage.thresholds.branches=80
+          --coverage.thresholds.functions=80
+          --coverage.reporter=text
+          --coverage.reporter=json-summary
       - name: Coverage summary
         if: always()
         run: |
@@ -90,6 +95,8 @@ jobs:
           name: frontend-coverage
           path: frontend/coverage/coverage-summary.json
           retention-days: 7
+      - name: Mutation testing
+        run: ${{ env.DC }} exec -T frontend pnpm stryker run
       - name: pnpm audit
         run: ${{ env.DC }} exec -T frontend pnpm audit
 
@@ -131,6 +138,7 @@ jobs:
           fi
 
           FRONTEND="N/A"
+          FRONTEND_ICON="—"
           if [ -f frontend-coverage/coverage-summary.json ]; then
             FRONTEND=$(python3 -c "
           import json
@@ -138,6 +146,11 @@ jobs:
               data = json.load(f)
           print(data['total']['lines']['pct'])
           ")
+            if (( $(echo "$FRONTEND >= 80" | bc -l) )); then
+              FRONTEND_ICON="≥ 80% ✅"
+            else
+              FRONTEND_ICON="< 80% ❌"
+            fi
           fi
 
           {
@@ -148,7 +161,7 @@ jobs:
             echo '| Stack | Lines | Gate |'
             echo '|---|---|---|'
             echo "| Backend (PHP) | ${BACKEND}% | ${BACKEND_ICON} |"
-            echo "| Frontend (TS) | ${FRONTEND}% | — |"
+            echo "| Frontend (TS) | ${FRONTEND}% | ${FRONTEND_ICON} |"
             echo ''
             echo "_Updated for commit ${{ github.event.pull_request.head.sha }}_"
             echo 'EOF'

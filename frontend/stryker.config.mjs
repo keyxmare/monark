@@ -6,7 +6,7 @@ export default {
   reporters: ['clear-text', 'progress'],
   testRunner: 'vitest',
   thresholds: {
-    break: null,
+    break: 80,
     high: 80,
     low: 60,
   },
