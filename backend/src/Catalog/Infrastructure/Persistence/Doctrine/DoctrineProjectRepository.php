@@ -7,6 +7,7 @@ namespace App\Catalog\Infrastructure\Persistence\Doctrine;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\Uid\Uuid;
 
 final readonly class DoctrineProjectRepository implements ProjectRepositoryInterface
@@ -18,12 +19,24 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
 
     public function findById(Uuid $id): ?Project
     {
-        return $this->entityManager->getRepository(Project::class)->find($id);
+        return $this->entityManager->getRepository(Project::class)
+            ->createQueryBuilder('p')
+            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
+            ->where('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     public function findBySlug(string $slug): ?Project
     {
-        return $this->entityManager->getRepository(Project::class)->findOneBy(['slug' => $slug]);
+        return $this->entityManager->getRepository(Project::class)
+            ->createQueryBuilder('p')
+            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
+            ->where('p.slug = :slug')
+            ->setParameter('slug', $slug)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
@@ -56,14 +69,16 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
     /** @return list<Project> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
-        /** @var list<Project> */
-        return $this->entityManager->getRepository(Project::class)
+        $query = $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
+            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->orderBy('p.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+        /** @var list<Project> */
+        return (new Paginator($query))->getIterator()->getArrayCopy();
     }
 
     /** @return list<Project> */
@@ -72,6 +87,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
         /** @var list<Project> */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
+            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->where('p.provider = :providerId')
             ->setParameter('providerId', $providerId)
             ->getQuery()
@@ -84,6 +100,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
         /** @var list<Project> */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
+            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->where('p.provider IS NOT NULL')
             ->andWhere('p.externalId IS NOT NULL')
             ->getQuery()

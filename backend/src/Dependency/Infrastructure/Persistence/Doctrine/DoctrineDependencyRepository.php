@@ -7,6 +7,7 @@ namespace App\Dependency\Infrastructure\Persistence\Doctrine;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\Uid\Uuid;
 
 final readonly class DoctrineDependencyRepository implements DependencyRepositoryInterface
@@ -18,20 +19,28 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
 
     public function findById(Uuid $id): ?Dependency
     {
-        return $this->entityManager->getRepository(Dependency::class)->find($id);
+        return $this->entityManager->getRepository(Dependency::class)
+            ->createQueryBuilder('d')
+            ->leftJoin('d.vulnerabilities', 'v')->addSelect('v')
+            ->where('d.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     /** @return list<Dependency> */
     public function findAll(int $page = 1, int $perPage = 20): array
     {
-        /** @var list<Dependency> */
-        return $this->entityManager->getRepository(Dependency::class)
+        $query = $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
+            ->leftJoin('d.vulnerabilities', 'v')->addSelect('v')
             ->orderBy('d.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+        /** @var list<Dependency> */
+        return (new Paginator($query))->getIterator()->getArrayCopy();
     }
 
     public function count(): int
@@ -52,16 +61,18 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
     /** @return list<Dependency> */
     public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
     {
-        /** @var list<Dependency> */
-        return $this->entityManager->getRepository(Dependency::class)
+        $query = $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
+            ->leftJoin('d.vulnerabilities', 'v')->addSelect('v')
             ->where('d.projectId = :projectId')
             ->setParameter('projectId', $projectId)
             ->orderBy('d.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+        /** @var list<Dependency> */
+        return (new Paginator($query))->getIterator()->getArrayCopy();
     }
 
     public function delete(Dependency $dependency): void
@@ -96,6 +107,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
     public function findFiltered(int $page, int $perPage, array $filters = []): array
     {
         $qb = $this->entityManager->getRepository(Dependency::class)->createQueryBuilder('d');
+        $qb->leftJoin('d.vulnerabilities', 'v')->addSelect('v');
         $this->applyFilters($qb, $filters);
 
         $sort = $filters['sort'] ?? 'name';
@@ -109,12 +121,13 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
         };
         $qb->orderBy($sortField, $sortDir);
 
-        /** @var list<Dependency> */
-        return $qb
+        $query = $qb
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+        /** @var list<Dependency> */
+        return (new Paginator($query))->getIterator()->getArrayCopy();
     }
 
     /** @param array{projectId?: string, search?: string, packageManager?: string, type?: string, isOutdated?: bool} $filters */
@@ -169,6 +182,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
         /** @var list<Dependency> */
         return $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
+            ->leftJoin('d.vulnerabilities', 'v')->addSelect('v')
             ->where('d.name = :name')
             ->andWhere('d.packageManager = :pm')
             ->setParameter('name', $name)
