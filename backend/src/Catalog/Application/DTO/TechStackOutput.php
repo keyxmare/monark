@@ -15,6 +15,11 @@ final readonly class TechStackOutput
         public string $detectedAt,
         public string $projectId,
         public string $createdAt,
+        public ?string $latestLts = null,
+        public ?string $ltsGap = null,
+        public ?string $maintenanceStatus = null,
+        public ?string $eolDate = null,
+        public ?string $versionSyncedAt = null,
     ) {
     }
 }

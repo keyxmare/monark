@@ -38,6 +38,21 @@ final class TechStack
     #[ORM\Column]
     private DateTimeImmutable $createdAt;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $latestLts = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $ltsGap = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $maintenanceStatus = null;
+
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?DateTimeImmutable $eolDate = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?DateTimeImmutable $versionSyncedAt = null;
+
     private function __construct(
         Uuid $id,
         string $language,
@@ -115,4 +130,27 @@ final class TechStack
     {
         return $this->createdAt;
     }
+
+    public function updateVersionStatus(
+        ?string $latestLts,
+        ?string $ltsGap,
+        ?string $maintenanceStatus,
+        ?DateTimeImmutable $eolDate,
+    ): void {
+        $this->latestLts = $latestLts;
+        $this->ltsGap = $ltsGap;
+        $this->maintenanceStatus = $maintenanceStatus;
+        $this->eolDate = $eolDate;
+        $this->versionSyncedAt = new DateTimeImmutable();
+    }
+
+    public function getLatestLts(): ?string { return $this->latestLts; }
+
+    public function getLtsGap(): ?string { return $this->ltsGap; }
+
+    public function getMaintenanceStatus(): ?string { return $this->maintenanceStatus; }
+
+    public function getEolDate(): ?DateTimeImmutable { return $this->eolDate; }
+
+    public function getVersionSyncedAt(): ?DateTimeImmutable { return $this->versionSyncedAt; }
 }

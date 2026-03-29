@@ -91,4 +91,28 @@ final readonly class DoctrineTechStackRepository implements TechStackRepositoryI
             ->getQuery()
             ->execute();
     }
+
+    public function findByFramework(string $framework): array
+    {
+        /** @var list<TechStack> */
+        return $this->entityManager->createQueryBuilder()
+            ->select('ts')
+            ->from(TechStack::class, 'ts')
+            ->where('ts.framework = :framework')
+            ->setParameter('framework', $framework)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByLanguage(string $language): array
+    {
+        /** @var list<TechStack> */
+        return $this->entityManager->createQueryBuilder()
+            ->select('ts')
+            ->from(TechStack::class, 'ts')
+            ->where('ts.language = :language')
+            ->setParameter('language', $language)
+            ->getQuery()
+            ->getResult();
+    }
 }

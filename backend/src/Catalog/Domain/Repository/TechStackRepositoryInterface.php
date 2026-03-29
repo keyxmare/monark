@@ -26,4 +26,10 @@ interface TechStackRepositoryInterface
     public function delete(TechStack $techStack): void;
 
     public function deleteByProjectId(Uuid $projectId): void;
+
+    /** @return list<TechStack> */
+    public function findByFramework(string $framework): array;
+
+    /** @return list<TechStack> */
+    public function findByLanguage(string $language): array;
 }
