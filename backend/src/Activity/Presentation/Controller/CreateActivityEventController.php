@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Activity\Infrastructure\Controller;
+namespace App\Activity\Presentation\Controller;
 
 use App\Activity\Application\Command\CreateActivityEventCommand;
 use App\Activity\Application\DTO\CreateActivityEventInput;
