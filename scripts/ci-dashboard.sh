@@ -133,10 +133,9 @@ fi
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 150
 $BACK 'php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1' >/dev/null 2>&1
 stop_countdown
-MUTATE_OUT=$($BACK 'cat /tmp/ci-mutate.txt' 2>/dev/null | strip_ansi)
-MSI_SCORE=$(echo "$MUTATE_OUT" | grep -oE 'Score:[[:space:]]+[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+' | head -1)
-MSI_TESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ tested' | grep -oE '[0-9]+' | head -1)
-MSI_UNTESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ untested' | grep -oE '[0-9]+' | head -1)
+MSI_SCORE=$($BACK 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-mutate.txt | grep -oE "Score:[[:space:]]+[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+" | head -1' 2>/dev/null | tr -dc '0-9.')
+MSI_TESTED=$($BACK 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-mutate.txt | grep -oE "[0-9]+ tested" | grep -oE "[0-9]+" | head -1' 2>/dev/null | tr -dc '0-9')
+MSI_UNTESTED=$($BACK 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-mutate.txt | grep -oE "[0-9]+ untested" | grep -oE "[0-9]+" | head -1' 2>/dev/null | tr -dc '0-9')
 if [ -n "$MSI_SCORE" ]; then
   MSI_TOTAL=$((${MSI_TESTED:-0} + ${MSI_UNTESTED:-0}))
   ok "Mutation" "MSI: ${MSI_SCORE}% (${MSI_TESTED:-0}/${MSI_TOTAL})"
