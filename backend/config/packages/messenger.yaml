@@ -49,3 +49,5 @@ framework:
             App\Catalog\Application\Command\SyncMergeRequestsCommand: async
             App\Dependency\Application\Command\SyncDependencyVersionsCommand: async
             App\Dependency\Application\Command\SyncSingleDependencyVersionCommand: async
+            App\VersionRegistry\Application\Command\SyncProductVersionsCommand: async
+            App\VersionRegistry\Application\Command\SyncSingleProductCommand: async

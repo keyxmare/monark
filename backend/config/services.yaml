@@ -154,3 +154,19 @@ services:
     App\VersionRegistry\Application\CommandHandler\SyncSingleProductHandler:
         arguments:
             $resolvers: !tagged_iterator version_registry.resolver
+
+    App\VersionRegistry\Presentation\Console\SyncProductVersionsConsoleCommand:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\VersionRegistry\Presentation\Controller\SyncProductVersionsController:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\VersionRegistry\Application\CommandHandler\SyncProductVersionsHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\VersionRegistry\Application\EventListener\RegisterScannedProductsListener:
+        arguments:
+            $commandBus: '@command.bus'
