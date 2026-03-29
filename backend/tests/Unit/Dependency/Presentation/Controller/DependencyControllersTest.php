@@ -115,6 +115,115 @@ it('lists dependencies with project filter', function () {
     expect($bus->dispatched)->toBeInstanceOf(ListDependenciesQuery::class);
     expect($bus->dispatched->page)->toBe(1);
     expect($bus->dispatched->perPage)->toBe(20);
+    expect($bus->dispatched->projectId)->toBe('p-1');
+    expect($bus->dispatched->sort)->toBe('name');
+    expect($bus->dispatched->sortDir)->toBe('asc');
+    expect($bus->dispatched->search)->toBeNull();
+    expect($bus->dispatched->packageManager)->toBeNull();
+    expect($bus->dispatched->type)->toBeNull();
+    expect($bus->dispatched->isOutdated)->toBeNull();
+});
+
+it('lists dependencies with custom page and perPage', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 3, perPage: 50)));
+    $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['page' => '3', 'per_page' => '50']));
+
+    expect($response->getStatusCode())->toBe(200);
+    expect($bus->dispatched->page)->toBe(3);
+    expect($bus->dispatched->perPage)->toBe(50);
+});
+
+it('lists dependencies with all query parameters', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 2, perPage: 10)));
+    $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', [
+        'page' => '2',
+        'per_page' => '10',
+        'project_id' => 'proj-123',
+        'search' => 'vue',
+        'package_manager' => 'npm',
+        'type' => 'runtime',
+        'sort' => 'name',
+        'sort_dir' => 'desc',
+        'is_outdated' => '1',
+    ]));
+
+    expect($response->getStatusCode())->toBe(200);
+    expect($bus->dispatched->page)->toBe(2);
+    expect($bus->dispatched->perPage)->toBe(10);
+    expect($bus->dispatched->projectId)->toBe('proj-123');
+    expect($bus->dispatched->search)->toBe('vue');
+    expect($bus->dispatched->packageManager)->toBe('npm');
+    expect($bus->dispatched->type)->toBe('runtime');
+    expect($bus->dispatched->sort)->toBe('name');
+    expect($bus->dispatched->sortDir)->toBe('desc');
+    expect($bus->dispatched->isOutdated)->toBeTrue();
+});
+
+it('parses is_outdated=true as true', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => 'true']));
+
+    expect($bus->dispatched->isOutdated)->toBeTrue();
+});
+
+it('parses is_outdated=1 as true', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => '1']));
+
+    expect($bus->dispatched->isOutdated)->toBeTrue();
+});
+
+it('parses is_outdated=0 as false', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => '0']));
+
+    expect($bus->dispatched->isOutdated)->toBeFalse();
+});
+
+it('parses is_outdated=false as false', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => 'false']));
+
+    expect($bus->dispatched->isOutdated)->toBeFalse();
+});
+
+it('leaves is_outdated null when not provided', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET'));
+
+    expect($bus->dispatched->isOutdated)->toBeNull();
+});
+
+it('uses default sort values when not provided', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET'));
+
+    expect($bus->dispatched->sort)->toBe('name');
+    expect($bus->dispatched->sortDir)->toBe('asc');
+});
+
+it('passes custom sort values', function () {
+    $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
+    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', [
+        'sort' => 'updatedAt',
+        'sort_dir' => 'desc',
+    ]));
+
+    expect($bus->dispatched->sort)->toBe('updatedAt');
+    expect($bus->dispatched->sortDir)->toBe('desc');
+});
+
+it('returns JSON response with pagination data', function () {
+    $output = new DependencyListOutput(new PaginatedOutput(items: ['item1', 'item2'], total: 42, page: 2, perPage: 10));
+    $bus = \stubDependencyBus($output);
+    $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET'));
+
+    expect($response->getStatusCode())->toBe(200);
+    $data = \json_decode($response->getContent(), true);
+    expect($data['success'])->toBeTrue();
+    expect($data['data']['total'])->toBe(42);
+    expect($data['data']['page'])->toBe(2);
+    expect($data['data']['per_page'])->toBe(10);
 });
 
 it('creates a vulnerability and returns 201', function () use ($ts, $uuid) {
