@@ -80,8 +80,21 @@ const textClass = computed(() => (props.size === 'sm' ? 'text-xs' : 'text-sm'));
 </script>
 
 <template>
-  <span class="inline-flex items-center gap-1.5" :title="name" :data-testid="`tech-badge-${name}`">
-    <img v-if="iconUrl" :src="iconUrl" :alt="name" :class="sizeClass" />
-    <span v-else :class="textClass" class="font-medium text-text-muted">{{ name }}</span>
+  <span
+    class="inline-flex items-center gap-1.5"
+    :title="name"
+    :data-testid="`tech-badge-${name}`"
+  >
+    <img
+      v-if="iconUrl"
+      :src="iconUrl"
+      :alt="name"
+      :class="sizeClass"
+    >
+    <span
+      v-else
+      :class="textClass"
+      class="font-medium text-text-muted"
+    >{{ name }}</span>
   </span>
 </template>

@@ -49,7 +49,10 @@ const progressBarColor = computed(() => {
         <p class="text-sm font-semibold">
           {{ toast.title }}
         </p>
-        <p v-if="toast.message" class="mt-1 text-xs opacity-80">
+        <p
+          v-if="toast.message"
+          class="mt-1 text-xs opacity-80"
+        >
           {{ toast.message }}
         </p>
       </div>
@@ -59,13 +62,26 @@ const progressBarColor = computed(() => {
         data-testid="toast-close"
         @click="emit('close', toast.id)"
       >
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>
 
-    <div v-if="toast.variant === 'progress' && toast.progress" class="mt-3">
+    <div
+      v-if="toast.variant === 'progress' && toast.progress"
+      class="mt-3"
+    >
       <div class="mb-1 flex justify-between text-xs">
         <span>{{ toast.progress.current }}/{{ toast.progress.total }}</span>
         <span>{{ progressPercent }}%</span>

@@ -57,7 +57,10 @@ async function handleSubmit() {
           {{ t('identity.accessTokens.addToken') }}
         </h2>
 
-        <form data-testid="access-token-form" @submit.prevent="handleSubmit">
+        <form
+          data-testid="access-token-form"
+          @submit.prevent="handleSubmit"
+        >
           <div
             v-if="error"
             class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
@@ -68,7 +71,10 @@ async function handleSubmit() {
           </div>
 
           <div class="mb-4">
-            <label for="provider" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="provider"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('identity.accessTokens.provider')
             }}</label>
             <select
@@ -77,13 +83,20 @@ async function handleSubmit() {
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="access-token-provider"
             >
-              <option value="gitlab">GitLab</option>
-              <option value="github">GitHub</option>
+              <option value="gitlab">
+                GitLab
+              </option>
+              <option value="github">
+                GitHub
+              </option>
             </select>
           </div>
 
           <div class="mb-4">
-            <label for="token" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="token"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('identity.accessTokens.token')
             }}</label>
             <input
@@ -93,11 +106,14 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="access-token-token"
-            />
+            >
           </div>
 
           <div class="mb-4">
-            <label for="scopes" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="scopes"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('identity.accessTokens.scopesHint')
             }}</label>
             <input
@@ -107,11 +123,14 @@ async function handleSubmit() {
               :placeholder="t('identity.accessTokens.scopesPlaceholder')"
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="access-token-scopes"
-            />
+            >
           </div>
 
           <div class="mb-6">
-            <label for="expiresAt" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="expiresAt"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('identity.accessTokens.expiresAtOptional')
             }}</label>
             <input
@@ -120,7 +139,7 @@ async function handleSubmit() {
               type="datetime-local"
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="access-token-expires-at"
-            />
+            >
           </div>
 
           <button

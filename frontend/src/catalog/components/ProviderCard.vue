@@ -30,7 +30,10 @@ const { d, t } = useI18n();
   >
     <div class="mb-3 flex items-start justify-between">
       <div class="flex items-center gap-3">
-        <ProviderIcon :type="provider.type" :size="24" />
+        <ProviderIcon
+          :type="provider.type"
+          :size="24"
+        />
         <div>
           <h3 class="text-sm font-semibold text-text">
             {{ provider.name }}
@@ -40,7 +43,10 @@ const { d, t } = useI18n();
           </p>
         </div>
       </div>
-      <div class="flex items-center gap-2" @click.stop>
+      <div
+        class="flex items-center gap-2"
+        @click.stop
+      >
         <span
           :class="{
             'bg-green-100 text-green-800': provider.status === 'connected',
@@ -52,11 +58,17 @@ const { d, t } = useI18n();
         >
           {{ t(`catalog.providers.statuses.${provider.status}`) }}
         </span>
-        <DropdownMenu :items="items" @select="$emit('dropdownAction', $event)" />
+        <DropdownMenu
+          :items="items"
+          @select="$emit('dropdownAction', $event)"
+        />
       </div>
     </div>
 
-    <div class="mb-3" @click.stop>
+    <div
+      class="mb-3"
+      @click.stop
+    >
       <a
         :href="provider.url"
         class="truncate text-xs text-primary hover:underline"

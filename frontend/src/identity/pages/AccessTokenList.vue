@@ -51,8 +51,14 @@ async function handleDelete(id: string) {
         {{ tokenStore.error }}
       </div>
 
-      <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
-        <table class="w-full" data-testid="access-token-list-table">
+      <div
+        v-else
+        class="overflow-hidden rounded-xl border border-border bg-surface"
+      >
+        <table
+          class="w-full"
+          data-testid="access-token-list-table"
+        >
           <thead>
             <tr class="border-b border-border bg-surface-muted">
               <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">

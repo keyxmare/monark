@@ -186,7 +186,10 @@ function toggleSort(field: SortField) {
         {{ error }}
       </div>
 
-      <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="remote-projects-filters">
+      <div
+        class="mb-4 flex flex-wrap items-center gap-3"
+        data-testid="remote-projects-filters"
+      >
         <div class="relative flex-1">
           <svg
             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
@@ -208,7 +211,7 @@ function toggleSort(field: SortField) {
             :placeholder="t('catalog.providers.searchProjects')"
             class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-9 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
             data-testid="remote-projects-search"
-          />
+          >
           <svg
             v-if="searching"
             class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-primary"
@@ -250,7 +253,10 @@ function toggleSort(field: SortField) {
             {{ t('catalog.providers.visibility.internal') }}
           </option>
         </select>
-        <div class="flex items-center gap-1" data-testid="remote-projects-sort">
+        <div
+          class="flex items-center gap-1"
+          data-testid="remote-projects-sort"
+        >
           <button
             v-for="field in ['name', 'visibility', 'defaultBranch'] as const"
             :key="field"
@@ -283,7 +289,7 @@ function toggleSort(field: SortField) {
           :aria-label="t('catalog.providers.selectAll')"
           data-testid="select-all-checkbox"
           @change="toggleSelectAll"
-        />
+        >
         <span class="text-sm text-text-muted">
           {{ t('catalog.providers.selectAll') }}
         </span>
@@ -308,7 +314,7 @@ function toggleSort(field: SortField) {
                 :value="project.externalId"
                 :aria-label="t('catalog.providers.selectProject', { name: project.name })"
                 :data-testid="`select-${project.externalId}`"
-              />
+              >
               <div>
                 <p class="font-medium text-text">
                   {{ project.name }}

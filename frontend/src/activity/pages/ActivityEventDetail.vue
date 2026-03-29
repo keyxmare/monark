@@ -60,7 +60,10 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.events.type') }}
             </dt>
-            <dd class="mt-1 text-text" data-testid="activity-event-detail-type">
+            <dd
+              class="mt-1 text-text"
+              data-testid="activity-event-detail-type"
+            >
               <span class="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 {{ eventStore.selectedEvent.type }}
               </span>
@@ -70,7 +73,10 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.events.entityType') }}
             </dt>
-            <dd class="mt-1 text-text" data-testid="activity-event-detail-entity-type">
+            <dd
+              class="mt-1 text-text"
+              data-testid="activity-event-detail-entity-type"
+            >
               {{ eventStore.selectedEvent.entityType }}
             </dd>
           </div>
@@ -89,7 +95,10 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.events.userId') }}
             </dt>
-            <dd class="mt-1 font-mono text-text-muted" data-testid="activity-event-detail-user-id">
+            <dd
+              class="mt-1 font-mono text-text-muted"
+              data-testid="activity-event-detail-user-id"
+            >
               {{ eventStore.selectedEvent.userId }}
             </dd>
           </div>
@@ -97,7 +106,10 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.events.occurredAt') }}
             </dt>
-            <dd class="mt-1 text-text" data-testid="activity-event-detail-occurred-at">
+            <dd
+              class="mt-1 text-text"
+              data-testid="activity-event-detail-occurred-at"
+            >
               {{ d(new Date(eventStore.selectedEvent.occurredAt), 'long') }}
             </dd>
           </div>
@@ -105,7 +117,10 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.events.payload') }}
             </dt>
-            <dd class="mt-1" data-testid="activity-event-detail-payload">
+            <dd
+              class="mt-1"
+              data-testid="activity-event-detail-payload"
+            >
               <pre class="overflow-auto rounded-lg bg-surface-muted p-4 text-sm text-text">{{
                 JSON.stringify(eventStore.selectedEvent.payload, null, 2)
               }}</pre>

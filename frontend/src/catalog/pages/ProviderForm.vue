@@ -168,7 +168,10 @@ async function handleTestConnection() {
             {{ t('catalog.providers.title') }}
           </RouterLink>
           <span>/</span>
-          <span v-if="isEdit && providerStore.selected" class="flex items-center gap-1.5">
+          <span
+            v-if="isEdit && providerStore.selected"
+            class="flex items-center gap-1.5"
+          >
             <RouterLink
               :to="{ name: 'catalog-providers-detail', params: { id: providerId } }"
               class="text-primary hover:text-primary-dark"
@@ -178,7 +181,10 @@ async function handleTestConnection() {
             <span>/</span>
             <span class="text-text">{{ t('common.actions.edit') }}</span>
           </span>
-          <span v-else class="text-text">{{ t('catalog.providers.createProvider') }}</span>
+          <span
+            v-else
+            class="text-text"
+          >{{ t('catalog.providers.createProvider') }}</span>
         </div>
       </div>
 
@@ -190,11 +196,18 @@ async function handleTestConnection() {
         {{ t('common.actions.loading') }}
       </div>
 
-      <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div
+        v-else
+        class="grid grid-cols-1 gap-6 lg:grid-cols-3"
+      >
         <div class="lg:col-span-2">
           <div class="rounded-xl border border-border bg-surface p-6">
             <div class="mb-6 flex items-center gap-3">
-              <ProviderIcon v-if="isEdit || form.type" :type="form.type" :size="28" />
+              <ProviderIcon
+                v-if="isEdit || form.type"
+                :type="form.type"
+                :size="28"
+              />
               <h2 class="text-xl font-bold text-text">
                 {{
                   isEdit
@@ -204,7 +217,10 @@ async function handleTestConnection() {
               </h2>
             </div>
 
-            <form data-testid="provider-form" @submit.prevent="handleSubmit">
+            <form
+              data-testid="provider-form"
+              @submit.prevent="handleSubmit"
+            >
               <div
                 v-if="formError"
                 class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
@@ -216,9 +232,10 @@ async function handleTestConnection() {
 
               <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label for="field-name" class="mb-1 block text-sm font-medium text-text"
-                    >{{ t('catalog.providers.name') }} <span class="text-danger">*</span></label
-                  >
+                  <label
+                    for="field-name"
+                    class="mb-1 block text-sm font-medium text-text"
+                  >{{ t('catalog.providers.name') }} <span class="text-danger">*</span></label>
                   <input
                     id="field-name"
                     v-model="form.name"
@@ -232,17 +249,25 @@ async function handleTestConnection() {
                     class="w-full rounded-lg border px-3 py-2 text-text focus:ring-2 focus:outline-none"
                     data-testid="field-name"
                     @blur="touched.name = true"
-                  />
-                  <p v-if="errors.name" class="mt-1 text-xs text-danger" data-testid="error-name">
+                  >
+                  <p
+                    v-if="errors.name"
+                    class="mt-1 text-xs text-danger"
+                    data-testid="error-name"
+                  >
                     {{ errors.name }}
                   </p>
                 </div>
 
                 <div>
-                  <label for="field-type" class="mb-1 block text-sm font-medium text-text"
-                    >{{ t('catalog.providers.type') }}
-                    <span v-if="!isEdit" class="text-danger">*</span></label
-                  >
+                  <label
+                    for="field-type"
+                    class="mb-1 block text-sm font-medium text-text"
+                  >{{ t('catalog.providers.type') }}
+                    <span
+                      v-if="!isEdit"
+                      class="text-danger"
+                    >*</span></label>
                   <select
                     id="field-type"
                     v-model="form.type"
@@ -251,20 +276,30 @@ async function handleTestConnection() {
                     class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     data-testid="field-type"
                   >
-                    <option value="gitlab">GitLab</option>
-                    <option value="github">GitHub</option>
-                    <option value="bitbucket">Bitbucket</option>
+                    <option value="gitlab">
+                      GitLab
+                    </option>
+                    <option value="github">
+                      GitHub
+                    </option>
+                    <option value="bitbucket">
+                      Bitbucket
+                    </option>
                   </select>
-                  <p v-if="isEdit" class="mt-1 text-xs text-text-muted">
+                  <p
+                    v-if="isEdit"
+                    class="mt-1 text-xs text-text-muted"
+                  >
                     {{ t('catalog.providers.typeLockedHint') }}
                   </p>
                 </div>
               </div>
 
               <div class="mt-4">
-                <label for="field-url" class="mb-1 block text-sm font-medium text-text"
-                  >{{ t('catalog.providers.url') }} <span class="text-danger">*</span></label
-                >
+                <label
+                  for="field-url"
+                  class="mb-1 block text-sm font-medium text-text"
+                >{{ t('catalog.providers.url') }} <span class="text-danger">*</span></label>
                 <input
                   id="field-url"
                   v-model="form.url"
@@ -279,17 +314,30 @@ async function handleTestConnection() {
                   class="w-full rounded-lg border px-3 py-2 text-text focus:ring-2 focus:outline-none"
                   data-testid="field-url"
                   @blur="touched.url = true"
-                />
-                <p v-if="errors.url" class="mt-1 text-xs text-danger" data-testid="error-url">
+                >
+                <p
+                  v-if="errors.url"
+                  class="mt-1 text-xs text-danger"
+                  data-testid="error-url"
+                >
                   {{ errors.url }}
                 </p>
-                <p v-else class="mt-1 text-xs text-text-muted">
+                <p
+                  v-else
+                  class="mt-1 text-xs text-text-muted"
+                >
                   {{ t('catalog.providers.urlHint') }}
                 </p>
               </div>
 
-              <div v-if="isGitHub" class="mt-4">
-                <label for="field-username" class="mb-1 block text-sm font-medium text-text">{{
+              <div
+                v-if="isGitHub"
+                class="mt-4"
+              >
+                <label
+                  for="field-username"
+                  class="mb-1 block text-sm font-medium text-text"
+                >{{
                   t('catalog.providers.username')
                 }}</label>
                 <input
@@ -306,7 +354,7 @@ async function handleTestConnection() {
                   class="w-full rounded-lg border px-3 py-2 text-text focus:ring-2 focus:outline-none"
                   data-testid="field-username"
                   @blur="touched.username = true"
-                />
+                >
                 <p
                   v-if="errors.username"
                   class="mt-1 text-xs text-danger"
@@ -314,16 +362,23 @@ async function handleTestConnection() {
                 >
                   {{ errors.username }}
                 </p>
-                <p v-else class="mt-1 text-xs text-text-muted">
+                <p
+                  v-else
+                  class="mt-1 text-xs text-text-muted"
+                >
                   {{ t('catalog.providers.usernameHint') }}
                 </p>
               </div>
 
               <div class="mt-4">
-                <label for="field-apiToken" class="mb-1 block text-sm font-medium text-text"
-                  >{{ t('catalog.providers.apiToken') }}
-                  <span v-if="tokenRequired" class="text-danger">*</span></label
-                >
+                <label
+                  for="field-apiToken"
+                  class="mb-1 block text-sm font-medium text-text"
+                >{{ t('catalog.providers.apiToken') }}
+                  <span
+                    v-if="tokenRequired"
+                    class="text-danger"
+                  >*</span></label>
                 <div class="relative">
                   <input
                     id="field-apiToken"
@@ -343,7 +398,7 @@ async function handleTestConnection() {
                     class="w-full rounded-lg border px-3 py-2 pr-16 text-text focus:ring-2 focus:outline-none"
                     data-testid="field-apiToken"
                     @blur="touched.apiToken = true"
-                  />
+                  >
                   <button
                     type="button"
                     class="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-text-muted hover:text-text"
@@ -364,7 +419,10 @@ async function handleTestConnection() {
                 >
                   {{ errors.apiToken }}
                 </p>
-                <p v-else-if="isGitHub" class="mt-1 text-xs text-text-muted">
+                <p
+                  v-else-if="isGitHub"
+                  class="mt-1 text-xs text-text-muted"
+                >
                   {{ t('catalog.providers.tokenOptionalHint') }}
                 </p>
               </div>
@@ -376,8 +434,15 @@ async function handleTestConnection() {
                   class="rounded-lg bg-primary px-6 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
                   data-testid="provider-form-submit"
                 >
-                  <span v-if="submitting" class="flex items-center gap-2">
-                    <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <span
+                    v-if="submitting"
+                    class="flex items-center gap-2"
+                  >
+                    <svg
+                      class="h-4 w-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
                       <circle
                         class="opacity-25"
                         cx="12"
@@ -418,7 +483,10 @@ async function handleTestConnection() {
           </div>
         </div>
 
-        <div v-if="isEdit && providerStore.selected" class="space-y-4">
+        <div
+          v-if="isEdit && providerStore.selected"
+          class="space-y-4"
+        >
           <div
             class="rounded-xl border border-border bg-surface p-5"
             data-testid="provider-sidebar-info"
@@ -451,7 +519,10 @@ async function handleTestConnection() {
 
               <div class="flex items-center justify-between">
                 <span class="text-sm text-text-muted">{{ t('catalog.providers.lastSync') }}</span>
-                <span class="text-sm text-text" data-testid="sidebar-last-sync">
+                <span
+                  class="text-sm text-text"
+                  data-testid="sidebar-last-sync"
+                >
                   {{
                     providerStore.selected.lastSyncAt
                       ? d(new Date(providerStore.selected.lastSyncAt), 'short')

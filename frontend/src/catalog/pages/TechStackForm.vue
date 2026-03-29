@@ -64,7 +64,10 @@ async function handleSubmit() {
           {{ t('catalog.techStacks.addTechStack') }}
         </h2>
 
-        <form data-testid="tech-stack-form" @submit.prevent="handleSubmit">
+        <form
+          data-testid="tech-stack-form"
+          @submit.prevent="handleSubmit"
+        >
           <div
             v-if="formError"
             class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
@@ -75,7 +78,10 @@ async function handleSubmit() {
           </div>
 
           <div class="mb-4">
-            <label for="projectId" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="projectId"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('catalog.techStacks.project')
             }}</label>
             <select
@@ -85,7 +91,10 @@ async function handleSubmit() {
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="tech-stack-form-project"
             >
-              <option value="" disabled>
+              <option
+                value=""
+                disabled
+              >
                 {{ t('catalog.techStacks.selectProject') }}
               </option>
               <option
@@ -99,7 +108,10 @@ async function handleSubmit() {
           </div>
 
           <div class="mb-4">
-            <label for="language" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="language"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('catalog.techStacks.language')
             }}</label>
             <input
@@ -109,11 +121,14 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="tech-stack-form-language"
-            />
+            >
           </div>
 
           <div class="mb-4">
-            <label for="framework" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="framework"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('catalog.techStacks.framework')
             }}</label>
             <input
@@ -123,11 +138,14 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="tech-stack-form-framework"
-            />
+            >
           </div>
 
           <div class="mb-4">
-            <label for="version" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="version"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('catalog.techStacks.version')
             }}</label>
             <input
@@ -137,11 +155,14 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="tech-stack-form-version"
-            />
+            >
           </div>
 
           <div class="mb-6">
-            <label for="detectedAt" class="mb-1 block text-sm font-medium text-text">{{
+            <label
+              for="detectedAt"
+              class="mb-1 block text-sm font-medium text-text"
+            >{{
               t('catalog.techStacks.detectedAt')
             }}</label>
             <input
@@ -151,7 +172,7 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="tech-stack-form-detected-at"
-            />
+            >
           </div>
 
           <button

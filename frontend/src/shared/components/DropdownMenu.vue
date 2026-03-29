@@ -53,7 +53,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="menuRef" class="relative" data-testid="dropdown-menu">
+  <div
+    ref="menuRef"
+    class="relative"
+    data-testid="dropdown-menu"
+  >
     <button
       class="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:bg-background hover:text-text"
       data-testid="dropdown-trigger"
@@ -62,7 +66,11 @@ onBeforeUnmount(() => {
       aria-haspopup="true"
       @click.stop="toggle"
     >
-      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+      <svg
+        class="h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
         <path
           d="M10 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z"
         />

@@ -37,7 +37,10 @@ onMounted(() => {
           <p class="text-sm font-medium text-text-muted">
             {{ t('identity.profile.firstName') }}
           </p>
-          <p class="text-lg text-text" data-testid="profile-first-name">
+          <p
+            class="text-lg text-text"
+            data-testid="profile-first-name"
+          >
             {{ authStore.currentUser.firstName }}
           </p>
         </div>
@@ -45,7 +48,10 @@ onMounted(() => {
           <p class="text-sm font-medium text-text-muted">
             {{ t('identity.profile.lastName') }}
           </p>
-          <p class="text-lg text-text" data-testid="profile-last-name">
+          <p
+            class="text-lg text-text"
+            data-testid="profile-last-name"
+          >
             {{ authStore.currentUser.lastName }}
           </p>
         </div>
@@ -53,7 +59,10 @@ onMounted(() => {
           <p class="text-sm font-medium text-text-muted">
             {{ t('identity.profile.email') }}
           </p>
-          <p class="text-lg text-text" data-testid="profile-email">
+          <p
+            class="text-lg text-text"
+            data-testid="profile-email"
+          >
             {{ authStore.currentUser.email }}
           </p>
         </div>

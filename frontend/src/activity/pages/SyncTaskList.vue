@@ -54,7 +54,10 @@ function statusClass(status: string): string {
 <template>
   <DashboardLayout>
     <div data-testid="sync-task-list-page">
-      <h2 class="mb-6 text-2xl font-bold text-text" data-testid="sync-task-title">
+      <h2
+        class="mb-6 text-2xl font-bold text-text"
+        data-testid="sync-task-title"
+      >
         {{ t('activity.syncTasks.title') }}
       </h2>
 
@@ -77,7 +80,10 @@ function statusClass(status: string): string {
         </div>
       </div>
 
-      <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="sync-task-filters">
+      <div
+        class="mb-4 flex flex-wrap items-center gap-3"
+        data-testid="sync-task-filters"
+      >
         <select
           v-model="filterStatus"
           :aria-label="t('activity.syncTasks.allStatuses')"

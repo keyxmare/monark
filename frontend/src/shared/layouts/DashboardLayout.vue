@@ -31,10 +31,16 @@ const mainClasses = computed(() => [
       @keydown.escape="mobileOpen = false"
     />
 
-    <div :class="mainClasses" class="flex-1">
+    <div
+      :class="mainClasses"
+      class="flex-1"
+    >
       <AppTopbar />
 
-      <main class="w-full p-6" data-testid="main-content">
+      <main
+        class="w-full p-6"
+        data-testid="main-content"
+      >
         <slot />
       </main>
     </div>

@@ -29,7 +29,10 @@ const urgentTaskCount = computed(() => {
 <template>
   <DashboardLayout>
     <div data-testid="dashboard-page">
-      <h2 class="mb-6 text-2xl font-bold text-text" data-testid="dashboard-title">
+      <h2
+        class="mb-6 text-2xl font-bold text-text"
+        data-testid="dashboard-title"
+      >
         {{ t('activity.dashboard.welcome') }}
       </h2>
 

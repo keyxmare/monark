@@ -180,7 +180,7 @@ function navigateToDetail(id: string) {
               :placeholder="t('catalog.providers.searchProviders')"
               class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
               data-testid="provider-search"
-            />
+            >
           </div>
           <select
             v-model="typeFilter"
