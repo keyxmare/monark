@@ -5,11 +5,16 @@ framework:
         buses:
             command.bus:
                 middleware:
+                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
                     - doctrine_transaction
-            query.bus: ~
+            query.bus:
+                middleware:
+                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
             event.bus:
                 default_middleware:
                     allow_no_handlers: true
+                middleware:
+                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
 
         transports:
             async:
