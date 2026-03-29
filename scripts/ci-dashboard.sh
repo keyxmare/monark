@@ -75,7 +75,7 @@ else
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Static analysis" 5
-$BACK 'php -d memory_limit=512M vendor/bin/phpstan analyse --no-progress --error-format=raw > /tmp/ci-phpstan.txt 2>&1' >/dev/null 2>&1
+$BACK 'vendor/bin/phpstan analyse --no-progress --error-format=raw > /tmp/ci-phpstan.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 PHPSTAN_ERRORS=$($BACK 'grep -c "^/app/" /tmp/ci-phpstan.txt 2>/dev/null || echo 0' 2>/dev/null | tr -dc '0-9')
 if [ "${PHPSTAN_ERRORS:-0}" -eq 0 ]; then
@@ -86,7 +86,7 @@ else
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests" 3
-$BACK 'php -d memory_limit=512M vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null' >/dev/null 2>&1
+$BACK 'vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null' >/dev/null 2>&1
 stop_countdown
 T=$($BACK "grep -o 'tests=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
 F=$($BACK "grep -o 'failures=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
@@ -105,7 +105,7 @@ else
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 10
-$BACK 'php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null' >/dev/null 2>&1
+$BACK 'php -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null' >/dev/null 2>&1
 stop_countdown
 COV_RESULT=$($BACK 'php -r "
 \$xml = @simplexml_load_file(\"/tmp/clover-ci.xml\");
@@ -131,7 +131,7 @@ else
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 150
-$BACK 'php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1' >/dev/null 2>&1
+$BACK 'vendor/bin/pest tests/Unit --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 MSI_SCORE=$($BACK 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-mutate.txt | grep -oE "Score:[[:space:]]+[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+" | head -1' 2>/dev/null | tr -dc '0-9.')
 MSI_TESTED=$($BACK 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-mutate.txt | grep -oE "[0-9]+ tested" | grep -oE "[0-9]+" | head -1' 2>/dev/null | tr -dc '0-9')

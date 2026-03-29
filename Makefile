@@ -35,17 +35,17 @@ restart: ## Restart all containers
 .PHONY: test-backend lint-backend coverage-backend mutation-backend quality-backend outdated-backend audit-backend fix-backend
 
 test-backend: ## Run backend tests
-	$(EXEC_BACKEND) sh -c 'php -d memory_limit=512M vendor/bin/pest --colors=never'
+	$(EXEC_BACKEND) sh -c 'vendor/bin/pest --colors=never'
 
 lint-backend: ## Lint backend code (cs-fixer + phpstan)
-	$(EXEC_BACKEND) sh -c 'php vendor/bin/php-cs-fixer fix --dry-run --diff'
-	$(EXEC_BACKEND) sh -c 'php -d memory_limit=512M vendor/bin/phpstan analyse'
+	$(EXEC_BACKEND) sh -c 'vendor/bin/php-cs-fixer fix --dry-run --diff'
+	$(EXEC_BACKEND) sh -c 'vendor/bin/phpstan analyse'
 
 fix-backend: ## Auto-fix backend code style
 	$(EXEC_BACKEND) sh -c 'php vendor/bin/php-cs-fixer fix'
 
 coverage-backend: ## Run backend tests with coverage
-	$(EXEC_BACKEND) sh -c 'php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --coverage'
+	$(EXEC_BACKEND) sh -c 'php -d xdebug.mode=coverage vendor/bin/pest --coverage'
 
 mutation-backend: ## Run mutation testing (infection)
 	@./scripts/mutation-backend.sh
