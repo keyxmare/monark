@@ -13,11 +13,16 @@ trait DatabaseHelper
 
     protected function resetDatabase(): void
     {
-        if ($_SERVER['APP_ENV'] !== 'test' && $_ENV['APP_ENV'] !== 'test') {
-            throw new \RuntimeException('resetDatabase() must only run in the test environment. Set APP_ENV=test.');
+        $em = $this->getEntityManager();
+        $dbName = $em->getConnection()->getDatabase();
+
+        if (! str_ends_with($dbName, '_test')) {
+            throw new \RuntimeException(
+                "resetDatabase() refused: connected to '{$dbName}' which does not end with '_test'. "
+                . 'Run tests with APP_ENV=test (e.g. docker compose exec -e APP_ENV=test backend vendor/bin/pest).'
+            );
         }
 
-        $em = $this->getEntityManager();
         $metadata = $em->getMetadataFactory()->getAllMetadata();
 
         $schemaTool = new SchemaTool($em);
