@@ -99,7 +99,7 @@ else
 fi
 
 step "Tests" 3
-$BACK "php -d memory_limit=512M vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null" >/dev/null 2>&1 &
+$BACK 'php -d memory_limit=512M vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Tests" "$STEP_ESTIMATE"
 wait $BG_PID
@@ -120,7 +120,7 @@ else
 fi
 
 step "Coverage" 10
-$BACK "php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null" >/dev/null 2>&1 &
+$BACK 'php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Coverage" "$STEP_ESTIMATE"
 wait $BG_PID
@@ -148,11 +148,11 @@ else
 fi
 
 step "Mutation" 150
-$BACK "php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1" >/dev/null 2>&1 &
+$BACK 'php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1' >/dev/null 2>&1 &
 BG_PID=$!
 countdown_loop $BG_PID "Mutation" "$STEP_ESTIMATE"
 wait $BG_PID
-MUTATE_OUT=$($BACK "cat /tmp/ci-mutate.txt" 2>/dev/null | strip_ansi)
+MUTATE_OUT=$($BACK 'cat /tmp/ci-mutate.txt' 2>/dev/null | strip_ansi)
 MSI_SCORE=$(echo "$MUTATE_OUT" | grep -oE 'Score:[[:space:]]+[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+' | head -1)
 MSI_TESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ tested' | grep -oE '[0-9]+' | head -1)
 MSI_UNTESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ untested' | grep -oE '[0-9]+' | head -1)
