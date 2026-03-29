@@ -8,6 +8,8 @@ const toastStore = useToastStore();
 <template>
   <Teleport to="body">
     <div
+      aria-live="polite"
+      role="status"
       class="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col-reverse gap-3"
       data-testid="toast-container"
     >

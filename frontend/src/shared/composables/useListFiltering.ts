@@ -42,6 +42,13 @@ export function useListFiltering<T extends Record<string, unknown>>(
     return sortDir.value === 'asc' ? ' ↑' : ' ↓';
   }
 
+  function sortAriaLabel(field: string, label: string): string {
+    if (sortField.value === field) {
+      return `Sort by ${label}, currently ${sortDir.value === 'asc' ? 'ascending' : 'descending'}`;
+    }
+    return `Sort by ${label}`;
+  }
+
   const filtered = computed(() => {
     if (!debouncedSearch.value || searchFields.length === 0) return items.value;
     const term = debouncedSearch.value.toLowerCase();
@@ -74,6 +81,7 @@ export function useListFiltering<T extends Record<string, unknown>>(
     debouncedSearch,
     filtered,
     search,
+    sortAriaLabel,
     sortDir,
     sortField,
     sortIndicator,

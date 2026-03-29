@@ -18,6 +18,12 @@ const mainClasses = computed(() => [
 
 <template>
   <div class="flex min-h-screen bg-surface-muted">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded focus:bg-primary focus:px-4 focus:py-2 focus:text-white"
+    >
+      {{ t('aria.skipToContent') }}
+    </a>
     <AppSidebar />
 
     <div
@@ -34,7 +40,7 @@ const mainClasses = computed(() => [
     <div :class="mainClasses" class="flex-1">
       <AppTopbar />
 
-      <main class="w-full p-6" data-testid="main-content">
+      <main id="main-content" class="w-full p-6" data-testid="main-content">
         <slot />
       </main>
     </div>

@@ -527,6 +527,7 @@
     "toggleSidebar": "Toggle sidebar",
     "closeSidebar": "Close sidebar",
     "openMenu": "Open menu",
-    "changeLanguage": "Change language"
+    "changeLanguage": "Change language",
+    "skipToContent": "Skip to content"
   }
 }

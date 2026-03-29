@@ -527,6 +527,7 @@
     "toggleSidebar": "Basculer le panneau latéral",
     "closeSidebar": "Fermer le panneau latéral",
     "openMenu": "Ouvrir le menu",
-    "changeLanguage": "Changer de langue"
+    "changeLanguage": "Changer de langue",
+    "skipToContent": "Aller au contenu"
   }
 }
