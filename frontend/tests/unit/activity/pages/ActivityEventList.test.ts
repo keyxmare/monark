@@ -58,7 +58,9 @@ describe('ActivityEventList', () => {
     storeOverrides = { error: 'Failed to fetch' };
     const wrapper = mount(ActivityEventList);
     expect(wrapper.find('[data-testid="activity-event-list-error"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="activity-event-list-error"]').text()).toContain('Failed to fetch');
+    expect(wrapper.find('[data-testid="activity-event-list-error"]').text()).toContain(
+      'Failed to fetch',
+    );
   });
 
   it('shows empty state when no events', () => {

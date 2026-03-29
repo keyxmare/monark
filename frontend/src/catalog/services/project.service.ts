@@ -1,5 +1,10 @@
 import type { ApiResponse } from '@/shared/types';
-import type { CreateProjectInput, Project, ScanResult, UpdateProjectInput } from '@/catalog/types/project';
+import type {
+  CreateProjectInput,
+  Project,
+  ScanResult,
+  UpdateProjectInput,
+} from '@/catalog/types/project';
 import { createCrudService } from '@/shared/services/createCrudService';
 import { api } from '@/shared/utils/api';
 

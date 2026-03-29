@@ -9,7 +9,10 @@ vi.mock('vue-router', () => ({
 }));
 
 vi.mock('vue-i18n', () => ({
-  useI18n: () => ({ d: (v: Date) => v.toISOString(), t: (key: string, params?: Record<string, string>) => key }),
+  useI18n: () => ({
+    d: (v: Date) => v.toISOString(),
+    t: (key: string, params?: Record<string, string>) => key,
+  }),
 }));
 
 vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({

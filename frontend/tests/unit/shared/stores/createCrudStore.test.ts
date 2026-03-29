@@ -32,9 +32,7 @@ const mockItem2: TestEntity = { id: '2', name: 'Item 2' };
 
 describe('createCrudStore', () => {
   let mockService: CrudService<TestEntity, CreateTestEntity, UpdateTestEntity>;
-  let useStore: ReturnType<
-    typeof createCrudStore<TestEntity, CreateTestEntity, UpdateTestEntity>
-  >;
+  let useStore: ReturnType<typeof createCrudStore<TestEntity, CreateTestEntity, UpdateTestEntity>>;
 
   beforeEach(() => {
     setActivePinia(createPinia());

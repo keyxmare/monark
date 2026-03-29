@@ -135,9 +135,7 @@ describe('MergeRequestList', () => {
 
   it('renders external links on merge request rows', () => {
     storeOverrides = {
-      mergeRequests: [
-        createMergeRequest({ id: 'mr-1', url: 'https://github.com/test/pull/1' }),
-      ],
+      mergeRequests: [createMergeRequest({ id: 'mr-1', url: 'https://github.com/test/pull/1' })],
     };
     const wrapper = mount(MergeRequestList);
     expect(wrapper.find('[data-testid="mr-external-link"]').exists()).toBe(true);

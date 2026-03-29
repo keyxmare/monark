@@ -88,9 +88,7 @@ describe('MessengerMonitor', () => {
 
   it('renders workers section when workers exist', () => {
     storeOverrides = {
-      workers: [
-        { connection: 'amqp://localhost:5672', prefetch: 10, state: 'running' },
-      ],
+      workers: [{ connection: 'amqp://localhost:5672', prefetch: 10, state: 'running' }],
     };
     const wrapper = mount(MessengerMonitor);
     expect(wrapper.find('[data-testid="workers-section"]').exists()).toBe(true);
