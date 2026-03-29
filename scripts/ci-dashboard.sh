@@ -150,7 +150,7 @@ echo ""
 printf "${BLUE}  FRONTEND ${DIM}TypeScript / Vue / Vitest${RESET}\n\n"
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Lint" 5
-$FRONT 'pnpm lint -q 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
+$FRONT 'pnpm lint 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
 stop_countdown
 BG_RC=$($FRONT 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
 if [ "${BG_RC:-1}" -eq 0 ]; then
@@ -161,7 +161,7 @@ else
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Format" 10
-$FRONT 'pnpm format:check 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
+$FRONT 'pnpm format:check --ignore-path .gitignore 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
 stop_countdown
 BG_RC=$($FRONT 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
 if [ "${BG_RC:-1}" -eq 0 ]; then
