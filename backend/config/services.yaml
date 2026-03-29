@@ -20,15 +20,15 @@ services:
     App\Activity\:
         resource: '../src/Activity/'
 
+    App\VersionRegistry\:
+        resource: '../src/VersionRegistry/'
+
     App\DataFixtures\:
         resource: '../src/DataFixtures/'
 
 
     App\Identity\Domain\Repository\UserRepositoryInterface:
         alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineUserRepository
-
-    App\Identity\Domain\Repository\AccessTokenRepositoryInterface:
-        alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineAccessTokenRepository
 
     App\Catalog\Domain\Repository\ProjectRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProjectRepository
@@ -53,15 +53,6 @@ services:
 
     App\Catalog\Domain\Port\ProjectScannerInterface:
         alias: App\Catalog\Infrastructure\Scanner\ProjectScanner
-
-    App\Activity\Domain\Repository\ActivityEventRepositoryInterface:
-        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineActivityEventRepository
-
-    App\Activity\Domain\Repository\NotificationRepositoryInterface:
-        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineNotificationRepository
-
-    App\Activity\Domain\Repository\SyncTaskRepositoryInterface:
-        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineSyncTaskRepository
 
     App\Activity\Domain\Repository\BuildMetricRepositoryInterface:
         alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineBuildMetricRepository
@@ -124,14 +115,6 @@ services:
         arguments:
             $appSecret: '%kernel.secret%'
 
-    App\Activity\Domain\Port\MessageQueueMonitorInterface:
-        alias: App\Activity\Infrastructure\Adapter\RabbitMqMonitor
-
-    App\Activity\Infrastructure\Adapter\RabbitMqMonitor:
-        arguments:
-            $httpClient: '@external_api.client'
-            $managementUrl: '%env(RABBITMQ_MANAGEMENT_URL)%'
-
     App\Shared\Domain\Port\DependencyReaderPort:
         alias: App\Dependency\Infrastructure\Adapter\DependencyReaderAdapter
 
@@ -153,3 +136,21 @@ services:
         arguments:
             $apiGlobalLimiter: '@limiter.api_global'
             $apiAuthLimiter: '@limiter.api_auth'
+
+    App\VersionRegistry\Domain\Repository\ProductRepositoryInterface:
+        alias: App\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductRepository
+
+    App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface:
+        alias: App\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductVersionRepository
+
+    App\VersionRegistry\Infrastructure\Resolver\EndOfLifeResolver:
+        tags: ['version_registry.resolver']
+        arguments:
+            $httpClient: '@external_api.client'
+
+    App\VersionRegistry\Infrastructure\Resolver\PackageRegistryResolver:
+        tags: ['version_registry.resolver']
+
+    App\VersionRegistry\Application\CommandHandler\SyncSingleProductHandler:
+        arguments:
+            $resolvers: !tagged_iterator version_registry.resolver
