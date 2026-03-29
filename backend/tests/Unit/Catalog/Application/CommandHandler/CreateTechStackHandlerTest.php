@@ -95,6 +95,14 @@ function stubCreateTechStackRepo(): TechStackRepositoryInterface
         public function deleteByProjectId(Uuid $projectId): void
         {
         }
+        public function findByFramework(string $framework): array
+        {
+            return [];
+        }
+        public function findByLanguage(string $language): array
+        {
+            return [];
+        }
     };
 }
 

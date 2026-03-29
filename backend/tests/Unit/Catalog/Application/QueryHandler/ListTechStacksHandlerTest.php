@@ -45,6 +45,14 @@ function stubListTechStacksRepo(array $techStacks = [], int $count = 0): TechSta
         public function deleteByProjectId(Uuid $projectId): void
         {
         }
+        public function findByFramework(string $framework): array
+        {
+            return [];
+        }
+        public function findByLanguage(string $language): array
+        {
+            return [];
+        }
     };
 }
 

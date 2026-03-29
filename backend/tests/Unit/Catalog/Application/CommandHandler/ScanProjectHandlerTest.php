@@ -120,6 +120,14 @@ function stubScanTechStackRepo(): TechStackRepositoryInterface
         {
             $this->deletedByProject = true;
         }
+        public function findByFramework(string $framework): array
+        {
+            return [];
+        }
+        public function findByLanguage(string $language): array
+        {
+            return [];
+        }
     };
 }
 
