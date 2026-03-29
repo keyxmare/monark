@@ -13,7 +13,7 @@ use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Uid\Uuid;
 
-function stubProviderRepo(?Provider $findByIdResult = null): ProviderRepositoryInterface
+function stubTestConnectionProviderRepo(?Provider $findByIdResult = null): ProviderRepositoryInterface
 {
     return new class ($findByIdResult) implements ProviderRepositoryInterface {
         public ?Provider $saved = null;
@@ -48,7 +48,7 @@ function stubProviderRepo(?Provider $findByIdResult = null): ProviderRepositoryI
     };
 }
 
-function stubGitProviderFactory(bool $connectionResult): GitProviderFactoryInterface
+function stubTestConnectionGitProviderFactory(bool $connectionResult): GitProviderFactoryInterface
 {
     return new class ($connectionResult) implements GitProviderFactoryInterface {
         public function __construct(private readonly bool $connectionResult)
@@ -111,8 +111,8 @@ describe('TestProviderConnectionHandler', function () {
             url: 'https://gitlab.com',
             apiToken: 'test-token',
         );
-        $repo = stubProviderRepo($provider);
-        $factory = stubGitProviderFactory(true);
+        $repo = stubTestConnectionProviderRepo($provider);
+        $factory = stubTestConnectionGitProviderFactory(true);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 
         $command = new TestProviderConnectionCommand($provider->getId()->toRfc4122());
@@ -131,8 +131,8 @@ describe('TestProviderConnectionHandler', function () {
             url: 'https://gitlab.com',
             apiToken: 'bad-token',
         );
-        $repo = stubProviderRepo($provider);
-        $factory = stubGitProviderFactory(false);
+        $repo = stubTestConnectionProviderRepo($provider);
+        $factory = stubTestConnectionGitProviderFactory(false);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 
         $command = new TestProviderConnectionCommand($provider->getId()->toRfc4122());
@@ -144,8 +144,8 @@ describe('TestProviderConnectionHandler', function () {
     });
 
     it('throws NotFoundException when provider does not exist', function () {
-        $repo = stubProviderRepo(null);
-        $factory = stubGitProviderFactory(true);
+        $repo = stubTestConnectionProviderRepo(null);
+        $factory = stubTestConnectionGitProviderFactory(true);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 
         $command = new TestProviderConnectionCommand(Uuid::v7()->toRfc4122());
