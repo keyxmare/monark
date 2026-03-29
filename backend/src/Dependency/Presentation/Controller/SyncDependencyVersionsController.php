@@ -6,12 +6,18 @@ namespace App\Dependency\Presentation\Controller;
 
 use App\Dependency\Application\Command\SyncDependencyVersionsCommand;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
 
 #[Route('/api/dependency/sync', name: 'dependency_sync', methods: ['POST'])]
+#[OA\Post(
+    summary: 'Sync dependency versions from registries',
+    tags: ['Dependency / Dependencies'],
+    responses: [new OA\Response(response: 202, description: 'Sync started')],
+)]
 final readonly class SyncDependencyVersionsController
 {
     public function __construct(

@@ -33,6 +33,7 @@ security:
             lazy: true
 
     access_control:
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
         - { path: ^/healthz, roles: PUBLIC_ACCESS }

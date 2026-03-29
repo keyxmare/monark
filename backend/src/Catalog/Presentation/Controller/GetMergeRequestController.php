@@ -6,12 +6,22 @@ namespace App\Catalog\Presentation\Controller;
 
 use App\Catalog\Application\Query\GetMergeRequestQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/catalog/merge-requests/{id}', name: 'catalog_merge_requests_get', methods: ['GET'])]
+#[OA\Get(
+    summary: 'Get a merge request by ID',
+    tags: ['Catalog / Merge Requests'],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'Merge request details'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ],
+)]
 final readonly class GetMergeRequestController
 {
     public function __construct(

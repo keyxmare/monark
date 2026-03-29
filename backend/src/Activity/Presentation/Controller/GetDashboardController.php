@@ -6,6 +6,7 @@ namespace App\Activity\Presentation\Controller;
 
 use App\Activity\Application\Query\GetDashboardQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
@@ -14,6 +15,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/api/activity/dashboard', name: 'activity_dashboard', methods: ['GET'])]
+#[OA\Get(
+    summary: 'Get the dashboard overview',
+    tags: ['Activity / Dashboard'],
+    responses: [new OA\Response(response: 200, description: 'Dashboard data')],
+)]
 final readonly class GetDashboardController
 {
     public function __construct(

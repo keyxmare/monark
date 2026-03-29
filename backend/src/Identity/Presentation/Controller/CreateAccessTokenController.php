@@ -8,6 +8,8 @@ use App\Identity\Application\Command\CreateAccessTokenCommand;
 use App\Identity\Application\DTO\CreateAccessTokenInput;
 use App\Identity\Domain\Model\User;
 use App\Shared\Application\DTO\ApiResponse;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -16,6 +18,18 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/api/identity/access-tokens', name: 'identity_access_tokens_create', methods: ['POST'])]
+#[OA\Post(
+    summary: 'Create an access token',
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(ref: new Model(type: CreateAccessTokenInput::class)),
+    ),
+    tags: ['Identity / Access Tokens'],
+    responses: [
+        new OA\Response(response: 201, description: 'Token created'),
+        new OA\Response(response: 422, description: 'Validation error'),
+    ],
+)]
 final readonly class CreateAccessTokenController
 {
     public function __construct(

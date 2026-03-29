@@ -7,6 +7,7 @@ namespace App\Dependency\Presentation\Controller;
 use App\Dependency\Application\DTO\DependencyListOutput;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -14,6 +15,22 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/dependency/dependencies', name: 'dependency_dependencies_list', methods: ['GET'])]
+#[OA\Get(
+    summary: 'List dependencies',
+    tags: ['Dependency / Dependencies'],
+    parameters: [
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', default: 1)),
+        new OA\Parameter(name: 'per_page', in: 'query', schema: new OA\Schema(type: 'integer', default: 20)),
+        new OA\Parameter(name: 'project_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'package_manager', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'type', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'is_outdated', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string', default: 'name')),
+        new OA\Parameter(name: 'sort_dir', in: 'query', schema: new OA\Schema(type: 'string', default: 'asc')),
+    ],
+    responses: [new OA\Response(response: 200, description: 'Paginated list of dependencies')],
+)]
 final readonly class ListDependenciesController
 {
     public function __construct(

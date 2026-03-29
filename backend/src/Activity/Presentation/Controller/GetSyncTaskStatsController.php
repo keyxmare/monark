@@ -6,12 +6,18 @@ namespace App\Activity\Presentation\Controller;
 
 use App\Activity\Application\Query\GetSyncTaskStatsQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/activity/sync-tasks/stats', name: 'activity_sync_tasks_stats', methods: ['GET'])]
+#[OA\Get(
+    summary: 'Get sync task statistics',
+    tags: ['Activity / Sync Tasks'],
+    responses: [new OA\Response(response: 200, description: 'Sync task statistics')],
+)]
 final readonly class GetSyncTaskStatsController
 {
     public function __construct(

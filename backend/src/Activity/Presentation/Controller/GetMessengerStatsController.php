@@ -6,12 +6,18 @@ namespace App\Activity\Presentation\Controller;
 
 use App\Activity\Application\Query\GetMessengerStatsQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/activity/messenger/stats', name: 'activity_messenger_stats', methods: ['GET'])]
+#[OA\Get(
+    summary: 'Get messenger queue statistics',
+    tags: ['Activity / Sync Tasks'],
+    responses: [new OA\Response(response: 200, description: 'Messenger statistics')],
+)]
 final readonly class GetMessengerStatsController
 {
     public function __construct(

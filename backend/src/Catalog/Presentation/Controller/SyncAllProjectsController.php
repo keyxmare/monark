@@ -6,6 +6,7 @@ namespace App\Catalog\Presentation\Controller;
 
 use App\Catalog\Application\Command\SyncAllProjectsCommand;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -20,6 +21,12 @@ final readonly class SyncAllProjectsController
     }
 
     #[Route('/api/catalog/sync-all', name: 'catalog_sync_all', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Sync all projects',
+        tags: ['Catalog / Sync'],
+        parameters: [new OA\Parameter(name: 'force', in: 'query', schema: new OA\Schema(type: 'boolean', default: false))],
+        responses: [new OA\Response(response: 202, description: 'Sync started')],
+    )]
     public function syncAll(Request $request): JsonResponse
     {
         $force = $request->query->getBoolean('force', false);
@@ -30,6 +37,15 @@ final readonly class SyncAllProjectsController
     }
 
     #[Route('/api/catalog/providers/{id}/sync-all', name: 'catalog_provider_sync_all', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Sync all projects for a specific provider',
+        tags: ['Catalog / Sync'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'force', in: 'query', schema: new OA\Schema(type: 'boolean', default: false)),
+        ],
+        responses: [new OA\Response(response: 202, description: 'Sync started')],
+    )]
     public function syncByProvider(string $id, Request $request): JsonResponse
     {
         $force = $request->query->getBoolean('force', false);

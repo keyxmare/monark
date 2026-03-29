@@ -7,6 +7,7 @@ namespace App\Catalog\Presentation\Controller;
 use App\Catalog\Application\DTO\RemoteProjectListOutput;
 use App\Catalog\Application\Query\ListRemoteProjectsQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -14,6 +15,20 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/catalog/providers/{id}/remote-projects', name: 'catalog_providers_remote_projects', methods: ['GET'])]
+#[OA\Get(
+    summary: 'List remote projects from a provider',
+    tags: ['Catalog / Providers'],
+    parameters: [
+        new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', default: 1)),
+        new OA\Parameter(name: 'per_page', in: 'query', schema: new OA\Schema(type: 'integer', default: 20)),
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'visibility', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string', default: 'name')),
+        new OA\Parameter(name: 'sort_dir', in: 'query', schema: new OA\Schema(type: 'string', default: 'asc')),
+    ],
+    responses: [new OA\Response(response: 200, description: 'Paginated list of remote projects')],
+)]
 final readonly class ListRemoteProjectsController
 {
     public function __construct(

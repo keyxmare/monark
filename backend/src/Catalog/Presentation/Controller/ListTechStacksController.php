@@ -7,6 +7,7 @@ namespace App\Catalog\Presentation\Controller;
 use App\Catalog\Application\DTO\TechStackListOutput;
 use App\Catalog\Application\Query\ListTechStacksQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -14,6 +15,16 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/catalog/tech-stacks', name: 'catalog_tech_stacks_list', methods: ['GET'])]
+#[OA\Get(
+    summary: 'List tech stacks',
+    tags: ['Catalog / Tech Stacks'],
+    parameters: [
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', default: 1)),
+        new OA\Parameter(name: 'per_page', in: 'query', schema: new OA\Schema(type: 'integer', default: 20)),
+        new OA\Parameter(name: 'project_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+    ],
+    responses: [new OA\Response(response: 200, description: 'Paginated list of tech stacks')],
+)]
 final readonly class ListTechStacksController
 {
     public function __construct(

@@ -7,6 +7,7 @@ namespace App\Activity\Presentation\Controller;
 use App\Activity\Application\DTO\SyncTaskListOutput;
 use App\Activity\Application\Query\ListSyncTasksQuery;
 use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -14,6 +15,19 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/activity/sync-tasks', name: 'activity_sync_tasks_list', methods: ['GET'])]
+#[OA\Get(
+    summary: 'List sync tasks',
+    tags: ['Activity / Sync Tasks'],
+    parameters: [
+        new OA\Parameter(name: 'status', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'type', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'severity', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'project_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', default: 1)),
+        new OA\Parameter(name: 'per_page', in: 'query', schema: new OA\Schema(type: 'integer', default: 20)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'Paginated list of sync tasks')],
+)]
 final readonly class ListSyncTasksController
 {
     public function __construct(

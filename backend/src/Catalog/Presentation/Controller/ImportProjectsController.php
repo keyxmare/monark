@@ -8,6 +8,8 @@ use App\Catalog\Application\Command\ImportProjectsCommand;
 use App\Catalog\Application\DTO\ImportProjectsInput;
 use App\Identity\Domain\Model\User;
 use App\Shared\Application\DTO\ApiResponse;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -16,6 +18,19 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/catalog/providers/{id}/import', name: 'catalog_providers_import', methods: ['POST'])]
+#[OA\Post(
+    summary: 'Import projects from a provider',
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(ref: new Model(type: ImportProjectsInput::class)),
+    ),
+    tags: ['Catalog / Providers'],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 201, description: 'Projects imported'),
+        new OA\Response(response: 422, description: 'Validation error'),
+    ],
+)]
 final readonly class ImportProjectsController
 {
     public function __construct(
