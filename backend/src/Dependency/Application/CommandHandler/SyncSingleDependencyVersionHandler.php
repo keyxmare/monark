@@ -9,7 +9,7 @@ use App\Dependency\Domain\Model\DependencyVersion;
 use App\Dependency\Domain\Model\RegistryStatus;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
-use App\Dependency\Infrastructure\Registry\PackageRegistryFactory;
+use App\Dependency\Domain\Port\PackageRegistryResolverPort;
 use App\Shared\Domain\ValueObject\PackageManager;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -23,7 +23,7 @@ final readonly class SyncSingleDependencyVersionHandler
     public function __construct(
         private DependencyRepositoryInterface $dependencyRepository,
         private DependencyVersionRepositoryInterface $versionRepository,
-        private PackageRegistryFactory $registryFactory,
+        private PackageRegistryResolverPort $registryFactory,
         private HubInterface $mercureHub,
         private LoggerInterface $logger = new NullLogger(),
     ) {

@@ -6,9 +6,10 @@ namespace App\Dependency\Infrastructure\Registry;
 
 use App\Dependency\Domain\DTO\RegistryVersion;
 use App\Dependency\Domain\Port\PackageRegistryPort;
+use App\Dependency\Domain\Port\PackageRegistryResolverPort;
 use App\Shared\Domain\ValueObject\PackageManager;
 
-final readonly class PackageRegistryFactory
+final readonly class PackageRegistryFactory implements PackageRegistryResolverPort
 {
     /** @param iterable<PackageRegistryPort> $adapters */
     public function __construct(

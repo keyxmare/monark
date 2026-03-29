@@ -79,6 +79,9 @@ services:
         arguments:
             $adapters: !tagged_iterator dependency.registry_adapter
 
+    App\Dependency\Domain\Port\PackageRegistryResolverPort:
+        alias: App\Dependency\Infrastructure\Registry\PackageRegistryFactory
+
     App\Dependency\Infrastructure\Registry\NpmRegistryAdapter:
         tags: ['dependency.registry_adapter']
 

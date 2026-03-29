@@ -18,6 +18,11 @@ deptrac:
         - type: directory
           value: src/Identity/Infrastructure/.*
 
+    - name: Identity_Presentation
+      collectors:
+        - type: directory
+          value: src/Identity/Presentation/.*
+
     - name: Catalog_Domain
       collectors:
         - type: directory
@@ -32,6 +37,11 @@ deptrac:
       collectors:
         - type: directory
           value: src/Catalog/Infrastructure/.*
+
+    - name: Catalog_Presentation
+      collectors:
+        - type: directory
+          value: src/Catalog/Presentation/.*
 
     - name: Dependency_Domain
       collectors:
@@ -48,6 +58,11 @@ deptrac:
         - type: directory
           value: src/Dependency/Infrastructure/.*
 
+    - name: Dependency_Presentation
+      collectors:
+        - type: directory
+          value: src/Dependency/Presentation/.*
+
     - name: Activity_Domain
       collectors:
         - type: directory
@@ -62,6 +77,11 @@ deptrac:
       collectors:
         - type: directory
           value: src/Activity/Infrastructure/.*
+
+    - name: Activity_Presentation
+      collectors:
+        - type: directory
+          value: src/Activity/Presentation/.*
 
     - name: Shared
       collectors:
@@ -78,6 +98,10 @@ deptrac:
       - Identity_Domain
       - Identity_Application
       - Shared
+    Identity_Presentation:
+      - Identity_Domain
+      - Identity_Application
+      - Shared
 
     Catalog_Domain:
       - Shared
@@ -87,6 +111,11 @@ deptrac:
     Catalog_Infrastructure:
       - Catalog_Domain
       - Catalog_Application
+      - Shared
+    Catalog_Presentation:
+      - Catalog_Domain
+      - Catalog_Application
+      - Identity_Domain
       - Shared
 
     Dependency_Domain:
@@ -98,6 +127,10 @@ deptrac:
       - Dependency_Domain
       - Dependency_Application
       - Shared
+    Dependency_Presentation:
+      - Dependency_Domain
+      - Dependency_Application
+      - Shared
 
     Activity_Domain:
       - Shared
@@ -105,6 +138,10 @@ deptrac:
       - Activity_Domain
       - Shared
     Activity_Infrastructure:
+      - Activity_Domain
+      - Activity_Application
+      - Shared
+    Activity_Presentation:
       - Activity_Domain
       - Activity_Application
       - Shared
