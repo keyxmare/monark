@@ -99,7 +99,7 @@ describe('SyncAllProjectsController', function () {
         $bus = \stubSyncControllersBus(['syncJobId' => 'xyz-789']);
         $controller = new SyncAllProjectsController($bus);
 
-        $request = Request::create('/api/catalog/providers/prov-1/sync-all', 'POST', [], [], [], [], \json_encode(['projectIds' => ['p1', 'p2']]));
+        $request = Request::create('/api/v1/catalog/providers/prov-1/sync-all', 'POST', [], [], [], [], \json_encode(['projectIds' => ['p1', 'p2']]));
         $request->headers->set('Content-Type', 'application/json');
         $response = $controller->syncByProvider('prov-1', $request);
 

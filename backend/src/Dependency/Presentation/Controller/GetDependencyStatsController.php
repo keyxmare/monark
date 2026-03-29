@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/dependency/stats', name: 'dependency_stats', methods: ['GET'])]
+#[Route('/api/v1/dependency/stats', name: 'dependency_stats', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get dependency statistics',
     tags: ['Dependency / Dependencies'],

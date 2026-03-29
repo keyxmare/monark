@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/dependency/dependencies', name: 'dependency_dependencies_list', methods: ['GET'])]
+#[Route('/api/v1/dependency/dependencies', name: 'dependency_dependencies_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List dependencies',
     tags: ['Dependency / Dependencies'],

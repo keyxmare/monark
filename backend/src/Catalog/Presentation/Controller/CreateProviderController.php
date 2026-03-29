@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/providers', name: 'catalog_providers_create', methods: ['POST'])]
+#[Route('/api/v1/catalog/providers', name: 'catalog_providers_create', methods: ['POST'])]
 #[OA\Post(
     summary: 'Create a provider',
     requestBody: new OA\RequestBody(

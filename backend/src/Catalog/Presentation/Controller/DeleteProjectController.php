@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/projects/{id}', name: 'catalog_projects_delete', methods: ['DELETE'])]
+#[Route('/api/v1/catalog/projects/{id}', name: 'catalog_projects_delete', methods: ['DELETE'])]
 #[OA\Delete(
     summary: 'Delete a project',
     tags: ['Catalog / Projects'],

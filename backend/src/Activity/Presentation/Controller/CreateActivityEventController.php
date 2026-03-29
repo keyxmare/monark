@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/events', name: 'activity_events_create', methods: ['POST'])]
+#[Route('/api/v1/activity/events', name: 'activity_events_create', methods: ['POST'])]
 #[OA\Post(
     summary: 'Create an activity event',
     requestBody: new OA\RequestBody(

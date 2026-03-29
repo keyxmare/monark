@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/sync-tasks/stats', name: 'activity_sync_tasks_stats', methods: ['GET'])]
+#[Route('/api/v1/activity/sync-tasks/stats', name: 'activity_sync_tasks_stats', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get sync task statistics',
     tags: ['Activity / Sync Tasks'],

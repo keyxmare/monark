@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-#[Route('/api/identity/access-tokens', name: 'identity_access_tokens_list', methods: ['GET'])]
+#[Route('/api/v1/identity/access-tokens', name: 'identity_access_tokens_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List access tokens for the current user',
     tags: ['Identity / Access Tokens'],

@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/providers/{id}/import', name: 'catalog_providers_import', methods: ['POST'])]
+#[Route('/api/v1/catalog/providers/{id}/import', name: 'catalog_providers_import', methods: ['POST'])]
 #[OA\Post(
     summary: 'Import projects from a provider',
     requestBody: new OA\RequestBody(

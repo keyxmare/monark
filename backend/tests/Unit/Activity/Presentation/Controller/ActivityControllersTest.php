@@ -58,7 +58,7 @@ it('lists sync tasks with filters', function () {
     $bus = \stubActivityBus($listOutput);
     $controller = new ListSyncTasksController($bus);
 
-    $request = Request::create('/api/activity/sync-tasks', 'GET', [
+    $request = Request::create('/api/v1/activity/sync-tasks', 'GET', [
         'status' => 'open',
         'type' => 'vulnerability',
         'severity' => 'critical',
@@ -78,7 +78,7 @@ it('updates sync task status via PATCH', function () {
     $bus = \stubActivityBus(['id' => 'st-1', 'status' => 'resolved']);
     $controller = new UpdateSyncTaskStatusController($bus);
 
-    $request = Request::create('/api/activity/sync-tasks/st-1', 'PATCH', [], [], [], [], \json_encode(['status' => 'resolved']));
+    $request = Request::create('/api/v1/activity/sync-tasks/st-1', 'PATCH', [], [], [], [], \json_encode(['status' => 'resolved']));
     $response = $controller('st-1', $request);
 
     expect($response->getStatusCode())->toBe(200);
@@ -95,7 +95,7 @@ it('dispatches correct id and status from request body', function () {
     $bus = \stubActivityBus(['id' => 'abc-123', 'status' => 'dismissed']);
     $controller = new UpdateSyncTaskStatusController($bus);
 
-    $request = Request::create('/api/activity/sync-tasks/abc-123', 'PATCH', [], [], [], [], \json_encode(['status' => 'dismissed']));
+    $request = Request::create('/api/v1/activity/sync-tasks/abc-123', 'PATCH', [], [], [], [], \json_encode(['status' => 'dismissed']));
     $response = $controller('abc-123', $request);
 
     expect($bus->dispatched->id)->toBe('abc-123');
@@ -107,7 +107,7 @@ it('defaults status to empty string when missing from request body', function ()
     $bus = \stubActivityBus(['id' => 'st-2', 'status' => '']);
     $controller = new UpdateSyncTaskStatusController($bus);
 
-    $request = Request::create('/api/activity/sync-tasks/st-2', 'PATCH', [], [], [], [], \json_encode([]));
+    $request = Request::create('/api/v1/activity/sync-tasks/st-2', 'PATCH', [], [], [], [], \json_encode([]));
     $response = $controller('st-2', $request);
 
     expect($bus->dispatched)->toBeInstanceOf(UpdateSyncTaskStatusCommand::class);
@@ -121,7 +121,7 @@ it('wraps result in ApiResponse success envelope', function () {
     $bus = \stubActivityBus($resultPayload);
     $controller = new UpdateSyncTaskStatusController($bus);
 
-    $request = Request::create('/api/activity/sync-tasks/st-x', 'PATCH', [], [], [], [], \json_encode(['status' => 'acknowledged']));
+    $request = Request::create('/api/v1/activity/sync-tasks/st-x', 'PATCH', [], [], [], [], \json_encode(['status' => 'acknowledged']));
     $response = $controller('st-x', $request);
 
     $data = \json_decode((string) $response->getContent(), true);

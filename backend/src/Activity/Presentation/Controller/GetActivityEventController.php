@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/events/{id}', name: 'activity_events_get', methods: ['GET'])]
+#[Route('/api/v1/activity/events/{id}', name: 'activity_events_get', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get an activity event by ID',
     tags: ['Activity / Events'],

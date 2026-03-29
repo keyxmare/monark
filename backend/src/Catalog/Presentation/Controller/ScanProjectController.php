@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/projects/{id}/scan', name: 'catalog_projects_scan', methods: ['POST'])]
+#[Route('/api/v1/catalog/projects/{id}/scan', name: 'catalog_projects_scan', methods: ['POST'])]
 #[OA\Post(
     summary: 'Trigger a scan for a project',
     tags: ['Catalog / Projects'],

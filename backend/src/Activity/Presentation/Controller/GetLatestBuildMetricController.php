@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/projects/{projectId}/build-metrics/latest', name: 'activity_build_metrics_latest', methods: ['GET'])]
+#[Route('/api/v1/activity/projects/{projectId}/build-metrics/latest', name: 'activity_build_metrics_latest', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get the latest build metric for a project',
     tags: ['Activity / Build Metrics'],

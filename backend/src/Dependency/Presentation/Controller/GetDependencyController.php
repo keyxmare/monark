@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/dependency/dependencies/{id}', name: 'dependency_dependencies_get', methods: ['GET'])]
+#[Route('/api/v1/dependency/dependencies/{id}', name: 'dependency_dependencies_get', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get a dependency by ID',
     tags: ['Dependency / Dependencies'],

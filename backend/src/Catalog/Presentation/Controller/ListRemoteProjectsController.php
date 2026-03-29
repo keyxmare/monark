@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/providers/{id}/remote-projects', name: 'catalog_providers_remote_projects', methods: ['GET'])]
+#[Route('/api/v1/catalog/providers/{id}/remote-projects', name: 'catalog_providers_remote_projects', methods: ['GET'])]
 #[OA\Get(
     summary: 'List remote projects from a provider',
     tags: ['Catalog / Providers'],

@@ -19,7 +19,7 @@ beforeEach(function () {
     $this->token = $auth['token'];
 
     // Create a project via API
-    $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+    $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
         $this->authHeader($this->token),
         ['CONTENT_TYPE' => 'application/json'],
     ), json_encode([
@@ -63,11 +63,11 @@ beforeEach(function () {
     $this->mergeRequestId = $mr->getId()->toRfc4122();
 });
 
-describe('GET /api/catalog/projects/{projectId}/merge-requests', function () {
+describe('GET /api/v1/catalog/projects/{projectId}/merge-requests', function () {
     it('lists merge requests for a project', function () {
         $this->client->request(
             'GET',
-            "/api/catalog/projects/{$this->projectId}/merge-requests?page=1&per_page=10",
+            "/api/v1/catalog/projects/{$this->projectId}/merge-requests?page=1&per_page=10",
             [],
             [],
             $this->authHeader($this->token),
@@ -85,11 +85,11 @@ describe('GET /api/catalog/projects/{projectId}/merge-requests', function () {
     });
 });
 
-describe('GET /api/catalog/merge-requests/{id}', function () {
+describe('GET /api/v1/catalog/merge-requests/{id}', function () {
     it('gets a merge request by id', function () {
         $this->client->request(
             'GET',
-            "/api/catalog/merge-requests/{$this->mergeRequestId}",
+            "/api/v1/catalog/merge-requests/{$this->mergeRequestId}",
             [],
             [],
             $this->authHeader($this->token),

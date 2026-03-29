@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-#[Route('/api/activity/dashboard', name: 'activity_dashboard', methods: ['GET'])]
+#[Route('/api/v1/activity/dashboard', name: 'activity_dashboard', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get the dashboard overview',
     tags: ['Activity / Dashboard'],

@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/auth/register', name: 'identity_auth_register', methods: ['POST'])]
+#[Route('/api/v1/auth/register', name: 'identity_auth_register', methods: ['POST'])]
 #[OA\Post(
     summary: 'Register a new user',
     requestBody: new OA\RequestBody(

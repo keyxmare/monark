@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/notifications/{id}', name: 'activity_notifications_update', methods: ['PUT'])]
+#[Route('/api/v1/activity/notifications/{id}', name: 'activity_notifications_update', methods: ['PUT'])]
 #[OA\Put(
     summary: 'Mark a notification as read',
     tags: ['Activity / Notifications'],

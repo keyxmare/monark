@@ -109,7 +109,7 @@ it('deletes a dependency and returns 204', function () {
 
 it('lists dependencies with project filter', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['project_id' => 'p-1']));
+    $response = (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', ['project_id' => 'p-1']));
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListDependenciesQuery::class);
@@ -126,7 +126,7 @@ it('lists dependencies with project filter', function () {
 
 it('lists dependencies with custom page and perPage', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 3, perPage: 50)));
-    $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['page' => '3', 'per_page' => '50']));
+    $response = (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', ['page' => '3', 'per_page' => '50']));
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched->page)->toBe(3);
@@ -135,7 +135,7 @@ it('lists dependencies with custom page and perPage', function () {
 
 it('lists dependencies with all query parameters', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 2, perPage: 10)));
-    $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', [
+    $response = (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', [
         'page' => '2',
         'per_page' => '10',
         'project_id' => 'proj-123',
@@ -161,42 +161,42 @@ it('lists dependencies with all query parameters', function () {
 
 it('parses is_outdated=true as true', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => 'true']));
+    (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', ['is_outdated' => 'true']));
 
     expect($bus->dispatched->isOutdated)->toBeTrue();
 });
 
 it('parses is_outdated=1 as true', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => '1']));
+    (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', ['is_outdated' => '1']));
 
     expect($bus->dispatched->isOutdated)->toBeTrue();
 });
 
 it('parses is_outdated=0 as false', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => '0']));
+    (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', ['is_outdated' => '0']));
 
     expect($bus->dispatched->isOutdated)->toBeFalse();
 });
 
 it('parses is_outdated=false as false', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', ['is_outdated' => 'false']));
+    (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', ['is_outdated' => 'false']));
 
     expect($bus->dispatched->isOutdated)->toBeFalse();
 });
 
 it('leaves is_outdated null when not provided', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET'));
+    (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET'));
 
     expect($bus->dispatched->isOutdated)->toBeNull();
 });
 
 it('uses default sort values when not provided', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET'));
+    (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET'));
 
     expect($bus->dispatched->sort)->toBe('name');
     expect($bus->dispatched->sortDir)->toBe('asc');
@@ -204,7 +204,7 @@ it('uses default sort values when not provided', function () {
 
 it('passes custom sort values', function () {
     $bus = \stubDependencyBus(new DependencyListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET', [
+    (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET', [
         'sort' => 'updatedAt',
         'sort_dir' => 'desc',
     ]));
@@ -216,7 +216,7 @@ it('passes custom sort values', function () {
 it('returns JSON response with pagination data', function () {
     $output = new DependencyListOutput(new PaginatedOutput(items: ['item1', 'item2'], total: 42, page: 2, perPage: 10));
     $bus = \stubDependencyBus($output);
-    $response = (new ListDependenciesController($bus))(Request::create('/api/dependency/dependencies', 'GET'));
+    $response = (new ListDependenciesController($bus))(Request::create('/api/v1/dependency/dependencies', 'GET'));
 
     expect($response->getStatusCode())->toBe(200);
     $data = \json_decode($response->getContent(), true);
@@ -265,7 +265,7 @@ it('updates a vulnerability', function () use ($ts, $uuid) {
 
 it('lists vulnerabilities', function () {
     $bus = \stubDependencyBus(new VulnerabilityListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    $response = (new ListVulnerabilitiesController($bus))(Request::create('/api/dependency/vulnerabilities'));
+    $response = (new ListVulnerabilitiesController($bus))(Request::create('/api/v1/dependency/vulnerabilities'));
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListVulnerabilitiesQuery::class);

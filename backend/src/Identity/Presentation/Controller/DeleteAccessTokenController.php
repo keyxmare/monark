@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/identity/access-tokens/{id}', name: 'identity_access_tokens_delete', methods: ['DELETE'])]
+#[Route('/api/v1/identity/access-tokens/{id}', name: 'identity_access_tokens_delete', methods: ['DELETE'])]
 #[OA\Delete(
     summary: 'Delete an access token',
     tags: ['Identity / Access Tokens'],

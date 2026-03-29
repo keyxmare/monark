@@ -60,7 +60,7 @@ it('lists build metrics with pagination', function () {
     $bus = \stubBuildMetricBus($listOutput);
     $controller = new ListBuildMetricsController($bus);
 
-    $request = Request::create('/api/activity/projects/proj-1/build-metrics', 'GET', ['page' => 2, 'per_page' => 10]);
+    $request = Request::create('/api/v1/activity/projects/proj-1/build-metrics', 'GET', ['page' => 2, 'per_page' => 10]);
     $response = $controller('proj-1', $request);
 
     expect($response->getStatusCode())->toBe(200);
@@ -76,7 +76,7 @@ it('lists build metrics with default pagination', function () {
     $bus = \stubBuildMetricBus($listOutput);
     $controller = new ListBuildMetricsController($bus);
 
-    $request = Request::create('/api/activity/projects/proj-1/build-metrics', 'GET');
+    $request = Request::create('/api/v1/activity/projects/proj-1/build-metrics', 'GET');
     $response = $controller('proj-1', $request);
 
     expect($response->getStatusCode())->toBe(200);

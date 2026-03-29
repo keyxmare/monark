@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/tech-stacks/{id}', name: 'catalog_tech_stacks_get', methods: ['GET'])]
+#[Route('/api/v1/catalog/tech-stacks/{id}', name: 'catalog_tech_stacks_get', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get a tech stack by ID',
     tags: ['Catalog / Tech Stacks'],

@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/identity/users/{id}', name: 'identity_users_get', methods: ['GET'])]
+#[Route('/api/v1/identity/users/{id}', name: 'identity_users_get', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get a user by ID',
     tags: ['Identity / Users'],

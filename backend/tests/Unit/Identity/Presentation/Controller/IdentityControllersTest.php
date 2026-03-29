@@ -123,7 +123,7 @@ it('lists users with pagination', function () {
     $bus = \stubIdentityBus($listOutput);
     $controller = new ListUsersController($bus);
 
-    $response = $controller(Request::create('/api/identity/users', 'GET', ['page' => 1]));
+    $response = $controller(Request::create('/api/v1/identity/users', 'GET', ['page' => 1]));
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListUsersQuery::class);
@@ -170,7 +170,7 @@ it('lists access tokens with pagination', function () {
     $controller = new ListAccessTokensController($bus);
     $user = UserFactory::create();
 
-    $response = $controller($user, Request::create('/api/identity/access-tokens', 'GET'));
+    $response = $controller($user, Request::create('/api/v1/identity/access-tokens', 'GET'));
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListAccessTokensQuery::class);

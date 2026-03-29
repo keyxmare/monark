@@ -19,9 +19,9 @@ beforeEach(function () {
     $this->token = $auth['token'];
 });
 
-describe('GET /api/identity/users', function () {
+describe('GET /api/v1/identity/users', function () {
     it('lists users with pagination', function () {
-        $this->client->request('GET', '/api/identity/users', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/identity/users', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -34,18 +34,18 @@ describe('GET /api/identity/users', function () {
     });
 
     it('returns 401 without auth', function () {
-        $this->client->request('GET', '/api/identity/users');
+        $this->client->request('GET', '/api/v1/identity/users');
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(401);
     });
 });
 
-describe('GET /api/identity/users/{id}', function () {
+describe('GET /api/v1/identity/users/{id}', function () {
     it('gets a user by id', function () {
         $userId = $this->user->getId()->toRfc4122();
 
-        $this->client->request('GET', "/api/identity/users/{$userId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/identity/users/{$userId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -59,7 +59,7 @@ describe('GET /api/identity/users/{id}', function () {
     it('returns 404 for unknown user', function () {
         $fakeId = '00000000-0000-0000-0000-000000000000';
 
-        $this->client->request('GET', "/api/identity/users/{$fakeId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/identity/users/{$fakeId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(404);
@@ -69,11 +69,11 @@ describe('GET /api/identity/users/{id}', function () {
     });
 });
 
-describe('PUT /api/identity/users/{id}', function () {
+describe('PUT /api/v1/identity/users/{id}', function () {
     it('updates user fields', function () {
         $userId = $this->user->getId()->toRfc4122();
 
-        $this->client->request('PUT', "/api/identity/users/{$userId}", [], [], array_merge(
+        $this->client->request('PUT', "/api/v1/identity/users/{$userId}", [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode([

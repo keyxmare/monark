@@ -12,9 +12,9 @@ beforeEach(function () {
     $this->resetDatabase();
 });
 
-describe('POST /api/auth/register', function () {
+describe('POST /api/v1/auth/register', function () {
     it('registers a new user and returns 201', function () {
-        $this->client->request('POST', '/api/auth/register', [], [], [
+        $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'new@example.com',
@@ -37,7 +37,7 @@ describe('POST /api/auth/register', function () {
     it('returns 422 for duplicate email', function () {
         $this->createAuthenticatedUser(['email' => 'dup@example.com']);
 
-        $this->client->request('POST', '/api/auth/register', [], [], [
+        $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'dup@example.com',
@@ -54,7 +54,7 @@ describe('POST /api/auth/register', function () {
     });
 
     it('returns 422 for invalid email', function () {
-        $this->client->request('POST', '/api/auth/register', [], [], [
+        $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'not-an-email',
@@ -71,7 +71,7 @@ describe('POST /api/auth/register', function () {
     });
 
     it('returns 422 for short password', function () {
-        $this->client->request('POST', '/api/auth/register', [], [], [
+        $this->client->request('POST', '/api/v1/auth/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'valid@example.com',
@@ -88,14 +88,14 @@ describe('POST /api/auth/register', function () {
     });
 });
 
-describe('POST /api/auth/login', function () {
+describe('POST /api/v1/auth/login', function () {
     it('returns 200 with token for valid credentials', function () {
         $this->createAuthenticatedUser([
             'email' => 'login@example.com',
             'password' => 'password123',
         ]);
 
-        $this->client->request('POST', '/api/auth/login', [], [], [
+        $this->client->request('POST', '/api/v1/auth/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'login@example.com',
@@ -117,7 +117,7 @@ describe('POST /api/auth/login', function () {
             'password' => 'password123',
         ]);
 
-        $this->client->request('POST', '/api/auth/login', [], [], [
+        $this->client->request('POST', '/api/v1/auth/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'login@example.com',
@@ -132,11 +132,11 @@ describe('POST /api/auth/login', function () {
     });
 });
 
-describe('POST /api/auth/logout', function () {
+describe('POST /api/v1/auth/logout', function () {
     it('returns a successful response on logout', function () {
         $auth = $this->createAuthenticatedUser();
 
-        $this->client->request('POST', '/api/auth/logout', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/auth/logout', [], [], array_merge(
             $this->authHeader($auth['token']),
             ['CONTENT_TYPE' => 'application/json'],
         ));
@@ -148,7 +148,7 @@ describe('POST /api/auth/logout', function () {
     });
 });
 
-describe('GET /api/auth/profile', function () {
+describe('GET /api/v1/auth/profile', function () {
     it('returns current user when authenticated', function () {
         $auth = $this->createAuthenticatedUser([
             'email' => 'profile@example.com',
@@ -156,7 +156,7 @@ describe('GET /api/auth/profile', function () {
             'lastName' => 'User',
         ]);
 
-        $this->client->request('GET', '/api/auth/profile', [], [], $this->authHeader($auth['token']));
+        $this->client->request('GET', '/api/v1/auth/profile', [], [], $this->authHeader($auth['token']));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -168,7 +168,7 @@ describe('GET /api/auth/profile', function () {
     });
 
     it('returns 401 without token', function () {
-        $this->client->request('GET', '/api/auth/profile');
+        $this->client->request('GET', '/api/v1/auth/profile');
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(401);

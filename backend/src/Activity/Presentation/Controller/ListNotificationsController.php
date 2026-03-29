@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-#[Route('/api/activity/notifications', name: 'activity_notifications_list', methods: ['GET'])]
+#[Route('/api/v1/activity/notifications', name: 'activity_notifications_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List notifications for the current user',
     tags: ['Activity / Notifications'],

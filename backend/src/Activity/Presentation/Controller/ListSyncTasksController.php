@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/sync-tasks', name: 'activity_sync_tasks_list', methods: ['GET'])]
+#[Route('/api/v1/activity/sync-tasks', name: 'activity_sync_tasks_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List sync tasks',
     tags: ['Activity / Sync Tasks'],

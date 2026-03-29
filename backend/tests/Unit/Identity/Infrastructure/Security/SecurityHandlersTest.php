@@ -19,7 +19,7 @@ it('returns 401 on authentication failure', function () {
 
     $handler = new LoginFailureHandler($translator);
     $response = $handler->onAuthenticationFailure(
-        Request::create('/api/login', 'POST'),
+        Request::create('/api/v1/login', 'POST'),
         new AuthenticationException('Bad credentials'),
     );
 
@@ -39,7 +39,7 @@ it('returns 200 with token on authentication success', function () {
     $token->method('getUser')->willReturn($user);
 
     $response = $successHandler->onAuthenticationSuccess(
-        Request::create('/api/login', 'POST'),
+        Request::create('/api/v1/login', 'POST'),
         $token,
     );
 

@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/providers/{id}/test', name: 'catalog_providers_test', methods: ['POST'])]
+#[Route('/api/v1/catalog/providers/{id}/test', name: 'catalog_providers_test', methods: ['POST'])]
 #[OA\Post(
     summary: 'Test a provider connection',
     tags: ['Catalog / Providers'],

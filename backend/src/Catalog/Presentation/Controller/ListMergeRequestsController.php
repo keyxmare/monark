@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/projects/{projectId}/merge-requests', name: 'catalog_merge_requests_list', methods: ['GET'])]
+#[Route('/api/v1/catalog/projects/{projectId}/merge-requests', name: 'catalog_merge_requests_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List merge requests for a project',
     tags: ['Catalog / Merge Requests'],

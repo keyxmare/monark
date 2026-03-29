@@ -8,7 +8,7 @@ use LogicException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/auth/login', name: 'identity_auth_login', methods: ['POST'])]
+#[Route('/api/v1/auth/login', name: 'identity_auth_login', methods: ['POST'])]
 #[OA\Post(
     summary: 'Authenticate and obtain a token',
     requestBody: new OA\RequestBody(

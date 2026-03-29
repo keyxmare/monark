@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/projects/{projectId}/build-metrics', name: 'activity_build_metrics_create', methods: ['POST'])]
+#[Route('/api/v1/activity/projects/{projectId}/build-metrics', name: 'activity_build_metrics_create', methods: ['POST'])]
 #[OA\Post(
     summary: 'Create a build metric',
     requestBody: new OA\RequestBody(

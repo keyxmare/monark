@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/identity/users/{id}', name: 'identity_users_update', methods: ['PUT'])]
+#[Route('/api/v1/identity/users/{id}', name: 'identity_users_update', methods: ['PUT'])]
 #[OA\Put(
     summary: 'Update a user',
     requestBody: new OA\RequestBody(

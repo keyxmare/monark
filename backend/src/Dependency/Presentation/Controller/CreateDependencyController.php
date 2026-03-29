@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/dependency/dependencies', name: 'dependency_dependencies_create', methods: ['POST'])]
+#[Route('/api/v1/dependency/dependencies', name: 'dependency_dependencies_create', methods: ['POST'])]
 #[OA\Post(
     summary: 'Create a dependency',
     requestBody: new OA\RequestBody(

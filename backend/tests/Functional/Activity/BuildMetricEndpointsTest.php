@@ -50,7 +50,7 @@ function createBuildMetricViaApi(object $context, array $overrides = []): array
 {
     $payload = createBuildMetricPayload($overrides);
 
-    $context->client->request('POST', "/api/activity/projects/{$context->projectId}/build-metrics", [], [], [
+    $context->client->request('POST', "/api/v1/activity/projects/{$context->projectId}/build-metrics", [], [], [
         'HTTP_AUTHORIZATION' => 'Bearer ' . $context->token,
         'CONTENT_TYPE' => 'application/json',
     ], json_encode($payload));
@@ -58,11 +58,11 @@ function createBuildMetricViaApi(object $context, array $overrides = []): array
     return json_decode($context->client->getResponse()->getContent(), true);
 }
 
-describe('POST /api/activity/projects/{projectId}/build-metrics', function () {
+describe('POST /api/v1/activity/projects/{projectId}/build-metrics', function () {
     it('creates a build metric and returns 201', function () {
         $payload = createBuildMetricPayload();
 
-        $this->client->request('POST', "/api/activity/projects/{$this->projectId}/build-metrics", [], [], array_merge(
+        $this->client->request('POST', "/api/v1/activity/projects/{$this->projectId}/build-metrics", [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -81,12 +81,12 @@ describe('POST /api/activity/projects/{projectId}/build-metrics', function () {
     });
 });
 
-describe('GET /api/activity/projects/{projectId}/build-metrics', function () {
+describe('GET /api/v1/activity/projects/{projectId}/build-metrics', function () {
     it('lists build metrics with pagination', function () {
         createBuildMetricViaApi($this, ['commitSha' => 'aaa1111111111111111111111111111111111111']);
         createBuildMetricViaApi($this, ['commitSha' => 'bbb2222222222222222222222222222222222222']);
 
-        $this->client->request('GET', "/api/activity/projects/{$this->projectId}/build-metrics?page=1&per_page=10", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/activity/projects/{$this->projectId}/build-metrics?page=1&per_page=10", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -99,12 +99,12 @@ describe('GET /api/activity/projects/{projectId}/build-metrics', function () {
     });
 });
 
-describe('GET /api/activity/projects/{projectId}/build-metrics/latest', function () {
+describe('GET /api/v1/activity/projects/{projectId}/build-metrics/latest', function () {
     it('gets the latest build metric', function () {
         createBuildMetricViaApi($this, ['commitSha' => 'aaa1111111111111111111111111111111111111']);
         createBuildMetricViaApi($this, ['commitSha' => 'bbb2222222222222222222222222222222222222']);
 
-        $this->client->request('GET', "/api/activity/projects/{$this->projectId}/build-metrics/latest", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/activity/projects/{$this->projectId}/build-metrics/latest", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);

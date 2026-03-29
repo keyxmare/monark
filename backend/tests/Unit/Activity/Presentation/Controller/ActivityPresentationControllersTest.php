@@ -78,7 +78,7 @@ it('gets an activity event', function () use ($ts) {
 
 it('lists activity events', function () {
     $bus = \stubActivityInfraBus(new ActivityEventListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
-    $response = (new ListActivityEventsController($bus))(Request::create('/api/activity/events'));
+    $response = (new ListActivityEventsController($bus))(Request::create('/api/v1/activity/events'));
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListActivityEventsQuery::class);
@@ -117,7 +117,7 @@ it('marks a notification as read', function () use ($ts) {
 it('lists notifications for current user', function () {
     $bus = \stubActivityInfraBus(new NotificationListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20)));
     $user = UserFactory::create();
-    $response = (new ListNotificationsController($bus))($user, Request::create('/api/activity/notifications'));
+    $response = (new ListNotificationsController($bus))($user, Request::create('/api/v1/activity/notifications'));
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListNotificationsQuery::class);

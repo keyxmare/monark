@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/events', name: 'activity_events_list', methods: ['GET'])]
+#[Route('/api/v1/activity/events', name: 'activity_events_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List activity events',
     tags: ['Activity / Events'],

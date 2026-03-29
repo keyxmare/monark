@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/dependency/dependencies/{id}', name: 'dependency_dependencies_update', methods: ['PUT'])]
+#[Route('/api/v1/dependency/dependencies/{id}', name: 'dependency_dependencies_update', methods: ['PUT'])]
 #[OA\Put(
     summary: 'Update a dependency',
     requestBody: new OA\RequestBody(

@@ -15,9 +15,9 @@ beforeEach(function () {
     $this->token = $auth['token'];
 });
 
-describe('GET /api/activity/dashboard', function () {
+describe('GET /api/v1/activity/dashboard', function () {
     it('returns dashboard data for authenticated user', function () {
-        $this->client->request('GET', '/api/activity/dashboard', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/activity/dashboard', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -31,7 +31,7 @@ describe('GET /api/activity/dashboard', function () {
     });
 
     it('returns 401 without authentication', function () {
-        $this->client->request('GET', '/api/activity/dashboard');
+        $this->client->request('GET', '/api/v1/activity/dashboard');
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(401);

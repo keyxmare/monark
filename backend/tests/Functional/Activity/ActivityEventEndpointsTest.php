@@ -30,7 +30,7 @@ function createEventViaApi(object $context, array $overrides = []): array
 {
     $payload = createEventPayload($context->user->getId()->toRfc4122(), $overrides);
 
-    $context->client->request('POST', '/api/activity/events', [], [], [
+    $context->client->request('POST', '/api/v1/activity/events', [], [], [
         'HTTP_AUTHORIZATION' => 'Bearer ' . $context->token,
         'CONTENT_TYPE' => 'application/json',
     ], json_encode($payload));
@@ -38,11 +38,11 @@ function createEventViaApi(object $context, array $overrides = []): array
     return json_decode($context->client->getResponse()->getContent(), true);
 }
 
-describe('POST /api/activity/events', function () {
+describe('POST /api/v1/activity/events', function () {
     it('creates an activity event and returns 201', function () {
         $payload = createEventPayload($this->user->getId()->toRfc4122());
 
-        $this->client->request('POST', '/api/activity/events', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/activity/events', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -60,7 +60,7 @@ describe('POST /api/activity/events', function () {
     });
 
     it('returns 422 for invalid payload', function () {
-        $this->client->request('POST', '/api/activity/events', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/activity/events', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode(['type' => '']));
@@ -70,12 +70,12 @@ describe('POST /api/activity/events', function () {
     });
 });
 
-describe('GET /api/activity/events', function () {
+describe('GET /api/v1/activity/events', function () {
     it('lists activity events with pagination', function () {
         createEventViaApi($this, ['type' => 'project.created']);
         createEventViaApi($this, ['type' => 'project.updated']);
 
-        $this->client->request('GET', '/api/activity/events?page=1&per_page=10', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/activity/events?page=1&per_page=10', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -88,12 +88,12 @@ describe('GET /api/activity/events', function () {
     });
 });
 
-describe('GET /api/activity/events/{id}', function () {
+describe('GET /api/v1/activity/events/{id}', function () {
     it('gets an activity event by id', function () {
         $createBody = createEventViaApi($this);
         $eventId = $createBody['data']['id'];
 
-        $this->client->request('GET', "/api/activity/events/{$eventId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/activity/events/{$eventId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -107,7 +107,7 @@ describe('GET /api/activity/events/{id}', function () {
     it('returns 404 for unknown event', function () {
         $fakeId = '00000000-0000-0000-0000-000000000000';
 
-        $this->client->request('GET', "/api/activity/events/{$fakeId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/activity/events/{$fakeId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(404);

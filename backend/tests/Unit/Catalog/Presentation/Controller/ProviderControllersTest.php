@@ -110,7 +110,7 @@ it('lists providers with pagination', function () {
     $bus = \stubProviderBus($listOutput);
     $controller = new ListProvidersController($bus);
 
-    $request = Request::create('/api/catalog/providers', 'GET', ['page' => 1, 'per_page' => 20]);
+    $request = Request::create('/api/v1/catalog/providers', 'GET', ['page' => 1, 'per_page' => 20]);
     $response = $controller($request);
 
     expect($response->getStatusCode())->toBe(200);
@@ -154,7 +154,7 @@ it('syncs all projects globally and returns 202', function () {
     $bus = \stubProviderBus($output);
     $controller = new SyncAllProjectsController($bus);
 
-    $request = Request::create('/api/catalog/sync-all?force=1', 'POST');
+    $request = Request::create('/api/v1/catalog/sync-all?force=1', 'POST');
     $response = $controller->syncAll($request);
 
     expect($response->getStatusCode())->toBe(202);
@@ -168,7 +168,7 @@ it('syncs projects by provider and returns 202', function () {
     $bus = \stubProviderBus($output);
     $controller = new SyncAllProjectsController($bus);
 
-    $request = Request::create('/api/catalog/providers/prov-1/sync-all', 'POST', [], [], [], [], \json_encode(['projectIds' => ['p1', 'p2']]));
+    $request = Request::create('/api/v1/catalog/providers/prov-1/sync-all', 'POST', [], [], [], [], \json_encode(['projectIds' => ['p1', 'p2']]));
     $request->headers->set('Content-Type', 'application/json');
     $response = $controller->syncByProvider('prov-1', $request);
 
@@ -182,7 +182,7 @@ it('lists remote projects with filters', function () {
     $bus = \stubProviderBus($listOutput);
     $controller = new ListRemoteProjectsController($bus);
 
-    $request = Request::create('/api/catalog/providers/prov-1/remote-projects', 'GET', [
+    $request = Request::create('/api/v1/catalog/providers/prov-1/remote-projects', 'GET', [
         'page' => 1,
         'per_page' => 10,
         'search' => 'monark',
@@ -209,7 +209,7 @@ it('lists remote projects with default pagination', function () {
     $bus = \stubProviderBus($listOutput);
     $controller = new ListRemoteProjectsController($bus);
 
-    $request = Request::create('/api/catalog/providers/prov-1/remote-projects', 'GET');
+    $request = Request::create('/api/v1/catalog/providers/prov-1/remote-projects', 'GET');
     $response = $controller('prov-1', $request);
 
     expect($response->getStatusCode())->toBe(200);

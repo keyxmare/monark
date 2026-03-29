@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/auth/logout', name: 'identity_auth_logout', methods: ['POST'])]
+#[Route('/api/v1/auth/logout', name: 'identity_auth_logout', methods: ['POST'])]
 #[OA\Post(
     summary: 'Log out the current user',
     tags: ['Identity / Auth'],

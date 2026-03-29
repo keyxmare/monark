@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/notifications', name: 'activity_notifications_create', methods: ['POST'])]
+#[Route('/api/v1/activity/notifications', name: 'activity_notifications_create', methods: ['POST'])]
 #[OA\Post(
     summary: 'Create a notification',
     requestBody: new OA\RequestBody(

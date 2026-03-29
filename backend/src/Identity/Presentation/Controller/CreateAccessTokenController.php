@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-#[Route('/api/identity/access-tokens', name: 'identity_access_tokens_create', methods: ['POST'])]
+#[Route('/api/v1/identity/access-tokens', name: 'identity_access_tokens_create', methods: ['POST'])]
 #[OA\Post(
     summary: 'Create an access token',
     requestBody: new OA\RequestBody(

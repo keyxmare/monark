@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/identity/access-tokens/{id}', name: 'identity_access_tokens_get', methods: ['GET'])]
+#[Route('/api/v1/identity/access-tokens/{id}', name: 'identity_access_tokens_get', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get an access token by ID',
     tags: ['Identity / Access Tokens'],

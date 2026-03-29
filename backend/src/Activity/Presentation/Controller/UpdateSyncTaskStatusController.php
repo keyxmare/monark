@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 
-#[Route('/api/activity/sync-tasks/{id}', name: 'activity_sync_tasks_update', methods: ['PATCH'], requirements: ['id' => Requirement::UUID_V7])]
+#[Route('/api/v1/activity/sync-tasks/{id}', name: 'activity_sync_tasks_update', methods: ['PATCH'], requirements: ['id' => Requirement::UUID_V7])]
 #[OA\Patch(
     summary: 'Update a sync task status',
     requestBody: new OA\RequestBody(

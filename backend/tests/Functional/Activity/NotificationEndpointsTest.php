@@ -29,7 +29,7 @@ function createNotificationViaApi(object $context, array $overrides = []): array
 {
     $payload = createNotificationPayload($context->user->getUserIdentifier(), $overrides);
 
-    $context->client->request('POST', '/api/activity/notifications', [], [], [
+    $context->client->request('POST', '/api/v1/activity/notifications', [], [], [
         'HTTP_AUTHORIZATION' => 'Bearer ' . $context->token,
         'CONTENT_TYPE' => 'application/json',
     ], json_encode($payload));
@@ -37,11 +37,11 @@ function createNotificationViaApi(object $context, array $overrides = []): array
     return json_decode($context->client->getResponse()->getContent(), true);
 }
 
-describe('POST /api/activity/notifications', function () {
+describe('POST /api/v1/activity/notifications', function () {
     it('creates a notification and returns 201', function () {
         $payload = createNotificationPayload($this->user->getUserIdentifier());
 
-        $this->client->request('POST', '/api/activity/notifications', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/activity/notifications', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -59,7 +59,7 @@ describe('POST /api/activity/notifications', function () {
     });
 
     it('returns 422 for invalid payload', function () {
-        $this->client->request('POST', '/api/activity/notifications', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/activity/notifications', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode(['title' => '']));
@@ -69,12 +69,12 @@ describe('POST /api/activity/notifications', function () {
     });
 });
 
-describe('GET /api/activity/notifications', function () {
+describe('GET /api/v1/activity/notifications', function () {
     it('lists notifications for current user with pagination', function () {
         createNotificationViaApi($this, ['title' => 'Notification 1']);
         createNotificationViaApi($this, ['title' => 'Notification 2']);
 
-        $this->client->request('GET', '/api/activity/notifications?page=1&per_page=10', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/activity/notifications?page=1&per_page=10', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -87,12 +87,12 @@ describe('GET /api/activity/notifications', function () {
     });
 });
 
-describe('PUT /api/activity/notifications/{id}', function () {
+describe('PUT /api/v1/activity/notifications/{id}', function () {
     it('marks a notification as read', function () {
         $createBody = createNotificationViaApi($this);
         $notificationId = $createBody['data']['id'];
 
-        $this->client->request('PUT', "/api/activity/notifications/{$notificationId}", [], [], array_merge(
+        $this->client->request('PUT', "/api/v1/activity/notifications/{$notificationId}", [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ));
@@ -108,7 +108,7 @@ describe('PUT /api/activity/notifications/{id}', function () {
     it('returns 404 for unknown notification', function () {
         $fakeId = '00000000-0000-0000-0000-000000000000';
 
-        $this->client->request('PUT', "/api/activity/notifications/{$fakeId}", [], [], array_merge(
+        $this->client->request('PUT', "/api/v1/activity/notifications/{$fakeId}", [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ));

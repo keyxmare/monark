@@ -28,11 +28,11 @@ function createProjectPayload(string $userId, array $overrides = []): array
     ], $overrides);
 }
 
-describe('POST /api/catalog/projects', function () {
+describe('POST /api/v1/catalog/projects', function () {
     it('creates a project and returns 201', function () {
         $payload = createProjectPayload($this->user->getId()->toRfc4122());
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -49,13 +49,13 @@ describe('POST /api/catalog/projects', function () {
     it('returns 422 for duplicate slug', function () {
         $payload = createProjectPayload($this->user->getId()->toRfc4122());
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
         expect($this->client->getResponse()->getStatusCode())->toBe(201);
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -72,7 +72,7 @@ describe('POST /api/catalog/projects', function () {
             'slug' => 'Invalid Slug!',
         ]);
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -82,21 +82,21 @@ describe('POST /api/catalog/projects', function () {
     });
 });
 
-describe('GET /api/catalog/projects', function () {
+describe('GET /api/v1/catalog/projects', function () {
     it('lists projects with pagination', function () {
         $userId = $this->user->getId()->toRfc4122();
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode(createProjectPayload($userId, ['slug' => 'project-a', 'name' => 'Project A'])));
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode(createProjectPayload($userId, ['slug' => 'project-b', 'name' => 'Project B'])));
 
-        $this->client->request('GET', '/api/catalog/projects?page=1&per_page=10', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/catalog/projects?page=1&per_page=10', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -109,11 +109,11 @@ describe('GET /api/catalog/projects', function () {
     });
 });
 
-describe('GET /api/catalog/projects/{id}', function () {
+describe('GET /api/v1/catalog/projects/{id}', function () {
     it('gets a project by id', function () {
         $payload = createProjectPayload($this->user->getId()->toRfc4122());
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -121,7 +121,7 @@ describe('GET /api/catalog/projects/{id}', function () {
         $createBody = json_decode($this->client->getResponse()->getContent(), true);
         $projectId = $createBody['data']['id'];
 
-        $this->client->request('GET', "/api/catalog/projects/{$projectId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/catalog/projects/{$projectId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -135,7 +135,7 @@ describe('GET /api/catalog/projects/{id}', function () {
     it('returns 404 for unknown project', function () {
         $fakeId = '00000000-0000-0000-0000-000000000000';
 
-        $this->client->request('GET', "/api/catalog/projects/{$fakeId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/catalog/projects/{$fakeId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(404);
@@ -145,11 +145,11 @@ describe('GET /api/catalog/projects/{id}', function () {
     });
 });
 
-describe('PUT /api/catalog/projects/{id}', function () {
+describe('PUT /api/v1/catalog/projects/{id}', function () {
     it('updates a project', function () {
         $payload = createProjectPayload($this->user->getId()->toRfc4122());
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -157,7 +157,7 @@ describe('PUT /api/catalog/projects/{id}', function () {
         $createBody = json_decode($this->client->getResponse()->getContent(), true);
         $projectId = $createBody['data']['id'];
 
-        $this->client->request('PUT', "/api/catalog/projects/{$projectId}", [], [], array_merge(
+        $this->client->request('PUT', "/api/v1/catalog/projects/{$projectId}", [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode([
@@ -175,11 +175,11 @@ describe('PUT /api/catalog/projects/{id}', function () {
     });
 });
 
-describe('DELETE /api/catalog/projects/{id}', function () {
+describe('DELETE /api/v1/catalog/projects/{id}', function () {
     it('deletes a project', function () {
         $payload = createProjectPayload($this->user->getId()->toRfc4122());
 
-        $this->client->request('POST', '/api/catalog/projects', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/catalog/projects', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -187,13 +187,13 @@ describe('DELETE /api/catalog/projects/{id}', function () {
         $createBody = json_decode($this->client->getResponse()->getContent(), true);
         $projectId = $createBody['data']['id'];
 
-        $this->client->request('DELETE', "/api/catalog/projects/{$projectId}", [], [], $this->authHeader($this->token));
+        $this->client->request('DELETE', "/api/v1/catalog/projects/{$projectId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(204);
 
         // Verify it's gone
-        $this->client->request('GET', "/api/catalog/projects/{$projectId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/catalog/projects/{$projectId}", [], [], $this->authHeader($this->token));
         expect($this->client->getResponse()->getStatusCode())->toBe(404);
     });
 });

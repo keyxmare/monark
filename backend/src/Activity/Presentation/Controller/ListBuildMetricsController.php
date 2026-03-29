@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/activity/projects/{projectId}/build-metrics', name: 'activity_build_metrics_list', methods: ['GET'])]
+#[Route('/api/v1/activity/projects/{projectId}/build-metrics', name: 'activity_build_metrics_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List build metrics for a project',
     tags: ['Activity / Build Metrics'],

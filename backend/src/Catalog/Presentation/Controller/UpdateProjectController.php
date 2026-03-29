@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/projects/{id}', name: 'catalog_projects_update', methods: ['PUT'])]
+#[Route('/api/v1/catalog/projects/{id}', name: 'catalog_projects_update', methods: ['PUT'])]
 #[OA\Put(
     summary: 'Update a project',
     requestBody: new OA\RequestBody(

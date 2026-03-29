@@ -12,7 +12,7 @@ describe('createApiMock', () => {
       'GET /catalog/projects': [{ id: 1, name: 'Alpha' }],
     });
 
-    const res = await fetch('/api/catalog/projects');
+    const res = await fetch('/api/v1/catalog/projects');
     const data = await res.json();
 
     expect(res.ok).toBe(true);
@@ -24,7 +24,7 @@ describe('createApiMock', () => {
       'POST /catalog/projects': { id: 2, name: 'Beta' },
     });
 
-    const res = await fetch('/api/catalog/projects', { method: 'POST' });
+    const res = await fetch('/api/v1/catalog/projects', { method: 'POST' });
     const data = await res.json();
 
     expect(res.ok).toBe(true);
@@ -36,7 +36,7 @@ describe('createApiMock', () => {
       'GET /catalog/projects': [],
     });
 
-    const res = await fetch('/api/identity/users');
+    const res = await fetch('/api/v1/identity/users');
 
     expect(res.status).toBe(404);
   });
@@ -46,7 +46,7 @@ describe('createApiMock', () => {
       'GET /catalog/projects': [{ id: 1 }],
     });
 
-    const res = await fetch('/api/catalog/projects?page=1&limit=10');
+    const res = await fetch('/api/v1/catalog/projects?page=1&limit=10');
     const data = await res.json();
 
     expect(res.ok).toBe(true);
@@ -59,11 +59,11 @@ describe('createApiMock', () => {
       'GET /catalog/projects': [{ id: 1 }],
     });
 
-    const resExact = await fetch('/api/catalog/projects?active=true');
+    const resExact = await fetch('/api/v1/catalog/projects?active=true');
     const dataExact = await resExact.json();
     expect(dataExact).toEqual([{ id: 99 }]);
 
-    const resBase = await fetch('/api/catalog/projects');
+    const resBase = await fetch('/api/v1/catalog/projects');
     const dataBase = await resBase.json();
     expect(dataBase).toEqual([{ id: 1 }]);
   });
@@ -73,7 +73,7 @@ describe('createApiMock', () => {
       'GET /catalog/projects': [{ id: 1 }],
     });
 
-    const res = await fetch('/api/catalog/projects');
+    const res = await fetch('/api/v1/catalog/projects');
     expect(res.ok).toBe(true);
   });
 });

@@ -20,7 +20,7 @@ final readonly class GetSyncJobController
     ) {
     }
 
-    #[Route('/api/catalog/sync-jobs/{id}', name: 'catalog_sync_job_get', methods: ['GET'])]
+    #[Route('/api/v1/catalog/sync-jobs/{id}', name: 'catalog_sync_job_get', methods: ['GET'])]
     #[OA\Get(
         summary: 'Get a sync job by ID',
         tags: ['Catalog / Sync'],

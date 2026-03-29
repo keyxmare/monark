@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/projects/{id}', name: 'catalog_projects_get', methods: ['GET'])]
+#[Route('/api/v1/catalog/projects/{id}', name: 'catalog_projects_get', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get a project by ID',
     tags: ['Catalog / Projects'],

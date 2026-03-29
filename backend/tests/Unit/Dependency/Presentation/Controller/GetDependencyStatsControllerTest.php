@@ -25,7 +25,7 @@ describe('GetDependencyStatsController', function () {
             }
         };
 
-        $request = Request::create('/api/dependency/stats', 'GET', [
+        $request = Request::create('/api/v1/dependency/stats', 'GET', [
             'project_id' => 'p-1',
             'package_manager' => 'composer',
             'type' => 'runtime',

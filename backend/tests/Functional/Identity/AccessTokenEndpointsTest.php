@@ -15,9 +15,9 @@ beforeEach(function () {
     $this->token = $auth['token'];
 });
 
-describe('POST /api/identity/access-tokens', function () {
+describe('POST /api/v1/identity/access-tokens', function () {
     it('creates an access token and returns 201', function () {
-        $this->client->request('POST', '/api/identity/access-tokens', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/identity/access-tokens', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode([
@@ -38,10 +38,10 @@ describe('POST /api/identity/access-tokens', function () {
     });
 });
 
-describe('GET /api/identity/access-tokens', function () {
+describe('GET /api/v1/identity/access-tokens', function () {
     it('lists access tokens for the current user', function () {
         // Create a token first
-        $this->client->request('POST', '/api/identity/access-tokens', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/identity/access-tokens', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode([
@@ -50,7 +50,7 @@ describe('GET /api/identity/access-tokens', function () {
             'scopes' => ['repo'],
         ]));
 
-        $this->client->request('GET', '/api/identity/access-tokens', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/identity/access-tokens', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -62,10 +62,10 @@ describe('GET /api/identity/access-tokens', function () {
     });
 });
 
-describe('DELETE /api/identity/access-tokens/{id}', function () {
+describe('DELETE /api/v1/identity/access-tokens/{id}', function () {
     it('deletes an access token and returns 204', function () {
         // Create a token first
-        $this->client->request('POST', '/api/identity/access-tokens', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/identity/access-tokens', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode([
@@ -77,7 +77,7 @@ describe('DELETE /api/identity/access-tokens/{id}', function () {
         $createBody = json_decode($this->client->getResponse()->getContent(), true);
         $tokenId = $createBody['data']['id'];
 
-        $this->client->request('DELETE', "/api/identity/access-tokens/{$tokenId}", [], [], $this->authHeader($this->token));
+        $this->client->request('DELETE', "/api/v1/identity/access-tokens/{$tokenId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(204);

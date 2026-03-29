@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/providers/{id}', name: 'catalog_providers_delete', methods: ['DELETE'])]
+#[Route('/api/v1/catalog/providers/{id}', name: 'catalog_providers_delete', methods: ['DELETE'])]
 #[OA\Delete(
     summary: 'Delete a provider',
     tags: ['Catalog / Providers'],

@@ -20,7 +20,7 @@ final readonly class SyncAllProjectsController
     ) {
     }
 
-    #[Route('/api/catalog/sync-all', name: 'catalog_sync_all', methods: ['POST'])]
+    #[Route('/api/v1/catalog/sync-all', name: 'catalog_sync_all', methods: ['POST'])]
     #[OA\Post(
         summary: 'Sync all projects',
         tags: ['Catalog / Sync'],
@@ -36,7 +36,7 @@ final readonly class SyncAllProjectsController
         return new JsonResponse(ApiResponse::success($result)->toArray(), 202);
     }
 
-    #[Route('/api/catalog/providers/{id}/sync-all', name: 'catalog_provider_sync_all', methods: ['POST'])]
+    #[Route('/api/v1/catalog/providers/{id}/sync-all', name: 'catalog_provider_sync_all', methods: ['POST'])]
     #[OA\Post(
         summary: 'Sync all projects for a specific provider',
         tags: ['Catalog / Sync'],

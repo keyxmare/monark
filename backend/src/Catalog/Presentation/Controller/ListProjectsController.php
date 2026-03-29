@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/projects', name: 'catalog_projects_list', methods: ['GET'])]
+#[Route('/api/v1/catalog/projects', name: 'catalog_projects_list', methods: ['GET'])]
 #[OA\Get(
     summary: 'List projects',
     tags: ['Catalog / Projects'],

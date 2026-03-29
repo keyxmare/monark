@@ -36,7 +36,7 @@ function createDependencyViaApi(object $context, array $overrides = []): array
 {
     $payload = createDependencyPayload($context->projectId, $overrides);
 
-    $context->client->request('POST', '/api/dependency/dependencies', [], [], [
+    $context->client->request('POST', '/api/v1/dependency/dependencies', [], [], [
         'HTTP_AUTHORIZATION' => 'Bearer ' . $context->token,
         'CONTENT_TYPE' => 'application/json',
     ], json_encode($payload));
@@ -44,11 +44,11 @@ function createDependencyViaApi(object $context, array $overrides = []): array
     return json_decode($context->client->getResponse()->getContent(), true);
 }
 
-describe('POST /api/dependency/dependencies', function () {
+describe('POST /api/v1/dependency/dependencies', function () {
     it('creates a dependency and returns 201', function () {
         $payload = createDependencyPayload($this->projectId);
 
-        $this->client->request('POST', '/api/dependency/dependencies', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/dependency/dependencies', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -77,7 +77,7 @@ describe('POST /api/dependency/dependencies', function () {
         ]);
         unset($payload['repositoryUrl']);
 
-        $this->client->request('POST', '/api/dependency/dependencies', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/dependency/dependencies', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode($payload));
@@ -90,7 +90,7 @@ describe('POST /api/dependency/dependencies', function () {
     });
 
     it('returns 422 for invalid payload', function () {
-        $this->client->request('POST', '/api/dependency/dependencies', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/dependency/dependencies', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode(['name' => '']));
@@ -100,12 +100,12 @@ describe('POST /api/dependency/dependencies', function () {
     });
 });
 
-describe('GET /api/dependency/dependencies', function () {
+describe('GET /api/v1/dependency/dependencies', function () {
     it('lists dependencies with pagination', function () {
         createDependencyViaApi($this, ['name' => 'package-a']);
         createDependencyViaApi($this, ['name' => 'package-b']);
 
-        $this->client->request('GET', '/api/dependency/dependencies?page=1&per_page=10', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/dependency/dependencies?page=1&per_page=10', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -121,7 +121,7 @@ describe('GET /api/dependency/dependencies', function () {
         createDependencyViaApi($this, ['name' => 'composer-pkg', 'packageManager' => 'composer']);
         createDependencyViaApi($this, ['name' => 'npm-pkg', 'packageManager' => 'npm']);
 
-        $this->client->request('GET', '/api/dependency/dependencies?package_manager=npm', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/dependency/dependencies?package_manager=npm', [], [], $this->authHeader($this->token));
 
         $body = json_decode($this->client->getResponse()->getContent(), true);
         expect($body['data']['total'])->toBe(1);
@@ -132,7 +132,7 @@ describe('GET /api/dependency/dependencies', function () {
         createDependencyViaApi($this, ['name' => 'outdated-pkg', 'isOutdated' => true]);
         createDependencyViaApi($this, ['name' => 'current-pkg', 'isOutdated' => false]);
 
-        $this->client->request('GET', '/api/dependency/dependencies?is_outdated=1', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/dependency/dependencies?is_outdated=1', [], [], $this->authHeader($this->token));
 
         $body = json_decode($this->client->getResponse()->getContent(), true);
         expect($body['data']['total'])->toBe(1);
@@ -143,7 +143,7 @@ describe('GET /api/dependency/dependencies', function () {
         createDependencyViaApi($this, ['name' => 'symfony/console']);
         createDependencyViaApi($this, ['name' => 'laravel/framework']);
 
-        $this->client->request('GET', '/api/dependency/dependencies?search=symfony', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/dependency/dependencies?search=symfony', [], [], $this->authHeader($this->token));
 
         $body = json_decode($this->client->getResponse()->getContent(), true);
         expect($body['data']['total'])->toBe(1);
@@ -151,12 +151,12 @@ describe('GET /api/dependency/dependencies', function () {
     });
 });
 
-describe('GET /api/dependency/dependencies/{id}', function () {
+describe('GET /api/v1/dependency/dependencies/{id}', function () {
     it('gets a dependency by id', function () {
         $createBody = createDependencyViaApi($this);
         $dependencyId = $createBody['data']['id'];
 
-        $this->client->request('GET', "/api/dependency/dependencies/{$dependencyId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/dependency/dependencies/{$dependencyId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -170,7 +170,7 @@ describe('GET /api/dependency/dependencies/{id}', function () {
     it('returns 404 for unknown dependency', function () {
         $fakeId = '00000000-0000-0000-0000-000000000000';
 
-        $this->client->request('GET', "/api/dependency/dependencies/{$fakeId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/dependency/dependencies/{$fakeId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(404);
@@ -180,12 +180,12 @@ describe('GET /api/dependency/dependencies/{id}', function () {
     });
 });
 
-describe('PUT /api/dependency/dependencies/{id}', function () {
+describe('PUT /api/v1/dependency/dependencies/{id}', function () {
     it('updates a dependency', function () {
         $createBody = createDependencyViaApi($this);
         $dependencyId = $createBody['data']['id'];
 
-        $this->client->request('PUT', "/api/dependency/dependencies/{$dependencyId}", [], [], array_merge(
+        $this->client->request('PUT', "/api/v1/dependency/dependencies/{$dependencyId}", [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ), json_encode([
@@ -205,28 +205,28 @@ describe('PUT /api/dependency/dependencies/{id}', function () {
     });
 });
 
-describe('DELETE /api/dependency/dependencies/{id}', function () {
+describe('DELETE /api/v1/dependency/dependencies/{id}', function () {
     it('deletes a dependency', function () {
         $createBody = createDependencyViaApi($this);
         $dependencyId = $createBody['data']['id'];
 
-        $this->client->request('DELETE', "/api/dependency/dependencies/{$dependencyId}", [], [], $this->authHeader($this->token));
+        $this->client->request('DELETE', "/api/v1/dependency/dependencies/{$dependencyId}", [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(204);
 
         // Verify it's gone
-        $this->client->request('GET', "/api/dependency/dependencies/{$dependencyId}", [], [], $this->authHeader($this->token));
+        $this->client->request('GET', "/api/v1/dependency/dependencies/{$dependencyId}", [], [], $this->authHeader($this->token));
         expect($this->client->getResponse()->getStatusCode())->toBe(404);
     });
 });
 
-describe('GET /api/dependency/stats', function () {
+describe('GET /api/v1/dependency/stats', function () {
     it('returns dependency stats', function () {
         createDependencyViaApi($this, ['name' => 'outdated-pkg', 'isOutdated' => true]);
         createDependencyViaApi($this, ['name' => 'current-pkg', 'isOutdated' => false]);
 
-        $this->client->request('GET', '/api/dependency/stats', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/dependency/stats', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -240,7 +240,7 @@ describe('GET /api/dependency/stats', function () {
     });
 
     it('returns empty stats when no dependencies exist', function () {
-        $this->client->request('GET', '/api/dependency/stats', [], [], $this->authHeader($this->token));
+        $this->client->request('GET', '/api/v1/dependency/stats', [], [], $this->authHeader($this->token));
 
         $response = $this->client->getResponse();
         expect($response->getStatusCode())->toBe(200);
@@ -251,9 +251,9 @@ describe('GET /api/dependency/stats', function () {
     });
 });
 
-describe('POST /api/dependency/sync', function () {
+describe('POST /api/v1/dependency/sync', function () {
     it('triggers sync and returns 202 with syncId', function () {
-        $this->client->request('POST', '/api/dependency/sync', [], [], array_merge(
+        $this->client->request('POST', '/api/v1/dependency/sync', [], [], array_merge(
             $this->authHeader($this->token),
             ['CONTENT_TYPE' => 'application/json'],
         ));

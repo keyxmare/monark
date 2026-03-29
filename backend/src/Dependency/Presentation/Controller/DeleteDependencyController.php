@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/dependency/dependencies/{id}', name: 'dependency_dependencies_delete', methods: ['DELETE'])]
+#[Route('/api/v1/dependency/dependencies/{id}', name: 'dependency_dependencies_delete', methods: ['DELETE'])]
 #[OA\Delete(
     summary: 'Delete a dependency',
     tags: ['Dependency / Dependencies'],

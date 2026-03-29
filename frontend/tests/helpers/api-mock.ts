@@ -7,8 +7,8 @@ export function createApiMock(responses: Record<string, unknown>): void {
       const url = typeof input === 'string' ? input : input.toString();
       const method = (init?.method ?? 'GET').toUpperCase();
 
-      // Strip /api prefix
-      const stripped = url.replace(/^\/api/, '');
+      // Strip /api/v1 prefix
+      const stripped = url.replace(/^\/api\/v1/, '');
 
       // Try exact match first (with query params)
       const exactKey = `${method} ${stripped}`;

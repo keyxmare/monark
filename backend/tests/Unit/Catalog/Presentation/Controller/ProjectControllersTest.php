@@ -109,7 +109,7 @@ it('lists projects and returns paginated 200', function () {
     $bus = \stubProjectBus($listOutput);
     $controller = new ListProjectsController($bus);
 
-    $request = Request::create('/api/catalog/projects', 'GET', ['page' => 2, 'per_page' => 10]);
+    $request = Request::create('/api/v1/catalog/projects', 'GET', ['page' => 2, 'per_page' => 10]);
     $response = $controller($request);
 
     expect($response->getStatusCode())->toBe(200);
@@ -126,7 +126,7 @@ it('lists projects with default pagination', function () {
     $bus = \stubProjectBus($listOutput);
     $controller = new ListProjectsController($bus);
 
-    $request = Request::create('/api/catalog/projects', 'GET');
+    $request = Request::create('/api/v1/catalog/projects', 'GET');
     $response = $controller($request);
 
     expect($response->getStatusCode())->toBe(200);

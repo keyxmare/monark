@@ -91,7 +91,7 @@ it('lists tech stacks with project filter', function () {
     $bus = \stubResourceBus($listOutput);
     $controller = new ListTechStacksController($bus);
 
-    $request = Request::create('/api/catalog/tech-stacks', 'GET', ['project_id' => 'proj-1']);
+    $request = Request::create('/api/v1/catalog/tech-stacks', 'GET', ['project_id' => 'proj-1']);
     $response = $controller($request);
 
     expect($response->getStatusCode())->toBe(200);
@@ -116,7 +116,7 @@ it('lists merge requests with filters', function () {
     $bus = \stubResourceBus($listOutput);
     $controller = new ListMergeRequestsController($bus);
 
-    $request = Request::create('/api/catalog/projects/proj-1/merge-requests', 'GET', ['status' => 'open', 'author' => 'jdoe']);
+    $request = Request::create('/api/v1/catalog/projects/proj-1/merge-requests', 'GET', ['status' => 'open', 'author' => 'jdoe']);
     $response = $controller('proj-1', $request);
 
     expect($response->getStatusCode())->toBe(200);

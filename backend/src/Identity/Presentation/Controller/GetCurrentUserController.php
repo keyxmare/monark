@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-#[Route('/api/auth/profile', name: 'identity_auth_profile', methods: ['GET'])]
+#[Route('/api/v1/auth/profile', name: 'identity_auth_profile', methods: ['GET'])]
 #[OA\Get(
     summary: 'Get the current authenticated user profile',
     tags: ['Identity / Auth'],

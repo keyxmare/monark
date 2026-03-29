@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
 
-#[Route('/api/dependency/sync', name: 'dependency_sync', methods: ['POST'])]
+#[Route('/api/v1/dependency/sync', name: 'dependency_sync', methods: ['POST'])]
 #[OA\Post(
     summary: 'Sync dependency versions from registries',
     tags: ['Dependency / Dependencies'],

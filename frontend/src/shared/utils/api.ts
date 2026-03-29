@@ -4,7 +4,7 @@ import type { ApiError, ApiResponse } from '@/shared/types';
 import { STORAGE_KEYS } from '@/shared/constants';
 import { i18n } from '@/shared/i18n';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/tech-stacks/{id}', name: 'catalog_tech_stacks_delete', methods: ['DELETE'])]
+#[Route('/api/v1/catalog/tech-stacks/{id}', name: 'catalog_tech_stacks_delete', methods: ['DELETE'])]
 #[OA\Delete(
     summary: 'Delete a tech stack',
     tags: ['Catalog / Tech Stacks'],

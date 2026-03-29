@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog/tech-stacks', name: 'catalog_tech_stacks_create', methods: ['POST'])]
+#[Route('/api/v1/catalog/tech-stacks', name: 'catalog_tech_stacks_create', methods: ['POST'])]
 #[OA\Post(
     summary: 'Create a tech stack',
     requestBody: new OA\RequestBody(
