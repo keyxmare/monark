@@ -85,24 +85,27 @@ else
   hint "lint-backend"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests" 3
-$BACK 'vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null' >/dev/null 2>&1
-stop_countdown
-T=$($BACK "grep -o 'tests=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
-F=$($BACK "grep -o 'failures=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
-E=$($BACK "grep -o 'errors=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
-PEST_PASS=$((${T:-0} - ${F:-0} - ${E:-0}))
-PEST_FAIL=$((${F:-0} + ${E:-0}))
-PEST_TOTAL=$((PEST_PASS + PEST_FAIL))
-if [ "$PEST_TOTAL" -gt 0 ] && [ "$PEST_FAIL" -eq 0 ]; then
-  ok "Tests" "Pest ${PEST_PASS} passed"
-elif [ "$PEST_TOTAL" -gt 0 ]; then
-  fail "Tests" "Pest ${PEST_FAIL}/${PEST_TOTAL} failed"
-  hint "test-backend"
-else
-  fail "Tests" "Pest could not run"
-  hint "test-backend"
-fi
+for SUITE in Unit Integration Functional; do
+  SUITE_LOWER=$(echo "$SUITE" | tr '[:upper:]' '[:lower:]')
+  TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests ($SUITE_LOWER)" 3
+  $BACK "vendor/bin/pest tests/${SUITE} --no-coverage --log-junit /tmp/pest-${SUITE_LOWER}.xml 2>/dev/null" >/dev/null 2>&1
+  stop_countdown
+  T=$($BACK "grep -o 'tests=\"[0-9]*\"' /tmp/pest-${SUITE_LOWER}.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
+  F=$($BACK "grep -o 'failures=\"[0-9]*\"' /tmp/pest-${SUITE_LOWER}.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
+  E=$($BACK "grep -o 'errors=\"[0-9]*\"' /tmp/pest-${SUITE_LOWER}.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
+  PEST_PASS=$((${T:-0} - ${F:-0} - ${E:-0}))
+  PEST_FAIL=$((${F:-0} + ${E:-0}))
+  PEST_TOTAL=$((PEST_PASS + PEST_FAIL))
+  if [ "$PEST_TOTAL" -gt 0 ] && [ "$PEST_FAIL" -eq 0 ]; then
+    ok "Tests ($SUITE_LOWER)" "Pest ${PEST_PASS} passed"
+  elif [ "$PEST_TOTAL" -gt 0 ]; then
+    fail "Tests ($SUITE_LOWER)" "Pest ${PEST_FAIL}/${PEST_TOTAL} failed"
+    hint "test-backend"
+  else
+    fail "Tests ($SUITE_LOWER)" "Pest could not run"
+    hint "test-backend"
+  fi
+done
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 10
 $BACK 'php -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null' >/dev/null 2>&1
@@ -170,16 +173,30 @@ else
   hint "lint-frontend"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests" 5
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests (unit)" 5
 $FRONT 'pnpm vitest run > /tmp/ci-vitest.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 VITEST_OUT=$($FRONT 'cat /tmp/ci-vitest.txt' 2>/dev/null)
 VITEST_TESTS=$(echo "$VITEST_OUT" | grep "Tests" | grep -oE "[0-9]+ passed" | head -1)
 if [ -n "$VITEST_TESTS" ]; then
-  ok "Tests" "Vitest ${VITEST_TESTS}"
+  ok "Tests (unit)" "Vitest ${VITEST_TESTS}"
 else
-  fail "Tests" "Vitest failures"
+  fail "Tests (unit)" "Vitest failures"
   hint "test-frontend"
+fi
+
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests (e2e)" 30
+$FRONT 'pnpm e2e > /tmp/ci-e2e.txt 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
+stop_countdown
+BG_RC=$($FRONT 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
+E2E_PASSED=$($FRONT 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-e2e.txt | grep -oE "[0-9]+ passed" | head -1' 2>/dev/null | tr -d '\r')
+if [ "${BG_RC:-1}" -eq 0 ] && [ -n "$E2E_PASSED" ]; then
+  ok "Tests (e2e)" "Playwright ${E2E_PASSED}"
+elif [ -n "$E2E_PASSED" ]; then
+  fail "Tests (e2e)" "Playwright failures"
+  hint "test-frontend"
+else
+  warn "Tests (e2e)" "Skipped (no browser)"
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 10
