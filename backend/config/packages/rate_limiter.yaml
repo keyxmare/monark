@@ -1,10 +1,18 @@
 framework:
     rate_limiter:
-        login:
+        api_global:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
+        api_auth:
             policy: sliding_window
             limit: 5
             interval: '1 minute'
-        register:
-            policy: sliding_window
-            limit: 3
-            interval: '5 minutes'
+
+when@test:
+    framework:
+        rate_limiter:
+            api_global:
+                policy: no_limit
+            api_auth:
+                policy: no_limit

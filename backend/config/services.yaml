@@ -135,3 +135,8 @@ services:
     App\Shared\Infrastructure\EventListener\ExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+
+    App\Shared\Infrastructure\EventListener\RateLimitListener:
+        arguments:
+            $apiGlobalLimiter: '@limiter.api_global'
+            $apiAuthLimiter: '@limiter.api_auth'
