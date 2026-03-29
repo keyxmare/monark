@@ -6,6 +6,7 @@ namespace App\Activity\Application\CommandHandler;
 
 use App\Activity\Application\Command\CreateBuildMetricCommand;
 use App\Activity\Application\DTO\BuildMetricOutput;
+use App\Activity\Application\Mapper\BuildMetricMapper;
 use App\Activity\Domain\Model\BuildMetric;
 use App\Activity\Domain\Repository\BuildMetricRepositoryInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -32,6 +33,6 @@ final readonly class CreateBuildMetricHandler
 
         $this->buildMetricRepository->save($buildMetric);
 
-        return BuildMetricOutput::fromEntity($buildMetric);
+        return BuildMetricMapper::toOutput($buildMetric);
     }
 }

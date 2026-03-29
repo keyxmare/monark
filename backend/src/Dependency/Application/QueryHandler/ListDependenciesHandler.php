@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Dependency\Application\QueryHandler;
 
 use App\Dependency\Application\DTO\DependencyListOutput;
-use App\Dependency\Application\DTO\DependencyOutput;
+use App\Dependency\Application\Mapper\DependencyMapper;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
@@ -48,7 +48,7 @@ final readonly class ListDependenciesHandler
                 $currentVer = $this->versionRepository->findByNameManagerAndVersion($name, $manager, $dependency->getCurrentVersion());
                 $latestVer = $this->versionRepository->findByNameManagerAndVersion($name, $manager, $dependency->getLatestVersion());
 
-                return DependencyOutput::fromEntity(
+                return DependencyMapper::toOutput(
                     $dependency,
                     $currentVer?->getReleaseDate()?->format(DateTimeInterface::ATOM),
                     $latestVer?->getReleaseDate()?->format(DateTimeInterface::ATOM),

@@ -6,6 +6,7 @@ namespace App\Activity\Application\CommandHandler;
 
 use App\Activity\Application\Command\MarkNotificationReadCommand;
 use App\Activity\Application\DTO\NotificationOutput;
+use App\Activity\Application\Mapper\NotificationMapper;
 use App\Activity\Domain\Repository\NotificationRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -29,6 +30,6 @@ final readonly class MarkNotificationReadHandler
         $notification->markAsRead();
         $this->notificationRepository->save($notification);
 
-        return NotificationOutput::fromEntity($notification);
+        return NotificationMapper::toOutput($notification);
     }
 }

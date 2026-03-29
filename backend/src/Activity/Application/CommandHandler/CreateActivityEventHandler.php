@@ -6,6 +6,7 @@ namespace App\Activity\Application\CommandHandler;
 
 use App\Activity\Application\Command\CreateActivityEventCommand;
 use App\Activity\Application\DTO\ActivityEventOutput;
+use App\Activity\Application\Mapper\ActivityEventMapper;
 use App\Activity\Domain\Model\ActivityEvent;
 use App\Activity\Domain\Repository\ActivityEventRepositoryInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -32,6 +33,6 @@ final readonly class CreateActivityEventHandler
 
         $this->activityEventRepository->save($event);
 
-        return ActivityEventOutput::fromEntity($event);
+        return ActivityEventMapper::toOutput($event);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\QueryHandler;
 
 use App\Catalog\Application\DTO\MergeRequestOutput;
+use App\Catalog\Application\Mapper\MergeRequestMapper;
 use App\Catalog\Application\Query\GetMergeRequestQuery;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -27,6 +28,6 @@ final readonly class GetMergeRequestHandler
             throw NotFoundException::forEntity('MergeRequest', $query->mergeRequestId);
         }
 
-        return MergeRequestOutput::fromEntity($mr);
+        return MergeRequestMapper::toOutput($mr);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\BuildMetricOutput;
+use App\Activity\Application\Mapper\BuildMetricMapper;
 use App\Activity\Application\Query\GetLatestBuildMetricQuery;
 use App\Activity\Domain\Repository\BuildMetricRepositoryInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -24,6 +25,6 @@ final readonly class GetLatestBuildMetricHandler
             Uuid::fromString($query->projectId),
         );
 
-        return $buildMetric !== null ? BuildMetricOutput::fromEntity($buildMetric) : null;
+        return $buildMetric !== null ? BuildMetricMapper::toOutput($buildMetric) : null;
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\SyncTaskListOutput;
-use App\Activity\Application\DTO\SyncTaskOutput;
+use App\Activity\Application\Mapper\SyncTaskMapper;
 use App\Activity\Application\Query\ListSyncTasksQuery;
 use App\Activity\Domain\Model\SyncTaskSeverity;
 use App\Activity\Domain\Model\SyncTaskStatus;
@@ -47,7 +47,7 @@ final readonly class ListSyncTasksHandler
         );
 
         $items = \array_map(
-            static fn (mixed $task) => SyncTaskOutput::fromEntity($task),
+            static fn (mixed $task) => SyncTaskMapper::toOutput($task),
             $tasks,
         );
 

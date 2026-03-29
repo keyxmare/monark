@@ -6,6 +6,7 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\UpdateProviderCommand;
 use App\Catalog\Application\DTO\ProviderOutput;
+use App\Catalog\Application\Mapper\ProviderMapper;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -37,6 +38,6 @@ final readonly class UpdateProviderHandler
 
         $this->providerRepository->save($provider);
 
-        return ProviderOutput::fromEntity($provider);
+        return ProviderMapper::toOutput($provider);
     }
 }

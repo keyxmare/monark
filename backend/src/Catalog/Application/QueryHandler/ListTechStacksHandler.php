@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\QueryHandler;
 
 use App\Catalog\Application\DTO\TechStackListOutput;
-use App\Catalog\Application\DTO\TechStackOutput;
+use App\Catalog\Application\Mapper\TechStackMapper;
 use App\Catalog\Application\Query\ListTechStacksQuery;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -32,7 +32,7 @@ final readonly class ListTechStacksHandler
         }
 
         $items = \array_map(
-            static fn ($techStack) => TechStackOutput::fromEntity($techStack),
+            static fn ($techStack) => TechStackMapper::toOutput($techStack),
             $techStacks,
         );
 

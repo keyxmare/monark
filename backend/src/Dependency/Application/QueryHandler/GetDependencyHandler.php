@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Dependency\Application\QueryHandler;
 
 use App\Dependency\Application\DTO\DependencyOutput;
+use App\Dependency\Application\Mapper\DependencyMapper;
 use App\Dependency\Application\Query\GetDependencyQuery;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetDependencyHandler
             throw NotFoundException::forEntity('Dependency', $query->dependencyId);
         }
 
-        return DependencyOutput::fromEntity($dependency);
+        return DependencyMapper::toOutput($dependency);
     }
 }

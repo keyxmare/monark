@@ -6,6 +6,7 @@ namespace App\Activity\Domain\Model;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
@@ -59,8 +60,8 @@ final class SyncTask
         array $metadata,
         Uuid $projectId,
     ) {
-        if (trim($title) === '') {
-            throw new \InvalidArgumentException('SyncTask title must not be blank.');
+        if (\trim($title) === '') {
+            throw new InvalidArgumentException('SyncTask title must not be blank.');
         }
 
         $this->id = $id;
@@ -120,9 +121,9 @@ final class SyncTask
 
     public function changeStatus(SyncTaskStatus $status): void
     {
-        $allowed = self::ALLOWED_TRANSITIONS[$this->status->value] ?? [];
+        $allowed = self::ALLOWED_TRANSITIONS[$this->status->value];
         if (!\in_array($status->value, $allowed, true)) {
-            throw new \InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 'Cannot transition SyncTask from "%s" to "%s".',
                 $this->status->value,
                 $status->value,

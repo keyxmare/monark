@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\ActivityEventListOutput;
-use App\Activity\Application\DTO\ActivityEventOutput;
+use App\Activity\Application\Mapper\ActivityEventMapper;
 use App\Activity\Application\Query\ListActivityEventsQuery;
 use App\Activity\Domain\Repository\ActivityEventRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -25,7 +25,7 @@ final readonly class ListActivityEventsHandler
         $total = $this->activityEventRepository->count();
 
         $items = \array_map(
-            static fn (mixed $event) => ActivityEventOutput::fromEntity($event),
+            static fn (mixed $event) => ActivityEventMapper::toOutput($event),
             $events,
         );
 

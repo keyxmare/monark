@@ -6,6 +6,7 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\TestProviderConnectionCommand;
 use App\Catalog\Application\DTO\ProviderOutput;
+use App\Catalog\Application\Mapper\ProviderMapper;
 use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -38,6 +39,6 @@ final readonly class TestProviderConnectionHandler
 
         $this->providerRepository->save($provider);
 
-        return ProviderOutput::fromEntity($provider);
+        return ProviderMapper::toOutput($provider);
     }
 }

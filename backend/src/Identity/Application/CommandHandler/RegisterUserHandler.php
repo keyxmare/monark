@@ -6,6 +6,7 @@ namespace App\Identity\Application\CommandHandler;
 
 use App\Identity\Application\Command\RegisterUserCommand;
 use App\Identity\Application\DTO\UserOutput;
+use App\Identity\Application\Mapper\UserMapper;
 use App\Identity\Domain\Event\UserCreated;
 use App\Identity\Domain\Model\User;
 use App\Identity\Domain\Repository\UserRepositoryInterface;
@@ -51,6 +52,6 @@ final readonly class RegisterUserHandler
             email: $user->getEmail(),
         ));
 
-        return UserOutput::fromEntity($user);
+        return UserMapper::toOutput($user);
     }
 }

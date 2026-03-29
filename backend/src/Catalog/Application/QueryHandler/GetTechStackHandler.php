@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\QueryHandler;
 
 use App\Catalog\Application\DTO\TechStackOutput;
+use App\Catalog\Application\Mapper\TechStackMapper;
 use App\Catalog\Application\Query\GetTechStackQuery;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetTechStackHandler
             throw NotFoundException::forEntity('TechStack', $query->techStackId);
         }
 
-        return TechStackOutput::fromEntity($techStack);
+        return TechStackMapper::toOutput($techStack);
     }
 }

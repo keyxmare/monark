@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Dependency\Application\QueryHandler;
 
 use App\Dependency\Application\DTO\VulnerabilityListOutput;
-use App\Dependency\Application\DTO\VulnerabilityOutput;
+use App\Dependency\Application\Mapper\VulnerabilityMapper;
 use App\Dependency\Application\Query\ListVulnerabilitiesQuery;
 use App\Dependency\Domain\Repository\VulnerabilityRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -25,7 +25,7 @@ final readonly class ListVulnerabilitiesHandler
         $total = $this->vulnerabilityRepository->count();
 
         $items = \array_map(
-            static fn ($vulnerability) => VulnerabilityOutput::fromEntity($vulnerability),
+            static fn ($vulnerability) => VulnerabilityMapper::toOutput($vulnerability),
             $vulnerabilities,
         );
 

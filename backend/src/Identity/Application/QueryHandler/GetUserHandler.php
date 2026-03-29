@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Application\QueryHandler;
 
 use App\Identity\Application\DTO\UserOutput;
+use App\Identity\Application\Mapper\UserMapper;
 use App\Identity\Application\Query\GetUserQuery;
 use App\Identity\Domain\Repository\UserRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetUserHandler
             throw NotFoundException::forEntity('User', $query->userId);
         }
 
-        return UserOutput::fromEntity($user);
+        return UserMapper::toOutput($user);
     }
 }

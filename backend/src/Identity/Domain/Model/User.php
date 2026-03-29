@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
@@ -61,17 +62,17 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         ?string $avatar,
         array $roles,
     ) {
-        if (trim($firstName) === '') {
-            throw new \InvalidArgumentException('User first name must not be blank.');
+        if (\trim($firstName) === '') {
+            throw new InvalidArgumentException('User first name must not be blank.');
         }
-        if (trim($lastName) === '') {
-            throw new \InvalidArgumentException('User last name must not be blank.');
+        if (\trim($lastName) === '') {
+            throw new InvalidArgumentException('User last name must not be blank.');
         }
-        if (trim($password) === '') {
-            throw new \InvalidArgumentException('User password must not be blank.');
+        if (\trim($password) === '') {
+            throw new InvalidArgumentException('User password must not be blank.');
         }
         if (!\in_array('ROLE_USER', $roles, true)) {
-            throw new \InvalidArgumentException('User roles must contain at least ROLE_USER.');
+            throw new InvalidArgumentException('User roles must contain at least ROLE_USER.');
         }
 
         $this->id = $id;

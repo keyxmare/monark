@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\QueryHandler;
 
 use App\Catalog\Application\DTO\ProviderListOutput;
-use App\Catalog\Application\DTO\ProviderOutput;
+use App\Catalog\Application\Mapper\ProviderMapper;
 use App\Catalog\Application\Query\ListProvidersQuery;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -25,7 +25,7 @@ final readonly class ListProvidersHandler
         $total = $this->providerRepository->count();
 
         $items = \array_map(
-            static fn ($provider) => ProviderOutput::fromEntity($provider),
+            static fn ($provider) => ProviderMapper::toOutput($provider),
             $providers,
         );
 

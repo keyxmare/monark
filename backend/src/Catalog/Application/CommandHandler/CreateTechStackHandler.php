@@ -6,6 +6,7 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\CreateTechStackCommand;
 use App\Catalog\Application\DTO\TechStackOutput;
+use App\Catalog\Application\Mapper\TechStackMapper;
 use App\Catalog\Domain\Model\TechStack;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
@@ -43,6 +44,6 @@ final readonly class CreateTechStackHandler
 
         $this->techStackRepository->save($techStack);
 
-        return TechStackOutput::fromEntity($techStack);
+        return TechStackMapper::toOutput($techStack);
     }
 }

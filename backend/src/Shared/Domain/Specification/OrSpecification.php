@@ -7,7 +7,9 @@ namespace App\Shared\Domain\Specification;
 final readonly class OrSpecification implements SpecificationInterface
 {
     /** @param list<SpecificationInterface> $specs */
-    public function __construct(private array $specs) {}
+    public function __construct(private array $specs)
+    {
+    }
 
     public function isSatisfiedBy(mixed $candidate): bool
     {

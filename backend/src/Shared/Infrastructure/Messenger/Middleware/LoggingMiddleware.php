@@ -11,6 +11,7 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Uid\Uuid;
+use Throwable;
 
 final readonly class LoggingMiddleware implements MiddlewareInterface
 {
@@ -30,9 +31,9 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
 
         $this->correlationIdProcessor->setCorrelationId($stamp->correlationId);
 
-        $messageClass = get_class($envelope->getMessage());
-        $pos = strrpos($messageClass, '\\');
-        $shortName = $pos !== false ? substr($messageClass, $pos + 1) : $messageClass;
+        $messageClass = \get_class($envelope->getMessage());
+        $pos = \strrpos($messageClass, '\\');
+        $shortName = $pos !== false ? \substr($messageClass, $pos + 1) : $messageClass;
 
         $this->logger->info('Handling message', [
             'message' => $shortName,
@@ -40,7 +41,7 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
             'correlation_id' => $stamp->correlationId,
         ]);
 
-        $startTime = microtime(true);
+        $startTime = \microtime(true);
 
         try {
             $envelope = $stack->next()->handle($envelope, $stack);
@@ -48,16 +49,16 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
             $this->logger->info('Message handled', [
                 'message' => $shortName,
                 'correlation_id' => $stamp->correlationId,
-                'duration_ms' => round((microtime(true) - $startTime) * 1000, 2),
+                'duration_ms' => \round((\microtime(true) - $startTime) * 1000, 2),
             ]);
 
             return $envelope;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Message handling failed', [
                 'message' => $shortName,
                 'correlation_id' => $stamp->correlationId,
                 'error' => $e->getMessage(),
-                'duration_ms' => round((microtime(true) - $startTime) * 1000, 2),
+                'duration_ms' => \round((\microtime(true) - $startTime) * 1000, 2),
             ]);
 
             throw $e;

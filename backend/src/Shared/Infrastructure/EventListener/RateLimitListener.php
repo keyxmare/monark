@@ -28,14 +28,14 @@ final readonly class RateLimitListener
         $request = $event->getRequest();
         $path = $request->getPathInfo();
 
-        if (!str_starts_with($path, '/api')) {
+        if (!\str_starts_with($path, '/api')) {
             return;
         }
 
         $clientIp = $request->getClientIp() ?? 'unknown';
 
         // Stricter limit for auth endpoints
-        if (str_contains($path, '/auth/login') || str_contains($path, '/auth/register')) {
+        if (\str_contains($path, '/auth/login') || \str_contains($path, '/auth/register')) {
             $limiter = $this->apiAuthLimiter->create($clientIp);
         } else {
             $limiter = $this->apiGlobalLimiter->create($clientIp);
@@ -46,7 +46,7 @@ final readonly class RateLimitListener
         if (!$limit->isAccepted()) {
             $retryAfter = $limit->getRetryAfter();
             throw new TooManyRequestsHttpException(
-                $retryAfter->getTimestamp() - time(),
+                $retryAfter->getTimestamp() - \time(),
                 'Too many requests. Please slow down.'
             );
         }

@@ -10,6 +10,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
@@ -78,11 +79,11 @@ final class Project
         ?Provider $provider = null,
         ?string $externalId = null,
     ) {
-        if (trim($name) === '') {
-            throw new \InvalidArgumentException('Project name must not be blank.');
+        if (\trim($name) === '') {
+            throw new InvalidArgumentException('Project name must not be blank.');
         }
-        if (trim($defaultBranch) === '') {
-            throw new \InvalidArgumentException('Project default branch must not be blank.');
+        if (\trim($defaultBranch) === '') {
+            throw new InvalidArgumentException('Project default branch must not be blank.');
         }
 
         $this->id = $id;

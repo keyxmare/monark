@@ -19,11 +19,11 @@ final class EmailType extends StringType
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?Email
     {
-        if ($value === null || $value === '') {
+        if (!\is_string($value) || $value === '') {
             return null;
         }
 
-        return new Email((string) $value);
+        return new Email($value);
     }
 
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
@@ -36,6 +36,10 @@ final class EmailType extends StringType
             return $value->value();
         }
 
-        return (string) $value;
+        if (!\is_string($value)) {
+            return null;
+        }
+
+        return $value;
     }
 }

@@ -19,7 +19,7 @@ final class CorrelationIdProcessor implements ProcessorInterface
     public function __invoke(LogRecord $record): LogRecord
     {
         if ($this->correlationId !== null) {
-            return $record->with(extra: array_merge($record->extra, [
+            return $record->with(extra: \array_merge($record->extra, [
                 'correlation_id' => $this->correlationId,
             ]));
         }

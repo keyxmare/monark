@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Application\QueryHandler;
 
 use App\Identity\Application\DTO\AccessTokenListOutput;
-use App\Identity\Application\DTO\AccessTokenOutput;
+use App\Identity\Application\Mapper\AccessTokenMapper;
 use App\Identity\Application\Query\ListAccessTokensQuery;
 use App\Identity\Domain\Repository\AccessTokenRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -27,7 +27,7 @@ final readonly class ListAccessTokensHandler
         $total = $this->accessTokenRepository->countByUser($userId);
 
         $items = \array_map(
-            static fn ($token) => AccessTokenOutput::fromEntity($token),
+            static fn ($token) => AccessTokenMapper::toOutput($token),
             $tokens,
         );
 

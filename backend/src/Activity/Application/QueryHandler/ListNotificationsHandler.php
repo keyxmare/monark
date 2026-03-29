@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\NotificationListOutput;
-use App\Activity\Application\DTO\NotificationOutput;
+use App\Activity\Application\Mapper\NotificationMapper;
 use App\Activity\Application\Query\ListNotificationsQuery;
 use App\Activity\Domain\Repository\NotificationRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -25,7 +25,7 @@ final readonly class ListNotificationsHandler
         $total = $this->notificationRepository->countByUser($query->userId);
 
         $items = \array_map(
-            static fn (mixed $notification) => NotificationOutput::fromEntity($notification),
+            static fn (mixed $notification) => NotificationMapper::toOutput($notification),
             $notifications,
         );
 

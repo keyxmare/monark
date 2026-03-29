@@ -6,7 +6,7 @@ namespace App\Identity\Application\CommandHandler;
 
 use App\Identity\Application\Command\LoginCommand;
 use App\Identity\Application\DTO\AuthTokenOutput;
-use App\Identity\Application\DTO\UserOutput;
+use App\Identity\Application\Mapper\UserMapper;
 use App\Identity\Domain\Repository\UserRepositoryInterface;
 use App\Shared\Domain\Exception\DomainException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -38,7 +38,7 @@ final readonly class LoginHandler
 
         return new AuthTokenOutput(
             token: $token,
-            user: UserOutput::fromEntity($user),
+            user: UserMapper::toOutput($user),
         );
     }
 }

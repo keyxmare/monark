@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\BuildMetricListOutput;
-use App\Activity\Application\DTO\BuildMetricOutput;
+use App\Activity\Application\Mapper\BuildMetricMapper;
 use App\Activity\Application\Query\ListBuildMetricsQuery;
 use App\Activity\Domain\Repository\BuildMetricRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -28,7 +28,7 @@ final readonly class ListBuildMetricsHandler
 
         return new BuildMetricListOutput(
             data: new PaginatedOutput(
-                items: \array_map(BuildMetricOutput::fromEntity(...), $items),
+                items: \array_map(BuildMetricMapper::toOutput(...), $items),
                 total: $total,
                 page: $query->page,
                 perPage: $query->perPage,

@@ -19,6 +19,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
 
     public function findById(Uuid $id): ?Dependency
     {
+        /** @var Dependency|null */
         return $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
             ->leftJoin('d.vulnerabilities', 'v')->addSelect('v')
@@ -40,7 +41,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
             ->getQuery();
 
         /** @var list<Dependency> */
-        return (new Paginator($query))->getIterator()->getArrayCopy();
+        return iterator_to_array(new Paginator($query));
     }
 
     public function count(): int
@@ -72,7 +73,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
             ->getQuery();
 
         /** @var list<Dependency> */
-        return (new Paginator($query))->getIterator()->getArrayCopy();
+        return iterator_to_array(new Paginator($query));
     }
 
     public function delete(Dependency $dependency): void
@@ -127,7 +128,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
             ->getQuery();
 
         /** @var list<Dependency> */
-        return (new Paginator($query))->getIterator()->getArrayCopy();
+        return iterator_to_array(new Paginator($query));
     }
 
     /** @param array{projectId?: string, search?: string, packageManager?: string, type?: string, isOutdated?: bool} $filters */

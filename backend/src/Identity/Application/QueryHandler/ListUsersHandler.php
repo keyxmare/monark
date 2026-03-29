@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Application\QueryHandler;
 
 use App\Identity\Application\DTO\UserListOutput;
-use App\Identity\Application\DTO\UserOutput;
+use App\Identity\Application\Mapper\UserMapper;
 use App\Identity\Application\Query\ListUsersQuery;
 use App\Identity\Domain\Repository\UserRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
@@ -25,7 +25,7 @@ final readonly class ListUsersHandler
         $total = $this->userRepository->count();
 
         $items = \array_map(
-            static fn ($user) => UserOutput::fromEntity($user),
+            static fn ($user) => UserMapper::toOutput($user),
             $users,
         );
 

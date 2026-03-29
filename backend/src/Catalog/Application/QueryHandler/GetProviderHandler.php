@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\QueryHandler;
 
 use App\Catalog\Application\DTO\ProviderOutput;
+use App\Catalog\Application\Mapper\ProviderMapper;
 use App\Catalog\Application\Query\GetProviderQuery;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetProviderHandler
             throw NotFoundException::forEntity('Provider', $query->providerId);
         }
 
-        return ProviderOutput::fromEntity($provider);
+        return ProviderMapper::toOutput($provider);
     }
 }

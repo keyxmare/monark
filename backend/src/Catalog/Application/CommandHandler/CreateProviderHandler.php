@@ -6,6 +6,7 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\CreateProviderCommand;
 use App\Catalog\Application\DTO\ProviderOutput;
+use App\Catalog\Application\Mapper\ProviderMapper;
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
@@ -42,6 +43,6 @@ final readonly class CreateProviderHandler
 
         $this->providerRepository->save($provider);
 
-        return ProviderOutput::fromEntity($provider);
+        return ProviderMapper::toOutput($provider);
     }
 }

@@ -12,7 +12,7 @@ final readonly class IsDeprecatedSpecification implements SpecificationInterface
 {
     public function isSatisfiedBy(mixed $candidate): bool
     {
-        assert($candidate instanceof Dependency);
+        \assert($candidate instanceof Dependency);
 
         return $candidate->getRegistryStatus() === RegistryStatus::Deprecated;
     }

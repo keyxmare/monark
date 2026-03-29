@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\SyncTaskOutput;
+use App\Activity\Application\Mapper\SyncTaskMapper;
 use App\Activity\Application\Query\GetSyncTaskQuery;
 use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetSyncTaskHandler
             throw NotFoundException::forEntity('SyncTask', $query->id);
         }
 
-        return SyncTaskOutput::fromEntity($syncTask);
+        return SyncTaskMapper::toOutput($syncTask);
     }
 }

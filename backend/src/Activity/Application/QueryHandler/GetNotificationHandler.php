@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\NotificationOutput;
+use App\Activity\Application\Mapper\NotificationMapper;
 use App\Activity\Application\Query\GetNotificationQuery;
 use App\Activity\Domain\Repository\NotificationRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetNotificationHandler
             throw NotFoundException::forEntity('Notification', $query->notificationId);
         }
 
-        return NotificationOutput::fromEntity($notification);
+        return NotificationMapper::toOutput($notification);
     }
 }

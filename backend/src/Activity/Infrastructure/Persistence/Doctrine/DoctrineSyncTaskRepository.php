@@ -9,6 +9,7 @@ use App\Activity\Domain\Model\SyncTaskSeverity;
 use App\Activity\Domain\Model\SyncTaskStatus;
 use App\Activity\Domain\Model\SyncTaskType;
 use App\Activity\Domain\Repository\SyncTaskRepositoryInterface;
+use BackedEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 
@@ -121,7 +122,7 @@ final readonly class DoctrineSyncTaskRepository implements SyncTaskRepositoryInt
             ->getResult();
 
         return \array_map(
-            static fn (array $row) => ['label' => $row['label'] instanceof \BackedEnum ? $row['label']->value : (string) $row['label'], 'count' => (int) $row['count']],
+            static fn (array $row) => ['label' => $row['label'] instanceof BackedEnum ? $row['label']->value : (string) $row['label'], 'count' => (int) $row['count']], // @phpstan-ignore instanceof.alwaysFalse
             $results,
         );
     }

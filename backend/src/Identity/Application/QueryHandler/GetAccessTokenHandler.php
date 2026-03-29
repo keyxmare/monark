@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Application\QueryHandler;
 
 use App\Identity\Application\DTO\AccessTokenOutput;
+use App\Identity\Application\Mapper\AccessTokenMapper;
 use App\Identity\Application\Query\GetAccessTokenQuery;
 use App\Identity\Domain\Repository\AccessTokenRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetAccessTokenHandler
             throw NotFoundException::forEntity('AccessToken', $query->tokenId);
         }
 
-        return AccessTokenOutput::fromEntity($token);
+        return AccessTokenMapper::toOutput($token);
     }
 }

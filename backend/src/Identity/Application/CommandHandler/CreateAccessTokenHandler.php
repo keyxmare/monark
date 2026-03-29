@@ -6,6 +6,7 @@ namespace App\Identity\Application\CommandHandler;
 
 use App\Identity\Application\Command\CreateAccessTokenCommand;
 use App\Identity\Application\DTO\AccessTokenOutput;
+use App\Identity\Application\Mapper\AccessTokenMapper;
 use App\Identity\Domain\Model\AccessToken;
 use App\Identity\Domain\Model\TokenProvider;
 use App\Identity\Domain\Repository\AccessTokenRepositoryInterface;
@@ -47,6 +48,6 @@ final readonly class CreateAccessTokenHandler
 
         $this->accessTokenRepository->save($accessToken);
 
-        return AccessTokenOutput::fromEntity($accessToken);
+        return AccessTokenMapper::toOutput($accessToken);
     }
 }

@@ -19,11 +19,11 @@ final class SlugType extends StringType
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?Slug
     {
-        if ($value === null || $value === '') {
+        if (!\is_string($value) || $value === '') {
             return null;
         }
 
-        return new Slug((string) $value);
+        return new Slug($value);
     }
 
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
@@ -36,6 +36,10 @@ final class SlugType extends StringType
             return $value->value();
         }
 
-        return (string) $value;
+        if (!\is_string($value)) {
+            return null;
+        }
+
+        return $value;
     }
 }

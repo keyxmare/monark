@@ -6,7 +6,9 @@ namespace App\Shared\Domain\Specification;
 
 final readonly class NotSpecification implements SpecificationInterface
 {
-    public function __construct(private SpecificationInterface $spec) {}
+    public function __construct(private SpecificationInterface $spec)
+    {
+    }
 
     public function isSatisfiedBy(mixed $candidate): bool
     {

@@ -10,6 +10,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
@@ -72,11 +73,11 @@ final class Dependency
         Uuid $projectId,
         ?string $repositoryUrl = null,
     ) {
-        if (trim($name) === '') {
-            throw new \InvalidArgumentException('Dependency name must not be blank.');
+        if (\trim($name) === '') {
+            throw new InvalidArgumentException('Dependency name must not be blank.');
         }
-        if (trim($currentVersion) === '') {
-            throw new \InvalidArgumentException('Dependency current version must not be blank.');
+        if (\trim($currentVersion) === '') {
+            throw new InvalidArgumentException('Dependency current version must not be blank.');
         }
 
         $this->id = $id;

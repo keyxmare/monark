@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Activity\Application\QueryHandler;
 
 use App\Activity\Application\DTO\ActivityEventOutput;
+use App\Activity\Application\Mapper\ActivityEventMapper;
 use App\Activity\Application\Query\GetActivityEventQuery;
 use App\Activity\Domain\Repository\ActivityEventRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -26,6 +27,6 @@ final readonly class GetActivityEventHandler
             throw NotFoundException::forEntity('ActivityEvent', $query->eventId);
         }
 
-        return ActivityEventOutput::fromEntity($event);
+        return ActivityEventMapper::toOutput($event);
     }
 }

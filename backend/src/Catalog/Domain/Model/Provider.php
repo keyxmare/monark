@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
@@ -57,11 +58,11 @@ final class Provider
         ?string $apiToken,
         ?string $username = null,
     ) {
-        if (trim($name) === '') {
-            throw new \InvalidArgumentException('Provider name must not be blank.');
+        if (\trim($name) === '') {
+            throw new InvalidArgumentException('Provider name must not be blank.');
         }
-        if (filter_var($url, \FILTER_VALIDATE_URL) === false) {
-            throw new \InvalidArgumentException('Provider URL must be a valid URL.');
+        if (\filter_var($url, \FILTER_VALIDATE_URL) === false) {
+            throw new InvalidArgumentException('Provider URL must be a valid URL.');
         }
 
         $this->id = $id;

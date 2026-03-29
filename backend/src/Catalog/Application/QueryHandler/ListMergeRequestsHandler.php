@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\QueryHandler;
 
 use App\Catalog\Application\DTO\MergeRequestListOutput;
-use App\Catalog\Application\DTO\MergeRequestOutput;
+use App\Catalog\Application\Mapper\MergeRequestMapper;
 use App\Catalog\Application\Query\ListMergeRequestsQuery;
 use App\Catalog\Domain\Model\MergeRequestStatus;
 use App\Catalog\Domain\Repository\MergeRequestRepositoryInterface;
@@ -37,7 +37,7 @@ final readonly class ListMergeRequestsHandler
         $total = $this->mergeRequestRepository->countByProjectId($projectId, $statuses, $query->author);
 
         $items = \array_map(
-            static fn ($mr) => MergeRequestOutput::fromEntity($mr),
+            static fn ($mr) => MergeRequestMapper::toOutput($mr),
             $mergeRequests,
         );
 

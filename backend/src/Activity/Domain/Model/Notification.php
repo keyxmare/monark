@@ -6,6 +6,7 @@ namespace App\Activity\Domain\Model;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
@@ -41,11 +42,11 @@ final class Notification
         NotificationChannel $channel,
         string $userId,
     ) {
-        if (trim($title) === '') {
-            throw new \InvalidArgumentException('Notification title must not be blank.');
+        if (\trim($title) === '') {
+            throw new InvalidArgumentException('Notification title must not be blank.');
         }
-        if (trim($message) === '') {
-            throw new \InvalidArgumentException('Notification message must not be blank.');
+        if (\trim($message) === '') {
+            throw new InvalidArgumentException('Notification message must not be blank.');
         }
 
         $this->id = $id;

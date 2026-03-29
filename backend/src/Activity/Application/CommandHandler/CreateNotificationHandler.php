@@ -6,6 +6,7 @@ namespace App\Activity\Application\CommandHandler;
 
 use App\Activity\Application\Command\CreateNotificationCommand;
 use App\Activity\Application\DTO\NotificationOutput;
+use App\Activity\Application\Mapper\NotificationMapper;
 use App\Activity\Domain\Model\Notification;
 use App\Activity\Domain\Model\NotificationChannel;
 use App\Activity\Domain\Repository\NotificationRepositoryInterface;
@@ -32,6 +33,6 @@ final readonly class CreateNotificationHandler
 
         $this->notificationRepository->save($notification);
 
-        return NotificationOutput::fromEntity($notification);
+        return NotificationMapper::toOutput($notification);
     }
 }

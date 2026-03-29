@@ -13,16 +13,18 @@ use DateTimeInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
 final readonly class GitLabClient implements GitProviderInterface
 {
+    private LoggerInterface $logger;
+
     public function __construct(
         private HttpClientInterface $httpClient,
-        private LoggerInterface $logger = new NullLogger(),
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /** @return list<RemoteProject> */
@@ -91,7 +93,9 @@ final readonly class GitLabClient implements GitProviderInterface
             ]);
 
             return $response->getStatusCode() === 200;
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            $this->logger->warning('GitLab connection test failed.', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -222,7 +226,9 @@ final readonly class GitLabClient implements GitProviderInterface
                 ],
                 $items,
             );
-        } catch (ClientExceptionInterface) {
+        } catch (ClientExceptionInterface $e) {
+            $this->logger->warning('GitLab listDirectory failed.', ['error' => $e->getMessage()]);
+
             return [];
         }
     }

@@ -6,6 +6,7 @@ namespace App\Identity\Application\CommandHandler;
 
 use App\Identity\Application\Command\UpdateUserCommand;
 use App\Identity\Application\DTO\UserOutput;
+use App\Identity\Application\Mapper\UserMapper;
 use App\Identity\Domain\Event\UserUpdated;
 use App\Identity\Domain\Repository\UserRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
@@ -44,6 +45,6 @@ final readonly class UpdateUserHandler
             userId: $user->getId()->toRfc4122(),
         ));
 
-        return UserOutput::fromEntity($user);
+        return UserMapper::toOutput($user);
     }
 }

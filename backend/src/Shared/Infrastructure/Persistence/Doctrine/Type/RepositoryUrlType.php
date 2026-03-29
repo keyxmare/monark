@@ -19,11 +19,11 @@ final class RepositoryUrlType extends StringType
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?RepositoryUrl
     {
-        if ($value === null || $value === '') {
+        if (!\is_string($value) || $value === '') {
             return null;
         }
 
-        return new RepositoryUrl((string) $value);
+        return new RepositoryUrl($value);
     }
 
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
@@ -36,6 +36,10 @@ final class RepositoryUrlType extends StringType
             return $value->value();
         }
 
-        return (string) $value;
+        if (!\is_string($value)) {
+            return null;
+        }
+
+        return $value;
     }
 }

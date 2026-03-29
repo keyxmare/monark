@@ -19,6 +19,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
 
     public function findById(Uuid $id): ?Project
     {
+        /** @var Project|null */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
             ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
@@ -30,6 +31,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
 
     public function findBySlug(string $slug): ?Project
     {
+        /** @var Project|null */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
             ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
@@ -78,7 +80,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
             ->getQuery();
 
         /** @var list<Project> */
-        return (new Paginator($query))->getIterator()->getArrayCopy();
+        return iterator_to_array(new Paginator($query));
     }
 
     /** @return list<Project> */

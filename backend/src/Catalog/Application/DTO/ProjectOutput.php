@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace App\Catalog\Application\DTO;
 
-use App\Catalog\Domain\Model\Project;
-use App\Catalog\Domain\Model\TechStack;
-use DateTimeInterface;
-
 final readonly class ProjectOutput
 {
     /** @param list<TechStackSummaryDTO> $techStacks */
@@ -27,32 +23,5 @@ final readonly class ProjectOutput
         public string $createdAt,
         public string $updatedAt,
     ) {
-    }
-
-    public static function fromEntity(Project $project): self
-    {
-        return new self(
-            id: $project->getId()->toRfc4122(),
-            name: $project->getName(),
-            slug: $project->getSlug(),
-            description: $project->getDescription(),
-            repositoryUrl: $project->getRepositoryUrl(),
-            defaultBranch: $project->getDefaultBranch(),
-            visibility: $project->getVisibility()->value,
-            ownerId: $project->getOwnerId()->toRfc4122(),
-            providerId: $project->getProvider()?->getId()->toRfc4122(),
-            externalId: $project->getExternalId(),
-            techStacksCount: $project->getTechStacks()->count(),
-            techStacks: \array_values($project->getTechStacks()->filter(
-                static fn (TechStack $ts) => $ts->getFramework() !== '' && $ts->getFramework() !== 'none',
-            )->map(
-                static fn (TechStack $ts) => new TechStackSummaryDTO(
-                    language: $ts->getLanguage(),
-                    framework: $ts->getFramework(),
-                )
-            )->toArray()),
-            createdAt: $project->getCreatedAt()->format(DateTimeInterface::ATOM),
-            updatedAt: $project->getUpdatedAt()->format(DateTimeInterface::ATOM),
-        );
     }
 }

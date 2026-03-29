@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\Infrastructure\Security;
 
-use App\Identity\Application\DTO\UserOutput;
+use App\Identity\Application\Mapper\UserMapper;
 use App\Identity\Domain\Model\User;
 use App\Shared\Application\DTO\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,7 +28,7 @@ final readonly class LoginSuccessHandler implements AuthenticationSuccessHandler
 
         return new JsonResponse(ApiResponse::success([
             'token' => $apiToken,
-            'user' => UserOutput::fromEntity($user),
+            'user' => UserMapper::toOutput($user),
         ])->toArray());
     }
 }
