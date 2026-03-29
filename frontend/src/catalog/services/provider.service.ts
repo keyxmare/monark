@@ -8,14 +8,7 @@ import type {
   UpdateProviderInput,
 } from '@/catalog/types/provider';
 import type { Project } from '@/catalog/types/project';
-
-interface PaginatedProviders {
-  items: Provider[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
-}
+import { createCrudService } from '@/shared/services/createCrudService';
 
 interface PaginatedRemoteProjects {
   items: RemoteProject[];
@@ -43,25 +36,7 @@ export interface SyncJobProgress {
 const BASE_URL = '/catalog/providers';
 
 export const providerService = {
-  list(page = 1, perPage = 20): Promise<ApiResponse<PaginatedProviders>> {
-    return api.get<ApiResponse<PaginatedProviders>>(`${BASE_URL}?page=${page}&per_page=${perPage}`);
-  },
-
-  get(id: string): Promise<ApiResponse<Provider>> {
-    return api.get<ApiResponse<Provider>>(`${BASE_URL}/${id}`);
-  },
-
-  create(data: CreateProviderInput): Promise<ApiResponse<Provider>> {
-    return api.post<ApiResponse<Provider>>(BASE_URL, data);
-  },
-
-  update(id: string, data: UpdateProviderInput): Promise<ApiResponse<Provider>> {
-    return api.put<ApiResponse<Provider>>(`${BASE_URL}/${id}`, data);
-  },
-
-  remove(id: string): Promise<void> {
-    return api.delete<void>(`${BASE_URL}/${id}`);
-  },
+  ...createCrudService<Provider, CreateProviderInput, UpdateProviderInput>(BASE_URL),
 
   testConnection(id: string): Promise<ApiResponse<Provider>> {
     return api.post<ApiResponse<Provider>>(`${BASE_URL}/${id}/test`, {});
