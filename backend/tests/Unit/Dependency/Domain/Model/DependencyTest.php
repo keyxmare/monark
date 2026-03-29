@@ -58,13 +58,16 @@ describe('Dependency', function () {
         expect($dependency->getUpdatedAt())->not->toBe($previousUpdatedAt);
     });
 
-    it('updates a single field', function () {
+    it('updates a single field and refreshes updatedAt', function () {
         $dependency = DependencyFactory::create();
+        $previousUpdatedAt = $dependency->getUpdatedAt();
 
+        usleep(1000);
         $dependency->update(name: 'symfony/console');
 
         expect($dependency->getName())->toBe('symfony/console');
         expect($dependency->getCurrentVersion())->toBe('7.2.0');
+        expect($dependency->getUpdatedAt())->not->toBe($previousUpdatedAt);
     });
 
     it('updates all fields', function () {
@@ -121,11 +124,22 @@ describe('Dependency', function () {
         expect($dependency->getRepositoryUrl())->toBe('https://github.com/new/repo');
     });
 
-    it('returns vulnerability count', function () {
+    it('returns vulnerability count from collection', function () {
         $dependency = DependencyFactory::create();
-        VulnerabilityFactory::create($dependency);
-        VulnerabilityFactory::create($dependency, ['cveId' => 'CVE-2026-99999']);
+        $vuln1 = VulnerabilityFactory::create($dependency);
+        $vuln2 = VulnerabilityFactory::create($dependency, ['cveId' => 'CVE-2026-99999']);
 
-        expect($dependency->getVulnerabilityCount())->toBe(0);
+        $ref = new ReflectionProperty($dependency, 'vulnerabilities');
+        $collection = $ref->getValue($dependency);
+        $collection->add($vuln1);
+        $collection->add($vuln2);
+
+        expect($dependency->getVulnerabilityCount())->toBe(2);
+    });
+
+    it('returns vulnerabilities collection', function () {
+        $dependency = DependencyFactory::create();
+        expect($dependency->getVulnerabilities())->toBeInstanceOf(\Doctrine\Common\Collections\Collection::class)
+            ->toHaveCount(0);
     });
 });
