@@ -11,8 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 
-#[Route('/api/activity/sync-tasks/{id}', name: 'activity_sync_tasks_update', methods: ['PATCH'])]
+#[Route('/api/activity/sync-tasks/{id}', name: 'activity_sync_tasks_update', methods: ['PATCH'], requirements: ['id' => Requirement::UUID_V7])]
 final readonly class UpdateSyncTaskStatusController
 {
     public function __construct(
