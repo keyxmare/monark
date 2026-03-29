@@ -27,7 +27,8 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
         }
 
         $messageClass = get_class($envelope->getMessage());
-        $shortName = substr($messageClass, strrpos($messageClass, '\\') + 1);
+        $pos = strrpos($messageClass, '\\');
+        $shortName = $pos !== false ? substr($messageClass, $pos + 1) : $messageClass;
 
         $this->logger->info('Handling message', [
             'message' => $shortName,
