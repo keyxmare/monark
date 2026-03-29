@@ -147,18 +147,6 @@ services:
       MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
       MERCURE_JWT_SECRET: '!ChangeThisMercureHubJWTSecretKey!'
 
-  ngrok:
-    image: ngrok/ngrok:latest
-    restart: unless-stopped
-    depends_on:
-      frontend:
-        condition: service_started
-    environment:
-      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
-    command: http frontend:3000 --host-header=rewrite
-    ports:
-      - "4040:4040"
-
 volumes:
   postgres-data:
   rabbitmq-data:
