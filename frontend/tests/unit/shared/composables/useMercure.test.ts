@@ -102,4 +102,48 @@ describe('useMercure', () => {
     close();
     expect(MockEventSource.instances[0].closed).toBe(true);
   });
+
+  it('stops reconnecting after maxRetries', () => {
+    const { exhausted } = useMercure('/test', { maxRetries: 3 });
+
+    for (let i = 0; i < 3; i++) {
+      MockEventSource.instances[i].onerror?.(new Event('error'));
+      if (i < 2) {
+        vi.advanceTimersByTime(3000);
+      }
+    }
+
+    expect(exhausted.value).toBe(true);
+    expect(MockEventSource.instances).toHaveLength(3);
+
+    vi.advanceTimersByTime(3000);
+    expect(MockEventSource.instances).toHaveLength(3);
+  });
+
+  it('sets exhausted to true when retries are exhausted', () => {
+    const { exhausted } = useMercure('/test', { maxRetries: 1 });
+
+    expect(exhausted.value).toBe(false);
+    MockEventSource.instances[0].onerror?.(new Event('error'));
+    expect(exhausted.value).toBe(true);
+  });
+
+  it('resets retryCount on successful connection', () => {
+    const { exhausted } = useMercure('/test', { maxRetries: 3 });
+
+    MockEventSource.instances[0].onerror?.(new Event('error'));
+    vi.advanceTimersByTime(3000);
+    MockEventSource.instances[1].onerror?.(new Event('error'));
+    vi.advanceTimersByTime(3000);
+
+    MockEventSource.instances[2].onopen?.(new Event('open'));
+
+    MockEventSource.instances[2].onerror?.(new Event('error'));
+    vi.advanceTimersByTime(3000);
+    MockEventSource.instances[3].onerror?.(new Event('error'));
+    vi.advanceTimersByTime(3000);
+
+    expect(exhausted.value).toBe(false);
+    expect(MockEventSource.instances).toHaveLength(5);
+  });
 });

@@ -5,11 +5,13 @@ const MERCURE_HUB_URL = '/.well-known/mercure';
 interface UseMercureOptions<T> {
   onMessage?: (data: T) => void;
   onError?: (event: Event) => void;
+  maxRetries?: number;
 }
 
 interface UseMercureReturn<T> {
   data: Ref<T | null>;
   connected: Ref<boolean>;
+  exhausted: Ref<boolean>;
   close: () => void;
 }
 
@@ -17,8 +19,11 @@ export function useMercure<T = unknown>(
   topic: string | string[],
   options: UseMercureOptions<T> = {},
 ): UseMercureReturn<T> {
+  const maxRetries = options.maxRetries ?? 5;
   const data = ref<T | null>(null) as Ref<T | null>;
   const connected = ref(false);
+  const exhausted = ref(false);
+  let retryCount = 0;
   let eventSource: EventSource | null = null;
   let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -33,6 +38,7 @@ export function useMercure<T = unknown>(
 
     eventSource.onopen = () => {
       connected.value = true;
+      retryCount = 0;
     };
 
     eventSource.onmessage = (event: MessageEvent) => {
@@ -46,6 +52,11 @@ export function useMercure<T = unknown>(
       options.onError?.(event);
       eventSource?.close();
       eventSource = null;
+      retryCount++;
+      if (retryCount >= maxRetries) {
+        exhausted.value = true;
+        return;
+      }
       reconnectTimeout = setTimeout(connect, 3000);
     };
   }
@@ -66,5 +77,5 @@ export function useMercure<T = unknown>(
 
   onUnmounted(close);
 
-  return { data, connected, close };
+  return { data, connected, exhausted, close };
 }
