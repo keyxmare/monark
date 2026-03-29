@@ -10,6 +10,23 @@ framework:
         cookie_samesite: lax
         storage_factory_id: session.storage.factory.native
 
+    http_client:
+        scoped_clients:
+            external_api.client:
+                scope: 'https?://.+'
+                retry_failed:
+                    enabled: true
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 10000
+                    http_codes:
+                        - { code: 429, methods: ['GET'] }
+                        - { code: 500, methods: ['GET'] }
+                        - { code: 502, methods: ['GET'] }
+                        - { code: 503, methods: ['GET'] }
+                        - { code: 504, methods: ['GET'] }
+
     php_errors:
         log: true
 

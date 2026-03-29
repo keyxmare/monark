@@ -10,7 +10,10 @@ use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
@@ -18,6 +21,7 @@ final readonly class GitLabClient implements GitProviderInterface
 {
     public function __construct(
         private HttpClientInterface $httpClient,
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
