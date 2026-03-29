@@ -57,16 +57,14 @@ else
 fi
 
 step
+$BACK "php -d memory_limit=512M vendor/bin/pest --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null" 2>/dev/null | cat >/dev/null 2>&1
 PEST_PASS=0
 PEST_FAIL=0
-for DIR in tests/Unit/Catalog tests/Unit/Dependency tests/Unit/Identity tests/Unit/Shared; do
-  $BACK "php -d memory_limit=512M vendor/bin/pest $DIR --no-coverage --log-junit /tmp/pest-ci.xml 2>/dev/null" 2>/dev/null | cat >/dev/null 2>&1
-  T=$($BACK "grep -o 'tests=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
-  F=$($BACK "grep -o 'failures=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
-  E=$($BACK "grep -o 'errors=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
-  PEST_PASS=$((PEST_PASS + ${T:-0} - ${F:-0} - ${E:-0}))
-  PEST_FAIL=$((PEST_FAIL + ${F:-0} + ${E:-0}))
-done
+T=$($BACK "grep -o 'tests=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
+F=$($BACK "grep -o 'failures=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
+E=$($BACK "grep -o 'errors=\"[0-9]*\"' /tmp/pest-ci.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
+PEST_PASS=$((${T:-0} - ${F:-0} - ${E:-0}))
+PEST_FAIL=$((${F:-0} + ${E:-0}))
 PEST_TOTAL=$((PEST_PASS + PEST_FAIL))
 if [ "$PEST_TOTAL" -gt 0 ] && [ "$PEST_FAIL" -eq 0 ]; then
   ok "Tests" "Pest ${PEST_PASS} passed"
@@ -79,20 +77,19 @@ else
 fi
 
 step
-COV_STMTS=0
-COV_COVERED=0
-for DIR in tests/Unit/Catalog/Infrastructure tests/Unit/Catalog/Application tests/Unit/Dependency tests/Unit/Identity tests/Unit/Shared; do
-  $BACK "rm -f /tmp/clover-ci.xml; php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest $DIR --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null" 2>/dev/null | cat >/dev/null 2>&1
-  METRICS=$($BACK 'grep "metrics" /tmp/clover-ci.xml 2>/dev/null | tail -1' 2>/dev/null | cat | tr -d '\r')
-  S=$(echo "$METRICS" | grep -oE 'statements="[0-9]+"' | head -1 | grep -oE '[0-9]+')
-  C=$(echo "$METRICS" | grep -oE 'coveredstatements="[0-9]+"' | head -1 | grep -oE '[0-9]+')
-  if [ -n "$S" ] && [ -n "$C" ]; then
-    if [ "$COV_STMTS" -eq 0 ]; then
-      COV_STMTS=$S
-      COV_COVERED=$C
-    fi
-  fi
-done
+$BACK "php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null" 2>/dev/null | cat >/dev/null 2>&1
+COV_RESULT=$($BACK 'php -r "
+\$xml = @simplexml_load_file(\"/tmp/clover-ci.xml\");
+if (!\$xml) { echo \"statements=\\\"0\\\" coveredstatements=\\\"0\\\"\"; exit; }
+\$m = \$xml->project->metrics;
+echo \"statements=\\\"\" . (int)\$m[\"statements\"] . \"\\\" coveredstatements=\\\"\" . (int)\$m[\"coveredstatements\"] . \"\\\"\";
+" 2>/dev/null' 2>/dev/null | cat | tr -d '\r')
+S=$(echo "$COV_RESULT" | grep -oE 'statements="[0-9]+"' | head -1 | grep -oE '[0-9]+')
+C=$(echo "$COV_RESULT" | grep -oE 'coveredstatements="[0-9]+"' | head -1 | grep -oE '[0-9]+')
+if [ -n "$S" ] && [ -n "$C" ]; then
+  COV_STMTS=$S
+  COV_COVERED=$C
+fi
 if [ "$COV_STMTS" -gt 0 ]; then
   BCOV_PCT=$((COV_COVERED * 1000 / COV_STMTS))
   BCOV_INT=$((BCOV_PCT / 10))
@@ -107,20 +104,13 @@ else
 fi
 
 step
-MSI_KILLED=0
-MSI_TOTAL=0
-for DIR in tests/Unit/Catalog/Infrastructure/Scanner tests/Unit/Catalog/Infrastructure/GitProvider tests/Unit/Catalog/Application/CommandHandler tests/Unit/Catalog/Application/QueryHandler tests/Unit/Catalog/Presentation tests/Unit/Dependency tests/Unit/Identity tests/Unit/Shared; do
-  INF_OUT=$($BACK "rm -rf /tmp/infection-cov; php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest $DIR --no-coverage --coverage-xml /tmp/infection-cov/coverage-xml --log-junit /tmp/infection-cov/junit.xml 2>/dev/null; sed -i 's|Tests\\\\Unit|P\\\\Tests\\\\Unit|g' /tmp/infection-cov/junit.xml 2>/dev/null; php -d memory_limit=512M vendor/bin/infection --threads=4 --coverage=/tmp/infection-cov --skip-initial-tests --min-msi=0 --min-covered-msi=0 --no-progress 2>&1" 2>/dev/null | cat)
-  K=$(echo "$INF_OUT" | grep -oE "[0-9]+ mutants were killed" | grep -oE "[0-9]+" | head -1)
-  T=$(echo "$INF_OUT" | grep -oE "[0-9]+ mutations were generated" | grep -oE "[0-9]+" | head -1)
-  MSI_KILLED=$((MSI_KILLED + ${K:-0}))
-  MSI_TOTAL=$((MSI_TOTAL + ${T:-0}))
-done
-if [ "$MSI_TOTAL" -gt 0 ]; then
-  MSI_PCT=$((MSI_KILLED * 1000 / MSI_TOTAL))
-  MSI_INT=$((MSI_PCT / 10))
-  MSI_DEC=$((MSI_PCT % 10))
-  ok "Mutation" "MSI: ${MSI_INT}.${MSI_DEC}% (${MSI_KILLED}/${MSI_TOTAL})"
+MUTATE_OUT=$($BACK "php -d memory_limit=1G -d xdebug.mode=coverage vendor/bin/pest --mutate --parallel --everything --covered-only --min=0 2>&1" 2>/dev/null | cat | strip_ansi)
+MSI_SCORE=$(echo "$MUTATE_OUT" | grep -oE 'Score:[[:space:]]+[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+' | head -1)
+MSI_TESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ tested' | grep -oE '[0-9]+' | head -1)
+MSI_UNTESTED=$(echo "$MUTATE_OUT" | grep -oE '[0-9]+ untested' | grep -oE '[0-9]+' | head -1)
+if [ -n "$MSI_SCORE" ]; then
+  MSI_TOTAL=$((${MSI_TESTED:-0} + ${MSI_UNTESTED:-0}))
+  ok "Mutation" "MSI: ${MSI_SCORE}% (${MSI_TESTED:-0}/${MSI_TOTAL})"
 else
   warn "Mutation" "N/A"
 fi
