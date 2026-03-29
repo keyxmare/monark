@@ -55,6 +55,10 @@ jobs:
           retention-days: 7
       - name: Deptrac
         run: ${{ env.DC }} exec -T backend php vendor/bin/deptrac analyse
+      - name: Mutation testing
+        run: >
+          ${{ env.DC }} exec -T backend
+          php vendor/bin/infection --min-msi=80 --min-covered-msi=80 --threads=4
       - name: Composer audit
         run: ${{ env.DC }} exec -T backend composer audit
 
