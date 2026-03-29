@@ -49,15 +49,10 @@ async function handleLogout() {
         <span class="text-xl">☰</span>
       </button>
 
-      <h1 class="text-lg font-semibold text-text">
-        Monark
-      </h1>
+      <h1 class="text-lg font-semibold text-text">Monark</h1>
     </div>
 
-    <div
-      class="relative flex items-center gap-3"
-      data-testid="topbar-user-area"
-    >
+    <div class="relative flex items-center gap-3" data-testid="topbar-user-area">
       <LanguageSwitcher />
       <button
         class="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-muted"

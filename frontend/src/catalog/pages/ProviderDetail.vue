@@ -128,20 +128,14 @@ async function handleTestConnection() {
           {{ t('catalog.providers.title') }}
         </RouterLink>
         <span>/</span>
-        <span
-          v-if="providerStore.selected"
-          class="font-medium text-text"
-        >
+        <span v-if="providerStore.selected" class="font-medium text-text">
           {{ providerStore.selected.name }}
         </span>
       </nav>
 
       <div class="mb-6 flex items-end justify-between">
         <div />
-        <div
-          v-if="providerStore.selected"
-          class="flex items-center gap-3"
-        >
+        <div v-if="providerStore.selected" class="flex items-center gap-3">
           <RouterLink
             :to="{ name: 'catalog-providers-edit', params: { id: providerStore.selected.id } }"
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"

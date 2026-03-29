@@ -368,7 +368,9 @@ async function handleSync() {
               <span class="font-medium text-text">{{
                 t('dependency.dependencies.healthScore', { percent: healthScore.percent })
               }}</span>
-              <span class="text-text-muted">{{ healthScore.upToDate }}/{{ healthScore.total }}</span>
+              <span class="text-text-muted"
+                >{{ healthScore.upToDate }}/{{ healthScore.total }}</span
+              >
             </div>
             <div class="h-2 w-full overflow-hidden rounded-full bg-surface-muted">
               <div
@@ -392,11 +394,7 @@ async function handleSync() {
         </div>
 
         <!-- Gap stats -->
-        <div
-          v-if="depGapStats"
-          class="mb-6 grid grid-cols-3 gap-4"
-          data-testid="dep-gap-stats"
-        >
+        <div v-if="depGapStats" class="mb-6 grid grid-cols-3 gap-4" data-testid="dep-gap-stats">
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
             <p class="text-xs text-text-muted">
               {{ t('catalog.techStacks.gapCumulated') }}
@@ -465,7 +463,7 @@ async function handleSync() {
               :aria-label="t('common.actions.search')"
               :placeholder="t('common.actions.search')"
               class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
-            >
+            />
           </div>
           <select
             v-model="filterPm"
@@ -475,15 +473,9 @@ async function handleSync() {
             <option value="">
               {{ t('catalog.projects.allPackageManagers') }}
             </option>
-            <option value="composer">
-              Composer
-            </option>
-            <option value="npm">
-              npm
-            </option>
-            <option value="pip">
-              pip
-            </option>
+            <option value="composer">Composer</option>
+            <option value="npm">npm</option>
+            <option value="pip">pip</option>
           </select>
           <select
             v-model="filterType"
@@ -523,21 +515,14 @@ async function handleSync() {
             <option value="">
               {{ t('dependency.dependencies.allProjects') }}
             </option>
-            <option
-              v-for="p in projectStore.projects"
-              :key="p.id"
-              :value="p.id"
-            >
+            <option v-for="p in projectStore.projects" :key="p.id" :value="p.id">
               {{ p.name }}
             </option>
           </select>
         </div>
 
         <div class="overflow-hidden rounded-xl border border-border bg-surface">
-          <table
-            class="w-full"
-            data-testid="dependency-list-table"
-          >
+          <table class="w-full" data-testid="dependency-list-table">
             <thead>
               <tr class="border-b border-border bg-surface-muted">
                 <th
@@ -626,12 +611,13 @@ async function handleSync() {
                   <span
                     v-if="row.dep.registryStatus === 'not_found'"
                     class="text-text-muted italic"
-                  >{{ t('dependency.dependencies.unknown') }}</span>
+                    >{{ t('dependency.dependencies.unknown') }}</span
+                  >
                   <template
                     v-else-if="
                       row.dep.currentVersionReleasedAt &&
-                        row.dep.latestVersionReleasedAt &&
-                        row.dep.isOutdated
+                      row.dep.latestVersionReleasedAt &&
+                      row.dep.isOutdated
                     "
                   >
                     <span
@@ -661,16 +647,10 @@ async function handleSync() {
                       }}
                     </span>
                   </template>
-                  <span
-                    v-else-if="!row.dep.isOutdated"
-                    class="text-success"
-                  >{{
+                  <span v-else-if="!row.dep.isOutdated" class="text-success">{{
                     t('catalog.techStacks.upToDate')
                   }}</span>
-                  <span
-                    v-else
-                    class="text-text-muted"
-                  >—</span>
+                  <span v-else class="text-text-muted">—</span>
                 </td>
                 <td class="px-4 py-3">
                   <span
@@ -681,13 +661,13 @@ async function handleSync() {
                       src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg"
                       alt="npm"
                       class="h-3 w-3"
-                    >
+                    />
                     <img
                       v-else-if="row.dep.packageManager === 'composer'"
                       src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/composer/composer-original.svg"
                       alt="composer"
                       class="h-3 w-3"
-                    >
+                    />
                     {{ row.dep.packageManager }}
                   </span>
                 </td>

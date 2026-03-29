@@ -24,10 +24,7 @@ const { d, t } = useI18n();
   >
     <div class="flex items-center justify-between border-b border-border px-6 py-4">
       <div class="flex items-center gap-3">
-        <ProviderIcon
-          :type="provider.type"
-          :size="28"
-        />
+        <ProviderIcon :type="provider.type" :size="28" />
         <div>
           <h2 class="text-xl font-bold text-text">
             {{ provider.name }}
@@ -60,10 +57,7 @@ const { d, t } = useI18n();
       </button>
     </div>
 
-    <dl
-      class="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2"
-      data-testid="provider-detail-fields"
-    >
+    <dl class="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2" data-testid="provider-detail-fields">
       <div class="flex items-start gap-3">
         <svg
           class="mt-0.5 h-4 w-4 shrink-0 text-text-muted"
@@ -96,10 +90,7 @@ const { d, t } = useI18n();
         </div>
       </div>
 
-      <div
-        v-if="provider.username"
-        class="flex items-start gap-3"
-      >
+      <div v-if="provider.username" class="flex items-start gap-3">
         <svg
           class="mt-0.5 h-4 w-4 shrink-0 text-text-muted"
           fill="none"
@@ -117,10 +108,7 @@ const { d, t } = useI18n();
           <dt class="text-xs font-medium text-text-muted">
             {{ t('catalog.providers.username') }}
           </dt>
-          <dd
-            class="mt-0.5 text-sm text-text"
-            data-testid="provider-detail-username"
-          >
+          <dd class="mt-0.5 text-sm text-text" data-testid="provider-detail-username">
             {{ provider.username }}
           </dd>
         </div>
@@ -144,10 +132,7 @@ const { d, t } = useI18n();
           <dt class="text-xs font-medium text-text-muted">
             {{ t('catalog.providers.lastSync') }}
           </dt>
-          <dd
-            class="mt-0.5 text-sm text-text"
-            data-testid="provider-detail-last-sync"
-          >
+          <dd class="mt-0.5 text-sm text-text" data-testid="provider-detail-last-sync">
             {{
               provider.lastSyncAt ? d(new Date(provider.lastSyncAt), 'short') : t('common.never')
             }}
@@ -173,10 +158,7 @@ const { d, t } = useI18n();
           <dt class="text-xs font-medium text-text-muted">
             {{ t('identity.users.createdAt') }}
           </dt>
-          <dd
-            class="mt-0.5 text-sm text-text"
-            data-testid="provider-detail-created-at"
-          >
+          <dd class="mt-0.5 text-sm text-text" data-testid="provider-detail-created-at">
             {{ d(new Date(provider.createdAt), 'short') }}
           </dd>
         </div>

@@ -64,10 +64,7 @@ const statusBadgeClass: Record<string, string> = {
       </div>
 
       <div class="mb-4 flex items-center gap-4">
-        <div
-          class="flex rounded-lg border border-border"
-          data-testid="mr-status-filter"
-        >
+        <div class="flex rounded-lg border border-border" data-testid="mr-status-filter">
           <button
             v-for="opt in statusOptions"
             :key="opt.value"
@@ -88,14 +85,10 @@ const statusBadgeClass: Record<string, string> = {
           :placeholder="t('catalog.mergeRequests.filterByAuthor')"
           class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text"
           data-testid="mr-author-filter"
-        >
+        />
       </div>
 
-      <div
-        v-if="store.loading"
-        class="py-8 text-center text-text-muted"
-        data-testid="mr-loading"
-      >
+      <div v-if="store.loading" class="py-8 text-center text-text-muted" data-testid="mr-loading">
         {{ t('common.actions.loading') }}
       </div>
 
@@ -108,10 +101,7 @@ const statusBadgeClass: Record<string, string> = {
         {{ store.error }}
       </div>
 
-      <div
-        v-else
-        class="overflow-hidden rounded-xl border border-border bg-surface"
-      >
+      <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
         <table class="w-full">
           <thead>
             <tr class="border-b border-border bg-surface-muted">
@@ -171,18 +161,13 @@ const statusBadgeClass: Record<string, string> = {
                 {{ mr.sourceBranch }} → {{ mr.targetBranch }}
               </td>
               <td class="px-4 py-3 text-sm">
-                <span
-                  v-if="mr.additions !== null"
-                  class="text-success"
-                >+{{ mr.additions }}</span>
-                <span
-                  v-if="mr.deletions !== null"
-                  class="ml-1 text-danger"
-                >-{{ mr.deletions }}</span>
-                <span
-                  v-if="mr.additions === null && mr.deletions === null"
-                  class="text-text-muted"
-                >—</span>
+                <span v-if="mr.additions !== null" class="text-success">+{{ mr.additions }}</span>
+                <span v-if="mr.deletions !== null" class="ml-1 text-danger"
+                  >-{{ mr.deletions }}</span
+                >
+                <span v-if="mr.additions === null && mr.deletions === null" class="text-text-muted"
+                  >—</span
+                >
               </td>
               <td class="px-4 py-3 text-sm text-text-muted">
                 {{ d(new Date(mr.updatedAt), 'short') }}

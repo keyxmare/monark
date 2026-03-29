@@ -168,10 +168,7 @@ async function handleScan() {
           {{ t('catalog.projects.title') }}
         </RouterLink>
         <span>/</span>
-        <span
-          v-if="projectStore.selected"
-          class="font-medium text-text"
-        >
+        <span v-if="projectStore.selected" class="font-medium text-text">
           {{ projectStore.selected.name }}
         </span>
       </nav>
@@ -214,7 +211,8 @@ async function handleScan() {
                 class="text-primary hover:text-primary-dark"
                 data-testid="project-detail-repository-url"
                 :title="projectStore.selected.repositoryUrl"
-              >{{ truncateUrl(projectStore.selected.repositoryUrl) }} ↗</a>
+                >{{ truncateUrl(projectStore.selected.repositoryUrl) }} ↗</a
+              >
             </p>
           </div>
           <div class="flex gap-2">
@@ -241,10 +239,7 @@ async function handleScan() {
           </div>
         </div>
 
-        <div
-          class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4"
-          data-testid="project-stats-cards"
-        >
+        <div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4" data-testid="project-stats-cards">
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
             <div class="text-lg font-bold text-text">
               <span
@@ -281,20 +276,11 @@ async function handleScan() {
                 size="md"
               />
             </div>
-            <p
-              v-else
-              class="text-sm text-text-muted"
-              data-testid="project-stat-stacks"
-            >
-              —
-            </p>
+            <p v-else class="text-sm text-text-muted" data-testid="project-stat-stacks">—</p>
           </div>
 
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
-            <div
-              class="text-lg font-bold tabular-nums text-text"
-              data-testid="project-stat-mrs"
-            >
+            <div class="text-lg font-bold tabular-nums text-text" data-testid="project-stat-mrs">
               {{ mergeRequestStore.total }}
             </div>
             <p class="mt-1 text-xs text-text-muted">
@@ -360,10 +346,7 @@ async function handleScan() {
         </div>
 
         <!-- Tech Stacks Tab -->
-        <div
-          v-if="activeTab === 'tech-stacks'"
-          data-testid="tech-stacks-panel"
-        >
+        <div v-if="activeTab === 'tech-stacks'" data-testid="tech-stacks-panel">
           <div class="overflow-hidden rounded-xl border border-border bg-surface">
             <table class="w-full">
               <thead>
@@ -413,17 +396,17 @@ async function handleScan() {
                       <span
                         v-if="
                           getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status ===
-                            'eol'
+                          'eol'
                         "
                         class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
                         :title="
                           getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.eolDate
                             ? t('catalog.techStacks.unmaintainedSince', {
-                              date: getVersionMaintenanceStatus(
-                                ts.framework,
-                                ts.frameworkVersion,
-                              )!.eolDate!,
-                            })
+                                date: getVersionMaintenanceStatus(
+                                  ts.framework,
+                                  ts.frameworkVersion,
+                                )!.eolDate!,
+                              })
                             : t('catalog.techStacks.unmaintainedNoDate')
                         "
                         data-testid="tech-stack-eol-badge"
@@ -433,19 +416,19 @@ async function handleScan() {
                       <span
                         v-else-if="
                           getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status ===
-                            'warning'
+                          'warning'
                         "
                         class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
                         :title="
                           getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)
                             ?.lastRelease
                             ? t('catalog.techStacks.inactiveSince', {
-                              duration: humanizeTimeDiff(
-                                getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!
-                                  .lastRelease!,
-                                new Date().toISOString(),
-                              ),
-                            })
+                                duration: humanizeTimeDiff(
+                                  getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!
+                                    .lastRelease!,
+                                  new Date().toISOString(),
+                                ),
+                              })
                             : t('catalog.techStacks.inactive')
                         "
                         data-testid="tech-stack-inactive-badge"
@@ -461,8 +444,8 @@ async function handleScan() {
                     <template
                       v-if="
                         getLtsInfo(ts.framework) &&
-                          ts.frameworkVersion &&
-                          getVersionReleaseDate(ts.framework, ts.frameworkVersion)
+                        ts.frameworkVersion &&
+                        getVersionReleaseDate(ts.framework, ts.frameworkVersion)
                       "
                     >
                       <span
@@ -479,7 +462,7 @@ async function handleScan() {
                       <span
                         v-else-if="
                           patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) !==
-                            null
+                          null
                         "
                         class="text-warning"
                       >
@@ -520,10 +503,7 @@ async function handleScan() {
                         }}
                       </span>
                     </template>
-                    <span
-                      v-else
-                      class="text-text-muted"
-                    >—</span>
+                    <span v-else class="text-text-muted">—</span>
                   </td>
                   <td class="px-4 py-3 text-sm text-text-muted">
                     {{ getVersionReleaseDate(ts.framework, ts.frameworkVersion) ?? '—' }}
@@ -549,14 +529,8 @@ async function handleScan() {
         </div>
 
         <!-- Dependencies Tab -->
-        <div
-          v-if="activeTab === 'dependencies'"
-          data-testid="dependencies-panel"
-        >
-          <div
-            class="mb-4 flex flex-wrap items-center gap-3"
-            data-testid="dependencies-filters"
-          >
+        <div v-if="activeTab === 'dependencies'" data-testid="dependencies-panel">
+          <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="dependencies-filters">
             <div class="relative flex-1">
               <svg
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
@@ -578,7 +552,7 @@ async function handleScan() {
                 :placeholder="t('catalog.projects.searchDependencies')"
                 class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
                 data-testid="dependencies-search"
-              >
+              />
             </div>
             <select
               v-model="depFilterPm"
@@ -589,15 +563,9 @@ async function handleScan() {
               <option value="all">
                 {{ t('catalog.projects.allPackageManagers') }}
               </option>
-              <option value="composer">
-                Composer
-              </option>
-              <option value="npm">
-                npm
-              </option>
-              <option value="pip">
-                pip
-              </option>
+              <option value="composer">Composer</option>
+              <option value="npm">npm</option>
+              <option value="pip">pip</option>
             </select>
             <select
               v-model="depTypeFilter"
@@ -665,13 +633,13 @@ async function handleScan() {
                         src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg"
                         alt="npm"
                         class="h-3 w-3"
-                      >
+                      />
                       <img
                         v-else-if="dep.packageManager === 'composer'"
                         src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/composer/composer-original.svg"
                         alt="composer"
                         class="h-3 w-3"
-                      >
+                      />
                       {{ dep.packageManager }}
                     </span>
                   </td>
@@ -686,11 +654,9 @@ async function handleScan() {
                       rel="noopener"
                       class="text-primary hover:text-primary-dark"
                       :title="dep.repositoryUrl"
-                    >{{ truncateUrl(dep.repositoryUrl, 35) }} ↗</a>
-                    <span
-                      v-else
-                      class="text-text-muted"
-                    >—</span>
+                      >{{ truncateUrl(dep.repositoryUrl, 35) }} ↗</a
+                    >
+                    <span v-else class="text-text-muted">—</span>
                   </td>
                 </tr>
               </tbody>
@@ -717,14 +683,8 @@ async function handleScan() {
         </div>
 
         <!-- Merge Requests Tab -->
-        <div
-          v-if="activeTab === 'merge-requests'"
-          data-testid="merge-requests-panel"
-        >
-          <div
-            class="mb-4 flex flex-wrap items-center gap-3"
-            data-testid="merge-requests-filters"
-          >
+        <div v-if="activeTab === 'merge-requests'" data-testid="merge-requests-panel">
+          <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="merge-requests-filters">
             <select
               v-model="mrStatusFilter"
               :aria-label="t('catalog.projects.filterByStatus')"
@@ -768,7 +728,7 @@ async function handleScan() {
                 :placeholder="t('catalog.mergeRequests.filterByAuthor')"
                 class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
                 data-testid="mr-search-author"
-              >
+              />
             </div>
           </div>
           <div class="overflow-hidden rounded-xl border border-border bg-surface">

@@ -137,7 +137,7 @@ function getUniqueTechNames(project: Project): string[] {
               :placeholder="t('catalog.projects.searchProjects')"
               class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
               data-testid="project-search"
-            >
+            />
           </div>
           <select
             v-model="visibilityFilter"
@@ -181,10 +181,7 @@ function getUniqueTechNames(project: Project): string[] {
                   {{ project.repositoryUrl }}
                 </p>
               </div>
-              <div
-                class="ml-2 flex shrink-0 items-center gap-2"
-                @click.stop
-              >
+              <div class="ml-2 flex shrink-0 items-center gap-2" @click.stop>
                 <span
                   :class="[
                     'rounded-full px-2 py-0.5 text-xs font-medium',
@@ -231,13 +228,7 @@ function getUniqueTechNames(project: Project): string[] {
                     +{{ getUniqueTechNames(project).length - MAX_BADGES }}
                   </span>
                 </div>
-                <p
-                  v-else
-                  class="text-xs text-text-muted"
-                  data-testid="project-stacks-count"
-                >
-                  —
-                </p>
+                <p v-else class="text-xs text-text-muted" data-testid="project-stacks-count">—</p>
               </div>
             </div>
           </div>

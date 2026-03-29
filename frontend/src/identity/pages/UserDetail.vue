@@ -60,10 +60,7 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('identity.users.email') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="user-detail-email"
-            >
+            <dd class="mt-1 text-text" data-testid="user-detail-email">
               {{ userStore.selectedUser.email }}
             </dd>
           </div>
@@ -71,10 +68,7 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('identity.users.firstName') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="user-detail-first-name"
-            >
+            <dd class="mt-1 text-text" data-testid="user-detail-first-name">
               {{ userStore.selectedUser.firstName }}
             </dd>
           </div>
@@ -82,10 +76,7 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('identity.users.lastName') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="user-detail-last-name"
-            >
+            <dd class="mt-1 text-text" data-testid="user-detail-last-name">
               {{ userStore.selectedUser.lastName }}
             </dd>
           </div>
@@ -93,10 +84,7 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('identity.users.avatar') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="user-detail-avatar"
-            >
+            <dd class="mt-1 text-text" data-testid="user-detail-avatar">
               {{ userStore.selectedUser.avatar ?? t('common.notSet') }}
             </dd>
           </div>
@@ -104,10 +92,7 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('identity.users.roles') }}
             </dt>
-            <dd
-              class="mt-1 flex flex-wrap gap-2"
-              data-testid="user-detail-roles"
-            >
+            <dd class="mt-1 flex flex-wrap gap-2" data-testid="user-detail-roles">
               <span
                 v-for="role in userStore.selectedUser.roles"
                 :key="role"
@@ -121,10 +106,7 @@ onMounted(() => {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('identity.users.createdAt') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="user-detail-created-at"
-            >
+            <dd class="mt-1 text-text" data-testid="user-detail-created-at">
               {{ d(new Date(userStore.selectedUser.createdAt), 'short') }}
             </dd>
           </div>

@@ -461,10 +461,9 @@ async function handleSyncAll() {
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-text">
           {{ t('catalog.techStacks.title') }}
-          <span
-            v-if="filteredStacks.length > 0"
-            class="text-lg font-normal text-text-muted"
-          >({{ filteredStacks.length }})</span>
+          <span v-if="filteredStacks.length > 0" class="text-lg font-normal text-text-muted"
+            >({{ filteredStacks.length }})</span
+          >
         </h2>
         <div class="flex items-center gap-3">
           <ExportDropdown @export="handleExport" />
@@ -532,11 +531,7 @@ async function handleSyncAll() {
         </div>
 
         <!-- Gap stats -->
-        <div
-          v-if="gapStats"
-          class="mb-6 grid grid-cols-3 gap-4"
-          data-testid="gap-stats"
-        >
+        <div v-if="gapStats" class="mb-6 grid grid-cols-3 gap-4" data-testid="gap-stats">
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
             <p class="text-xs text-text-muted">
               {{ t('catalog.techStacks.gapCumulated') }}
@@ -598,10 +593,7 @@ async function handleSyncAll() {
           >
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <ProviderIcon
-                  :type="agg.type as any"
-                  :size="20"
-                />
+                <ProviderIcon :type="agg.type as any" :size="20" />
                 <RouterLink
                   :to="{ name: 'catalog-providers-detail', params: { id: agg.id } }"
                   class="text-sm font-semibold text-primary hover:text-primary-dark"
@@ -638,10 +630,7 @@ async function handleSyncAll() {
         </div>
 
         <!-- Filters -->
-        <div
-          class="mb-4 flex flex-wrap items-center gap-3"
-          data-testid="tech-stack-filters"
-        >
+        <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="tech-stack-filters">
           <div class="relative flex-1">
             <svg
               class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
@@ -663,7 +652,7 @@ async function handleSyncAll() {
               :placeholder="t('catalog.techStacks.searchPlaceholder')"
               class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
               data-testid="tech-stack-search"
-            >
+            />
           </div>
           <select
             v-model="filterFramework"
@@ -674,11 +663,7 @@ async function handleSyncAll() {
             <option value="">
               {{ t('catalog.techStacks.allFrameworks') }}
             </option>
-            <option
-              v-for="fw in availableFrameworks"
-              :key="fw"
-              :value="fw"
-            >
+            <option v-for="fw in availableFrameworks" :key="fw" :value="fw">
               {{ fw }}
             </option>
           </select>
@@ -691,11 +676,7 @@ async function handleSyncAll() {
             <option value="">
               {{ t('catalog.techStacks.allProviders') }}
             </option>
-            <option
-              v-for="prov in availableProviders"
-              :key="prov.id"
-              :value="prov.id"
-            >
+            <option v-for="prov in availableProviders" :key="prov.id" :value="prov.id">
               {{ prov.name }}
             </option>
           </select>
@@ -721,10 +702,7 @@ async function handleSyncAll() {
         </div>
 
         <!-- Group toggle -->
-        <div
-          class="mb-4 flex items-center gap-1"
-          data-testid="tech-stack-group-toggle"
-        >
+        <div class="mb-4 flex items-center gap-1" data-testid="tech-stack-group-toggle">
           <button
             v-for="mode in ['project', 'framework', 'provider'] as const"
             :key="mode"
@@ -742,10 +720,7 @@ async function handleSyncAll() {
 
         <!-- Tech stacks table -->
         <div class="overflow-hidden rounded-xl border border-border bg-surface">
-          <table
-            class="w-full"
-            data-testid="tech-stack-list-table"
-          >
+          <table class="w-full" data-testid="tech-stack-list-table">
             <thead>
               <tr class="border-b border-border bg-surface-muted">
                 <th
@@ -806,10 +781,7 @@ async function handleSyncAll() {
                   >
                     {{ row.projectName }}
                   </RouterLink>
-                  <span
-                    v-else
-                    class="font-medium text-text"
-                  >{{ row.projectName }}</span>
+                  <span v-else class="font-medium text-text">{{ row.projectName }}</span>
                 </td>
                 <td class="px-4 py-3 text-sm text-text">
                   {{ row.ts.language }}
@@ -834,11 +806,11 @@ async function handleSyncAll() {
                         getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
                           ?.eolDate
                           ? t('catalog.techStacks.unmaintainedSince', {
-                            date: getVersionMaintenanceStatus(
-                              row.ts.framework,
-                              row.ts.frameworkVersion,
-                            )!.eolDate!,
-                          })
+                              date: getVersionMaintenanceStatus(
+                                row.ts.framework,
+                                row.ts.frameworkVersion,
+                              )!.eolDate!,
+                            })
                           : t('catalog.techStacks.unmaintainedNoDate')
                       "
                     >
@@ -854,14 +826,14 @@ async function handleSyncAll() {
                         getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
                           ?.lastRelease
                           ? t('catalog.techStacks.inactiveSince', {
-                            duration: humanizeTimeDiff(
-                              getVersionMaintenanceStatus(
-                                row.ts.framework,
-                                row.ts.frameworkVersion,
-                              )!.lastRelease!,
-                              new Date().toISOString(),
-                            ),
-                          })
+                              duration: humanizeTimeDiff(
+                                getVersionMaintenanceStatus(
+                                  row.ts.framework,
+                                  row.ts.frameworkVersion,
+                                )!.lastRelease!,
+                                new Date().toISOString(),
+                              ),
+                            })
                           : t('catalog.techStacks.inactive')
                       "
                     >
@@ -876,8 +848,8 @@ async function handleSyncAll() {
                   <template
                     v-if="
                       getLtsInfo(row.ts.framework) &&
-                        row.ts.frameworkVersion &&
-                        getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)
+                      row.ts.frameworkVersion &&
+                      getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)
                     "
                   >
                     <span
@@ -937,10 +909,7 @@ async function handleSyncAll() {
                       }}
                     </span>
                   </template>
-                  <span
-                    v-else
-                    class="text-text-muted"
-                  >—</span>
+                  <span v-else class="text-text-muted">—</span>
                 </td>
                 <td class="px-4 py-3 text-sm text-text-muted">
                   {{ getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion) ?? '—' }}

@@ -69,16 +69,9 @@ function isActive(path: string): boolean {
 </script>
 
 <template>
-  <aside
-    :class="sidebarClasses"
-    :aria-label="t('aria.mainNavigation')"
-    data-testid="sidebar"
-  >
+  <aside :class="sidebarClasses" :aria-label="t('aria.mainNavigation')" data-testid="sidebar">
     <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
-      <span
-        v-if="!collapsed"
-        class="text-lg font-bold tracking-wide"
-      >Monark</span>
+      <span v-if="!collapsed" class="text-lg font-bold tracking-wide">Monark</span>
       <button
         class="rounded p-1.5 hover:bg-sidebar-hover"
         :aria-label="t('aria.toggleSidebar')"
@@ -93,10 +86,7 @@ function isActive(path: string): boolean {
       class="mt-4 flex-1 space-y-4 overflow-y-auto px-2"
       :aria-label="t('aria.sidebarNavigation')"
     >
-      <div
-        v-for="(section, sIdx) in navSections"
-        :key="sIdx"
-      >
+      <div v-for="(section, sIdx) in navSections" :key="sIdx">
         <p
           v-if="section.headingKey && !collapsed"
           class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/40"

@@ -36,10 +36,7 @@ async function handleSubmit() {
         {{ t('identity.auth.signInTitle') }}
       </h1>
 
-      <form
-        data-testid="login-form"
-        @submit.prevent="handleSubmit"
-      >
+      <form data-testid="login-form" @submit.prevent="handleSubmit">
         <div
           v-if="error"
           class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
@@ -50,10 +47,7 @@ async function handleSubmit() {
         </div>
 
         <div class="mb-4">
-          <label
-            for="email"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{
+          <label for="email" class="mb-1 block text-sm font-medium text-text">{{
             t('identity.auth.email')
           }}</label>
           <input
@@ -64,14 +58,11 @@ async function handleSubmit() {
             autocomplete="email"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="login-email"
-          >
+          />
         </div>
 
         <div class="mb-6">
-          <label
-            for="password"
-            class="mb-1 block text-sm font-medium text-text"
-          >{{
+          <label for="password" class="mb-1 block text-sm font-medium text-text">{{
             t('identity.auth.password')
           }}</label>
           <input
@@ -82,7 +73,7 @@ async function handleSubmit() {
             autocomplete="current-password"
             class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             data-testid="login-password"
-          >
+          />
         </div>
 
         <button

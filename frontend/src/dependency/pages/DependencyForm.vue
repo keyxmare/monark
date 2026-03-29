@@ -116,10 +116,7 @@ async function handleSubmit() {
           }}
         </h2>
 
-        <form
-          data-testid="dependency-form"
-          @submit.prevent="handleSubmit"
-        >
+        <form data-testid="dependency-form" @submit.prevent="handleSubmit">
           <div
             v-if="formError"
             class="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger"
@@ -130,10 +127,7 @@ async function handleSubmit() {
           </div>
 
           <div class="mb-4">
-            <label
-              for="name"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+            <label for="name" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.name')
             }}</label>
             <input
@@ -143,14 +137,11 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-name"
-            >
+            />
           </div>
 
           <div class="mb-4">
-            <label
-              for="currentVersion"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+            <label for="currentVersion" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.currentVersion')
             }}</label>
             <input
@@ -160,14 +151,11 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-current-version"
-            >
+            />
           </div>
 
           <div class="mb-4">
-            <label
-              for="latestVersion"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+            <label for="latestVersion" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.latestVersion')
             }}</label>
             <input
@@ -177,14 +165,11 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-latest-version"
-            >
+            />
           </div>
 
           <div class="mb-4">
-            <label
-              for="ltsVersion"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+            <label for="ltsVersion" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.ltsVersion')
             }}</label>
             <input
@@ -194,14 +179,11 @@ async function handleSubmit() {
               required
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-lts-version"
-            >
+            />
           </div>
 
           <div class="mb-4">
-            <label
-              for="packageManager"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+            <label for="packageManager" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.packageManager')
             }}</label>
             <select
@@ -211,23 +193,14 @@ async function handleSubmit() {
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-package-manager"
             >
-              <option value="composer">
-                Composer
-              </option>
-              <option value="npm">
-                npm
-              </option>
-              <option value="pip">
-                pip
-              </option>
+              <option value="composer">Composer</option>
+              <option value="npm">npm</option>
+              <option value="pip">pip</option>
             </select>
           </div>
 
           <div class="mb-4">
-            <label
-              for="type"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+            <label for="type" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.type')
             }}</label>
             <select
@@ -253,20 +226,14 @@ async function handleSubmit() {
               type="checkbox"
               class="rounded border-border"
               data-testid="dependency-form-is-outdated"
-            >
-            <label
-              for="isOutdated"
-              class="text-sm font-medium text-text"
-            >{{
+            />
+            <label for="isOutdated" class="text-sm font-medium text-text">{{
               t('dependency.dependencies.isOutdated')
             }}</label>
           </div>
 
           <div class="mb-4">
-            <label
-              for="repositoryUrl"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+            <label for="repositoryUrl" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.repositoryUrl')
             }}</label>
             <input
@@ -276,17 +243,11 @@ async function handleSubmit() {
               placeholder="https://github.com/vendor/package"
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-repository-url"
-            >
+            />
           </div>
 
-          <div
-            v-if="!isEditMode"
-            class="mb-6"
-          >
-            <label
-              for="projectId"
-              class="mb-1 block text-sm font-medium text-text"
-            >{{
+          <div v-if="!isEditMode" class="mb-6">
+            <label for="projectId" class="mb-1 block text-sm font-medium text-text">{{
               t('dependency.dependencies.projectId')
             }}</label>
             <select
@@ -296,17 +257,10 @@ async function handleSubmit() {
               class="w-full rounded-lg border border-border px-3 py-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               data-testid="dependency-form-project-id"
             >
-              <option
-                value=""
-                disabled
-              >
+              <option value="" disabled>
                 {{ t('catalog.techStacks.selectProject') }}
               </option>
-              <option
-                v-for="p in projectStore.projects"
-                :key="p.id"
-                :value="p.id"
-              >
+              <option v-for="p in projectStore.projects" :key="p.id" :value="p.id">
                 {{ p.name }}
               </option>
             </select>

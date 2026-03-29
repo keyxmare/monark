@@ -51,17 +51,11 @@ onMounted(() => {
   <DashboardLayout>
     <div data-testid="messenger-monitor-page">
       <div class="mb-6 flex items-center justify-between">
-        <h2
-          class="text-2xl font-bold text-text"
-          data-testid="messenger-title"
-        >
+        <h2 class="text-2xl font-bold text-text" data-testid="messenger-title">
           {{ t('activity.messenger.title') }}
         </h2>
         <div class="flex items-center gap-3">
-          <span
-            class="flex items-center gap-2 text-sm"
-            data-testid="sse-status"
-          >
+          <span class="flex items-center gap-2 text-sm" data-testid="sse-status">
             <span
               class="inline-block h-2 w-2 rounded-full"
               :class="connected ? 'bg-green-500' : 'bg-red-500'"
@@ -80,10 +74,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <div
-        class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
-        data-testid="messenger-summary"
-      >
+      <div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3" data-testid="messenger-summary">
         <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
           <p class="text-sm font-medium text-text-muted">
             {{ t('activity.messenger.queuesCount') }}
@@ -131,11 +122,7 @@ onMounted(() => {
       </div>
 
       <template v-else>
-        <div
-          v-if="messengerStore.workers.length > 0"
-          class="mb-6"
-          data-testid="workers-section"
-        >
+        <div v-if="messengerStore.workers.length > 0" class="mb-6" data-testid="workers-section">
           <h3 class="mb-3 text-lg font-semibold text-text">
             {{ t('activity.messenger.workersTitle') }}
           </h3>
@@ -150,9 +137,7 @@ onMounted(() => {
                 <p class="text-sm font-medium text-text">
                   {{ worker.connection }}
                 </p>
-                <p class="text-xs text-text-muted">
-                  prefetch: {{ worker.prefetch }}
-                </p>
+                <p class="text-xs text-text-muted">prefetch: {{ worker.prefetch }}</p>
               </div>
               <span
                 :class="workerStateClass(worker.state)"

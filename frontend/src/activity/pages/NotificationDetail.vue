@@ -76,10 +76,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.channel') }}
             </dt>
-            <dd
-              class="mt-1"
-              data-testid="notification-detail-channel"
-            >
+            <dd class="mt-1" data-testid="notification-detail-channel">
               <span class="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 {{ notificationStore.selectedNotification.channel }}
               </span>
@@ -89,10 +86,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.status') }}
             </dt>
-            <dd
-              class="mt-1"
-              data-testid="notification-detail-status"
-            >
+            <dd class="mt-1" data-testid="notification-detail-status">
               <span
                 :class="[
                   'rounded-full px-3 py-1 text-xs font-medium',
@@ -113,10 +107,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.message') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="notification-detail-message"
-            >
+            <dd class="mt-1 text-text" data-testid="notification-detail-message">
               {{ notificationStore.selectedNotification.message }}
             </dd>
           </div>
@@ -124,10 +115,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('activity.notifications.readAt') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="notification-detail-read-at"
-            >
+            <dd class="mt-1 text-text" data-testid="notification-detail-read-at">
               {{ d(new Date(notificationStore.selectedNotification.readAt), 'long') }}
             </dd>
           </div>
@@ -135,10 +123,7 @@ async function handleMarkAsRead() {
             <dt class="text-sm font-medium text-text-muted">
               {{ t('common.createdAt') }}
             </dt>
-            <dd
-              class="mt-1 text-text"
-              data-testid="notification-detail-created-at"
-            >
+            <dd class="mt-1 text-text" data-testid="notification-detail-created-at">
               {{ d(new Date(notificationStore.selectedNotification.createdAt), 'long') }}
             </dd>
           </div>
