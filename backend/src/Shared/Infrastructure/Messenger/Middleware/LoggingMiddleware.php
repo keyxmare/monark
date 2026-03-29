@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Messenger\Middleware;
 
+use App\Shared\Infrastructure\Logging\CorrelationIdProcessor;
 use App\Shared\Infrastructure\Messenger\Stamp\CorrelationIdStamp;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -15,6 +16,7 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private LoggerInterface $logger,
+        private CorrelationIdProcessor $correlationIdProcessor,
     ) {
     }
 
@@ -25,6 +27,8 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
             $stamp = new CorrelationIdStamp(Uuid::v7()->toRfc4122());
             $envelope = $envelope->with($stamp);
         }
+
+        $this->correlationIdProcessor->setCorrelationId($stamp->correlationId);
 
         $messageClass = get_class($envelope->getMessage());
         $pos = strrpos($messageClass, '\\');

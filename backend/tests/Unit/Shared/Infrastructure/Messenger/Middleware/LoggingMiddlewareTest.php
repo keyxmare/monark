@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Shared\Infrastructure\Logging\CorrelationIdProcessor;
 use App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware;
 use App\Shared\Infrastructure\Messenger\Stamp\CorrelationIdStamp;
 use Psr\Log\LoggerInterface;
@@ -115,7 +116,7 @@ function throwingStack(\Throwable $exception): StackInterface
 describe('LoggingMiddleware', function () {
     it('adds a CorrelationIdStamp when none exists', function () {
         $logger = stubLogger();
-        $middleware = new LoggingMiddleware($logger);
+        $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
         $result = $middleware->handle($envelope, stubStack());
@@ -127,7 +128,7 @@ describe('LoggingMiddleware', function () {
 
     it('reuses existing CorrelationIdStamp', function () {
         $logger = stubLogger();
-        $middleware = new LoggingMiddleware($logger);
+        $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $existingId = 'existing-correlation-id';
         $envelope = (new Envelope(new \stdClass()))->with(new CorrelationIdStamp($existingId));
 
@@ -139,7 +140,7 @@ describe('LoggingMiddleware', function () {
 
     it('logs handling and handled info messages on success', function () {
         $logger = stubLogger();
-        $middleware = new LoggingMiddleware($logger);
+        $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
         $middleware->handle($envelope, stubStack());
@@ -155,7 +156,7 @@ describe('LoggingMiddleware', function () {
 
     it('logs error message on failure and rethrows exception', function () {
         $logger = stubLogger();
-        $middleware = new LoggingMiddleware($logger);
+        $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
         $exception = new \RuntimeException('Something went wrong');
 
@@ -173,7 +174,7 @@ describe('LoggingMiddleware', function () {
 
     it('uses short class name in log context', function () {
         $logger = stubLogger();
-        $middleware = new LoggingMiddleware($logger);
+        $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
         $middleware->handle($envelope, stubStack());
@@ -184,7 +185,7 @@ describe('LoggingMiddleware', function () {
 
     it('includes duration in milliseconds', function () {
         $logger = stubLogger();
-        $middleware = new LoggingMiddleware($logger);
+        $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
         $middleware->handle($envelope, stubStack());
@@ -194,7 +195,7 @@ describe('LoggingMiddleware', function () {
 
     it('uses same correlation ID across handling and handled logs', function () {
         $logger = stubLogger();
-        $middleware = new LoggingMiddleware($logger);
+        $middleware = new LoggingMiddleware($logger, new CorrelationIdProcessor());
         $envelope = new Envelope(new \stdClass());
 
         $middleware->handle($envelope, stubStack());

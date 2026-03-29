@@ -75,6 +75,10 @@ services:
     App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface:
         alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyVersionRepository
 
+    App\Catalog\Infrastructure\GitProvider\GitLabClient:
+        arguments:
+            $httpClient: '@external_api.client'
+
     App\Dependency\Infrastructure\Registry\PackageRegistryFactory:
         arguments:
             $adapters: !tagged_iterator dependency.registry_adapter
@@ -84,9 +88,13 @@ services:
 
     App\Dependency\Infrastructure\Registry\NpmRegistryAdapter:
         tags: ['dependency.registry_adapter']
+        arguments:
+            $httpClient: '@external_api.client'
 
     App\Dependency\Infrastructure\Registry\PackagistRegistryAdapter:
         tags: ['dependency.registry_adapter']
+        arguments:
+            $httpClient: '@external_api.client'
 
     App\Identity\Application\CommandHandler\RegisterUserHandler:
         arguments:
@@ -121,6 +129,7 @@ services:
 
     App\Activity\Infrastructure\Adapter\RabbitMqMonitor:
         arguments:
+            $httpClient: '@external_api.client'
             $managementUrl: '%env(RABBITMQ_MANAGEMENT_URL)%'
 
     App\Shared\Domain\Port\DependencyReaderPort:
@@ -131,6 +140,10 @@ services:
 
     App\Shared\Domain\Port\MergeRequestReaderPort:
         alias: App\Catalog\Infrastructure\Adapter\MergeRequestReaderAdapter
+
+    App\Shared\Infrastructure\Logging\CorrelationIdProcessor:
+        tags:
+            - { name: monolog.processor }
 
     App\Shared\Infrastructure\EventListener\ExceptionListener:
         tags:
