@@ -4,23 +4,24 @@ import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute } from 'vue-router';
 
 import ProviderIcon from '@/catalog/components/ProviderIcon.vue';
+import TechStackFilters from '@/catalog/components/TechStackFilters.vue';
+import TechStackTable from '@/catalog/components/TechStackTable.vue';
 import {
   humanizeMs,
   humanizeTimeDiff,
   isVersionUpToDate,
-  ltsUrgency,
   msUrgency,
   patchGap,
   useFrameworkLts,
 } from '@/catalog/composables/useFrameworkLts';
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress';
+import { useTechStackGrouping } from '@/catalog/composables/useTechStackGrouping';
 import { exportTechStacksPdf } from '@/catalog/services/techStackPdfExport';
 import { useProjectStore } from '@/catalog/stores/project';
 import { useProviderStore } from '@/catalog/stores/provider';
 import { useTechStackStore } from '@/catalog/stores/tech-stack';
 import ExportDropdown from '@/shared/components/ExportDropdown.vue';
 import Pagination from '@/shared/components/Pagination.vue';
-import TechBadge from '@/shared/components/TechBadge.vue';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
 const route = useRoute();
@@ -34,32 +35,6 @@ const { track } = useSyncProgress();
 const syncing = ref(false);
 
 const projectId = route.query.project_id as string | undefined;
-
-const search = ref('');
-const filterFramework = ref('');
-const filterProvider = ref('');
-const filterStatus = ref('');
-
-type GroupBy = 'framework' | 'project' | 'provider';
-const groupBy = ref<GroupBy>('project');
-
-type SortField = 'framework' | 'frameworkVersion' | 'ltsGap' | 'project';
-const sortField = ref<SortField>('project');
-const sortDir = ref<'asc' | 'desc'>('asc');
-
-function sortIndicator(field: SortField): string {
-  if (sortField.value !== field) return '';
-  return sortDir.value === 'asc' ? ' ↑' : ' ↓';
-}
-
-function toggleSort(field: SortField) {
-  if (sortField.value === field) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortField.value = field;
-    sortDir.value = 'asc';
-  }
-}
 
 const projectMap = computed(() => {
   const map = new Map<string, { name: string; providerId: null | string }>();
@@ -77,259 +52,31 @@ const providerMap = computed(() => {
   return map;
 });
 
-interface ProviderAggregate {
-  frameworks: { max: string; min: string; name: string }[];
-  id: string;
-  name: string;
-  projectCount: number;
-  type: string;
-}
+const techStacks = computed(() => techStackStore.techStacks);
 
-const providerAggregates = computed<ProviderAggregate[]>(() => {
-  const agg = new Map<
-    string,
-    { frameworks: Map<string, string[]>; name: string; projectIds: Set<string>; type: string }
-  >();
-
-  for (const ts of techStackStore.techStacks) {
-    if (ts.framework === 'none' || !ts.framework) continue;
-
-    const proj = projectMap.value.get(ts.projectId);
-    if (!proj?.providerId) continue;
-
-    const provider = providerMap.value.get(proj.providerId);
-    if (!provider) continue;
-
-    if (!agg.has(proj.providerId)) {
-      agg.set(proj.providerId, {
-        frameworks: new Map(),
-        name: provider.name,
-        projectIds: new Set(),
-        type: provider.type,
-      });
-    }
-
-    const entry = agg.get(proj.providerId)!;
-    entry.projectIds.add(ts.projectId);
-
-    if (!entry.frameworks.has(ts.framework)) {
-      entry.frameworks.set(ts.framework, []);
-    }
-    if (ts.frameworkVersion) {
-      entry.frameworks.get(ts.framework)!.push(ts.frameworkVersion);
-    }
-  }
-
-  return [...agg.entries()].map(([id, entry]) => ({
-    frameworks: [...entry.frameworks.entries()].map(([name, versions]) => {
-      const sorted = [...versions].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-      return { max: sorted[sorted.length - 1] ?? '—', min: sorted[0] ?? '—', name };
-    }),
-    id,
-    name: entry.name,
-    projectCount: entry.projectIds.size,
-    type: entry.type,
-  }));
-});
-
-const healthScore = computed(() => {
-  const stacks = filteredStacks.value;
-  if (stacks.length === 0) return null;
-
-  let active = 0;
-  let eol = 0;
-  let warning = 0;
-
-  for (const ts of stacks) {
-    const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
-    if (status?.status === 'eol') eol++;
-    else if (status?.status === 'warning') warning++;
-    else active++;
-  }
-
-  return {
-    active,
-    eol,
-    percent: Math.round((active / stacks.length) * 100),
-    total: stacks.length,
-    warning,
-  };
-});
-
-const gapStats = computed(() => {
-  const gaps: number[] = [];
-
-  for (const ts of filteredStacks.value) {
-    const info = getLtsInfo(ts.framework);
-    if (!info || !ts.frameworkVersion) continue;
-    if (isVersionUpToDate(ts.frameworkVersion, info.latestLts)) continue;
-
-    const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
-    if (!vDate) continue;
-
-    const gapMs = Math.abs(new Date(info.releaseDate).getTime() - new Date(vDate).getTime());
-    gaps.push(gapMs);
-  }
-
-  if (gaps.length === 0) return null;
-
-  const sorted = [...gaps].sort((a, b) => a - b);
-  const cumulated = gaps.reduce((s, g) => s + g, 0);
-  const average = cumulated / gaps.length;
-  const median =
-    sorted.length % 2 === 0
-      ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-      : sorted[Math.floor(sorted.length / 2)];
-
-  return { average, cumulated, median };
-});
-
-const availableFrameworks = computed(() => {
-  const set = new Set<string>();
-  for (const ts of techStackStore.techStacks) {
-    if (ts.framework && ts.framework !== 'none') set.add(ts.framework);
-  }
-  return [...set].sort();
-});
-
-const availableProviders = computed(() => {
-  const set = new Map<string, string>();
-  for (const p of providerStore.providers) {
-    set.set(p.id, p.name);
-  }
-  return [...set.entries()].map(([id, name]) => ({ id, name }));
-});
-
-const filteredStacks = computed(() => {
-  const filtered = techStackStore.techStacks.filter((ts) => {
-    if (search.value) {
-      const q = search.value.toLowerCase();
-      const projName = projectMap.value.get(ts.projectId)?.name ?? '';
-      if (!projName.toLowerCase().includes(q) && !ts.framework.toLowerCase().includes(q))
-        return false;
-    }
-    if (filterFramework.value && ts.framework !== filterFramework.value) return false;
-    if (filterProvider.value) {
-      const proj = projectMap.value.get(ts.projectId);
-      if (proj?.providerId !== filterProvider.value) return false;
-    }
-    if (filterStatus.value) {
-      const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
-      if (filterStatus.value === 'eol' && status?.status !== 'eol') return false;
-      if (filterStatus.value === 'warning' && status?.status !== 'warning') return false;
-      if (filterStatus.value === 'active' && status?.status !== 'active') return false;
-    }
-    return true;
-  });
-  return filtered;
-});
-
-interface GroupedStack {
-  groupIndex: number;
-  groupSize: number;
-  isFirstInGroup: boolean;
-  projectId: string;
-  projectName: string;
-  ts: import('@/catalog/types/tech-stack').TechStack;
-}
-
-function groupKey(ts: import('@/catalog/types/tech-stack').TechStack): string {
-  if (groupBy.value === 'framework') return ts.framework;
-  if (groupBy.value === 'provider') {
-    const proj = projectMap.value.get(ts.projectId);
-    return proj?.providerId ?? 'unknown';
-  }
-  return ts.projectId;
-}
-
-function groupLabel(key: string): string {
-  if (groupBy.value === 'framework') return key;
-  if (groupBy.value === 'provider') {
-    return providerMap.value.get(key)?.name ?? key;
-  }
-  return projectMap.value.get(key)?.name ?? key;
-}
-
-function sortValueForGroup(
-  stacks: import('@/catalog/types/tech-stack').TechStack[],
-  key: string,
-): number | string {
-  switch (sortField.value) {
-    case 'framework':
-      return stacks[0]?.framework?.toLowerCase() ?? '';
-    case 'frameworkVersion':
-      return stacks[0]?.frameworkVersion ?? '';
-    case 'ltsGap':
-      return worstGapForGroup(stacks);
-    case 'project':
-      return groupLabel(key).toLowerCase();
-    default:
-      return 0;
-  }
-}
-
-function worstGapForGroup(stacks: import('@/catalog/types/tech-stack').TechStack[]): number {
-  let worst = -1;
-  for (const ts of stacks) {
-    const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
-    const ltsDate = getLtsInfo(ts.framework)?.releaseDate;
-    if (vDate && ltsDate) {
-      const ltsVersion = getLtsInfo(ts.framework)?.latestLts ?? '';
-      if (ltsVersion && isVersionUpToDate(ts.frameworkVersion, ltsVersion)) {
-        if (worst < 0) worst = 0;
-      } else {
-        const gap = new Date(ltsDate).getTime() - new Date(vDate).getTime();
-        if (gap > worst) worst = gap;
-      }
-    }
-  }
-  return worst;
-}
-
-const groupedStacks = computed<GroupedStack[]>(() => {
-  const groups = new Map<string, import('@/catalog/types/tech-stack').TechStack[]>();
-  for (const ts of filteredStacks.value) {
-    const key = groupKey(ts);
-    if (!groups.has(key)) {
-      groups.set(key, []);
-    }
-    groups.get(key)!.push(ts);
-  }
-
-  const dir = sortDir.value === 'asc' ? 1 : -1;
-  const sortedEntries = [...groups.entries()].sort(([keyA, stacksA], [keyB, stacksB]) => {
-    const valA = sortValueForGroup(stacksA, keyA);
-    const valB = sortValueForGroup(stacksB, keyB);
-
-    if (sortField.value === 'ltsGap') {
-      const gapA = valA as number;
-      const gapB = valB as number;
-      if (gapA === -1 && gapB === -1) return 0;
-      if (gapA === -1) return 1;
-      if (gapB === -1) return -1;
-      return (gapB - gapA) * dir;
-    }
-
-    return String(valA).localeCompare(String(valB), undefined, { numeric: true }) * dir;
-  });
-
-  const result: GroupedStack[] = [];
-  let groupIndex = 0;
-  for (const [key, stacks] of sortedEntries) {
-    const label = groupLabel(key);
-    stacks.forEach((ts, i) => {
-      result.push({
-        groupIndex,
-        groupSize: stacks.length,
-        isFirstInGroup: i === 0,
-        projectId: ts.projectId,
-        projectName: label,
-        ts,
-      });
-    });
-    groupIndex++;
-  }
-  return result;
+const {
+  availableFrameworks,
+  availableProviders,
+  filteredStacks,
+  filterFramework,
+  filterProvider,
+  filterStatus,
+  gapStats,
+  groupBy,
+  groupedStacks,
+  healthScore,
+  providerAggregates,
+  search,
+  sortIndicator,
+  toggleSort,
+} = useTechStackGrouping({
+  getLtsInfo,
+  getVersionMaintenanceStatus,
+  getVersionReleaseDate,
+  isVersionUpToDate,
+  projectMap,
+  providerMap,
+  techStacks,
 });
 
 onMounted(async () => {
@@ -629,304 +376,29 @@ async function handleSyncAll() {
           </div>
         </div>
 
-        <!-- Filters -->
-        <div class="mb-4 flex flex-wrap items-center gap-3" data-testid="tech-stack-filters">
-          <div class="relative flex-1">
-            <svg
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-              />
-            </svg>
-            <input
-              v-model="search"
-              type="search"
-              :aria-label="t('catalog.techStacks.searchPlaceholder')"
-              :placeholder="t('catalog.techStacks.searchPlaceholder')"
-              class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
-              data-testid="tech-stack-search"
-            />
-          </div>
-          <select
-            v-model="filterFramework"
-            :aria-label="t('catalog.techStacks.allFrameworks')"
-            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-            data-testid="tech-stack-filter-framework"
-          >
-            <option value="">
-              {{ t('catalog.techStacks.allFrameworks') }}
-            </option>
-            <option v-for="fw in availableFrameworks" :key="fw" :value="fw">
-              {{ fw }}
-            </option>
-          </select>
-          <select
-            v-model="filterProvider"
-            :aria-label="t('catalog.techStacks.allProviders')"
-            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-            data-testid="tech-stack-filter-provider"
-          >
-            <option value="">
-              {{ t('catalog.techStacks.allProviders') }}
-            </option>
-            <option v-for="prov in availableProviders" :key="prov.id" :value="prov.id">
-              {{ prov.name }}
-            </option>
-          </select>
-          <select
-            v-model="filterStatus"
-            :aria-label="t('catalog.techStacks.allStatuses')"
-            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-            data-testid="tech-stack-filter-status"
-          >
-            <option value="">
-              {{ t('catalog.techStacks.allStatuses') }}
-            </option>
-            <option value="active">
-              {{ t('catalog.techStacks.statusActive') }}
-            </option>
-            <option value="eol">
-              {{ t('catalog.techStacks.statusUnmaintained') }}
-            </option>
-            <option value="warning">
-              {{ t('catalog.techStacks.statusInactive') }}
-            </option>
-          </select>
-        </div>
+        <TechStackFilters
+          v-model:search="search"
+          v-model:filter-framework="filterFramework"
+          v-model:filter-provider="filterProvider"
+          v-model:filter-status="filterStatus"
+          v-model:group-by="groupBy"
+          :available-frameworks="availableFrameworks"
+          :available-providers="availableProviders"
+        />
 
-        <!-- Group toggle -->
-        <div class="mb-4 flex items-center gap-1" data-testid="tech-stack-group-toggle">
-          <button
-            v-for="mode in ['project', 'framework', 'provider'] as const"
-            :key="mode"
-            :class="
-              groupBy === mode
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border text-text-muted hover:border-primary/50'
-            "
-            class="rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
-            @click="groupBy = mode"
-          >
-            {{ t(`catalog.techStacks.groupBy${mode.charAt(0).toUpperCase() + mode.slice(1)}`) }}
-          </button>
-        </div>
+        <TechStackTable
+          v-if="techStackStore.techStacks.length > 0"
+          :group-by="groupBy"
+          :grouped-stacks="groupedStacks"
+          :sort-indicator="sortIndicator"
+          @sort="toggleSort"
+        />
 
-        <!-- Tech stacks table -->
-        <div class="overflow-hidden rounded-xl border border-border bg-surface">
-          <table class="w-full" data-testid="tech-stack-list-table">
-            <thead>
-              <tr class="border-b border-border bg-surface-muted">
-                <th
-                  class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
-                  @click="toggleSort('project')"
-                >
-                  {{ t('catalog.techStacks.project') }}{{ sortIndicator('project') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.language') }}
-                </th>
-                <th
-                  class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
-                  @click="toggleSort('framework')"
-                >
-                  {{ t('catalog.techStacks.framework') }}{{ sortIndicator('framework') }}
-                </th>
-                <th
-                  class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
-                  @click="toggleSort('frameworkVersion')"
-                >
-                  {{ t('catalog.techStacks.frameworkVersion')
-                  }}{{ sortIndicator('frameworkVersion') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.latestLts') }}
-                </th>
-                <th
-                  class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
-                  @click="toggleSort('ltsGap')"
-                >
-                  {{ t('catalog.techStacks.ltsGap') }}{{ sortIndicator('ltsGap') }}
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.techStacks.releasedAt') }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="row in groupedStacks"
-                :key="row.ts.id"
-                :class="[
-                  row.isFirstInGroup ? 'border-t border-border first:border-0' : '',
-                  row.groupIndex % 2 === 1 ? 'bg-surface-muted/50' : '',
-                ]"
-                data-testid="tech-stack-list-row"
-              >
-                <td
-                  v-if="row.isFirstInGroup"
-                  :rowspan="row.groupSize"
-                  class="px-4 py-3 text-sm align-top"
-                >
-                  <RouterLink
-                    v-if="groupBy === 'project'"
-                    :to="{ name: 'catalog-projects-detail', params: { id: row.projectId } }"
-                    class="font-medium text-primary hover:text-primary-dark"
-                  >
-                    {{ row.projectName }}
-                  </RouterLink>
-                  <span v-else class="font-medium text-text">{{ row.projectName }}</span>
-                </td>
-                <td class="px-4 py-3 text-sm text-text">
-                  {{ row.ts.language }}
-                </td>
-                <td class="px-4 py-3 text-sm text-text">
-                  <TechBadge
-                    :name="row.ts.framework"
-                    :version="row.ts.frameworkVersion"
-                    size="sm"
-                  />
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  <span class="inline-flex items-center gap-1.5">
-                    {{ row.ts.frameworkVersion || '—' }}
-                    <span
-                      v-if="
-                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                          ?.status === 'eol'
-                      "
-                      class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
-                      :title="
-                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                          ?.eolDate
-                          ? t('catalog.techStacks.unmaintainedSince', {
-                              date: getVersionMaintenanceStatus(
-                                row.ts.framework,
-                                row.ts.frameworkVersion,
-                              )!.eolDate!,
-                            })
-                          : t('catalog.techStacks.unmaintainedNoDate')
-                      "
-                    >
-                      {{ t('catalog.techStacks.unmaintained') }}
-                    </span>
-                    <span
-                      v-else-if="
-                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                          ?.status === 'warning'
-                      "
-                      class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
-                      :title="
-                        getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                          ?.lastRelease
-                          ? t('catalog.techStacks.inactiveSince', {
-                              duration: humanizeTimeDiff(
-                                getVersionMaintenanceStatus(
-                                  row.ts.framework,
-                                  row.ts.frameworkVersion,
-                                )!.lastRelease!,
-                                new Date().toISOString(),
-                              ),
-                            })
-                          : t('catalog.techStacks.inactive')
-                      "
-                    >
-                      {{ t('catalog.techStacks.inactive') }}
-                    </span>
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ getLtsInfo(row.ts.framework)?.latestLts ?? '—' }}
-                </td>
-                <td class="px-4 py-3 text-sm">
-                  <template
-                    v-if="
-                      getLtsInfo(row.ts.framework) &&
-                      row.ts.frameworkVersion &&
-                      getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)
-                    "
-                  >
-                    <span
-                      v-if="
-                        isVersionUpToDate(
-                          row.ts.frameworkVersion,
-                          getLtsInfo(row.ts.framework)!.latestLts,
-                        )
-                      "
-                      class="text-success"
-                    >
-                      {{ t('catalog.techStacks.upToDate') }}
-                    </span>
-                    <span
-                      v-else-if="
-                        patchGap(
-                          row.ts.frameworkVersion,
-                          getLtsInfo(row.ts.framework)!.latestLts,
-                        ) !== null
-                      "
-                      class="text-warning"
-                    >
-                      {{
-                        t('catalog.techStacks.patchesBehind', {
-                          count: patchGap(
-                            row.ts.frameworkVersion,
-                            getLtsInfo(row.ts.framework)!.latestLts,
-                          ),
-                        })
-                      }}
-                    </span>
-                    <span
-                      v-else
-                      :class="{
-                        'text-success':
-                          ltsUrgency(
-                            getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                            getLtsInfo(row.ts.framework)!.releaseDate,
-                          ) === 'fresh',
-                        'text-warning':
-                          ltsUrgency(
-                            getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                            getLtsInfo(row.ts.framework)!.releaseDate,
-                          ) === 'moderate',
-                        'text-danger':
-                          ltsUrgency(
-                            getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                            getLtsInfo(row.ts.framework)!.releaseDate,
-                          ) === 'outdated',
-                      }"
-                    >
-                      {{
-                        humanizeTimeDiff(
-                          getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                          getLtsInfo(row.ts.framework)!.releaseDate,
-                        )
-                      }}
-                    </span>
-                  </template>
-                  <span v-else class="text-text-muted">—</span>
-                </td>
-                <td class="px-4 py-3 text-sm text-text-muted">
-                  {{ getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion) ?? '—' }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
+        <div
+          v-else
+          class="overflow-hidden rounded-xl border border-border bg-surface"
+        >
           <div
-            v-if="groupedStacks.length === 0 && techStackStore.techStacks.length > 0"
-            class="py-8 text-center text-text-muted"
-            data-testid="tech-stack-list-no-match"
-          >
-            {{ t('catalog.techStacks.noMatchingStacks') }}
-          </div>
-          <div
-            v-else-if="techStackStore.techStacks.length === 0"
             class="flex flex-col items-center py-12"
             data-testid="tech-stack-list-empty"
           >
