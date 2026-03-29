@@ -31,7 +31,7 @@ jobs:
       - name: CS Fixer
         run: ${{ env.DC }} exec -T backend php vendor/bin/php-cs-fixer fix --dry-run --diff
       - name: PHPStan
-        run: ${{ env.DC }} exec -T backend php vendor/bin/phpstan analyse --memory-limit=512M
+        run: ${{ env.DC }} exec -T backend php vendor/bin/phpstan analyse
       - run: ${{ env.DC }} exec -T backend php bin/console doctrine:migrations:migrate --no-interaction
       - name: Tests with coverage
         run: >

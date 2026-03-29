@@ -16,7 +16,7 @@ for DIR in $DIRS; do
   DIRNAME=$(echo "$DIR" | sed 's|tests/Unit/||')
   printf "  %-40s " "$DIRNAME"
 
-  OUT=$($BACK "rm -rf /tmp/infection-cov; php -d memory_limit=512M -d xdebug.mode=coverage vendor/bin/pest $DIR --no-coverage --coverage-xml /tmp/infection-cov/coverage-xml --log-junit /tmp/infection-cov/junit.xml 2>/dev/null; sed -i 's|Tests\\\\Unit|P\\\\Tests\\\\Unit|g' /tmp/infection-cov/junit.xml 2>/dev/null; php -d memory_limit=512M vendor/bin/infection --threads=4 --coverage=/tmp/infection-cov --skip-initial-tests --min-msi=0 --min-covered-msi=0 --no-progress 2>&1" 2>/dev/null | cat)
+  OUT=$($BACK "rm -rf /tmp/infection-cov; php -d xdebug.mode=coverage vendor/bin/pest $DIR --no-coverage --coverage-xml /tmp/infection-cov/coverage-xml --log-junit /tmp/infection-cov/junit.xml 2>/dev/null; sed -i 's|Tests\\\\Unit|P\\\\Tests\\\\Unit|g' /tmp/infection-cov/junit.xml 2>/dev/null; vendor/bin/infection --threads=4 --coverage=/tmp/infection-cov --skip-initial-tests --min-msi=0 --min-covered-msi=0 --no-progress 2>&1" 2>/dev/null | cat)
 
   K=$(echo "$OUT" | grep -oE "[0-9]+ mutants were killed" | grep -oE "[0-9]+" | head -1)
   T=$(echo "$OUT" | grep -oE "[0-9]+ mutations were generated" | grep -oE "[0-9]+" | head -1)
