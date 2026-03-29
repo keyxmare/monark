@@ -15,7 +15,9 @@ describe('GetDependencyStatsController', function () {
         $output = new DependencyStatsOutput(total: 10, upToDate: 6, outdated: 4, totalVulnerabilities: 3);
         $bus = new class ($output) extends stdClass implements MessageBusInterface {
             public ?object $dispatched = null;
-            public function __construct(private readonly mixed $result) {}
+            public function __construct(private readonly mixed $result)
+            {
+            }
             public function dispatch(object $message, array $stamps = []): Envelope
             {
                 $this->dispatched = $message;

@@ -169,9 +169,9 @@ function syncSingleRegistryAdapter(array $versions = []): PackageRegistryFactory
 
 describe('SyncSingleDependencyVersionHandler', function () {
     it('returns early for invalid package manager', function () {
-        $depRepo = syncSingleDepRepo();
-        $versionRepo = syncSingleVersionRepo();
-        $factory = syncSingleRegistryAdapter();
+        $depRepo = \syncSingleDepRepo();
+        $versionRepo = \syncSingleVersionRepo();
+        $factory = \syncSingleRegistryAdapter();
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->never())->method('publish');
 
@@ -194,9 +194,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             isOutdated: false,
             projectId: Uuid::v7(),
         );
-        $depRepo = syncSingleDepRepo([$dep]);
-        $versionRepo = syncSingleVersionRepo(latest: null);
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([$dep]);
+        $versionRepo = \syncSingleVersionRepo(latest: null);
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
 
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
@@ -229,9 +229,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             isOutdated: false,
             projectId: Uuid::v7(),
         );
-        $depRepo = syncSingleDepRepo([$dep1, $dep2]);
-        $versionRepo = syncSingleVersionRepo(latest: null);
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([$dep1, $dep2]);
+        $versionRepo = \syncSingleVersionRepo(latest: null);
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
 
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
@@ -260,9 +260,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             releaseDate: new DateTimeImmutable('2024-01-01'),
             isLatest: true,
         );
-        $depRepo = syncSingleDepRepo([$dep]);
-        $versionRepo = syncSingleVersionRepo(latest: $latestKnown);
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([$dep]);
+        $versionRepo = \syncSingleVersionRepo(latest: $latestKnown);
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
 
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
@@ -280,10 +280,10 @@ describe('SyncSingleDependencyVersionHandler', function () {
             releaseDate: new DateTimeImmutable('2024-01-01'),
             isLatest: true,
         );
-        $depRepo = syncSingleDepRepo([]);
-        $versionRepo = syncSingleVersionRepo(latest: $latestKnown, existing: null);
+        $depRepo = \syncSingleDepRepo([]);
+        $versionRepo = \syncSingleVersionRepo(latest: $latestKnown, existing: null);
         $rv = new RegistryVersion('3.5.0', new DateTimeImmutable('2024-06-01'), true);
-        $factory = syncSingleRegistryAdapter([$rv]);
+        $factory = \syncSingleRegistryAdapter([$rv]);
         $hub = $this->createMock(HubInterface::class);
 
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
@@ -303,9 +303,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             isOutdated: false,
             projectId: Uuid::v7(),
         );
-        $depRepo = syncSingleDepRepo([$dep]);
-        $versionRepo = syncSingleVersionRepo(latest: null, existing: null);
-        $factory = syncSingleRegistryAdapter([
+        $depRepo = \syncSingleDepRepo([$dep]);
+        $versionRepo = \syncSingleVersionRepo(latest: null, existing: null);
+        $factory = \syncSingleRegistryAdapter([
             new RegistryVersion('3.5.0', new DateTimeImmutable('2024-01-01'), false),
             new RegistryVersion('3.5.1', new DateTimeImmutable('2024-02-01'), true),
         ]);
@@ -346,9 +346,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             isOutdated: false,
             projectId: Uuid::v7(),
         );
-        $depRepo = syncSingleDepRepo([$dep]);
-        $versionRepo = syncSingleVersionRepo(latest: null, existing: null);
-        $factory = syncSingleRegistryAdapter([
+        $depRepo = \syncSingleDepRepo([$dep]);
+        $versionRepo = \syncSingleVersionRepo(latest: null, existing: null);
+        $factory = \syncSingleRegistryAdapter([
             new RegistryVersion('3.5.0', new DateTimeImmutable('2024-01-01'), false),
             new RegistryVersion('3.5.1', new DateTimeImmutable('2024-02-01'), false),
         ]);
@@ -374,9 +374,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             isOutdated: false,
             projectId: Uuid::v7(),
         );
-        $depRepo = syncSingleDepRepo([$dep]);
-        $versionRepo = syncSingleVersionRepo(latest: null, existing: null);
-        $factory = syncSingleRegistryAdapter([
+        $depRepo = \syncSingleDepRepo([$dep]);
+        $versionRepo = \syncSingleVersionRepo(latest: null, existing: null);
+        $factory = \syncSingleRegistryAdapter([
             new RegistryVersion('3.5.1', new DateTimeImmutable('2024-02-01'), true),
         ]);
         $hub = $this->createMock(HubInterface::class);
@@ -397,9 +397,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             releaseDate: new DateTimeImmutable('2024-01-01'),
             isLatest: true,
         );
-        $versionRepo = syncSingleVersionRepo(latest: null, existing: $existingVersion);
-        $depRepo = syncSingleDepRepo([]);
-        $factory = syncSingleRegistryAdapter([
+        $versionRepo = \syncSingleVersionRepo(latest: null, existing: $existingVersion);
+        $depRepo = \syncSingleDepRepo([]);
+        $factory = \syncSingleRegistryAdapter([
             new RegistryVersion('3.5.0', new DateTimeImmutable('2024-01-01'), false),
         ]);
         $hub = $this->createMock(HubInterface::class);
@@ -413,9 +413,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
     });
 
     it('publishes Mercure update with correct topic and payload when syncId is set', function () {
-        $depRepo = syncSingleDepRepo([]);
-        $versionRepo = syncSingleVersionRepo();
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([]);
+        $versionRepo = \syncSingleVersionRepo();
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->once())->method('publish')
             ->with($this->callback(function (Update $update) {
@@ -434,9 +434,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
     });
 
     it('publishes completed status when index equals total', function () {
-        $depRepo = syncSingleDepRepo([]);
-        $versionRepo = syncSingleVersionRepo();
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([]);
+        $versionRepo = \syncSingleVersionRepo();
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->once())->method('publish')
             ->with($this->callback(function (Update $update) {
@@ -453,9 +453,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
     });
 
     it('publishes completed status when index exceeds total', function () {
-        $depRepo = syncSingleDepRepo([]);
-        $versionRepo = syncSingleVersionRepo();
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([]);
+        $versionRepo = \syncSingleVersionRepo();
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->once())->method('publish')
             ->with($this->callback(function (Update $update) {
@@ -470,9 +470,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
     });
 
     it('does not publish Mercure when syncId is null', function () {
-        $depRepo = syncSingleDepRepo([]);
-        $versionRepo = syncSingleVersionRepo();
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([]);
+        $versionRepo = \syncSingleVersionRepo();
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->never())->method('publish');
 
@@ -481,9 +481,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
     });
 
     it('does not publish Mercure when total is zero', function () {
-        $depRepo = syncSingleDepRepo([]);
-        $versionRepo = syncSingleVersionRepo();
-        $factory = syncSingleRegistryAdapter([]);
+        $depRepo = \syncSingleDepRepo([]);
+        $versionRepo = \syncSingleVersionRepo();
+        $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->never())->method('publish');
 
@@ -492,9 +492,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
     });
 
     it('logs info with correct count after syncing versions', function () {
-        $depRepo = syncSingleDepRepo([]);
-        $versionRepo = syncSingleVersionRepo(latest: null, existing: null);
-        $factory = syncSingleRegistryAdapter([
+        $depRepo = \syncSingleDepRepo([]);
+        $versionRepo = \syncSingleVersionRepo(latest: null, existing: null);
+        $factory = \syncSingleRegistryAdapter([
             new RegistryVersion('1.0.0', new DateTimeImmutable('2024-01-01'), true),
             new RegistryVersion('0.9.0', new DateTimeImmutable('2023-06-01'), false),
         ]);
@@ -535,9 +535,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             isOutdated: false,
             projectId: Uuid::v7(),
         );
-        $depRepo = syncSingleDepRepo([$dep1, $dep2]);
-        $versionRepo = syncSingleVersionRepo(latest: null, existing: null);
-        $factory = syncSingleRegistryAdapter([
+        $depRepo = \syncSingleDepRepo([$dep1, $dep2]);
+        $versionRepo = \syncSingleVersionRepo(latest: null, existing: null);
+        $factory = \syncSingleRegistryAdapter([
             new RegistryVersion('3.5.1', new DateTimeImmutable('2024-02-01'), true),
         ]);
         $hub = $this->createMock(HubInterface::class);
@@ -567,9 +567,9 @@ describe('SyncSingleDependencyVersionHandler', function () {
             isOutdated: false,
             projectId: Uuid::v7(),
         );
-        $depRepo = syncSingleDepRepo([$dep]);
-        $versionRepo = syncSingleVersionRepo(latest: null, existing: null);
-        $factory = syncSingleRegistryAdapter([
+        $depRepo = \syncSingleDepRepo([$dep]);
+        $versionRepo = \syncSingleVersionRepo(latest: null, existing: null);
+        $factory = \syncSingleRegistryAdapter([
             new RegistryVersion('3.5.0', new DateTimeImmutable('2024-01-01'), true),
             new RegistryVersion('3.6.0', new DateTimeImmutable('2024-06-01'), true),
         ]);

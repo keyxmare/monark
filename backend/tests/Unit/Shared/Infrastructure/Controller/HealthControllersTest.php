@@ -14,7 +14,7 @@ describe('HealthController', function () {
         $response = (new HealthController($connection))();
 
         expect($response->getStatusCode())->toBe(200);
-        $data = json_decode((string) $response->getContent(), true);
+        $data = \json_decode((string) $response->getContent(), true);
         expect($data['status'])->toBe('healthy');
         expect($data['checks']['database'])->toBe('ok');
     });
@@ -27,7 +27,7 @@ describe('HealthController', function () {
         $response = (new HealthController($connection))();
 
         expect($response->getStatusCode())->toBe(503);
-        $data = json_decode((string) $response->getContent(), true);
+        $data = \json_decode((string) $response->getContent(), true);
         expect($data['status'])->toBe('unhealthy');
         expect($data['checks']['database'])->toBe('failed');
     });
@@ -45,7 +45,7 @@ describe('HealthController', function () {
 
         $response = (new HealthController($connection))();
 
-        $data = json_decode((string) $response->getContent(), true);
+        $data = \json_decode((string) $response->getContent(), true);
         expect($data)->toHaveKey('checks');
         expect($data['checks'])->toHaveKey('database');
     });
@@ -56,7 +56,7 @@ describe('ReadinessController', function () {
         $response = (new ReadinessController())();
 
         expect($response->getStatusCode())->toBe(200);
-        $data = json_decode((string) $response->getContent(), true);
+        $data = \json_decode((string) $response->getContent(), true);
         expect($data['status'])->toBe('ready');
     });
 

@@ -57,13 +57,13 @@ function stubSyncControllersBus(mixed $result = null): MessageBusInterface&stdCl
 describe('GetSyncJobController', function () {
     it('returns sync job data', function () {
         $syncJob = SyncJob::create(10);
-        $repo = stubSyncControllersRepo($syncJob);
+        $repo = \stubSyncControllersRepo($syncJob);
         $controller = new GetSyncJobController($repo);
 
         $response = $controller($syncJob->getId()->toRfc4122());
 
         expect($response->getStatusCode())->toBe(200);
-        $data = json_decode((string) $response->getContent(), true);
+        $data = \json_decode((string) $response->getContent(), true);
         expect($data['success'])->toBeTrue();
         expect($data['data']['totalProjects'])->toBe(10);
         expect($data['data']['completedProjects'])->toBe(0);
@@ -71,7 +71,7 @@ describe('GetSyncJobController', function () {
     });
 
     it('throws NotFoundException for unknown id', function () {
-        $repo = stubSyncControllersRepo(null);
+        $repo = \stubSyncControllersRepo(null);
         $controller = new GetSyncJobController($repo);
 
         $controller(Uuid::v7()->toRfc4122());
@@ -80,7 +80,7 @@ describe('GetSyncJobController', function () {
 
 describe('SyncAllProjectsController', function () {
     it('dispatches SyncAllProjectsCommand with force', function () {
-        $bus = stubSyncControllersBus(['syncJobId' => 'abc-123']);
+        $bus = \stubSyncControllersBus(['syncJobId' => 'abc-123']);
         $controller = new SyncAllProjectsController($bus);
 
         $request = new Request(query: ['force' => '1']);
@@ -90,16 +90,16 @@ describe('SyncAllProjectsController', function () {
         expect($bus->dispatched)->toBeInstanceOf(SyncAllProjectsCommand::class);
         expect($bus->dispatched->force)->toBeTrue();
         expect($bus->dispatched->providerId)->toBeNull();
-        $data = json_decode((string) $response->getContent(), true);
+        $data = \json_decode((string) $response->getContent(), true);
         expect($data['success'])->toBeTrue();
         expect($data['data']['syncJobId'])->toBe('abc-123');
     });
 
     it('syncByProvider dispatches with providerId', function () {
-        $bus = stubSyncControllersBus(['syncJobId' => 'xyz-789']);
+        $bus = \stubSyncControllersBus(['syncJobId' => 'xyz-789']);
         $controller = new SyncAllProjectsController($bus);
 
-        $request = Request::create('/api/catalog/providers/prov-1/sync-all', 'POST', [], [], [], [], json_encode(['projectIds' => ['p1', 'p2']]));
+        $request = Request::create('/api/catalog/providers/prov-1/sync-all', 'POST', [], [], [], [], \json_encode(['projectIds' => ['p1', 'p2']]));
         $request->headers->set('Content-Type', 'application/json');
         $response = $controller->syncByProvider('prov-1', $request);
 

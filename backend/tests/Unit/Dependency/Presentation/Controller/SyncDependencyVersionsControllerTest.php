@@ -9,7 +9,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 describe('SyncDependencyVersionsController', function () {
     it('dispatches sync command and returns 202', function () {
-        $bus = new class extends stdClass implements MessageBusInterface {
+        $bus = new class () extends stdClass implements MessageBusInterface {
             public ?object $dispatched = null;
             public function dispatch(object $message, array $stamps = []): Envelope
             {

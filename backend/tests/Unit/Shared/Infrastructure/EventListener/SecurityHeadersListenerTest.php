@@ -20,17 +20,17 @@ function stubKernel(): HttpKernelInterface
 
 function mainRequestEvent(): ResponseEvent
 {
-    return new ResponseEvent(stubKernel(), Request::create('/'), HttpKernelInterface::MAIN_REQUEST, new Response());
+    return new ResponseEvent(\stubKernel(), Request::create('/'), HttpKernelInterface::MAIN_REQUEST, new Response());
 }
 
 function subRequestEvent(): ResponseEvent
 {
-    return new ResponseEvent(stubKernel(), Request::create('/'), HttpKernelInterface::SUB_REQUEST, new Response());
+    return new ResponseEvent(\stubKernel(), Request::create('/'), HttpKernelInterface::SUB_REQUEST, new Response());
 }
 
 describe('SecurityHeadersListener', function () {
     it('adds X-Content-Type-Options header on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -38,7 +38,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('adds X-Frame-Options header on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -46,7 +46,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('adds X-XSS-Protection header on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -54,7 +54,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('adds Referrer-Policy header on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -62,7 +62,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('adds Strict-Transport-Security header on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -70,7 +70,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('adds Permissions-Policy header on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -78,7 +78,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('adds Content-Security-Policy header on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -89,7 +89,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('skips all headers on sub-request', function () {
-        $event = subRequestEvent();
+        $event = \subRequestEvent();
 
         (new SecurityHeadersListener())($event);
 
@@ -104,7 +104,7 @@ describe('SecurityHeadersListener', function () {
     });
 
     it('sets all seven security headers on main request', function () {
-        $event = mainRequestEvent();
+        $event = \mainRequestEvent();
 
         (new SecurityHeadersListener())($event);
 

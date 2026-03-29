@@ -84,7 +84,7 @@ function stubDepStatsRepo(array $stats, ?array &$receivedFilters = null): Depend
 
 describe('GetDependencyStatsHandler', function () {
     it('returns correct stats with all fields', function () {
-        $repo = stubDepStatsRepo([
+        $repo = \stubDepStatsRepo([
             'total' => 50,
             'outdated' => 12,
             'totalVulnerabilities' => 3,
@@ -101,7 +101,7 @@ describe('GetDependencyStatsHandler', function () {
     });
 
     it('calculates upToDate as total minus outdated', function () {
-        $repo = stubDepStatsRepo([
+        $repo = \stubDepStatsRepo([
             'total' => 100,
             'outdated' => 25,
             'totalVulnerabilities' => 7,
@@ -115,7 +115,7 @@ describe('GetDependencyStatsHandler', function () {
     });
 
     it('returns zero upToDate when all are outdated', function () {
-        $repo = stubDepStatsRepo([
+        $repo = \stubDepStatsRepo([
             'total' => 10,
             'outdated' => 10,
             'totalVulnerabilities' => 0,
@@ -131,7 +131,7 @@ describe('GetDependencyStatsHandler', function () {
     });
 
     it('returns all upToDate when none are outdated', function () {
-        $repo = stubDepStatsRepo([
+        $repo = \stubDepStatsRepo([
             'total' => 30,
             'outdated' => 0,
             'totalVulnerabilities' => 0,
@@ -146,7 +146,7 @@ describe('GetDependencyStatsHandler', function () {
 
     it('passes filters from query excluding null and empty', function () {
         $receivedFilters = null;
-        $repo = stubDepStatsRepo(
+        $repo = \stubDepStatsRepo(
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );
@@ -167,7 +167,7 @@ describe('GetDependencyStatsHandler', function () {
 
     it('excludes null filters', function () {
         $receivedFilters = null;
-        $repo = stubDepStatsRepo(
+        $repo = \stubDepStatsRepo(
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );
@@ -184,7 +184,7 @@ describe('GetDependencyStatsHandler', function () {
 
     it('excludes empty string filters', function () {
         $receivedFilters = null;
-        $repo = stubDepStatsRepo(
+        $repo = \stubDepStatsRepo(
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );
@@ -201,7 +201,7 @@ describe('GetDependencyStatsHandler', function () {
 
     it('passes partial filters when some are set', function () {
         $receivedFilters = null;
-        $repo = stubDepStatsRepo(
+        $repo = \stubDepStatsRepo(
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );

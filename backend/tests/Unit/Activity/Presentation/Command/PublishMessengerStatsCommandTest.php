@@ -8,7 +8,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Mercure\HubInterface;
 
 it('is registered with the correct name and description', function () {
-    $monitor = new class implements MessageQueueMonitorInterface {
+    $monitor = new class () implements MessageQueueMonitorInterface {
         public function getQueues(): array
         {
             return [];

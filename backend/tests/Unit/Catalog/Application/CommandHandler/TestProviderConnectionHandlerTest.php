@@ -111,8 +111,8 @@ describe('TestProviderConnectionHandler', function () {
             url: 'https://gitlab.com',
             apiToken: 'test-token',
         );
-        $repo = stubTestConnectionProviderRepo($provider);
-        $factory = stubTestConnectionGitProviderFactory(true);
+        $repo = \stubTestConnectionProviderRepo($provider);
+        $factory = \stubTestConnectionGitProviderFactory(true);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 
         $command = new TestProviderConnectionCommand($provider->getId()->toRfc4122());
@@ -131,8 +131,8 @@ describe('TestProviderConnectionHandler', function () {
             url: 'https://gitlab.com',
             apiToken: 'bad-token',
         );
-        $repo = stubTestConnectionProviderRepo($provider);
-        $factory = stubTestConnectionGitProviderFactory(false);
+        $repo = \stubTestConnectionProviderRepo($provider);
+        $factory = \stubTestConnectionGitProviderFactory(false);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 
         $command = new TestProviderConnectionCommand($provider->getId()->toRfc4122());
@@ -144,8 +144,8 @@ describe('TestProviderConnectionHandler', function () {
     });
 
     it('throws NotFoundException when provider does not exist', function () {
-        $repo = stubTestConnectionProviderRepo(null);
-        $factory = stubTestConnectionGitProviderFactory(true);
+        $repo = \stubTestConnectionProviderRepo(null);
+        $factory = \stubTestConnectionGitProviderFactory(true);
         $handler = new TestProviderConnectionHandler($repo, $factory);
 
         $command = new TestProviderConnectionCommand(Uuid::v7()->toRfc4122());

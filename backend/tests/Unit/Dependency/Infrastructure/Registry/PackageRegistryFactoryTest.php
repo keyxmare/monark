@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Dependency\Domain\DTO\RegistryVersion;
@@ -8,7 +9,7 @@ use App\Shared\Domain\ValueObject\PackageManager;
 
 describe('PackageRegistryFactory', function () {
     it('delegates to the adapter that supports the package manager', function () {
-        $composerAdapter = new class implements PackageRegistryPort {
+        $composerAdapter = new class () implements PackageRegistryPort {
             public function supports(PackageManager $manager): bool
             {
                 return $manager === PackageManager::Composer;
@@ -28,7 +29,7 @@ describe('PackageRegistryFactory', function () {
     });
 
     it('returns empty array when no adapter supports the manager', function () {
-        $composerAdapter = new class implements PackageRegistryPort {
+        $composerAdapter = new class () implements PackageRegistryPort {
             public function supports(PackageManager $manager): bool
             {
                 return $manager === PackageManager::Composer;
@@ -46,7 +47,7 @@ describe('PackageRegistryFactory', function () {
     });
 
     it('uses first matching adapter', function () {
-        $first = new class implements PackageRegistryPort {
+        $first = new class () implements PackageRegistryPort {
             public function supports(PackageManager $manager): bool
             {
                 return $manager === PackageManager::Npm;
@@ -56,7 +57,7 @@ describe('PackageRegistryFactory', function () {
                 return [new RegistryVersion(version: 'first')];
             }
         };
-        $second = new class implements PackageRegistryPort {
+        $second = new class () implements PackageRegistryPort {
             public function supports(PackageManager $manager): bool
             {
                 return $manager === PackageManager::Npm;
@@ -74,7 +75,7 @@ describe('PackageRegistryFactory', function () {
     });
 
     it('passes sinceVersion to the adapter', function () {
-        $adapter = new class implements PackageRegistryPort {
+        $adapter = new class () implements PackageRegistryPort {
             public ?string $receivedSince = null;
             public function supports(PackageManager $manager): bool
             {

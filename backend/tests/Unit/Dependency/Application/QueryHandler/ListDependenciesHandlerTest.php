@@ -151,7 +151,7 @@ describe('ListDependenciesHandler', function () {
             projectId: $projectId,
         );
 
-        $handler = new ListDependenciesHandler(stubListDepsRepo([$dep1, $dep2], 2), stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler(\stubListDepsRepo([$dep1, $dep2], 2), \stubListDepsVersionRepo());
         $result = $handler(new ListDependenciesQuery(1, 20));
 
         expect($result)->toBeInstanceOf(DependencyListOutput::class);
@@ -180,7 +180,7 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('returns empty list when no dependencies', function () {
-        $handler = new ListDependenciesHandler(stubListDepsRepo([], 0), stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler(\stubListDepsRepo([], 0), \stubListDepsVersionRepo());
         $result = $handler(new ListDependenciesQuery());
 
         expect($result->pagination->items)->toBeEmpty();
@@ -190,8 +190,8 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('passes page and perPage to repository', function () {
-        $repo = stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, stubListDepsVersionRepo());
+        $repo = \stubListDepsRepo([], 0);
+        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
         $handler(new ListDependenciesQuery(3, 50));
 
         expect($repo->receivedPage)->toBe(3);
@@ -199,8 +199,8 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('builds filters from query parameters excluding null and empty', function () {
-        $repo = stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, stubListDepsVersionRepo());
+        $repo = \stubListDepsRepo([], 0);
+        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
         $handler(new ListDependenciesQuery(
             page: 1,
             perPage: 20,
@@ -223,8 +223,8 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('excludes null filters but keeps sort defaults', function () {
-        $repo = stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, stubListDepsVersionRepo());
+        $repo = \stubListDepsRepo([], 0);
+        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
         $handler(new ListDependenciesQuery(
             page: 1,
             perPage: 20,
@@ -243,8 +243,8 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('adds isOutdated to filters when set to true', function () {
-        $repo = stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, stubListDepsVersionRepo());
+        $repo = \stubListDepsRepo([], 0);
+        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
         $handler(new ListDependenciesQuery(isOutdated: true));
 
         expect($repo->receivedFilters)->toHaveKey('isOutdated');
@@ -252,8 +252,8 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('adds isOutdated to filters when set to false', function () {
-        $repo = stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, stubListDepsVersionRepo());
+        $repo = \stubListDepsRepo([], 0);
+        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
         $handler(new ListDependenciesQuery(isOutdated: false));
 
         expect($repo->receivedFilters)->toHaveKey('isOutdated');
@@ -261,8 +261,8 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('does not add isOutdated to filters when null', function () {
-        $repo = stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, stubListDepsVersionRepo());
+        $repo = \stubListDepsRepo([], 0);
+        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
         $handler(new ListDependenciesQuery(isOutdated: null));
 
         expect($repo->receivedFilters)->not->toHaveKey('isOutdated');
@@ -293,12 +293,12 @@ describe('ListDependenciesHandler', function () {
             releaseDate: new DateTimeImmutable('2025-01-20T14:30:00+00:00'),
         );
 
-        $versionRepo = stubListDepsVersionRepo([
+        $versionRepo = \stubListDepsVersionRepo([
             'vue|npm|3.4.0' => $currentVer,
             'vue|npm|3.5.0' => $latestVer,
         ]);
 
-        $handler = new ListDependenciesHandler(stubListDepsRepo([$dep], 1), $versionRepo);
+        $handler = new ListDependenciesHandler(\stubListDepsRepo([$dep], 1), $versionRepo);
         $result = $handler(new ListDependenciesQuery());
 
         $item = $result->pagination->items[0];
@@ -325,11 +325,11 @@ describe('ListDependenciesHandler', function () {
             releaseDate: null,
         );
 
-        $versionRepo = stubListDepsVersionRepo([
+        $versionRepo = \stubListDepsVersionRepo([
             'vue|npm|3.4.0' => $currentVer,
         ]);
 
-        $handler = new ListDependenciesHandler(stubListDepsRepo([$dep], 1), $versionRepo);
+        $handler = new ListDependenciesHandler(\stubListDepsRepo([$dep], 1), $versionRepo);
         $result = $handler(new ListDependenciesQuery());
 
         $item = $result->pagination->items[0];
@@ -338,8 +338,8 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('excludes empty string filters', function () {
-        $repo = stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, stubListDepsVersionRepo());
+        $repo = \stubListDepsRepo([], 0);
+        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
         $handler(new ListDependenciesQuery(
             projectId: '',
             search: '',

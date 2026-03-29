@@ -6,7 +6,6 @@ use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Dependency\Infrastructure\Adapter\DependencyReaderAdapter;
 use App\Shared\Domain\DTO\DependencyReadDTO;
-use App\Shared\Domain\DTO\VulnerabilityReadDTO;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Uid\Uuid;
@@ -92,7 +91,7 @@ function stubDepReaderRepo(array $dependencies = []): DependencyRepositoryInterf
 
 describe('DependencyReaderAdapter', function () {
     it('returns empty array when no dependencies exist', function () {
-        $adapter = new DependencyReaderAdapter(stubDepReaderRepo([]));
+        $adapter = new DependencyReaderAdapter(\stubDepReaderRepo([]));
         $result = $adapter->findByProjectId(Uuid::v7());
 
         expect($result)->toBeEmpty();
@@ -100,7 +99,7 @@ describe('DependencyReaderAdapter', function () {
     });
 
     it('calls findByProjectId with page 1 and perPage 1000', function () {
-        $repo = stubDepReaderRepo([]);
+        $repo = \stubDepReaderRepo([]);
         $adapter = new DependencyReaderAdapter($repo);
         $projectId = Uuid::v7();
 
@@ -124,7 +123,7 @@ describe('DependencyReaderAdapter', function () {
             projectId: $projectId,
         );
 
-        $adapter = new DependencyReaderAdapter(stubDepReaderRepo([$dep]));
+        $adapter = new DependencyReaderAdapter(\stubDepReaderRepo([$dep]));
         $result = $adapter->findByProjectId($projectId);
 
         expect($result)->toHaveCount(1);
@@ -151,7 +150,7 @@ describe('DependencyReaderAdapter', function () {
             projectId: $projectId,
         );
 
-        $adapter = new DependencyReaderAdapter(stubDepReaderRepo([$dep]));
+        $adapter = new DependencyReaderAdapter(\stubDepReaderRepo([$dep]));
         $result = $adapter->findByProjectId($projectId);
 
         expect($result[0]->name)->toBe('symfony/http-kernel');
@@ -174,7 +173,7 @@ describe('DependencyReaderAdapter', function () {
             projectId: $projectId,
         );
 
-        $adapter = new DependencyReaderAdapter(stubDepReaderRepo([$dep]));
+        $adapter = new DependencyReaderAdapter(\stubDepReaderRepo([$dep]));
         $result = $adapter->findByProjectId($projectId);
 
         expect($result[0]->isOutdated)->toBeFalse();
@@ -205,7 +204,7 @@ describe('DependencyReaderAdapter', function () {
             projectId: $projectId,
         );
 
-        $adapter = new DependencyReaderAdapter(stubDepReaderRepo([$dep1, $dep2]));
+        $adapter = new DependencyReaderAdapter(\stubDepReaderRepo([$dep1, $dep2]));
         $result = $adapter->findByProjectId($projectId);
 
         expect($result)->toHaveCount(2);

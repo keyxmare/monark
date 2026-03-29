@@ -7,8 +7,6 @@ use App\Dependency\Application\Command\SyncSingleDependencyVersionCommand;
 use App\Dependency\Application\CommandHandler\SyncDependencyVersionsHandler;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
-use App\Shared\Domain\ValueObject\DependencyType;
-use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;

@@ -59,7 +59,7 @@ describe('SyncTask', function () {
 
         $originalUpdatedAt = $task->getUpdatedAt();
 
-        usleep(1000);
+        \usleep(1000);
 
         $task->updateInfo(
             severity: SyncTaskSeverity::Critical,

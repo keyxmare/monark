@@ -51,7 +51,7 @@ describe('Dependency', function () {
         $dependency = DependencyFactory::create();
         $previousUpdatedAt = $dependency->getUpdatedAt();
 
-        usleep(1000);
+        \usleep(1000);
         $dependency->markRegistryStatus(RegistryStatus::Synced);
 
         expect($dependency->getRegistryStatus())->toBe(RegistryStatus::Synced);
@@ -62,7 +62,7 @@ describe('Dependency', function () {
         $dependency = DependencyFactory::create();
         $previousUpdatedAt = $dependency->getUpdatedAt();
 
-        usleep(1000);
+        \usleep(1000);
         $dependency->update(name: 'symfony/console');
 
         expect($dependency->getName())->toBe('symfony/console');
