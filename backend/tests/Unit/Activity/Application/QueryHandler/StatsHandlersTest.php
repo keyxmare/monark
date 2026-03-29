@@ -33,7 +33,7 @@ describe('GetSyncTaskStatsHandler', function () {
         $repo->method('countGroupedBySeverity')->willReturn([['label' => 'critical', 'count' => 1]]);
         $repo->method('countGroupedByStatus')->willReturn([['label' => 'open', 'count' => 2]]);
 
-        $handler = new GetSyncTaskStatsHandler($repo);
+        $handler = new GetSyncTaskStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $result = $handler(new GetSyncTaskStatsQuery());
 
         expect($result)->toBeInstanceOf(SyncTaskStatsOutput::class);

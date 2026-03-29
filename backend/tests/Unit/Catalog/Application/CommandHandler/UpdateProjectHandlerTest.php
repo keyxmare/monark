@@ -66,7 +66,7 @@ describe('UpdateProjectHandler', function () {
     it('updates a project successfully', function () {
         $project = ProjectFactory::create();
         $repo = \stubUpdateProjectRepo($project);
-        $handler = new UpdateProjectHandler($repo);
+        $handler = new UpdateProjectHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new UpdateProjectInput(
             name: 'Updated Name',
@@ -82,7 +82,7 @@ describe('UpdateProjectHandler', function () {
     });
 
     it('throws not found when project does not exist', function () {
-        $handler = new UpdateProjectHandler(\stubUpdateProjectRepo(null));
+        $handler = new UpdateProjectHandler(\stubUpdateProjectRepo(null), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $input = new UpdateProjectInput(name: 'Updated');
         $handler(new UpdateProjectCommand('00000000-0000-0000-0000-000000000000', $input));
     })->throws(NotFoundException::class);

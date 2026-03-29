@@ -114,7 +114,7 @@ describe('ImportProjectsHandler', function () {
         $provider = ProviderFactory::create();
         $providerRepo = \stubImportProviderRepo($provider);
         $projectRepo = \stubImportProjectRepo();
-        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $ownerId = Uuid::v7()->toRfc4122();
 
         $input = new ImportProjectsInput(
@@ -151,7 +151,7 @@ describe('ImportProjectsHandler', function () {
         $provider = ProviderFactory::create();
         $providerRepo = \stubImportProviderRepo($provider);
         $projectRepo = \stubImportProjectRepo(existingExternalIds: ['42']);
-        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $ownerId = Uuid::v7()->toRfc4122();
 
         $input = new ImportProjectsInput(
@@ -181,7 +181,7 @@ describe('ImportProjectsHandler', function () {
         $provider = ProviderFactory::create();
         $providerRepo = \stubImportProviderRepo($provider);
         $projectRepo = \stubImportProjectRepo();
-        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $ownerId = Uuid::v7()->toRfc4122();
 
         $input = new ImportProjectsInput(
@@ -205,7 +205,7 @@ describe('ImportProjectsHandler', function () {
         $provider = ProviderFactory::create();
         $providerRepo = \stubImportProviderRepo($provider);
         $projectRepo = \stubImportProjectRepo();
-        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $ownerId = Uuid::v7()->toRfc4122();
 
         $input = new ImportProjectsInput(
@@ -230,7 +230,7 @@ describe('ImportProjectsHandler', function () {
         $provider = ProviderFactory::create();
         $providerRepo = \stubImportProviderRepo($provider);
         $projectRepo = \stubImportProjectRepo(existingSlugs: ['my-app']);
-        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $ownerId = Uuid::v7()->toRfc4122();
 
         $input = new ImportProjectsInput(
@@ -254,7 +254,7 @@ describe('ImportProjectsHandler', function () {
         $provider = ProviderFactory::create();
         $providerRepo = \stubImportProviderRepo($provider);
         $projectRepo = \stubImportProjectRepo();
-        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $ownerId = Uuid::v7()->toRfc4122();
 
         $input = new ImportProjectsInput(
@@ -284,7 +284,7 @@ describe('ImportProjectsHandler', function () {
     it('throws not found for unknown provider', function () {
         $providerRepo = \stubImportProviderRepo(null);
         $projectRepo = \stubImportProjectRepo();
-        $handler = new ImportProjectsHandler($providerRepo, $projectRepo);
+        $handler = new ImportProjectsHandler($providerRepo, $projectRepo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new ImportProjectsInput(
             projects: [

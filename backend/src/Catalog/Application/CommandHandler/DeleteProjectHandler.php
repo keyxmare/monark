@@ -7,14 +7,18 @@ namespace App\Catalog\Application\CommandHandler;
 use App\Catalog\Application\Command\DeleteProjectCommand;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsMessageHandler(bus: 'command.bus')]
 final readonly class DeleteProjectHandler
 {
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
+        #[Autowire(service: 'cache.query')]
+        private TagAwareCacheInterface $cache,
     ) {
     }
 
@@ -26,5 +30,7 @@ final readonly class DeleteProjectHandler
         }
 
         $this->projectRepository->delete($project);
+
+        $this->cache->invalidateTags(['projects']);
     }
 }

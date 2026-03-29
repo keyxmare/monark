@@ -61,7 +61,7 @@ function stubGetProjectRepo(?Project $project = null): ProjectRepositoryInterfac
 describe('GetProjectHandler', function () {
     it('returns a project by id', function () {
         $project = ProjectFactory::create(name: 'My Project', slug: 'my-project');
-        $handler = new GetProjectHandler(\stubGetProjectRepo($project));
+        $handler = new GetProjectHandler(\stubGetProjectRepo($project), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $result = $handler(new GetProjectQuery($project->getId()->toRfc4122()));
 
         expect($result)->toBeInstanceOf(ProjectOutput::class);
@@ -70,7 +70,7 @@ describe('GetProjectHandler', function () {
     });
 
     it('throws not found when project does not exist', function () {
-        $handler = new GetProjectHandler(\stubGetProjectRepo(null));
+        $handler = new GetProjectHandler(\stubGetProjectRepo(null), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $handler(new GetProjectQuery('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

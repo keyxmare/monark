@@ -63,7 +63,7 @@ describe('DeleteProjectHandler', function () {
     it('deletes a project successfully', function () {
         $project = ProjectFactory::create();
         $repo = \stubDeleteProjectRepo($project);
-        $handler = new DeleteProjectHandler($repo);
+        $handler = new DeleteProjectHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $handler(new DeleteProjectCommand($project->getId()->toRfc4122()));
 
@@ -71,7 +71,7 @@ describe('DeleteProjectHandler', function () {
     });
 
     it('throws not found when project does not exist', function () {
-        $handler = new DeleteProjectHandler(\stubDeleteProjectRepo(null));
+        $handler = new DeleteProjectHandler(\stubDeleteProjectRepo(null), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $handler(new DeleteProjectCommand('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

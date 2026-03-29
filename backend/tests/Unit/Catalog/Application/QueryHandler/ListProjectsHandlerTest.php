@@ -62,7 +62,7 @@ describe('ListProjectsHandler', function () {
         $project1 = ProjectFactory::create(name: 'Project 1', slug: 'project-1');
         $project2 = ProjectFactory::create(name: 'Project 2', slug: 'project-2');
 
-        $handler = new ListProjectsHandler(\stubListProjectsRepo([$project1, $project2], 2));
+        $handler = new ListProjectsHandler(\stubListProjectsRepo([$project1, $project2], 2), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $result = $handler(new ListProjectsQuery(1, 20));
 
         expect($result)->toBeInstanceOf(ProjectListOutput::class);
@@ -71,7 +71,7 @@ describe('ListProjectsHandler', function () {
     });
 
     it('returns empty list when no projects', function () {
-        $handler = new ListProjectsHandler(\stubListProjectsRepo([], 0));
+        $handler = new ListProjectsHandler(\stubListProjectsRepo([], 0), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $result = $handler(new ListProjectsQuery());
 
         expect($result->pagination->items)->toBeEmpty();

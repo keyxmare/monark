@@ -84,7 +84,7 @@ describe('DeleteDependencyHandler', function () {
             projectId: Uuid::v7(),
         );
         $repo = \stubDeleteDependencyRepo($dependency);
-        $handler = new DeleteDependencyHandler($repo);
+        $handler = new DeleteDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $handler(new DeleteDependencyCommand($dependency->getId()->toRfc4122()));
 
@@ -92,7 +92,7 @@ describe('DeleteDependencyHandler', function () {
     });
 
     it('throws not found when dependency does not exist', function () {
-        $handler = new DeleteDependencyHandler(\stubDeleteDependencyRepo(null));
+        $handler = new DeleteDependencyHandler(\stubDeleteDependencyRepo(null), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $handler(new DeleteDependencyCommand('00000000-0000-0000-0000-000000000000'));
     })->throws(NotFoundException::class);
 });

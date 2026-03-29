@@ -66,7 +66,7 @@ describe('UpdateSyncTaskStatusHandler', function () {
         );
 
         $repo = \stubUpdateSyncTaskRepo($task);
-        $handler = new UpdateSyncTaskStatusHandler($repo);
+        $handler = new UpdateSyncTaskStatusHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $result = $handler(new UpdateSyncTaskStatusCommand($task->getId()->toRfc4122(), 'acknowledged'));
 
         expect($result)->toBeInstanceOf(SyncTaskOutput::class);
@@ -85,7 +85,7 @@ describe('UpdateSyncTaskStatusHandler', function () {
         );
 
         $repo = \stubUpdateSyncTaskRepo($task);
-        $handler = new UpdateSyncTaskStatusHandler($repo);
+        $handler = new UpdateSyncTaskStatusHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
         $handler(new UpdateSyncTaskStatusCommand($task->getId()->toRfc4122(), 'resolved'));
 
         expect($task->getStatus())->toBe(SyncTaskStatus::Resolved);
@@ -94,7 +94,7 @@ describe('UpdateSyncTaskStatusHandler', function () {
 
     it('throws not found for unknown task', function () {
         $repo = \stubUpdateSyncTaskRepo(null);
-        $handler = new UpdateSyncTaskStatusHandler($repo);
+        $handler = new UpdateSyncTaskStatusHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $handler(new UpdateSyncTaskStatusCommand(Uuid::v7()->toRfc4122(), 'acknowledged'));
     })->throws(\App\Shared\Domain\Exception\NotFoundException::class);

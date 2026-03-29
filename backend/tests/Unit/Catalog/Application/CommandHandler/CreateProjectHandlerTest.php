@@ -63,7 +63,7 @@ function stubCreateProjectRepo(?Project $findBySlugResult = null): ProjectReposi
 describe('CreateProjectHandler', function () {
     it('creates a project successfully', function () {
         $repo = \stubCreateProjectRepo(null);
-        $handler = new CreateProjectHandler($repo);
+        $handler = new CreateProjectHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $ownerId = Uuid::v7()->toRfc4122();
         $input = new CreateProjectInput(
@@ -96,7 +96,7 @@ describe('CreateProjectHandler', function () {
             visibility: ProjectVisibility::Private,
             ownerId: Uuid::v7(),
         );
-        $handler = new CreateProjectHandler(\stubCreateProjectRepo($existingProject));
+        $handler = new CreateProjectHandler(\stubCreateProjectRepo($existingProject), \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new CreateProjectInput(
             name: 'My Project',

@@ -6,13 +6,16 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\ImportProjectsCommand;
 use App\Catalog\Application\DTO\ProjectOutput;
+use App\Catalog\Application\Mapper\ProjectMapper;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsMessageHandler(bus: 'command.bus')]
 final readonly class ImportProjectsHandler
@@ -20,6 +23,8 @@ final readonly class ImportProjectsHandler
     public function __construct(
         private ProviderRepositoryInterface $providerRepository,
         private ProjectRepositoryInterface $projectRepository,
+        #[Autowire(service: 'cache.query')]
+        private TagAwareCacheInterface $cache,
     ) {
     }
 
@@ -60,7 +65,11 @@ final readonly class ImportProjectsHandler
             );
 
             $this->projectRepository->save($project);
-            $imported[] = ProjectOutput::fromEntity($project);
+            $imported[] = ProjectMapper::toOutput($project);
+        }
+
+        if (\count($imported) > 0) {
+            $this->cache->invalidateTags(['projects']);
         }
 
         return $imported;

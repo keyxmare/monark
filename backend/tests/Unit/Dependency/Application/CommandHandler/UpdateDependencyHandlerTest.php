@@ -88,7 +88,7 @@ describe('UpdateDependencyHandler', function () {
         $dependencyId = $dependency->getId()->toRfc4122();
 
         $repo = \stubUpdateDependencyRepo($dependency);
-        $handler = new UpdateDependencyHandler($repo);
+        $handler = new UpdateDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new UpdateDependencyInput(currentVersion: '8.0.0', isOutdated: false);
         $result = $handler(new UpdateDependencyCommand($dependencyId, $input));
@@ -113,7 +113,7 @@ describe('UpdateDependencyHandler', function () {
         $dependencyId = $dependency->getId()->toRfc4122();
 
         $repo = \stubUpdateDependencyRepo($dependency);
-        $handler = new UpdateDependencyHandler($repo);
+        $handler = new UpdateDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new UpdateDependencyInput(repositoryUrl: 'https://github.com/symfony/symfony');
         $result = $handler(new UpdateDependencyCommand($dependencyId, $input));
@@ -136,7 +136,7 @@ describe('UpdateDependencyHandler', function () {
         $dependencyId = $dependency->getId()->toRfc4122();
 
         $repo = \stubUpdateDependencyRepo($dependency);
-        $handler = new UpdateDependencyHandler($repo);
+        $handler = new UpdateDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new UpdateDependencyInput(currentVersion: '3.6.0');
         $result = $handler(new UpdateDependencyCommand($dependencyId, $input));
@@ -146,7 +146,7 @@ describe('UpdateDependencyHandler', function () {
     });
 
     it('throws not found when dependency does not exist', function () {
-        $handler = new UpdateDependencyHandler(\stubUpdateDependencyRepo(null));
+        $handler = new UpdateDependencyHandler(\stubUpdateDependencyRepo(null), \Tests\Helpers\CacheHelper::createTagAwareCache());
         $input = new UpdateDependencyInput(name: 'new-name');
         $handler(new UpdateDependencyCommand('00000000-0000-0000-0000-000000000000', $input));
     })->throws(NotFoundException::class);

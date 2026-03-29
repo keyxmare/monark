@@ -76,7 +76,7 @@ describe('CreateDependencyHandler', function () {
     it('creates a dependency successfully', function () {
         $projectId = Uuid::v7();
         $repo = \stubCreateDependencyRepo();
-        $handler = new CreateDependencyHandler($repo);
+        $handler = new CreateDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new CreateDependencyInput(
             name: 'symfony/framework-bundle',
@@ -105,7 +105,7 @@ describe('CreateDependencyHandler', function () {
     it('returns correct projectId in output', function () {
         $projectId = Uuid::v7();
         $repo = \stubCreateDependencyRepo();
-        $handler = new CreateDependencyHandler($repo);
+        $handler = new CreateDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new CreateDependencyInput(
             name: 'vue',
@@ -126,7 +126,7 @@ describe('CreateDependencyHandler', function () {
     it('creates a dependency with repositoryUrl', function () {
         $projectId = Uuid::v7();
         $repo = \stubCreateDependencyRepo();
-        $handler = new CreateDependencyHandler($repo);
+        $handler = new CreateDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new CreateDependencyInput(
             name: 'symfony/framework-bundle',
@@ -148,7 +148,7 @@ describe('CreateDependencyHandler', function () {
     it('creates a dependency without repositoryUrl', function () {
         $projectId = Uuid::v7();
         $repo = \stubCreateDependencyRepo();
-        $handler = new CreateDependencyHandler($repo);
+        $handler = new CreateDependencyHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $input = new CreateDependencyInput(
             name: 'vue',

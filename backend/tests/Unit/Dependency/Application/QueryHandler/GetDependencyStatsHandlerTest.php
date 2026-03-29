@@ -89,7 +89,7 @@ describe('GetDependencyStatsHandler', function () {
             'outdated' => 12,
             'totalVulnerabilities' => 3,
         ]);
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $result = $handler(new GetDependencyStatsQuery());
 
@@ -106,7 +106,7 @@ describe('GetDependencyStatsHandler', function () {
             'outdated' => 25,
             'totalVulnerabilities' => 7,
         ]);
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $result = $handler(new GetDependencyStatsQuery());
 
@@ -120,7 +120,7 @@ describe('GetDependencyStatsHandler', function () {
             'outdated' => 10,
             'totalVulnerabilities' => 0,
         ]);
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $result = $handler(new GetDependencyStatsQuery());
 
@@ -136,7 +136,7 @@ describe('GetDependencyStatsHandler', function () {
             'outdated' => 0,
             'totalVulnerabilities' => 0,
         ]);
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $result = $handler(new GetDependencyStatsQuery());
 
@@ -150,7 +150,7 @@ describe('GetDependencyStatsHandler', function () {
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $handler(new GetDependencyStatsQuery(
             projectId: 'proj-123',
@@ -171,7 +171,7 @@ describe('GetDependencyStatsHandler', function () {
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $handler(new GetDependencyStatsQuery(
             projectId: null,
@@ -188,7 +188,7 @@ describe('GetDependencyStatsHandler', function () {
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $handler(new GetDependencyStatsQuery(
             projectId: '',
@@ -205,7 +205,7 @@ describe('GetDependencyStatsHandler', function () {
             ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0],
             $receivedFilters,
         );
-        $handler = new GetDependencyStatsHandler($repo);
+        $handler = new GetDependencyStatsHandler($repo, \Tests\Helpers\CacheHelper::createTagAwareCache());
 
         $handler(new GetDependencyStatsQuery(
             projectId: 'proj-456',
