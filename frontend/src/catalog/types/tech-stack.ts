@@ -7,6 +7,11 @@ export interface TechStack {
   detectedAt: string;
   projectId: string;
   createdAt: string;
+  latestLts: string | null;
+  ltsGap: string | null;
+  maintenanceStatus: 'active' | 'warning' | 'eol' | null;
+  eolDate: string | null;
+  versionSyncedAt: string | null;
 }
 
 export interface CreateTechStackInput {

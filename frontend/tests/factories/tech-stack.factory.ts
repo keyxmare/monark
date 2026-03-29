@@ -10,6 +10,11 @@ export function createTechStack(overrides?: Partial<TechStack>): TechStack {
     detectedAt: '2025-01-01T00:00:00+00:00',
     projectId: 'project-1',
     createdAt: '2025-01-01T00:00:00+00:00',
+    latestLts: null,
+    ltsGap: null,
+    maintenanceStatus: null,
+    eolDate: null,
+    versionSyncedAt: null,
     ...overrides,
   };
 }

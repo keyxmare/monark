@@ -2,24 +2,22 @@
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
-import type { GroupBy, GroupedStack, SortField } from '@/catalog/composables/useTechStackGrouping';
+import type {
+  GroupBy,
+  GroupedStack,
+  SortField,
+  ViewMode,
+} from '@/catalog/composables/useTechStackGrouping';
 
-import {
-  humanizeTimeDiff,
-  isVersionUpToDate,
-  ltsUrgency,
-  patchGap,
-  useFrameworkLts,
-} from '@/catalog/composables/useFrameworkLts';
 import TechBadge from '@/shared/components/TechBadge.vue';
 
 const { t } = useI18n();
-const { getLtsInfo, getVersionMaintenanceStatus, getVersionReleaseDate } = useFrameworkLts();
 
 const props = defineProps<{
   groupBy: GroupBy;
   groupedStacks: GroupedStack[];
   sortIndicator: (field: SortField) => string;
+  viewMode: ViewMode;
 }>();
 
 const emit = defineEmits<{
@@ -38,22 +36,40 @@ const emit = defineEmits<{
           >
             {{ t('catalog.techStacks.project') }}{{ props.sortIndicator('project') }}
           </th>
-          <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-            {{ t('catalog.techStacks.language') }}
-          </th>
-          <th
-            class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
-            @click="emit('sort', 'framework')"
-          >
-            {{ t('catalog.techStacks.framework') }}{{ props.sortIndicator('framework') }}
-          </th>
-          <th
-            class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
-            @click="emit('sort', 'frameworkVersion')"
-          >
-            {{ t('catalog.techStacks.frameworkVersion')
-            }}{{ props.sortIndicator('frameworkVersion') }}
-          </th>
+          <!-- Language mode columns -->
+          <template v-if="props.viewMode === 'languages'">
+            <th
+              class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
+              @click="emit('sort', 'language')"
+            >
+              {{ t('catalog.techStacks.language') }}{{ props.sortIndicator('language') }}
+            </th>
+            <th
+              class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
+              @click="emit('sort', 'languageVersion')"
+            >
+              {{ t('catalog.techStacks.version') }}{{ props.sortIndicator('languageVersion') }}
+            </th>
+          </template>
+          <!-- Framework mode columns -->
+          <template v-else>
+            <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+              {{ t('catalog.techStacks.language') }}
+            </th>
+            <th
+              class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
+              @click="emit('sort', 'framework')"
+            >
+              {{ t('catalog.techStacks.framework') }}{{ props.sortIndicator('framework') }}
+            </th>
+            <th
+              class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
+              @click="emit('sort', 'frameworkVersion')"
+            >
+              {{ t('catalog.techStacks.frameworkVersion')
+              }}{{ props.sortIndicator('frameworkVersion') }}
+            </th>
+          </template>
           <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
             {{ t('catalog.techStacks.latestLts') }}
           </th>
@@ -64,7 +80,7 @@ const emit = defineEmits<{
             {{ t('catalog.techStacks.ltsGap') }}{{ props.sortIndicator('ltsGap') }}
           </th>
           <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-            {{ t('catalog.techStacks.releasedAt') }}
+            {{ t('catalog.techStacks.syncedAt') }}
           </th>
         </tr>
       </thead>
@@ -92,127 +108,79 @@ const emit = defineEmits<{
             </RouterLink>
             <span v-else class="font-medium text-text">{{ row.projectName }}</span>
           </td>
-          <td class="px-4 py-3 text-sm text-text">
-            {{ row.ts.language }}
-          </td>
-          <td class="px-4 py-3 text-sm text-text">
-            <TechBadge :name="row.ts.framework" :version="row.ts.frameworkVersion" size="sm" />
-          </td>
-          <td class="px-4 py-3 text-sm text-text-muted">
-            <span class="inline-flex items-center gap-1.5">
-              {{ row.ts.frameworkVersion || '—' }}
-              <span
-                v-if="
-                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.status ===
-                  'eol'
-                "
-                class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
-                :title="
-                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.eolDate
-                    ? t('catalog.techStacks.unmaintainedSince', {
-                        date: getVersionMaintenanceStatus(
-                          row.ts.framework,
-                          row.ts.frameworkVersion,
-                        )!.eolDate!,
-                      })
-                    : t('catalog.techStacks.unmaintainedNoDate')
-                "
-              >
-                {{ t('catalog.techStacks.unmaintained') }}
+          <!-- Language mode cells -->
+          <template v-if="props.viewMode === 'languages'">
+            <td class="px-4 py-3 text-sm text-text">
+              <TechBadge :name="row.ts.language" :version="row.ts.version" size="sm" />
+            </td>
+            <td class="px-4 py-3 text-sm text-text-muted">
+              <span class="inline-flex items-center gap-1.5">
+                {{ row.ts.version || '—' }}
+                <span
+                  v-if="row.ts.maintenanceStatus === 'eol'"
+                  class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
+                >
+                  {{ t('catalog.techStacks.unmaintained') }}
+                </span>
+                <span
+                  v-else-if="row.ts.maintenanceStatus === 'warning'"
+                  class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
+                >
+                  {{ t('catalog.techStacks.inactive') }}
+                </span>
               </span>
-              <span
-                v-else-if="
-                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.status ===
-                  'warning'
-                "
-                class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
-                :title="
-                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                    ?.lastRelease
-                    ? t('catalog.techStacks.inactiveSince', {
-                        duration: humanizeTimeDiff(
-                          getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)!
-                            .lastRelease!,
-                          new Date().toISOString(),
-                        ),
-                      })
-                    : t('catalog.techStacks.inactive')
-                "
-              >
-                {{ t('catalog.techStacks.inactive') }}
+            </td>
+          </template>
+          <!-- Framework mode cells -->
+          <template v-else>
+            <td class="px-4 py-3 text-sm text-text">
+              {{ row.ts.language }}
+            </td>
+            <td class="px-4 py-3 text-sm text-text">
+              <TechBadge :name="row.ts.framework" :version="row.ts.frameworkVersion" size="sm" />
+            </td>
+            <td class="px-4 py-3 text-sm text-text-muted">
+              <span class="inline-flex items-center gap-1.5">
+                {{ row.ts.frameworkVersion || '—' }}
+                <span
+                  v-if="row.ts.maintenanceStatus === 'eol'"
+                  class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
+                  :title="
+                    row.ts.eolDate
+                      ? t('catalog.techStacks.unmaintainedSince', { date: row.ts.eolDate })
+                      : t('catalog.techStacks.unmaintainedNoDate')
+                  "
+                >
+                  {{ t('catalog.techStacks.unmaintained') }}
+                </span>
+                <span
+                  v-else-if="row.ts.maintenanceStatus === 'warning'"
+                  class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
+                >
+                  {{ t('catalog.techStacks.inactive') }}
+                </span>
               </span>
-            </span>
-          </td>
+            </td>
+          </template>
+          <!-- Shared LTS columns -->
           <td class="px-4 py-3 text-sm text-text-muted">
-            {{ getLtsInfo(row.ts.framework)?.latestLts ?? '—' }}
+            {{ row.ts.latestLts ?? '—' }}
           </td>
           <td class="px-4 py-3 text-sm">
-            <template
-              v-if="
-                getLtsInfo(row.ts.framework) &&
-                row.ts.frameworkVersion &&
-                getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)
-              "
+            <span
+              v-if="row.ts.ltsGap"
+              :class="{
+                'text-success': row.ts.maintenanceStatus === 'active',
+                'text-warning': row.ts.maintenanceStatus === 'warning',
+                'text-danger': row.ts.maintenanceStatus === 'eol',
+              }"
             >
-              <span
-                v-if="
-                  isVersionUpToDate(
-                    row.ts.frameworkVersion,
-                    getLtsInfo(row.ts.framework)!.latestLts,
-                  )
-                "
-                class="text-success"
-              >
-                {{ t('catalog.techStacks.upToDate') }}
-              </span>
-              <span
-                v-else-if="
-                  patchGap(row.ts.frameworkVersion, getLtsInfo(row.ts.framework)!.latestLts) !==
-                  null
-                "
-                class="text-warning"
-              >
-                {{
-                  t('catalog.techStacks.patchesBehind', {
-                    count: patchGap(
-                      row.ts.frameworkVersion,
-                      getLtsInfo(row.ts.framework)!.latestLts,
-                    ),
-                  })
-                }}
-              </span>
-              <span
-                v-else
-                :class="{
-                  'text-success':
-                    ltsUrgency(
-                      getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                      getLtsInfo(row.ts.framework)!.releaseDate,
-                    ) === 'fresh',
-                  'text-warning':
-                    ltsUrgency(
-                      getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                      getLtsInfo(row.ts.framework)!.releaseDate,
-                    ) === 'moderate',
-                  'text-danger':
-                    ltsUrgency(
-                      getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                      getLtsInfo(row.ts.framework)!.releaseDate,
-                    ) === 'outdated',
-                }"
-              >
-                {{
-                  humanizeTimeDiff(
-                    getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion)!,
-                    getLtsInfo(row.ts.framework)!.releaseDate,
-                  )
-                }}
-              </span>
-            </template>
+              {{ row.ts.ltsGap }}
+            </span>
             <span v-else class="text-text-muted">—</span>
           </td>
           <td class="px-4 py-3 text-sm text-text-muted">
-            {{ getVersionReleaseDate(row.ts.framework, row.ts.frameworkVersion) ?? '—' }}
+            {{ row.ts.versionSyncedAt ?? '—' }}
           </td>
         </tr>
       </tbody>

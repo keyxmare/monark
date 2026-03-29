@@ -6,14 +6,6 @@ import { RouterLink, useRoute } from 'vue-router';
 import ProviderIcon from '@/catalog/components/ProviderIcon.vue';
 import TechStackFilters from '@/catalog/components/TechStackFilters.vue';
 import TechStackTable from '@/catalog/components/TechStackTable.vue';
-import {
-  humanizeMs,
-  humanizeTimeDiff,
-  isVersionUpToDate,
-  msUrgency,
-  patchGap,
-  useFrameworkLts,
-} from '@/catalog/composables/useFrameworkLts';
 import { useSyncProgress } from '@/catalog/composables/useSyncProgress';
 import { useTechStackGrouping } from '@/catalog/composables/useTechStackGrouping';
 import { exportTechStacksPdf } from '@/catalog/services/techStackPdfExport';
@@ -25,12 +17,10 @@ import Pagination from '@/shared/components/Pagination.vue';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
 const route = useRoute();
-const { d, t } = useI18n();
+const { t } = useI18n();
 const techStackStore = useTechStackStore();
 const projectStore = useProjectStore();
 const providerStore = useProviderStore();
-const { getLtsInfo, getVersionMaintenanceStatus, getVersionReleaseDate, loadForFrameworks } =
-  useFrameworkLts();
 const { track } = useSyncProgress();
 const syncing = ref(false);
 
@@ -56,12 +46,13 @@ const techStacks = computed(() => techStackStore.techStacks);
 
 const {
   availableFrameworks,
+  availableLanguages,
   availableProviders,
   filteredStacks,
   filterFramework,
+  filterLanguage,
   filterProvider,
   filterStatus,
-  gapStats,
   groupBy,
   groupedStacks,
   healthScore,
@@ -69,11 +60,8 @@ const {
   search,
   sortIndicator,
   toggleSort,
+  viewMode,
 } = useTechStackGrouping({
-  getLtsInfo,
-  getVersionMaintenanceStatus,
-  getVersionReleaseDate,
-  isVersionUpToDate,
   projectMap,
   providerMap,
   techStacks,
@@ -85,10 +73,6 @@ onMounted(async () => {
     projectStore.fetchAll(1, 200),
     providerStore.fetchAll(1, 50),
   ]);
-  const frameworks = techStackStore.techStacks
-    .map((ts) => ts.framework)
-    .filter((f) => f && f !== 'none');
-  await loadForFrameworks(frameworks);
 });
 
 function changePage(page: number) {
@@ -107,13 +91,14 @@ function exportCsv() {
   ];
   const rows = filteredStacks.value.map((ts) => {
     const projName = projectMap.value.get(ts.projectId)?.name ?? ts.projectId;
-    const lts = getLtsInfo(ts.framework)?.latestLts ?? '';
-    const releaseDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
-    const ltsDate = getLtsInfo(ts.framework)?.releaseDate;
-    const gap = releaseDate && ltsDate ? humanizeTimeDiff(releaseDate, ltsDate) : '';
-    const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
+    const lts = ts.latestLts ?? '';
+    const gap = ts.ltsGap ?? '';
     const statusLabel =
-      status?.status === 'eol' ? 'Non maintenu' : status?.status === 'warning' ? 'Inactif' : 'OK';
+      ts.maintenanceStatus === 'eol'
+        ? 'Non maintenu'
+        : ts.maintenanceStatus === 'warning'
+          ? 'Inactif'
+          : 'OK';
     return [projName, ts.language, ts.framework, ts.frameworkVersion, lts, gap, statusLabel];
   });
 
@@ -130,29 +115,12 @@ function exportCsv() {
 function exportPdf() {
   const rows = filteredStacks.value.map((ts) => {
     const projName = projectMap.value.get(ts.projectId)?.name ?? ts.projectId;
-    const lts = getLtsInfo(ts.framework)?.latestLts ?? '';
-    const releaseDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion) ?? '';
-    const info = getLtsInfo(ts.framework);
-    let gap = '—';
+    const lts = ts.latestLts ?? '';
+    const gap = ts.ltsGap ?? '—';
     let status = 'OK';
 
-    if (info && ts.frameworkVersion) {
-      if (isVersionUpToDate(ts.frameworkVersion, info.latestLts)) {
-        gap = 'À jour';
-      } else {
-        const pg = patchGap(ts.frameworkVersion, info.latestLts);
-        if (pg !== null) {
-          gap = `${pg} patch(es)`;
-        } else {
-          const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
-          if (vDate) gap = humanizeTimeDiff(vDate, info.releaseDate);
-        }
-      }
-    }
-
-    const maintenance = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
-    if (maintenance?.status === 'eol') status = 'Non maintenu';
-    else if (maintenance?.status === 'warning') status = 'Inactif';
+    if (ts.maintenanceStatus === 'eol') status = 'Non maintenu';
+    else if (ts.maintenanceStatus === 'warning') status = 'Inactif';
 
     return {
       framework: ts.framework,
@@ -160,20 +128,13 @@ function exportPdf() {
       latestLts: lts,
       ltsGap: gap,
       project: projName,
-      releaseDate,
+      releaseDate: ts.versionSyncedAt ?? '',
       status,
       version: ts.frameworkVersion,
     };
   });
 
-  const gapData = gapStats.value
-    ? {
-        average: humanizeMs(gapStats.value.average),
-        cumulated: humanizeMs(gapStats.value.cumulated),
-        median: humanizeMs(gapStats.value.median),
-      }
-    : null;
-  exportTechStacksPdf(rows, healthScore.value, providerAggregates.value, gapData);
+  exportTechStacksPdf(rows, healthScore.value, providerAggregates.value, null);
 }
 
 function handleExport(format: 'csv' | 'pdf') {
@@ -223,6 +184,24 @@ async function handleSyncAll() {
             {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
           </button>
         </div>
+      </div>
+
+      <!-- View mode tabs -->
+      <div class="mb-6 flex border-b border-border" data-testid="tech-stack-view-tabs">
+        <button
+          v-for="mode in ['languages', 'frameworks'] as const"
+          :key="mode"
+          :class="
+            viewMode === mode
+              ? 'border-b-2 border-primary text-primary'
+              : 'border-b-2 border-transparent text-text-muted hover:text-text'
+          "
+          class="px-4 py-2 text-sm font-medium transition-colors"
+          :data-testid="`tech-stack-tab-${mode}`"
+          @click="viewMode = mode"
+        >
+          {{ t(`catalog.techStacks.tab${mode.charAt(0).toUpperCase() + mode.slice(1)}`) }}
+        </button>
       </div>
 
       <div
@@ -277,55 +256,6 @@ async function handleSyncAll() {
           </div>
         </div>
 
-        <!-- Gap stats -->
-        <div v-if="gapStats" class="mb-6 grid grid-cols-3 gap-4" data-testid="gap-stats">
-          <div class="rounded-xl border border-border bg-surface p-4 text-center">
-            <p class="text-xs text-text-muted">
-              {{ t('catalog.techStacks.gapCumulated') }}
-            </p>
-            <p
-              :class="{
-                'text-success': msUrgency(gapStats.cumulated) === 'fresh',
-                'text-warning': msUrgency(gapStats.cumulated) === 'moderate',
-                'text-danger': msUrgency(gapStats.cumulated) === 'outdated',
-              }"
-              class="mt-1 text-lg font-bold"
-            >
-              {{ humanizeMs(gapStats.cumulated) }}
-            </p>
-          </div>
-          <div class="rounded-xl border border-border bg-surface p-4 text-center">
-            <p class="text-xs text-text-muted">
-              {{ t('catalog.techStacks.gapAverage') }}
-            </p>
-            <p
-              :class="{
-                'text-success': msUrgency(gapStats.average) === 'fresh',
-                'text-warning': msUrgency(gapStats.average) === 'moderate',
-                'text-danger': msUrgency(gapStats.average) === 'outdated',
-              }"
-              class="mt-1 text-lg font-bold"
-            >
-              {{ humanizeMs(gapStats.average) }}
-            </p>
-          </div>
-          <div class="rounded-xl border border-border bg-surface p-4 text-center">
-            <p class="text-xs text-text-muted">
-              {{ t('catalog.techStacks.gapMedian') }}
-            </p>
-            <p
-              :class="{
-                'text-success': msUrgency(gapStats.median) === 'fresh',
-                'text-warning': msUrgency(gapStats.median) === 'moderate',
-                'text-danger': msUrgency(gapStats.median) === 'outdated',
-              }"
-              class="mt-1 text-lg font-bold"
-            >
-              {{ humanizeMs(gapStats.median) }}
-            </p>
-          </div>
-        </div>
-
         <!-- Provider aggregates -->
         <div
           v-if="providerAggregates.length > 0"
@@ -364,12 +294,6 @@ async function handleSyncAll() {
                     {{ fw.min }}
                   </template>
                   <template v-else> {{ fw.min }} → {{ fw.max }} </template>
-                  <span
-                    v-if="getVersionMaintenanceStatus(fw.name, fw.min)?.status === 'eol'"
-                    class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
-                  >
-                    {{ t('catalog.techStacks.unmaintained') }}
-                  </span>
                 </span>
               </div>
             </div>
@@ -379,11 +303,14 @@ async function handleSyncAll() {
         <TechStackFilters
           v-model:search="search"
           v-model:filter-framework="filterFramework"
+          v-model:filter-language="filterLanguage"
           v-model:filter-provider="filterProvider"
           v-model:filter-status="filterStatus"
           v-model:group-by="groupBy"
           :available-frameworks="availableFrameworks"
+          :available-languages="availableLanguages"
           :available-providers="availableProviders"
+          :view-mode="viewMode"
         />
 
         <TechStackTable
@@ -391,6 +318,7 @@ async function handleSyncAll() {
           :group-by="groupBy"
           :grouped-stacks="groupedStacks"
           :sort-indicator="sortIndicator"
+          :view-mode="viewMode"
           @sort="toggleSort"
         />
 

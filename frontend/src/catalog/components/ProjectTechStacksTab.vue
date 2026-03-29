@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import {
-  humanizeTimeDiff,
-  isVersionUpToDate,
-  ltsUrgency,
-  patchGap,
-  useFrameworkLts,
-} from '@/catalog/composables/useFrameworkLts';
 import { useTechStackStore } from '@/catalog/stores/tech-stack';
 import Pagination from '@/shared/components/Pagination.vue';
 
@@ -18,15 +11,9 @@ const props = defineProps<{ projectId: string }>();
 
 const { t } = useI18n();
 const techStackStore = useTechStackStore();
-const { getLtsInfo, getVersionMaintenanceStatus, getVersionReleaseDate, loadForFrameworks } =
-  useFrameworkLts();
 
 onMounted(async () => {
   await techStackStore.fetchAll(1, PER_PAGE, props.projectId);
-  const frameworks = techStackStore.techStacks
-    .map((ts) => ts.framework)
-    .filter((f) => f && f !== 'none');
-  await loadForFrameworks(frameworks);
 });
 
 function changeTechStackPage(page: number) {
@@ -59,7 +46,7 @@ function changeTechStackPage(page: number) {
               {{ t('catalog.techStacks.ltsGap') }}
             </th>
             <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-              {{ t('catalog.techStacks.releasedAt') }}
+              {{ t('catalog.techStacks.syncedAt') }}
             </th>
           </tr>
         </thead>
@@ -83,16 +70,11 @@ function changeTechStackPage(page: number) {
               <span class="inline-flex items-center gap-1.5">
                 {{ ts.frameworkVersion || '—' }}
                 <span
-                  v-if="
-                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status === 'eol'
-                  "
+                  v-if="ts.maintenanceStatus === 'eol'"
                   class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
                   :title="
-                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.eolDate
-                      ? t('catalog.techStacks.unmaintainedSince', {
-                          date: getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!
-                            .eolDate!,
-                        })
+                    ts.eolDate
+                      ? t('catalog.techStacks.unmaintainedSince', { date: ts.eolDate })
                       : t('catalog.techStacks.unmaintainedNoDate')
                   "
                   data-testid="tech-stack-eol-badge"
@@ -100,22 +82,8 @@ function changeTechStackPage(page: number) {
                   {{ t('catalog.techStacks.unmaintained') }}
                 </span>
                 <span
-                  v-else-if="
-                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status ===
-                    'warning'
-                  "
+                  v-else-if="ts.maintenanceStatus === 'warning'"
                   class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
-                  :title="
-                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.lastRelease
-                      ? t('catalog.techStacks.inactiveSince', {
-                          duration: humanizeTimeDiff(
-                            getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!
-                              .lastRelease!,
-                            new Date().toISOString(),
-                          ),
-                        })
-                      : t('catalog.techStacks.inactive')
-                  "
                   data-testid="tech-stack-inactive-badge"
                 >
                   {{ t('catalog.techStacks.inactive') }}
@@ -123,66 +91,23 @@ function changeTechStackPage(page: number) {
               </span>
             </td>
             <td class="px-4 py-3 text-sm text-text-muted">
-              {{ getLtsInfo(ts.framework)?.latestLts ?? '—' }}
+              {{ ts.latestLts ?? '—' }}
             </td>
             <td class="px-4 py-3 text-sm">
-              <template
-                v-if="
-                  getLtsInfo(ts.framework) &&
-                  ts.frameworkVersion &&
-                  getVersionReleaseDate(ts.framework, ts.frameworkVersion)
-                "
+              <span
+                v-if="ts.ltsGap"
+                :class="{
+                  'text-success': ts.maintenanceStatus === 'active',
+                  'text-warning': ts.maintenanceStatus === 'warning',
+                  'text-danger': ts.maintenanceStatus === 'eol',
+                }"
               >
-                <span
-                  v-if="isVersionUpToDate(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts)"
-                  class="text-success"
-                >
-                  {{ t('catalog.techStacks.upToDate') }}
-                </span>
-                <span
-                  v-else-if="
-                    patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) !== null
-                  "
-                  class="text-warning"
-                >
-                  {{
-                    t('catalog.techStacks.patchesBehind', {
-                      count: patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts),
-                    })
-                  }}
-                </span>
-                <span
-                  v-else
-                  :class="{
-                    'text-success':
-                      ltsUrgency(
-                        getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
-                        getLtsInfo(ts.framework)!.releaseDate,
-                      ) === 'fresh',
-                    'text-warning':
-                      ltsUrgency(
-                        getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
-                        getLtsInfo(ts.framework)!.releaseDate,
-                      ) === 'moderate',
-                    'text-danger':
-                      ltsUrgency(
-                        getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
-                        getLtsInfo(ts.framework)!.releaseDate,
-                      ) === 'outdated',
-                  }"
-                >
-                  {{
-                    humanizeTimeDiff(
-                      getVersionReleaseDate(ts.framework, ts.frameworkVersion)!,
-                      getLtsInfo(ts.framework)!.releaseDate,
-                    )
-                  }}
-                </span>
-              </template>
+                {{ ts.ltsGap }}
+              </span>
               <span v-else class="text-text-muted">—</span>
             </td>
             <td class="px-4 py-3 text-sm text-text-muted">
-              {{ getVersionReleaseDate(ts.framework, ts.frameworkVersion) ?? '—' }}
+              {{ ts.versionSyncedAt ?? '—' }}
             </td>
           </tr>
         </tbody>

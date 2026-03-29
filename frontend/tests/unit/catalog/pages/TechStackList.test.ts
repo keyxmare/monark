@@ -77,20 +77,6 @@ vi.mock('@/catalog/stores/provider', () => ({
   })),
 }));
 
-vi.mock('@/catalog/composables/useFrameworkLts', () => ({
-  humanizeMs: vi.fn(() => '0d'),
-  humanizeTimeDiff: vi.fn(() => '0d'),
-  isVersionUpToDate: vi.fn(() => true),
-  msUrgency: vi.fn(() => 'fresh'),
-  patchGap: vi.fn(() => null),
-  useFrameworkLts: () => ({
-    getLtsInfo: vi.fn(() => null),
-    getVersionMaintenanceStatus: vi.fn(() => null),
-    getVersionReleaseDate: vi.fn(() => null),
-    loadForFrameworks: vi.fn(),
-  }),
-}));
-
 vi.mock('@/catalog/composables/useSyncProgress', () => ({
   useSyncProgress: () => ({
     track: vi.fn(),
@@ -105,7 +91,6 @@ vi.mock('@/catalog/composables/useTechStackGrouping', () => ({
     filterProvider: '',
     filterStatus: '',
     filteredStacks: { value: [] },
-    gapStats: { value: null },
     groupBy: 'none',
     groupedStacks: { value: new Map() },
     healthScore: { value: null },

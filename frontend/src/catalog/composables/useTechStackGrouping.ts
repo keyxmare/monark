@@ -4,8 +4,9 @@ import { computed, ref } from 'vue';
 
 import type { TechStack } from '@/catalog/types/tech-stack';
 
-export type GroupBy = 'framework' | 'project' | 'provider';
-export type SortField = 'framework' | 'frameworkVersion' | 'ltsGap' | 'project';
+export type ViewMode = 'frameworks' | 'languages';
+export type GroupBy = 'framework' | 'language' | 'project' | 'provider';
+export type SortField = 'framework' | 'frameworkVersion' | 'language' | 'languageVersion' | 'ltsGap' | 'project';
 
 export interface GroupedStack {
   groupIndex: number;
@@ -34,22 +35,7 @@ export interface ProviderInfo {
   type: string;
 }
 
-export interface LtsInfoResult {
-  latestLts: string;
-  releaseDate: string;
-}
-
-export interface MaintenanceResult {
-  eolDate?: string | null;
-  lastRelease?: string | null;
-  status: 'active' | 'eol' | 'warning';
-}
-
 export interface UseTechStackGroupingOptions {
-  getLtsInfo: (framework: string) => LtsInfoResult | null;
-  getVersionMaintenanceStatus: (framework: string, version: string) => MaintenanceResult | null;
-  getVersionReleaseDate: (framework: string, version: string) => string | null;
-  isVersionUpToDate: (version: string, latest: string) => boolean;
   projectMap: Ref<Map<string, ProjectInfo>>;
   providerMap: Ref<Map<string, ProviderInfo>>;
   techStacks: Ref<TechStack[]>;
@@ -57,17 +43,15 @@ export interface UseTechStackGroupingOptions {
 
 export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
   const {
-    getLtsInfo,
-    getVersionMaintenanceStatus,
-    getVersionReleaseDate,
-    isVersionUpToDate,
     projectMap,
     providerMap,
     techStacks,
   } = options;
 
+  const viewMode = ref<ViewMode>('frameworks');
   const search = ref('');
   const filterFramework = ref('');
+  const filterLanguage = ref('');
   const filterProvider = ref('');
   const filterStatus = ref('');
   const groupBy = ref<GroupBy>('project');
@@ -96,11 +80,15 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
     return [...set].sort();
   });
 
-  const availableProviders = computed(() => {
-    const set = new Map<string, string>();
-    for (const p of providerMap.value.values()) {
-      set.set(p.name, p.name);
+  const availableLanguages = computed(() => {
+    const set = new Set<string>();
+    for (const ts of techStacks.value) {
+      if (ts.language) set.add(ts.language);
     }
+    return [...set].sort();
+  });
+
+  const availableProviders = computed(() => {
     const result: { id: string; name: string }[] = [];
     for (const [id, info] of providerMap.value.entries()) {
       result.push({ id, name: info.name });
@@ -113,19 +101,19 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
       if (search.value) {
         const q = search.value.toLowerCase();
         const projName = projectMap.value.get(ts.projectId)?.name ?? '';
-        if (!projName.toLowerCase().includes(q) && !ts.framework.toLowerCase().includes(q))
-          return false;
+        const target =
+          viewMode.value === 'languages' ? ts.language.toLowerCase() : ts.framework.toLowerCase();
+        if (!projName.toLowerCase().includes(q) && !target.includes(q)) return false;
       }
       if (filterFramework.value && ts.framework !== filterFramework.value) return false;
+      if (filterLanguage.value && ts.language !== filterLanguage.value) return false;
       if (filterProvider.value) {
         const proj = projectMap.value.get(ts.projectId);
         if (proj?.providerId !== filterProvider.value) return false;
       }
       if (filterStatus.value) {
-        const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
-        if (filterStatus.value === 'eol' && status?.status !== 'eol') return false;
-        if (filterStatus.value === 'warning' && status?.status !== 'warning') return false;
-        if (filterStatus.value === 'active' && status?.status !== 'active') return false;
+        const status = ts.maintenanceStatus;
+        if (filterStatus.value !== status) return false;
       }
       return true;
     });
@@ -189,9 +177,9 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
     let warning = 0;
 
     for (const ts of stacks) {
-      const status = getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion);
-      if (status?.status === 'eol') eol++;
-      else if (status?.status === 'warning') warning++;
+      const status = ts.maintenanceStatus;
+      if (status === 'eol') eol++;
+      else if (status === 'warning') warning++;
       else active++;
     }
 
@@ -204,36 +192,9 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
     };
   });
 
-  const gapStats = computed(() => {
-    const gaps: number[] = [];
-
-    for (const ts of filteredStacks.value) {
-      const info = getLtsInfo(ts.framework);
-      if (!info || !ts.frameworkVersion) continue;
-      if (isVersionUpToDate(ts.frameworkVersion, info.latestLts)) continue;
-
-      const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
-      if (!vDate) continue;
-
-      const gapMs = Math.abs(new Date(info.releaseDate).getTime() - new Date(vDate).getTime());
-      gaps.push(gapMs);
-    }
-
-    if (gaps.length === 0) return null;
-
-    const sorted = [...gaps].sort((a, b) => a - b);
-    const cumulated = gaps.reduce((s, g) => s + g, 0);
-    const average = cumulated / gaps.length;
-    const median =
-      sorted.length % 2 === 0
-        ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-        : sorted[Math.floor(sorted.length / 2)];
-
-    return { average, cumulated, median };
-  });
-
   function groupKey(ts: TechStack): string {
     if (groupBy.value === 'framework') return ts.framework;
+    if (groupBy.value === 'language') return ts.language;
     if (groupBy.value === 'provider') {
       const proj = projectMap.value.get(ts.projectId);
       return proj?.providerId ?? 'unknown';
@@ -242,7 +203,7 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
   }
 
   function groupLabel(key: string): string {
-    if (groupBy.value === 'framework') return key;
+    if (groupBy.value === 'framework' || groupBy.value === 'language') return key;
     if (groupBy.value === 'provider') {
       return providerMap.value.get(key)?.name ?? key;
     }
@@ -252,16 +213,13 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
   function worstGapForGroup(stacks: TechStack[]): number {
     let worst = -1;
     for (const ts of stacks) {
-      const vDate = getVersionReleaseDate(ts.framework, ts.frameworkVersion);
-      const ltsDate = getLtsInfo(ts.framework)?.releaseDate;
-      if (vDate && ltsDate) {
-        const ltsVersion = getLtsInfo(ts.framework)?.latestLts ?? '';
-        if (ltsVersion && isVersionUpToDate(ts.frameworkVersion, ltsVersion)) {
-          if (worst < 0) worst = 0;
-        } else {
-          const gap = new Date(ltsDate).getTime() - new Date(vDate).getTime();
-          if (gap > worst) worst = gap;
-        }
+      if (!ts.ltsGap) continue;
+      if (ts.maintenanceStatus === 'active') {
+        if (worst < 0) worst = 0;
+      } else {
+        // Use a simple ranking: eol > warning > active, mapped to numeric
+        const rank = ts.maintenanceStatus === 'eol' ? 2 : ts.maintenanceStatus === 'warning' ? 1 : 0;
+        if (rank > worst) worst = rank;
       }
     }
     return worst;
@@ -273,6 +231,10 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
         return stacks[0]?.framework?.toLowerCase() ?? '';
       case 'frameworkVersion':
         return stacks[0]?.frameworkVersion ?? '';
+      case 'language':
+        return stacks[0]?.language?.toLowerCase() ?? '';
+      case 'languageVersion':
+        return stacks[0]?.version ?? '';
       case 'ltsGap':
         return worstGapForGroup(stacks);
       case 'project':
@@ -330,12 +292,13 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
 
   return {
     availableFrameworks,
+    availableLanguages,
     availableProviders,
     filterFramework,
+    filterLanguage,
     filterProvider,
     filteredStacks,
     filterStatus,
-    gapStats,
     groupBy,
     groupedStacks,
     healthScore,
@@ -345,5 +308,6 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
     sortField,
     sortIndicator,
     toggleSort,
+    viewMode,
   };
 }

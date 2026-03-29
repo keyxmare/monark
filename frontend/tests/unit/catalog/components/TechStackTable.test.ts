@@ -16,18 +16,6 @@ vi.mock('@/shared/components/TechBadge.vue', () => ({
   },
 }));
 
-vi.mock('@/catalog/composables/useFrameworkLts', () => ({
-  humanizeTimeDiff: () => '6 months',
-  isVersionUpToDate: () => false,
-  ltsUrgency: () => 'moderate',
-  patchGap: () => null,
-  useFrameworkLts: () => ({
-    getLtsInfo: () => null,
-    getVersionMaintenanceStatus: () => null,
-    getVersionReleaseDate: () => null,
-  }),
-}));
-
 import type { GroupedStack } from '@/catalog/composables/useTechStackGrouping';
 
 import TechStackTable from '@/catalog/components/TechStackTable.vue';
@@ -48,6 +36,11 @@ function createGroupedStack(overrides?: Partial<GroupedStack>): GroupedStack {
       detectedAt: '2025-01-01T00:00:00+00:00',
       projectId: 'project-1',
       createdAt: '2025-01-01T00:00:00+00:00',
+      latestLts: null,
+      ltsGap: null,
+      maintenanceStatus: null,
+      eolDate: null,
+      versionSyncedAt: null,
     },
     ...overrides,
   };
@@ -58,6 +51,7 @@ describe('TechStackTable', () => {
     groupBy: 'project' as const,
     groupedStacks: [createGroupedStack()],
     sortIndicator: () => '',
+    viewMode: 'frameworks' as const,
   };
 
   beforeEach(() => {

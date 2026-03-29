@@ -12,19 +12,6 @@ vi.mock('@/shared/components/Pagination.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/catalog/composables/useFrameworkLts', () => ({
-  humanizeTimeDiff: () => '6 months',
-  isVersionUpToDate: () => false,
-  ltsUrgency: () => 'moderate',
-  patchGap: () => null,
-  useFrameworkLts: () => ({
-    getLtsInfo: () => null,
-    getVersionMaintenanceStatus: () => null,
-    getVersionReleaseDate: () => null,
-    loadForFrameworks: vi.fn().mockResolvedValue(undefined),
-  }),
-}));
-
 const mockFetchAll = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 
