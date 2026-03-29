@@ -241,6 +241,25 @@ jobs:
               \"mutationScore\": null
             }"
 
+  e2e:
+    name: E2E Tests
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp docker/.env.example docker/.env
+      - run: ${{ env.DC }} up -d
+      - run: ${{ env.DC }} exec -T frontend pnpm install
+      - run: ${{ env.DC }} exec -T frontend pnpm playwright install --with-deps
+      - name: Run E2E tests
+        run: ${{ env.DC }} exec -T frontend pnpm e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/e2e/playwright-report/
+          retention-days: 7
+
   build:
     name: Build Production
     runs-on: ubuntu-latest
