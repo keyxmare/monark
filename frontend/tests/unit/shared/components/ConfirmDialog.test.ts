@@ -70,4 +70,17 @@ describe('ConfirmDialog', () => {
     const btn = wrapper.find('[data-testid="confirm-dialog-confirm"]');
     expect(btn.classes()).toContain('bg-danger');
   });
+
+  it('has aria-labelledby and aria-describedby on dialog', () => {
+    const wrapper = mountDialog();
+    const dialog = wrapper.find('[data-testid="confirm-dialog"]');
+    expect(dialog.attributes('aria-labelledby')).toBe('confirm-title');
+    expect(dialog.attributes('aria-describedby')).toBe('confirm-message');
+  });
+
+  it('has id attributes on title and message elements', () => {
+    const wrapper = mountDialog();
+    expect(wrapper.find('#confirm-title').exists()).toBe(true);
+    expect(wrapper.find('#confirm-message').exists()).toBe(true);
+  });
 });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const props = withDefaults(
@@ -33,6 +33,11 @@ watch(
   (isOpen) => {
     if (isOpen) {
       dialogRef.value?.showModal();
+      nextTick(() => {
+        dialogRef.value
+          ?.querySelector<HTMLButtonElement>('[data-testid=confirm-dialog-cancel]')
+          ?.focus();
+      });
     } else {
       dialogRef.value?.close();
     }
@@ -52,15 +57,17 @@ function handleConfirm() {
   <Teleport to="body">
     <dialog
       ref="dialogRef"
+      aria-describedby="confirm-message"
+      aria-labelledby="confirm-title"
       class="m-auto max-w-md rounded-xl border border-border bg-surface p-0 shadow-xl backdrop:bg-black/50"
       data-testid="confirm-dialog"
       @cancel.prevent="handleCancel"
     >
       <form v-if="open" method="dialog" class="p-6" @submit.prevent="handleConfirm">
-        <h3 class="mb-2 text-lg font-semibold text-text" data-testid="confirm-dialog-title">
+        <h3 id="confirm-title" class="mb-2 text-lg font-semibold text-text" data-testid="confirm-dialog-title">
           {{ title ?? t('common.confirm.title') }}
         </h3>
-        <p class="mb-6 text-sm text-text-muted" data-testid="confirm-dialog-message">
+        <p id="confirm-message" class="mb-6 text-sm text-text-muted" data-testid="confirm-dialog-message">
           <slot>{{ message ?? t('common.confirm.deleteMessage') }}</slot>
         </p>
         <div class="flex justify-end gap-3">

@@ -77,4 +77,33 @@ describe('DropdownMenu', () => {
     await wrapper.find('[data-testid="dropdown-item-edit"]').trigger('click');
     expect(wrapper.find('[data-testid="dropdown-panel"]').exists()).toBe(false);
   });
+
+  it('ArrowDown moves focus to next item', async () => {
+    const wrapper = mountMenu();
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    await wrapper.vm.$nextTick();
+    const panel = wrapper.find('[data-testid="dropdown-panel"]');
+    await panel.trigger('keydown', { key: 'ArrowDown' });
+    await wrapper.vm.$nextTick();
+    expect(document.activeElement?.getAttribute('data-testid')).toBe('dropdown-item-delete');
+  });
+
+  it('ArrowUp wraps to last item from first', async () => {
+    const wrapper = mountMenu();
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    await wrapper.vm.$nextTick();
+    const panel = wrapper.find('[data-testid="dropdown-panel"]');
+    await panel.trigger('keydown', { key: 'ArrowUp' });
+    await wrapper.vm.$nextTick();
+    expect(document.activeElement?.getAttribute('data-testid')).toBe('dropdown-item-archive');
+  });
+
+  it('Enter selects focused item', async () => {
+    const wrapper = mountMenu();
+    await wrapper.find('[data-testid="dropdown-trigger"]').trigger('click');
+    await wrapper.vm.$nextTick();
+    const panel = wrapper.find('[data-testid="dropdown-panel"]');
+    await panel.trigger('keydown', { key: 'Enter' });
+    expect(wrapper.emitted('select')?.[0]).toEqual(['edit']);
+  });
 });
