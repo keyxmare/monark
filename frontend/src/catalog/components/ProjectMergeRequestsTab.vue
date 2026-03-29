@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useMergeRequestStore } from '@/catalog/stores/merge-request';
 import Pagination from '@/shared/components/Pagination.vue';
+import { MergeRequestState } from '@/shared/types/enums';
 
 const PER_PAGE = 20;
 
@@ -124,10 +125,10 @@ function changeMergeRequestPage(page: number) {
                 :class="[
                   'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
                   {
-                    'bg-success/10 text-success': mr.status === 'open',
-                    'bg-info/10 text-info': mr.status === 'merged',
-                    'bg-danger/10 text-danger': mr.status === 'closed',
-                    'bg-warning/10 text-warning': mr.status === 'draft',
+                    'bg-success/10 text-success': mr.status === MergeRequestState.Open,
+                    'bg-info/10 text-info': mr.status === MergeRequestState.Merged,
+                    'bg-danger/10 text-danger': mr.status === MergeRequestState.Closed,
+                    'bg-warning/10 text-warning': mr.status === MergeRequestState.Draft,
                   },
                 ]"
                 data-testid="mr-status-badge"

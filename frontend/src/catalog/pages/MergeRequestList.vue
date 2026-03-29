@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router';
 
 import { useMergeRequestStore } from '@/catalog/stores/merge-request';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
+import { MergeRequestState } from '@/shared/types/enums';
 
 const route = useRoute();
 const { d, t } = useI18n();
@@ -18,10 +19,10 @@ const authorFilter = ref('');
 
 const statusOptions = [
   { label: t('catalog.mergeRequests.statusActive'), value: 'active' },
-  { label: t('catalog.mergeRequests.statusOpen'), value: 'open' },
-  { label: t('catalog.mergeRequests.statusDraft'), value: 'draft' },
-  { label: t('catalog.mergeRequests.statusMerged'), value: 'merged' },
-  { label: t('catalog.mergeRequests.statusClosed'), value: 'closed' },
+  { label: t('catalog.mergeRequests.statusOpen'), value: MergeRequestState.Open },
+  { label: t('catalog.mergeRequests.statusDraft'), value: MergeRequestState.Draft },
+  { label: t('catalog.mergeRequests.statusMerged'), value: MergeRequestState.Merged },
+  { label: t('catalog.mergeRequests.statusClosed'), value: MergeRequestState.Closed },
   { label: t('catalog.mergeRequests.allStatuses'), value: '' },
 ];
 

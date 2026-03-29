@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import type { SyncJobProgress } from '@/catalog/services/provider.service';
 import { useMercure } from '@/shared/composables/useMercure';
 import { useToastStore } from '@/shared/stores/toast';
+import { SyncStatus } from '@/shared/types/enums';
 
 export function useSyncProgress() {
   const { t } = useI18n();
@@ -18,7 +19,7 @@ export function useSyncProgress() {
 
     const { data, close } = useMercure<SyncJobProgress>(`/sync-jobs/${syncJobId}`, {
       onMessage(progress) {
-        if (progress.status === 'completed') {
+        if (progress.status === SyncStatus.Completed) {
           toastStore.updateToast(toastId, {
             variant: 'success',
             title: t('catalog.providers.syncAll'),
@@ -27,7 +28,7 @@ export function useSyncProgress() {
             duration: 5000,
           });
           close();
-        } else if (progress.status === 'failed') {
+        } else if (progress.status === SyncStatus.Failed) {
           toastStore.updateToast(toastId, {
             variant: 'error',
             title: t('catalog.providers.syncAll'),

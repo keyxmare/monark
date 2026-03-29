@@ -2,6 +2,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useMercure } from '@/shared/composables/useMercure';
 import { useToastStore } from '@/shared/stores/toast';
+import { SyncStatus } from '@/shared/types/enums';
 
 interface DependencySyncProgress {
   syncId: string;
@@ -43,7 +44,7 @@ export function useDependencySyncProgress() {
       onMessage(progress) {
         resetTimeout();
 
-        if (progress.status === 'completed') {
+        if (progress.status === SyncStatus.Completed) {
           if (timeoutHandle) clearTimeout(timeoutHandle);
           toastStore.updateToast(toastId, {
             variant: 'success',

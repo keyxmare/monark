@@ -7,6 +7,7 @@ import type { MessengerStats } from '@/activity/types/messenger';
 import { useMessengerStore } from '@/activity/stores/messenger';
 import { useMercure } from '@/shared/composables/useMercure';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
+import { SyncStatus } from '@/shared/types/enums';
 
 const { t } = useI18n();
 const messengerStore = useMessengerStore();
@@ -39,7 +40,7 @@ function queueHealthLabel(queue: { messages: number }): string {
 }
 
 function workerStateClass(state: string): string {
-  return state === 'running' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+  return state === SyncStatus.Running ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
 }
 
 onMounted(() => {
