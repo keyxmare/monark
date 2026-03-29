@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\Domain\Model;
 
+use App\Shared\Domain\ValueObject\Email;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -21,8 +22,8 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'uuid')]
     private Uuid $id;
 
-    #[ORM\Column(length: 180, unique: true)]
-    private string $email;
+    #[ORM\Column(type: 'app_email', length: 180, unique: true)]
+    private Email $email;
 
     #[ORM\Column]
     private string $password;
@@ -53,7 +54,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     /** @param list<string> $roles */
     private function __construct(
         Uuid $id,
-        string $email,
+        Email $email,
         string $password,
         string $firstName,
         string $lastName,
@@ -83,7 +84,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     ): self {
         return new self(
             id: Uuid::v7(),
-            email: $email,
+            email: new Email($email),
             password: $hashedPassword,
             firstName: $firstName,
             lastName: $lastName,
@@ -99,7 +100,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getEmail(): string
     {
-        return $this->email;
+        return $this->email->value();
     }
 
     public function getPassword(): string
@@ -150,9 +151,10 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     /** @return non-empty-string */
     public function getUserIdentifier(): string
     {
-        \assert($this->email !== '');
+        $email = $this->email->value();
+        \assert($email !== '');
 
-        return $this->email;
+        return $email;
     }
 
     public function eraseCredentials(): void
@@ -175,7 +177,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->avatar = $avatar;
         }
         if ($email !== null) {
-            $this->email = $email;
+            $this->email = new Email($email);
         }
         $this->updatedAt = new DateTimeImmutable();
     }

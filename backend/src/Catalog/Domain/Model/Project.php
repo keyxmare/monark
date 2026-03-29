@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use App\Shared\Domain\ValueObject\RepositoryUrl;
+use App\Shared\Domain\ValueObject\Slug;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,14 +24,14 @@ final class Project
     #[ORM\Column(length: 255)]
     private string $name;
 
-    #[ORM\Column(length: 255, unique: true)]
-    private string $slug;
+    #[ORM\Column(type: 'app_slug', length: 255, unique: true)]
+    private Slug $slug;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description;
 
-    #[ORM\Column(length: 500)]
-    private string $repositoryUrl;
+    #[ORM\Column(type: 'app_repository_url', length: 500)]
+    private RepositoryUrl $repositoryUrl;
 
     #[ORM\Column(length: 100)]
     private string $defaultBranch;
@@ -67,9 +69,9 @@ final class Project
     private function __construct(
         Uuid $id,
         string $name,
-        string $slug,
+        Slug $slug,
         ?string $description,
-        string $repositoryUrl,
+        RepositoryUrl $repositoryUrl,
         string $defaultBranch,
         ProjectVisibility $visibility,
         Uuid $ownerId,
@@ -107,9 +109,9 @@ final class Project
         return new self(
             id: Uuid::v7(),
             name: $name,
-            slug: $slug,
+            slug: new Slug($slug),
             description: $description,
-            repositoryUrl: $repositoryUrl,
+            repositoryUrl: new RepositoryUrl($repositoryUrl),
             defaultBranch: $defaultBranch,
             visibility: $visibility,
             ownerId: $ownerId,
@@ -130,7 +132,7 @@ final class Project
 
     public function getSlug(): string
     {
-        return $this->slug;
+        return $this->slug->value();
     }
 
     public function getDescription(): ?string
@@ -140,7 +142,7 @@ final class Project
 
     public function getRepositoryUrl(): string
     {
-        return $this->repositoryUrl;
+        return $this->repositoryUrl->value();
     }
 
     public function getDefaultBranch(): string
@@ -202,13 +204,13 @@ final class Project
             $this->name = $name;
         }
         if ($slug !== null) {
-            $this->slug = $slug;
+            $this->slug = new Slug($slug);
         }
         if ($description !== null) {
             $this->description = $description;
         }
         if ($repositoryUrl !== null) {
-            $this->repositoryUrl = $repositoryUrl;
+            $this->repositoryUrl = new RepositoryUrl($repositoryUrl);
         }
         if ($defaultBranch !== null) {
             $this->defaultBranch = $defaultBranch;

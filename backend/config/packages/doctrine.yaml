@@ -1,6 +1,10 @@
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
+        types:
+            app_email: App\Shared\Infrastructure\Persistence\Doctrine\Type\EmailType
+            app_slug: App\Shared\Infrastructure\Persistence\Doctrine\Type\SlugType
+            app_repository_url: App\Shared\Infrastructure\Persistence\Doctrine\Type\RepositoryUrlType
 
     orm:
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
