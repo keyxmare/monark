@@ -28,7 +28,7 @@ final readonly class DoctrineBuildMetricRepository implements BuildMetricReposit
         return $this->entityManager->getRepository(BuildMetric::class)
             ->createQueryBuilder('bm')
             ->andWhere('bm.projectId = :projectId')
-            ->setParameter('projectId', $projectId->toBinary())
+            ->setParameter('projectId', $projectId)
             ->orderBy('bm.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)
@@ -42,7 +42,7 @@ final readonly class DoctrineBuildMetricRepository implements BuildMetricReposit
             ->createQueryBuilder('bm')
             ->select('COUNT(bm.id)')
             ->andWhere('bm.projectId = :projectId')
-            ->setParameter('projectId', $projectId->toBinary())
+            ->setParameter('projectId', $projectId)
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -53,7 +53,7 @@ final readonly class DoctrineBuildMetricRepository implements BuildMetricReposit
         return $this->entityManager->getRepository(BuildMetric::class)
             ->createQueryBuilder('bm')
             ->andWhere('bm.projectId = :projectId')
-            ->setParameter('projectId', $projectId->toBinary())
+            ->setParameter('projectId', $projectId)
             ->orderBy('bm.createdAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()

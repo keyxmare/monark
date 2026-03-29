@@ -121,7 +121,7 @@ final readonly class DoctrineSyncTaskRepository implements SyncTaskRepositoryInt
             ->getResult();
 
         return \array_map(
-            static fn (array $row) => ['label' => (string) $row['label'], 'count' => (int) $row['count']],
+            static fn (array $row) => ['label' => $row['label'] instanceof \BackedEnum ? $row['label']->value : (string) $row['label'], 'count' => (int) $row['count']],
             $results,
         );
     }
