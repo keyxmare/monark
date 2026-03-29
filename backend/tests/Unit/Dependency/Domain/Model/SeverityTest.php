@@ -26,4 +26,29 @@ describe('Severity', function () {
     it('returns null for invalid value with tryFrom', function () {
         expect(Severity::tryFrom('unknown'))->toBeNull();
     });
+
+    it('compares severity with isHigherThan', function () {
+        expect(Severity::Critical->isHigherThan(Severity::High))->toBeTrue();
+        expect(Severity::High->isHigherThan(Severity::Medium))->toBeTrue();
+        expect(Severity::Medium->isHigherThan(Severity::Low))->toBeTrue();
+
+        expect(Severity::Low->isHigherThan(Severity::Medium))->toBeFalse();
+        expect(Severity::Medium->isHigherThan(Severity::High))->toBeFalse();
+        expect(Severity::High->isHigherThan(Severity::Critical))->toBeFalse();
+
+        expect(Severity::Critical->isHigherThan(Severity::Critical))->toBeFalse();
+        expect(Severity::Low->isHigherThan(Severity::Low))->toBeFalse();
+    });
+
+    it('ranks Critical as highest severity', function () {
+        expect(Severity::Critical->isHigherThan(Severity::Low))->toBeTrue();
+        expect(Severity::Critical->isHigherThan(Severity::Medium))->toBeTrue();
+        expect(Severity::Critical->isHigherThan(Severity::High))->toBeTrue();
+    });
+
+    it('ranks Low as lowest severity', function () {
+        expect(Severity::Low->isHigherThan(Severity::Medium))->toBeFalse();
+        expect(Severity::Low->isHigherThan(Severity::High))->toBeFalse();
+        expect(Severity::Low->isHigherThan(Severity::Critical))->toBeFalse();
+    });
 });

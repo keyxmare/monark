@@ -9,4 +9,5 @@ enum RegistryStatus: string
     case Pending = 'pending';
     case Synced = 'synced';
     case NotFound = 'not_found';
+    case Deprecated = 'deprecated';
 }
