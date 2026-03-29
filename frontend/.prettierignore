@@ -1,4 +1,5 @@
 dist
 coverage
 .pnpm-store
+.stryker-tmp
 pnpm-lock.yaml
