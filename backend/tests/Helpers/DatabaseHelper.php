@@ -13,6 +13,10 @@ trait DatabaseHelper
 
     protected function resetDatabase(): void
     {
+        if ($_SERVER['APP_ENV'] !== 'test' && $_ENV['APP_ENV'] !== 'test') {
+            throw new \RuntimeException('resetDatabase() must only run in the test environment. Set APP_ENV=test.');
+        }
+
         $em = $this->getEntityManager();
         $metadata = $em->getMetadataFactory()->getAllMetadata();
 
