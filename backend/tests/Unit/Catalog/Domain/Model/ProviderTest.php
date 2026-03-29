@@ -103,4 +103,28 @@ describe('Provider', function () {
         expect($provider->getStatus())->toBe(ProviderStatus::Error);
         expect($provider->getUpdatedAt())->not->toEqual($beforeUpdate);
     });
+
+    it('rejects blank name', function () {
+        expect(fn () => Provider::create(
+            name: '',
+            type: ProviderType::GitLab,
+            url: 'https://gitlab.com',
+        ))->toThrow(\InvalidArgumentException::class, 'name must not be blank');
+    });
+
+    it('rejects invalid url', function () {
+        expect(fn () => Provider::create(
+            name: 'Test',
+            type: ProviderType::GitLab,
+            url: 'not-a-url',
+        ))->toThrow(\InvalidArgumentException::class, 'URL must be a valid URL');
+    });
+
+    it('rejects empty url', function () {
+        expect(fn () => Provider::create(
+            name: 'Test',
+            type: ProviderType::GitLab,
+            url: '',
+        ))->toThrow(\InvalidArgumentException::class, 'URL must be a valid URL');
+    });
 });

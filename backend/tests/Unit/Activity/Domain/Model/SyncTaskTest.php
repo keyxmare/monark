@@ -224,4 +224,63 @@ describe('SyncTask', function () {
 
         expect($t1->getId()->equals($t2->getId()))->toBeFalse();
     });
+
+    it('rejects blank title', function () {
+        expect(fn () => SyncTask::create(
+            type: SyncTaskType::Vulnerability,
+            severity: SyncTaskSeverity::High,
+            title: '',
+            description: 'Some description',
+            metadata: [],
+            projectId: Uuid::v7(),
+        ))->toThrow(\InvalidArgumentException::class, 'title must not be blank');
+    });
+
+    it('rejects invalid status transition from resolved', function () {
+        $task = SyncTask::create(
+            type: SyncTaskType::Vulnerability,
+            severity: SyncTaskSeverity::High,
+            title: 'Test',
+            description: 'Desc',
+            metadata: [],
+            projectId: Uuid::v7(),
+        );
+
+        $task->changeStatus(SyncTaskStatus::Resolved);
+
+        expect(fn () => $task->changeStatus(SyncTaskStatus::Open))
+            ->toThrow(\InvalidArgumentException::class, 'Cannot transition SyncTask from "resolved" to "open"');
+    });
+
+    it('rejects invalid status transition from dismissed', function () {
+        $task = SyncTask::create(
+            type: SyncTaskType::Vulnerability,
+            severity: SyncTaskSeverity::High,
+            title: 'Test',
+            description: 'Desc',
+            metadata: [],
+            projectId: Uuid::v7(),
+        );
+
+        $task->changeStatus(SyncTaskStatus::Dismissed);
+
+        expect(fn () => $task->changeStatus(SyncTaskStatus::Acknowledged))
+            ->toThrow(\InvalidArgumentException::class, 'Cannot transition SyncTask from "dismissed" to "acknowledged"');
+    });
+
+    it('rejects transition from acknowledged back to open', function () {
+        $task = SyncTask::create(
+            type: SyncTaskType::Vulnerability,
+            severity: SyncTaskSeverity::High,
+            title: 'Test',
+            description: 'Desc',
+            metadata: [],
+            projectId: Uuid::v7(),
+        );
+
+        $task->changeStatus(SyncTaskStatus::Acknowledged);
+
+        expect(fn () => $task->changeStatus(SyncTaskStatus::Open))
+            ->toThrow(\InvalidArgumentException::class, 'Cannot transition SyncTask from "acknowledged" to "open"');
+    });
 });

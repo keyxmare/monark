@@ -59,6 +59,10 @@ final class SyncTask
         array $metadata,
         Uuid $projectId,
     ) {
+        if (trim($title) === '') {
+            throw new \InvalidArgumentException('SyncTask title must not be blank.');
+        }
+
         $this->id = $id;
         $this->type = $type;
         $this->severity = $severity;
@@ -107,8 +111,24 @@ final class SyncTask
         $this->updatedAt = new DateTimeImmutable();
     }
 
+    private const array ALLOWED_TRANSITIONS = [
+        'open' => ['acknowledged', 'resolved', 'dismissed'],
+        'acknowledged' => ['resolved', 'dismissed'],
+        'resolved' => [],
+        'dismissed' => [],
+    ];
+
     public function changeStatus(SyncTaskStatus $status): void
     {
+        $allowed = self::ALLOWED_TRANSITIONS[$this->status->value] ?? [];
+        if (!\in_array($status->value, $allowed, true)) {
+            throw new \InvalidArgumentException(\sprintf(
+                'Cannot transition SyncTask from "%s" to "%s".',
+                $this->status->value,
+                $status->value,
+            ));
+        }
+
         $this->status = $status;
         $this->updatedAt = new DateTimeImmutable();
 

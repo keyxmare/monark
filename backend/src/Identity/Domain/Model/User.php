@@ -61,6 +61,19 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         ?string $avatar,
         array $roles,
     ) {
+        if (trim($firstName) === '') {
+            throw new \InvalidArgumentException('User first name must not be blank.');
+        }
+        if (trim($lastName) === '') {
+            throw new \InvalidArgumentException('User last name must not be blank.');
+        }
+        if (trim($password) === '') {
+            throw new \InvalidArgumentException('User password must not be blank.');
+        }
+        if (!\in_array('ROLE_USER', $roles, true)) {
+            throw new \InvalidArgumentException('User roles must contain at least ROLE_USER.');
+        }
+
         $this->id = $id;
         $this->email = $email;
         $this->password = $password;

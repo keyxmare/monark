@@ -96,4 +96,19 @@ describe('Project', function () {
         expect($project->getLastSyncedAt())->toBeInstanceOf(\DateTimeImmutable::class);
         expect($project->getUpdatedAt())->not->toEqual($beforeUpdate);
     });
+
+    it('rejects blank name', function () {
+        expect(fn () => ProjectFactory::create(name: ''))
+            ->toThrow(\InvalidArgumentException::class, 'name must not be blank');
+    });
+
+    it('rejects whitespace-only name', function () {
+        expect(fn () => ProjectFactory::create(name: '   '))
+            ->toThrow(\InvalidArgumentException::class, 'name must not be blank');
+    });
+
+    it('rejects blank default branch', function () {
+        expect(fn () => ProjectFactory::create(defaultBranch: ''))
+            ->toThrow(\InvalidArgumentException::class, 'default branch must not be blank');
+    });
 });

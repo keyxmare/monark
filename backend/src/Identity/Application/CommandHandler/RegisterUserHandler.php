@@ -33,9 +33,10 @@ final readonly class RegisterUserHandler
             throw new class ('A user with this email already exists.') extends DomainException {};
         }
 
+        // Create with a temporary password; the hasher needs the UserInterface instance.
         $user = User::create(
             email: $input->email,
-            hashedPassword: '',
+            hashedPassword: 'temporary',
             firstName: $input->firstName,
             lastName: $input->lastName,
         );

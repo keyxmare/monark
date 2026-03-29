@@ -78,6 +78,13 @@ final class Project
         ?Provider $provider = null,
         ?string $externalId = null,
     ) {
+        if (trim($name) === '') {
+            throw new \InvalidArgumentException('Project name must not be blank.');
+        }
+        if (trim($defaultBranch) === '') {
+            throw new \InvalidArgumentException('Project default branch must not be blank.');
+        }
+
         $this->id = $id;
         $this->name = $name;
         $this->slug = $slug;

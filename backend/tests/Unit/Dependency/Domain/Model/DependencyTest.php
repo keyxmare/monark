@@ -142,4 +142,19 @@ describe('Dependency', function () {
         expect($dependency->getVulnerabilities())->toBeInstanceOf(\Doctrine\Common\Collections\Collection::class)
             ->toHaveCount(0);
     });
+
+    it('rejects blank name', function () {
+        expect(fn () => DependencyFactory::create(['name' => '']))
+            ->toThrow(\InvalidArgumentException::class, 'name must not be blank');
+    });
+
+    it('rejects whitespace-only name', function () {
+        expect(fn () => DependencyFactory::create(['name' => '   ']))
+            ->toThrow(\InvalidArgumentException::class, 'name must not be blank');
+    });
+
+    it('rejects blank current version', function () {
+        expect(fn () => DependencyFactory::create(['currentVersion' => '']))
+            ->toThrow(\InvalidArgumentException::class, 'current version must not be blank');
+    });
 });

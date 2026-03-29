@@ -69,4 +69,22 @@ describe('Notification', function () {
 
         expect($n1->getId()->equals($n2->getId()))->toBeFalse();
     });
+
+    it('rejects blank title', function () {
+        expect(fn () => Notification::create(
+            title: '',
+            message: 'Some message',
+            channel: NotificationChannel::InApp,
+            userId: 'user-1',
+        ))->toThrow(\InvalidArgumentException::class, 'title must not be blank');
+    });
+
+    it('rejects blank message', function () {
+        expect(fn () => Notification::create(
+            title: 'Some title',
+            message: '',
+            channel: NotificationChannel::InApp,
+            userId: 'user-1',
+        ))->toThrow(\InvalidArgumentException::class, 'message must not be blank');
+    });
 });

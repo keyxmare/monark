@@ -41,6 +41,13 @@ final class Notification
         NotificationChannel $channel,
         string $userId,
     ) {
+        if (trim($title) === '') {
+            throw new \InvalidArgumentException('Notification title must not be blank.');
+        }
+        if (trim($message) === '') {
+            throw new \InvalidArgumentException('Notification message must not be blank.');
+        }
+
         $this->id = $id;
         $this->title = $title;
         $this->message = $message;

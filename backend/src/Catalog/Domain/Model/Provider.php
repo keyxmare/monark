@@ -57,6 +57,13 @@ final class Provider
         ?string $apiToken,
         ?string $username = null,
     ) {
+        if (trim($name) === '') {
+            throw new \InvalidArgumentException('Provider name must not be blank.');
+        }
+        if (filter_var($url, \FILTER_VALIDATE_URL) === false) {
+            throw new \InvalidArgumentException('Provider URL must be a valid URL.');
+        }
+
         $this->id = $id;
         $this->name = $name;
         $this->type = $type;

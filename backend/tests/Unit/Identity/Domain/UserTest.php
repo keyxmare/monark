@@ -32,7 +32,7 @@ describe('User', function () {
             firstName: 'Admin',
             lastName: 'User',
             avatar: 'https://example.com/avatar.png',
-            roles: ['ROLE_ADMIN'],
+            roles: ['ROLE_USER', 'ROLE_ADMIN'],
         );
 
         expect($user->getAvatar())->toBe('https://example.com/avatar.png');
@@ -127,5 +127,51 @@ describe('User', function () {
         );
 
         expect($user->getId())->toBeInstanceOf(\Symfony\Component\Uid\Uuid::class);
+    });
+
+    it('rejects blank first name', function () {
+        expect(fn () => User::create(
+            email: 'test@example.com',
+            hashedPassword: 'hashed',
+            firstName: '',
+            lastName: 'Doe',
+        ))->toThrow(\InvalidArgumentException::class, 'first name must not be blank');
+    });
+
+    it('rejects whitespace-only first name', function () {
+        expect(fn () => User::create(
+            email: 'test@example.com',
+            hashedPassword: 'hashed',
+            firstName: '   ',
+            lastName: 'Doe',
+        ))->toThrow(\InvalidArgumentException::class, 'first name must not be blank');
+    });
+
+    it('rejects blank last name', function () {
+        expect(fn () => User::create(
+            email: 'test@example.com',
+            hashedPassword: 'hashed',
+            firstName: 'John',
+            lastName: '',
+        ))->toThrow(\InvalidArgumentException::class, 'last name must not be blank');
+    });
+
+    it('rejects blank password', function () {
+        expect(fn () => User::create(
+            email: 'test@example.com',
+            hashedPassword: '',
+            firstName: 'John',
+            lastName: 'Doe',
+        ))->toThrow(\InvalidArgumentException::class, 'password must not be blank');
+    });
+
+    it('rejects roles without ROLE_USER', function () {
+        expect(fn () => User::create(
+            email: 'test@example.com',
+            hashedPassword: 'hashed',
+            firstName: 'John',
+            lastName: 'Doe',
+            roles: ['ROLE_ADMIN'],
+        ))->toThrow(\InvalidArgumentException::class, 'roles must contain at least ROLE_USER');
     });
 });

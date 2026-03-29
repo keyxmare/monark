@@ -72,6 +72,13 @@ final class Dependency
         Uuid $projectId,
         ?string $repositoryUrl = null,
     ) {
+        if (trim($name) === '') {
+            throw new \InvalidArgumentException('Dependency name must not be blank.');
+        }
+        if (trim($currentVersion) === '') {
+            throw new \InvalidArgumentException('Dependency current version must not be blank.');
+        }
+
         $this->id = $id;
         $this->name = $name;
         $this->currentVersion = $currentVersion;
