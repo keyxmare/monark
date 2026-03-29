@@ -7,7 +7,16 @@ vi.mock('vue-i18n', () => ({
 
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
 
-function mountDialog(props: Partial<{ open: boolean; title: string; message: string; variant: 'danger' | 'default'; cancelLabel: string; confirmLabel: string }> = {}) {
+function mountDialog(
+  props: Partial<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant: 'danger' | 'default';
+    cancelLabel: string;
+    confirmLabel: string;
+  }> = {},
+) {
   return mount(ConfirmDialog, {
     props: { open: true, ...props },
     global: {
@@ -24,7 +33,9 @@ describe('ConfirmDialog', () => {
 
   it('shows default title from translation key', () => {
     const wrapper = mountDialog();
-    expect(wrapper.find('[data-testid="confirm-dialog-title"]').text()).toBe('common.confirm.title');
+    expect(wrapper.find('[data-testid="confirm-dialog-title"]').text()).toBe(
+      'common.confirm.title',
+    );
   });
 
   it('shows custom title', () => {
@@ -34,12 +45,16 @@ describe('ConfirmDialog', () => {
 
   it('shows custom message', () => {
     const wrapper = mountDialog({ message: 'This cannot be undone.' });
-    expect(wrapper.find('[data-testid="confirm-dialog-message"]').text()).toBe('This cannot be undone.');
+    expect(wrapper.find('[data-testid="confirm-dialog-message"]').text()).toBe(
+      'This cannot be undone.',
+    );
   });
 
   it('shows default message from translation key', () => {
     const wrapper = mountDialog();
-    expect(wrapper.find('[data-testid="confirm-dialog-message"]').text()).toBe('common.confirm.deleteMessage');
+    expect(wrapper.find('[data-testid="confirm-dialog-message"]').text()).toBe(
+      'common.confirm.deleteMessage',
+    );
   });
 
   it('emits cancel on cancel click', async () => {

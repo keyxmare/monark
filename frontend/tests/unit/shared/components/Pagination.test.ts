@@ -2,7 +2,10 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('vue-i18n', () => ({
-  useI18n: () => ({ t: (key: string, params?: Record<string, unknown>) => (params ? `${key} ${JSON.stringify(params)}` : key) }),
+  useI18n: () => ({
+    t: (key: string, params?: Record<string, unknown>) =>
+      params ? `${key} ${JSON.stringify(params)}` : key,
+  }),
 }));
 
 import Pagination from '@/shared/components/Pagination.vue';
@@ -19,7 +22,9 @@ describe('Pagination', () => {
 
   it('displays page info', () => {
     const wrapper = mountPagination({ page: 2, totalPages: 5 });
-    expect(wrapper.find('[data-testid="pagination-info"]').text()).toContain('common.pagination.page');
+    expect(wrapper.find('[data-testid="pagination-info"]').text()).toContain(
+      'common.pagination.page',
+    );
   });
 
   it('disables prev button on first page', () => {

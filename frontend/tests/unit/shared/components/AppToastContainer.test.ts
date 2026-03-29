@@ -2,7 +2,9 @@ import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const removeToastMock = vi.fn();
-const toastsRef = { value: [] as Array<{ id: string; variant: string; title: string; message?: string }> };
+const toastsRef = {
+  value: [] as Array<{ id: string; variant: string; title: string; message?: string }>,
+};
 
 vi.mock('@/shared/stores/toast', () => ({
   useToastStore: () => ({
@@ -13,7 +15,8 @@ vi.mock('@/shared/stores/toast', () => ({
 
 vi.mock('@/shared/components/AppToast.vue', () => ({
   default: {
-    template: '<div :data-testid="`toast-${toast.id}`"><button data-testid="toast-close" @click="$emit(\'close\', toast.id)" /></div>',
+    template:
+      '<div :data-testid="`toast-${toast.id}`"><button data-testid="toast-close" @click="$emit(\'close\', toast.id)" /></div>',
     props: ['toast'],
     emits: ['close'],
   },

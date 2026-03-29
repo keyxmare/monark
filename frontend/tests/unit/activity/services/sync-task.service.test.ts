@@ -15,9 +15,7 @@ describe('syncTaskService', () => {
   it('list calls GET /activity/sync-tasks with default filters', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { items: [] }, status: 200 });
     await syncTaskService.list();
-    expect(api.get).toHaveBeenCalledWith(
-      '/activity/sync-tasks?page=1&per_page=20',
-    );
+    expect(api.get).toHaveBeenCalledWith('/activity/sync-tasks?page=1&per_page=20');
   });
 
   it('list calls GET with all filters', async () => {
@@ -38,9 +36,7 @@ describe('syncTaskService', () => {
   it('list calls GET with partial filters', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { items: [] }, status: 200 });
     await syncTaskService.list({ status: 'running' });
-    expect(api.get).toHaveBeenCalledWith(
-      '/activity/sync-tasks?status=running&page=1&per_page=20',
-    );
+    expect(api.get).toHaveBeenCalledWith('/activity/sync-tasks?status=running&page=1&per_page=20');
   });
 
   it('getStats calls GET /activity/sync-tasks/stats', async () => {

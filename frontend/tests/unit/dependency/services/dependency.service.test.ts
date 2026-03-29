@@ -15,17 +15,13 @@ describe('dependencyService', () => {
   it('list calls GET /dependency/dependencies with default params', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { items: [] }, status: 200 });
     await dependencyService.list();
-    expect(api.get).toHaveBeenCalledWith(
-      '/dependency/dependencies?page=1&per_page=20',
-    );
+    expect(api.get).toHaveBeenCalledWith('/dependency/dependencies?page=1&per_page=20');
   });
 
   it('list calls GET with custom page and perPage', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { items: [] }, status: 200 });
     await dependencyService.list(2, 50);
-    expect(api.get).toHaveBeenCalledWith(
-      '/dependency/dependencies?page=2&per_page=50',
-    );
+    expect(api.get).toHaveBeenCalledWith('/dependency/dependencies?page=2&per_page=50');
   });
 
   it('list calls GET with projectId filter', async () => {
@@ -89,8 +85,6 @@ describe('dependencyService', () => {
   it('stats calls GET /dependency/stats with partial params', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: {}, status: 200 });
     await dependencyService.stats({ packageManager: 'composer' });
-    expect(api.get).toHaveBeenCalledWith(
-      '/dependency/stats?package_manager=composer',
-    );
+    expect(api.get).toHaveBeenCalledWith('/dependency/stats?package_manager=composer');
   });
 });

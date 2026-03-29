@@ -15,7 +15,9 @@ describe('ExportDropdown', () => {
   it('renders the trigger button', () => {
     const wrapper = mountExport();
     expect(wrapper.find('[data-testid="export-dropdown-trigger"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="export-dropdown-trigger"]').text()).toContain('common.actions.export');
+    expect(wrapper.find('[data-testid="export-dropdown-trigger"]').text()).toContain(
+      'common.actions.export',
+    );
   });
 
   it('does not show menu initially', () => {

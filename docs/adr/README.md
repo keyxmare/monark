@@ -1,5 +1,0 @@
-# Architecture Decision Records
-
-| ADR | Title | Status |
-|---|---|---|
-| [0001](0001-initial-architecture.md) | Initial DDD/CQRS Architecture | Accepted |

@@ -46,7 +46,9 @@ vi.mock('@/dependency/composables/useDependencySyncProgress', () => ({
 
 vi.mock('@/dependency/services/dependency.service', () => ({
   dependencyService: {
-    stats: vi.fn().mockResolvedValue({ data: { outdated: 0, total: 0, upToDate: 0, totalVulnerabilities: 0 } }),
+    stats: vi
+      .fn()
+      .mockResolvedValue({ data: { outdated: 0, total: 0, upToDate: 0, totalVulnerabilities: 0 } }),
     sync: vi.fn().mockResolvedValue({ data: { syncId: 'abc' } }),
   },
 }));

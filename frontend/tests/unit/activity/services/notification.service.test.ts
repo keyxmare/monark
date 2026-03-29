@@ -15,17 +15,13 @@ describe('notificationService', () => {
   it('list calls GET /activity/notifications with default params', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { items: [] }, status: 200 });
     await notificationService.list();
-    expect(api.get).toHaveBeenCalledWith(
-      '/activity/notifications?page=1&per_page=20',
-    );
+    expect(api.get).toHaveBeenCalledWith('/activity/notifications?page=1&per_page=20');
   });
 
   it('list calls GET with custom page and perPage', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { items: [] }, status: 200 });
     await notificationService.list(4, 10);
-    expect(api.get).toHaveBeenCalledWith(
-      '/activity/notifications?page=4&per_page=10',
-    );
+    expect(api.get).toHaveBeenCalledWith('/activity/notifications?page=4&per_page=10');
   });
 
   it('get calls GET /activity/notifications/:id', async () => {

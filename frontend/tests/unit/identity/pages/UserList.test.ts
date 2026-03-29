@@ -63,7 +63,9 @@ describe('UserList', () => {
     storeOverrides = { error: 'Something went wrong' };
     const wrapper = mount(UserList);
     expect(wrapper.find('[data-testid="user-list-error"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="user-list-error"]').text()).toContain('Something went wrong');
+    expect(wrapper.find('[data-testid="user-list-error"]').text()).toContain(
+      'Something went wrong',
+    );
   });
 
   it('shows empty state when no users', () => {

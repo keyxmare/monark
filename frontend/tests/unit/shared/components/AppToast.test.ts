@@ -64,19 +64,23 @@ describe('AppToast', () => {
   });
 
   it('shows progress bar for progress variant', () => {
-    const wrapper = mountToast(makeToast({
-      variant: 'progress',
-      progress: { current: 3, total: 10 },
-    }));
+    const wrapper = mountToast(
+      makeToast({
+        variant: 'progress',
+        progress: { current: 3, total: 10 },
+      }),
+    );
     expect(wrapper.text()).toContain('3/10');
     expect(wrapper.text()).toContain('30%');
   });
 
   it('shows 100% with green bar when complete', () => {
-    const wrapper = mountToast(makeToast({
-      variant: 'progress',
-      progress: { current: 10, total: 10 },
-    }));
+    const wrapper = mountToast(
+      makeToast({
+        variant: 'progress',
+        progress: { current: 10, total: 10 },
+      }),
+    );
     expect(wrapper.text()).toContain('100%');
     const bar = wrapper.find('.bg-green-500');
     expect(bar.exists()).toBe(true);

@@ -3,7 +3,9 @@ export function formatDate(iso: string, locale = 'fr'): string {
 }
 
 export function formatDateTime(iso: string, locale = 'fr'): string {
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(
+    new Date(iso),
+  );
 }
 
 export function formatRelative(iso: string, locale = 'fr'): string {

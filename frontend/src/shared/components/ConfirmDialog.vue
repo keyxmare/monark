@@ -64,10 +64,18 @@ function handleConfirm() {
       @cancel.prevent="handleCancel"
     >
       <form v-if="open" method="dialog" class="p-6" @submit.prevent="handleConfirm">
-        <h3 id="confirm-title" class="mb-2 text-lg font-semibold text-text" data-testid="confirm-dialog-title">
+        <h3
+          id="confirm-title"
+          class="mb-2 text-lg font-semibold text-text"
+          data-testid="confirm-dialog-title"
+        >
           {{ title ?? t('common.confirm.title') }}
         </h3>
-        <p id="confirm-message" class="mb-6 text-sm text-text-muted" data-testid="confirm-dialog-message">
+        <p
+          id="confirm-message"
+          class="mb-6 text-sm text-text-muted"
+          data-testid="confirm-dialog-message"
+        >
           <slot>{{ message ?? t('common.confirm.deleteMessage') }}</slot>
         </p>
         <div class="flex justify-end gap-3">

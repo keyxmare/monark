@@ -137,7 +137,9 @@ onBeforeUnmount(() => {
     >
       <div
         v-if="open"
-        :aria-activedescendant="focusedIndex >= 0 ? `dropdown-item-${items[focusedIndex]?.action}` : undefined"
+        :aria-activedescendant="
+          focusedIndex >= 0 ? `dropdown-item-${items[focusedIndex]?.action}` : undefined
+        "
         class="absolute right-0 z-10 mt-1 min-w-[160px] rounded-lg border border-border bg-surface py-1 shadow-lg"
         data-testid="dropdown-panel"
         role="menu"

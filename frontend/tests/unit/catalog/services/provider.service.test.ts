@@ -59,7 +59,9 @@ describe('providerService', () => {
   it('listRemoteProjects calls GET with default pagination', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { items: [] }, status: 200 });
     await providerService.listRemoteProjects('p1');
-    expect(api.get).toHaveBeenCalledWith('/catalog/providers/p1/remote-projects?page=1&per_page=20');
+    expect(api.get).toHaveBeenCalledWith(
+      '/catalog/providers/p1/remote-projects?page=1&per_page=20',
+    );
   });
 
   it('listRemoteProjects calls GET with search and visibility params', async () => {
