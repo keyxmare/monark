@@ -10,6 +10,22 @@ export default defineConfig({
     },
   },
   test: {
+    coverage: {
+      exclude: [
+        'e2e/**',
+        'playwright.config.ts',
+        'stryker.config.mjs',
+        'eslint.config.js',
+        'prettier.config.js',
+        'src/**/types/**',
+        'src/**/routes.ts',
+        'src/app/main.ts',
+        'src/shared/types/**',
+        'src/shared/constants.ts',
+        'src/shared/i18n/**',
+      ],
+      include: ['src/**/*.{ts,vue}'],
+    },
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
     passWithNoTests: true,
