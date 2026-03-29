@@ -3,11 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
-import {
-  humanizeMs,
-  humanizeTimeDiff,
-  ltsUrgency,
-} from '@/catalog/composables/useFrameworkLts';
+import { humanizeMs, humanizeTimeDiff, ltsUrgency } from '@/catalog/composables/useFrameworkLts';
 import { useProjectStore } from '@/catalog/stores/project';
 import DependencyFilters from '@/dependency/components/DependencyFilters.vue';
 import DependencyHealthScore from '@/dependency/components/DependencyHealthScore.vue';

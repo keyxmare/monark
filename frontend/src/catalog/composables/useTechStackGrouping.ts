@@ -168,7 +168,9 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
 
     return [...agg.entries()].map(([id, entry]) => ({
       frameworks: [...entry.frameworks.entries()].map(([name, versions]) => {
-        const sorted = [...versions].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const sorted = [...versions].sort((a, b) =>
+          a.localeCompare(b, undefined, { numeric: true }),
+        );
         return { max: sorted[sorted.length - 1] ?? '—', min: sorted[0] ?? '—', name };
       }),
       id,

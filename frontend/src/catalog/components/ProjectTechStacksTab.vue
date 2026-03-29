@@ -84,17 +84,14 @@ function changeTechStackPage(page: number) {
                 {{ ts.frameworkVersion || '—' }}
                 <span
                   v-if="
-                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status ===
-                    'eol'
+                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.status === 'eol'
                   "
                   class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
                   :title="
                     getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.eolDate
                       ? t('catalog.techStacks.unmaintainedSince', {
-                          date: getVersionMaintenanceStatus(
-                            ts.framework,
-                            ts.frameworkVersion,
-                          )!.eolDate!,
+                          date: getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!
+                            .eolDate!,
                         })
                       : t('catalog.techStacks.unmaintainedNoDate')
                   "
@@ -109,8 +106,7 @@ function changeTechStackPage(page: number) {
                   "
                   class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
                   :title="
-                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)
-                      ?.lastRelease
+                    getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)?.lastRelease
                       ? t('catalog.techStacks.inactiveSince', {
                           duration: humanizeTimeDiff(
                             getVersionMaintenanceStatus(ts.framework, ts.frameworkVersion)!
@@ -138,29 +134,20 @@ function changeTechStackPage(page: number) {
                 "
               >
                 <span
-                  v-if="
-                    isVersionUpToDate(
-                      ts.frameworkVersion,
-                      getLtsInfo(ts.framework)!.latestLts,
-                    )
-                  "
+                  v-if="isVersionUpToDate(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts)"
                   class="text-success"
                 >
                   {{ t('catalog.techStacks.upToDate') }}
                 </span>
                 <span
                   v-else-if="
-                    patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) !==
-                    null
+                    patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts) !== null
                   "
                   class="text-warning"
                 >
                   {{
                     t('catalog.techStacks.patchesBehind', {
-                      count: patchGap(
-                        ts.frameworkVersion,
-                        getLtsInfo(ts.framework)!.latestLts,
-                      ),
+                      count: patchGap(ts.frameworkVersion, getLtsInfo(ts.framework)!.latestLts),
                     })
                   }}
                 </span>

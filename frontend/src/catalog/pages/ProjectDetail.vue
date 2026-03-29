@@ -267,10 +267,7 @@ async function handleScan() {
 
         <ProjectTechStacksTab v-if="activeTab === 'tech-stacks'" :project-id="projectId" />
         <ProjectDependenciesTab v-if="activeTab === 'dependencies'" :project-id="projectId" />
-        <ProjectMergeRequestsTab
-          v-if="activeTab === 'merge-requests'"
-          :project-id="projectId"
-        />
+        <ProjectMergeRequestsTab v-if="activeTab === 'merge-requests'" :project-id="projectId" />
       </template>
 
       <ConfirmDialog

@@ -174,7 +174,11 @@ export function drawGroupBoundary(
 
 export function applyAlternateGroupShading(
   rowGroupIndex: number[],
-  data: { section: string; row: { index: number }; cell: { styles: { fillColor: RGB | number[] } } },
+  data: {
+    section: string;
+    row: { index: number };
+    cell: { styles: { fillColor: RGB | number[] } };
+  },
 ): void {
   if (data.section !== 'body') return;
   if (rowGroupIndex[data.row.index] % 2 === 1) {

@@ -24,15 +24,19 @@ export function useLocalStorage<T>(
 
   const data = ref<T>(read()) as ReturnType<typeof ref<T>>;
 
-  watch(data, (newValue) => {
-    if (newValue === null || newValue === undefined) {
-      localStorage.removeItem(key);
-    } else if (raw) {
-      localStorage.setItem(key, String(newValue));
-    } else {
-      localStorage.setItem(key, JSON.stringify(newValue));
-    }
-  }, { deep: true, flush: 'sync' });
+  watch(
+    data,
+    (newValue) => {
+      if (newValue === null || newValue === undefined) {
+        localStorage.removeItem(key);
+      } else if (raw) {
+        localStorage.setItem(key, String(newValue));
+      } else {
+        localStorage.setItem(key, JSON.stringify(newValue));
+      }
+    },
+    { deep: true, flush: 'sync' },
+  );
 
   return data;
 }

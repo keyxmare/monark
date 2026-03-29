@@ -41,8 +41,10 @@ function createGrouping(stacks: TechStack[]) {
       return null;
     },
     getVersionMaintenanceStatus: (fw, version) => {
-      if (fw === 'Symfony' && version === '6.4') return { status: 'eol', eolDate: '2025-01-01', lastRelease: null };
-      if (fw === 'Vue' && version === '2.7') return { status: 'warning', eolDate: null, lastRelease: '2024-06-01' };
+      if (fw === 'Symfony' && version === '6.4')
+        return { status: 'eol', eolDate: '2025-01-01', lastRelease: null };
+      if (fw === 'Vue' && version === '2.7')
+        return { status: 'warning', eolDate: null, lastRelease: '2024-06-01' };
       return { status: 'active', eolDate: null, lastRelease: null };
     },
     getVersionReleaseDate: (fw, version) => {
@@ -63,8 +65,20 @@ describe('useTechStackGrouping', () => {
   const sampleStacks: TechStack[] = [
     makeTechStack({ id: '1', framework: 'Symfony', frameworkVersion: '7.2', projectId: 'proj-1' }),
     makeTechStack({ id: '2', framework: 'Symfony', frameworkVersion: '6.4', projectId: 'proj-2' }),
-    makeTechStack({ id: '3', framework: 'Vue', frameworkVersion: '3.5', language: 'TypeScript', projectId: 'proj-1' }),
-    makeTechStack({ id: '4', framework: 'Vue', frameworkVersion: '2.7', language: 'TypeScript', projectId: 'proj-3' }),
+    makeTechStack({
+      id: '3',
+      framework: 'Vue',
+      frameworkVersion: '3.5',
+      language: 'TypeScript',
+      projectId: 'proj-1',
+    }),
+    makeTechStack({
+      id: '4',
+      framework: 'Vue',
+      frameworkVersion: '2.7',
+      language: 'TypeScript',
+      projectId: 'proj-3',
+    }),
   ];
 
   it('returns all stacks when no filters applied', () => {
@@ -199,7 +213,12 @@ describe('useTechStackGrouping', () => {
 
   it('returns null gap stats when no outdated stacks', () => {
     const stacks = [
-      makeTechStack({ id: '1', framework: 'Symfony', frameworkVersion: '7.2', projectId: 'proj-1' }),
+      makeTechStack({
+        id: '1',
+        framework: 'Symfony',
+        frameworkVersion: '7.2',
+        projectId: 'proj-1',
+      }),
     ];
     const { gapStats } = createGrouping(stacks);
     expect(gapStats.value).toBeNull();

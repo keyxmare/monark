@@ -394,14 +394,8 @@ async function handleSyncAll() {
           @sort="toggleSort"
         />
 
-        <div
-          v-else
-          class="overflow-hidden rounded-xl border border-border bg-surface"
-        >
-          <div
-            class="flex flex-col items-center py-12"
-            data-testid="tech-stack-list-empty"
-          >
+        <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
+          <div class="flex flex-col items-center py-12" data-testid="tech-stack-list-empty">
             <svg
               class="mb-4 h-12 w-12 text-text-muted/50"
               fill="none"

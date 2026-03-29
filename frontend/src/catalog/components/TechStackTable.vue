@@ -96,24 +96,19 @@ const emit = defineEmits<{
             {{ row.ts.language }}
           </td>
           <td class="px-4 py-3 text-sm text-text">
-            <TechBadge
-              :name="row.ts.framework"
-              :version="row.ts.frameworkVersion"
-              size="sm"
-            />
+            <TechBadge :name="row.ts.framework" :version="row.ts.frameworkVersion" size="sm" />
           </td>
           <td class="px-4 py-3 text-sm text-text-muted">
             <span class="inline-flex items-center gap-1.5">
               {{ row.ts.frameworkVersion || '—' }}
               <span
                 v-if="
-                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                    ?.status === 'eol'
+                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.status ===
+                  'eol'
                 "
                 class="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-medium text-danger"
                 :title="
-                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                    ?.eolDate
+                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.eolDate
                     ? t('catalog.techStacks.unmaintainedSince', {
                         date: getVersionMaintenanceStatus(
                           row.ts.framework,
@@ -127,8 +122,8 @@ const emit = defineEmits<{
               </span>
               <span
                 v-else-if="
-                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)
-                    ?.status === 'warning'
+                  getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)?.status ===
+                  'warning'
                 "
                 class="rounded-full bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning"
                 :title="
@@ -136,10 +131,8 @@ const emit = defineEmits<{
                     ?.lastRelease
                     ? t('catalog.techStacks.inactiveSince', {
                         duration: humanizeTimeDiff(
-                          getVersionMaintenanceStatus(
-                            row.ts.framework,
-                            row.ts.frameworkVersion,
-                          )!.lastRelease!,
+                          getVersionMaintenanceStatus(row.ts.framework, row.ts.frameworkVersion)!
+                            .lastRelease!,
                           new Date().toISOString(),
                         ),
                       })
@@ -174,10 +167,8 @@ const emit = defineEmits<{
               </span>
               <span
                 v-else-if="
-                  patchGap(
-                    row.ts.frameworkVersion,
-                    getLtsInfo(row.ts.framework)!.latestLts,
-                  ) !== null
+                  patchGap(row.ts.frameworkVersion, getLtsInfo(row.ts.framework)!.latestLts) !==
+                  null
                 "
                 class="text-warning"
               >
