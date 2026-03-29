@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+pest()
+    ->extends(\PHPUnit\Framework\TestCase::class)
+    ->in('Unit');
+
 if (\is_dir(__DIR__ . '/Integration')) {
     pest()
         ->extends(\Symfony\Bundle\FrameworkBundle\Test\KernelTestCase::class)

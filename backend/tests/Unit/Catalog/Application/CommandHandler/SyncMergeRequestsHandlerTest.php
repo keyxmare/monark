@@ -110,6 +110,32 @@ function stubSyncMRRepo(?MergeRequest $existing = null): object
     };
 }
 
+function stubSyncMRProviderRepo(): \App\Catalog\Domain\Repository\ProviderRepositoryInterface
+{
+    return new class () implements \App\Catalog\Domain\Repository\ProviderRepositoryInterface {
+        public ?Provider $saved = null;
+        public function findById(Uuid $id): ?Provider
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Provider $provider): void
+        {
+            $this->saved = $provider;
+        }
+        public function remove(Provider $provider): void
+        {
+        }
+    };
+}
+
 function stubSyncMRGitFactory(array $remoteMRs = []): GitProviderFactoryInterface
 {
     $client = new class ($remoteMRs) implements GitProviderInterface {
@@ -220,6 +246,7 @@ describe('SyncMergeRequestsHandler', function () {
         $handler = new SyncMergeRequestsHandler(
             \stubSyncMRProjectRepo($project),
             $mrRepo,
+            \stubSyncMRProviderRepo(),
             \stubSyncMRGitFactory($remoteMRs),
             $eventBus,
         );
@@ -295,6 +322,7 @@ describe('SyncMergeRequestsHandler', function () {
         $handler = new SyncMergeRequestsHandler(
             \stubSyncMRProjectRepo($project),
             $mrRepo,
+            \stubSyncMRProviderRepo(),
             \stubSyncMRGitFactory([$remoteMR]),
             $eventBus,
         );
@@ -324,6 +352,7 @@ describe('SyncMergeRequestsHandler', function () {
         $handler = new SyncMergeRequestsHandler(
             \stubSyncMRProjectRepo($project),
             $mrRepo,
+            \stubSyncMRProviderRepo(),
             \stubSyncMRGitFactory($remoteMRs),
             $eventBus,
         );
@@ -354,6 +383,7 @@ describe('SyncMergeRequestsHandler', function () {
         $handler = new SyncMergeRequestsHandler(
             \stubSyncMRProjectRepo($project),
             $mrRepo,
+            \stubSyncMRProviderRepo(),
             \stubSyncMRGitFactory(),
             $eventBus,
         );
@@ -371,6 +401,7 @@ describe('SyncMergeRequestsHandler', function () {
         $handler = new SyncMergeRequestsHandler(
             \stubSyncMRProjectRepo(null),
             $mrRepo,
+            \stubSyncMRProviderRepo(),
             \stubSyncMRGitFactory(),
             $eventBus,
         );

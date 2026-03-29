@@ -138,20 +138,11 @@ it('lists projects with default pagination', function () {
 it('scans a project and returns 200 with results', function () {
     $scanResult = new ScanResultOutput(stacksDetected: 2, dependenciesDetected: 5, stacks: [], dependencies: []);
 
-    $handler = new class ($scanResult) extends ScanProjectHandler {
-        public ?ScanProjectCommand $received = null;
-
-        public function __construct(private readonly ScanResultOutput $scanResultOutput)
-        {
-        }
-
-        public function __invoke(ScanProjectCommand $command): ScanResultOutput
-        {
-            $this->received = $command;
-
-            return $this->scanResultOutput;
-        }
-    };
+    $handler = $this->createMock(ScanProjectHandler::class);
+    $handler->expects($this->once())
+        ->method('__invoke')
+        ->with($this->callback(fn (ScanProjectCommand $cmd) => $cmd->projectId === 'uuid-1'))
+        ->willReturn($scanResult);
 
     $controller = new ScanProjectController($handler);
 
@@ -162,6 +153,4 @@ it('scans a project and returns 200 with results', function () {
     expect($data['success'])->toBeTrue();
     expect($data['data']['stacksDetected'])->toBe(2);
     expect($data['data']['dependenciesDetected'])->toBe(5);
-    expect($handler->received)->toBeInstanceOf(ScanProjectCommand::class);
-    expect($handler->received->projectId)->toBe('uuid-1');
 });

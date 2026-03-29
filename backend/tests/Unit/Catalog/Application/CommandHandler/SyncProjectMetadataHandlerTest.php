@@ -12,10 +12,37 @@ use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\GitProviderInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
+use App\Catalog\Domain\Repository\ProviderRepositoryInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\Factory\Catalog\ProviderFactory;
+
+function stubMetadataProviderRepo(): ProviderRepositoryInterface
+{
+    return new class () implements ProviderRepositoryInterface {
+        public ?Provider $saved = null;
+        public function findById(Uuid $id): ?Provider
+        {
+            return null;
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Provider $provider): void
+        {
+            $this->saved = $provider;
+        }
+        public function remove(Provider $provider): void
+        {
+        }
+    };
+}
 
 function spyMetadataEventBus(): object
 {
@@ -162,7 +189,7 @@ describe('SyncProjectMetadataHandler', function () {
         $factory = \stubMetadataGitProviderFactory($remote);
         $eventBus = \spyMetadataEventBus();
 
-        $handler = new SyncProjectMetadataHandler($projectRepo, $factory, $eventBus);
+        $handler = new SyncProjectMetadataHandler($projectRepo, \stubMetadataProviderRepo(), $factory, $eventBus);
         $handler(new SyncProjectMetadataCommand($project->getId()->toRfc4122()));
 
         expect($project->getName())->toBe('Renamed Project');
@@ -194,7 +221,7 @@ describe('SyncProjectMetadataHandler', function () {
         $factory = \stubMetadataGitProviderFactory($remote);
         $eventBus = \spyMetadataEventBus();
 
-        $handler = new SyncProjectMetadataHandler($projectRepo, $factory, $eventBus);
+        $handler = new SyncProjectMetadataHandler($projectRepo, \stubMetadataProviderRepo(), $factory, $eventBus);
         $handler(new SyncProjectMetadataCommand($project->getId()->toRfc4122()));
 
         expect($projectRepo->saved)->toBeNull();
@@ -217,7 +244,7 @@ describe('SyncProjectMetadataHandler', function () {
         $factory = \stubMetadataGitProviderFactory($remote);
         $eventBus = \spyMetadataEventBus();
 
-        $handler = new SyncProjectMetadataHandler($projectRepo, $factory, $eventBus);
+        $handler = new SyncProjectMetadataHandler($projectRepo, \stubMetadataProviderRepo(), $factory, $eventBus);
         $handler(new SyncProjectMetadataCommand($project->getId()->toRfc4122()));
 
         expect($projectRepo->saved)->toBeNull();
@@ -230,7 +257,7 @@ describe('SyncProjectMetadataHandler', function () {
         $factory = \stubMetadataGitProviderFactory($remote);
         $eventBus = \spyMetadataEventBus();
 
-        $handler = new SyncProjectMetadataHandler($projectRepo, $factory, $eventBus);
+        $handler = new SyncProjectMetadataHandler($projectRepo, \stubMetadataProviderRepo(), $factory, $eventBus);
         $handler(new SyncProjectMetadataCommand(Uuid::v7()->toRfc4122()));
 
         expect($projectRepo->saved)->toBeNull();
@@ -256,7 +283,7 @@ describe('SyncProjectMetadataHandler', function () {
         $factory = \stubMetadataGitProviderFactory($remote);
         $eventBus = \spyMetadataEventBus();
 
-        $handler = new SyncProjectMetadataHandler($projectRepo, $factory, $eventBus);
+        $handler = new SyncProjectMetadataHandler($projectRepo, \stubMetadataProviderRepo(), $factory, $eventBus);
         $handler(new SyncProjectMetadataCommand($project->getId()->toRfc4122()));
 
         expect($eventBus->dispatched[0]->changedFields)->toBe(['defaultBranch']);
