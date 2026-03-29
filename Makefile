@@ -66,7 +66,7 @@ test-frontend: ## Run frontend tests
 
 lint-frontend: ## Lint frontend code
 	$(EXEC_FRONTEND) pnpm lint
-	$(EXEC_FRONTEND) pnpm format:check --ignore-path .gitignore
+	$(EXEC_FRONTEND) pnpm format:check
 
 quality-frontend: lint-frontend test-frontend ## Full frontend quality check
 

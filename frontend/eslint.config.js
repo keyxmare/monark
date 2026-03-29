@@ -1,3 +1,4 @@
+import eslintConfigPrettier from 'eslint-config-prettier';
 import boundaries from 'eslint-plugin-boundaries';
 import perfectionist from 'eslint-plugin-perfectionist';
 import pluginVue from 'eslint-plugin-vue';
@@ -10,6 +11,7 @@ export default [
   ...pluginVue.configs['flat/recommended'],
   ...vuejsAccessibility.configs['flat/recommended'],
   perfectionist.configs['recommended-natural'],
+  eslintConfigPrettier,
   {
     files: ['**/*.vue'],
     languageOptions: {
