@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { STORAGE_KEYS } from '@/shared/constants';
 import { activityRoutes } from '@/activity/routes';
 import { catalogRoutes } from '@/catalog/routes';
 import { dependencyRoutes } from '@/dependency/routes';
@@ -13,7 +14,7 @@ export const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  const isAuthenticated = !!localStorage.getItem('auth_token');
+  const isAuthenticated = !!localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   const isPublicRoute = to.meta.public === true;
 
   if (!isAuthenticated && !isPublicRoute) {

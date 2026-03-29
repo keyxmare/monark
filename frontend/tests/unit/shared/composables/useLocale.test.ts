@@ -9,6 +9,8 @@ const localeRef = i18n.global.locale as unknown as WritableComputedRef<Locale>;
 
 describe('useLocale', () => {
   beforeEach(() => {
+    const { setLocale } = useLocale();
+    setLocale('fr');
     localStorage.clear();
     localeRef.value = 'fr';
     document.documentElement.lang = 'fr';

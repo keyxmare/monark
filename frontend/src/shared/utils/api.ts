@@ -1,6 +1,7 @@
 import type { WritableComputedRef } from 'vue';
 
 import type { ApiError, ApiResponse } from '@/shared/types';
+import { STORAGE_KEYS } from '@/shared/constants';
 import { i18n } from '@/shared/i18n';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
@@ -14,7 +15,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     ...options.headers,
   };
 
-  const token = localStorage.getItem('auth_token');
+  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   if (token) {
     (headers as Record<string, string>).Authorization = `Bearer ${token}`;
   }
@@ -23,7 +24,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   if (!response.ok) {
     if (response.status === 401) {
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
       window.location.href = '/login';
       throw { message: 'Session expired', status: 401 } as ApiError;
     }

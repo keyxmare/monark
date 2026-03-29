@@ -1,6 +1,9 @@
 import { ref } from 'vue';
 
-const collapsed = ref(false);
+import { useLocalStorage } from '@/shared/composables/useLocalStorage';
+import { STORAGE_KEYS } from '@/shared/constants';
+
+const collapsed = useLocalStorage(STORAGE_KEYS.SIDEBAR_COLLAPSED, false);
 const mobileOpen = ref(false);
 
 export function useSidebar() {
