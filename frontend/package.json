@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "mutation": "stryker run"
   },
   "dependencies": {
     "jspdf": "^4.2.1",
@@ -24,6 +25,8 @@
     "vue-router": "^4.5"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^9.6.0",
+    "@stryker-mutator/vitest-runner": "^9.6.0",
     "@tailwindcss/vite": "^4.0",
     "@typescript-eslint/parser": "^8.57.0",
     "@vitejs/plugin-vue": "^5.0",

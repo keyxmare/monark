@@ -193,6 +193,20 @@ else
   warn "Coverage" "N/A"
 fi
 
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 120
+$FRONT 'pnpm mutation > /tmp/ci-stryker.txt 2>&1' >/dev/null 2>&1
+stop_countdown
+FMSI_LINE=$($FRONT 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-stryker.txt | grep "All files"' 2>/dev/null | tr -d '\r')
+FMSI_SCORE=$(echo "$FMSI_LINE" | awk -F'|' '{gsub(/ /,"",$2); print $2}')
+FMSI_KILLED=$(echo "$FMSI_LINE" | awk -F'|' '{gsub(/ /,"",$4); print $4}')
+FMSI_SURVIVED=$(echo "$FMSI_LINE" | awk -F'|' '{gsub(/ /,"",$6); print $6}')
+if [ -n "$FMSI_SCORE" ] && [ "$FMSI_SCORE" != "" ]; then
+  FMSI_TOTAL=$(( ${FMSI_KILLED:-0} + ${FMSI_SURVIVED:-0} ))
+  ok "Mutation" "MSI: ${FMSI_SCORE}% (${FMSI_KILLED:-0}/${FMSI_TOTAL})"
+else
+  warn "Mutation" "N/A"
+fi
+
 # ── RESULT ───────────────────────────────────────
 
 GLOBAL_END=$(date +%s)

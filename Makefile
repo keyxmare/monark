@@ -59,7 +59,7 @@ audit-backend: ## Audit backend dependencies
 	$(EXEC_BACKEND) composer audit
 
 ## —— Frontend ————————————————————————————————————
-.PHONY: test-frontend lint-frontend quality-frontend outdated-frontend audit-frontend
+.PHONY: test-frontend lint-frontend mutation-frontend quality-frontend outdated-frontend audit-frontend
 
 test-frontend: ## Run frontend tests
 	$(EXEC_FRONTEND) pnpm vitest run
@@ -67,6 +67,9 @@ test-frontend: ## Run frontend tests
 lint-frontend: ## Lint frontend code
 	$(EXEC_FRONTEND) pnpm lint
 	$(EXEC_FRONTEND) pnpm format:check
+
+mutation-frontend: ## Run frontend mutation testing
+	$(EXEC_FRONTEND) pnpm mutation
 
 quality-frontend: lint-frontend test-frontend ## Full frontend quality check
 
