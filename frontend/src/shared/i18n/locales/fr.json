@@ -324,7 +324,8 @@
       "unmaintainedSince": "Fin de support : {date}",
       "unmaintainedNoDate": "Version non supportée",
       "inactive": "Inactif",
-      "inactiveSince": "Dernière release il y a {duration}"
+      "inactiveSince": "Dernière release il y a {duration}",
+      "syncedAt": "Dernière synchro"
     },
     "mergeRequests": {
       "title": "Merge Requests",
@@ -370,8 +371,10 @@
       "syncVersions": "Synchroniser les versions",
       "syncing": "Synchronisation…",
       "syncStarted": "Synchronisation des versions lancée",
+      "syncCompleted": "Synchronisation terminée",
       "dead": "Mort",
       "unknown": "Inconnu",
+      "pendingSync": "Non synchronisé",
       "allProjects": "Tous les projets",
       "healthScore": "{percent}% à jour",
       "healthOutdated": "{count} obsolète(s)",

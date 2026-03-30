@@ -19,17 +19,15 @@ final class Version20260329233851 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE identity_access_tokens DROP CONSTRAINT fk_43ec9d8ba76ed395');
-        $this->addSql('DROP TABLE activity_events');
-        $this->addSql('DROP TABLE identity_access_tokens');
-        $this->addSql('DROP TABLE notifications');
-        $this->addSql('DROP TABLE sync_tasks');
-        $this->addSql('ALTER TABLE catalog_tech_stacks ADD latest_lts VARCHAR(50) DEFAULT NULL');
-        $this->addSql('ALTER TABLE catalog_tech_stacks ADD lts_gap VARCHAR(100) DEFAULT NULL');
-        $this->addSql('ALTER TABLE catalog_tech_stacks ADD maintenance_status VARCHAR(20) DEFAULT NULL');
-        $this->addSql('ALTER TABLE catalog_tech_stacks ADD eol_date DATE DEFAULT NULL');
-        $this->addSql('ALTER TABLE catalog_tech_stacks ADD version_synced_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
+        $this->addSql('DROP TABLE IF EXISTS activity_events');
+        $this->addSql('DROP TABLE IF EXISTS identity_access_tokens');
+        $this->addSql('DROP TABLE IF EXISTS notifications');
+        $this->addSql('DROP TABLE IF EXISTS sync_tasks');
+        $this->addSql('ALTER TABLE catalog_tech_stacks ADD IF NOT EXISTS latest_lts VARCHAR(50) DEFAULT NULL');
+        $this->addSql('ALTER TABLE catalog_tech_stacks ADD IF NOT EXISTS lts_gap VARCHAR(100) DEFAULT NULL');
+        $this->addSql('ALTER TABLE catalog_tech_stacks ADD IF NOT EXISTS maintenance_status VARCHAR(20) DEFAULT NULL');
+        $this->addSql('ALTER TABLE catalog_tech_stacks ADD IF NOT EXISTS eol_date DATE DEFAULT NULL');
+        $this->addSql('ALTER TABLE catalog_tech_stacks ADD IF NOT EXISTS version_synced_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
         $this->addSql('ALTER TABLE dependencies ALTER registry_status DROP DEFAULT');
     }
 

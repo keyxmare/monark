@@ -64,6 +64,10 @@ final readonly class DoctrineDependencyVersionRepository implements DependencyVe
     public function save(DependencyVersion $version): void
     {
         $this->entityManager->persist($version);
+    }
+
+    public function flush(): void
+    {
         $this->entityManager->flush();
     }
 

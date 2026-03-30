@@ -2,9 +2,42 @@
 
 declare(strict_types=1);
 
+use App\Catalog\Domain\Event\TechStackVersionStatusUpdated;
 use App\Catalog\Domain\Model\TechStack;
 use Tests\Factory\Catalog\ProjectFactory;
 use Tests\Factory\Catalog\TechStackFactory;
+
+describe('TechStack domain events', function () {
+    it('emits TechStackVersionStatusUpdated when updateVersionStatus is called', function () {
+        $project = ProjectFactory::create();
+        $stack = TechStack::create('PHP', 'Symfony', '8.0.0', '7.1.0', new \DateTimeImmutable(), $project);
+
+        $stack->updateVersionStatus(
+            latestLts: '7.2.0',
+            ltsGap: null,
+            maintenanceStatus: 'active',
+            eolDate: null,
+        );
+
+        $events = $stack->pullDomainEvents();
+
+        expect($events)->toHaveCount(1)
+            ->and($events[0])->toBeInstanceOf(TechStackVersionStatusUpdated::class)
+            ->and($events[0]->framework)->toBe('Symfony')
+            ->and($events[0]->latestLts)->toBe('7.2.0')
+            ->and($events[0]->maintenanceStatus)->toBe('active');
+    });
+
+    it('clears events after pull', function () {
+        $project = ProjectFactory::create();
+        $stack = TechStack::create('PHP', 'Symfony', '8.0.0', '7.1.0', new \DateTimeImmutable(), $project);
+
+        $stack->updateVersionStatus('7.2.0', null, 'active', null);
+        $stack->pullDomainEvents();
+
+        expect($stack->pullDomainEvents())->toBeEmpty();
+    });
+});
 
 describe('TechStack', function () {
     it('creates a tech stack with all fields', function () {

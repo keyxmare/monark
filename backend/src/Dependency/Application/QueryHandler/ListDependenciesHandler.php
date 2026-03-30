@@ -8,9 +8,7 @@ use App\Dependency\Application\DTO\DependencyListOutput;
 use App\Dependency\Application\Mapper\DependencyMapper;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
-use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
 use App\Shared\Application\DTO\PaginatedOutput;
-use DateTimeInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(bus: 'query.bus')]
@@ -18,7 +16,6 @@ final readonly class ListDependenciesHandler
 {
     public function __construct(
         private DependencyRepositoryInterface $dependencyRepository,
-        private DependencyVersionRepositoryInterface $versionRepository,
     ) {
     }
 
@@ -37,24 +34,16 @@ final readonly class ListDependenciesHandler
             $filters['isOutdated'] = $query->isOutdated;
         }
 
-        $dependencies = $this->dependencyRepository->findFiltered($query->page, $query->perPage, $filters);
+        $rows = $this->dependencyRepository->findFilteredWithVersionDates($query->page, $query->perPage, $filters);
         $total = $this->dependencyRepository->countFiltered($filters);
 
         $items = \array_map(
-            function ($dependency) {
-                $manager = $dependency->getPackageManager();
-                $name = $dependency->getName();
-
-                $currentVer = $this->versionRepository->findByNameManagerAndVersion($name, $manager, $dependency->getCurrentVersion());
-                $latestVer = $this->versionRepository->findByNameManagerAndVersion($name, $manager, $dependency->getLatestVersion());
-
-                return DependencyMapper::toOutput(
-                    $dependency,
-                    $currentVer?->getReleaseDate()?->format(DateTimeInterface::ATOM),
-                    $latestVer?->getReleaseDate()?->format(DateTimeInterface::ATOM),
-                );
-            },
-            $dependencies,
+            static fn (array $row) => DependencyMapper::toOutput(
+                $row['dependency'],
+                $row['currentVersionReleasedAt'],
+                $row['latestVersionReleasedAt'],
+            ),
+            $rows,
         );
 
         return new DependencyListOutput(

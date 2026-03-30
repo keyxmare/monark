@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace App\Dependency\Domain\Model;
 
+use App\Dependency\Domain\Event\DependencyCreated;
+use App\Dependency\Domain\Event\DependencyUpgraded;
+use App\Dependency\Domain\Event\VulnerabilityDetected;
+use App\Dependency\Domain\Event\VulnerabilityResolved;
+use App\Dependency\Domain\ValueObject\CveId;
+use App\Dependency\Domain\ValueObject\SemanticVersion;
+use App\Shared\Domain\Model\RecordsDomainEvents;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
 use DateTimeImmutable;
@@ -17,6 +24,8 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'dependencies')]
 final class Dependency
 {
+    use RecordsDomainEvents;
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
     private Uuid $id;
@@ -107,7 +116,7 @@ final class Dependency
         Uuid $projectId,
         ?string $repositoryUrl = null,
     ): self {
-        return new self(
+        $dependency = new self(
             id: Uuid::v7(),
             name: $name,
             currentVersion: $currentVersion,
@@ -119,6 +128,16 @@ final class Dependency
             projectId: $projectId,
             repositoryUrl: $repositoryUrl,
         );
+
+        $dependency->recordEvent(new DependencyCreated(
+            dependencyId: $dependency->id->toRfc4122(),
+            name: $name,
+            packageManager: $packageManager->value,
+            currentVersion: $currentVersion,
+            projectId: $projectId->toRfc4122(),
+        ));
+
+        return $dependency;
     }
 
     public function getId(): Uuid
@@ -241,5 +260,125 @@ final class Dependency
             $this->repositoryUrl = null;
         }
         $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function upgrade(SemanticVersion $newVersion): void
+    {
+        $newVersionString = (string) $newVersion;
+
+        if ($this->currentVersion === $newVersionString) {
+            return;
+        }
+
+        $previousVersion = $this->currentVersion;
+        $this->currentVersion = $newVersionString;
+        $this->isOutdated = $newVersionString !== $this->latestVersion;
+        $this->updatedAt = new DateTimeImmutable();
+
+        $gapType = $this->determineGapType($previousVersion, $newVersionString);
+
+        $this->recordEvent(new DependencyUpgraded(
+            dependencyId: $this->id->toRfc4122(),
+            name: $this->name,
+            previousVersion: $previousVersion,
+            newVersion: $newVersionString,
+            gapType: $gapType,
+        ));
+    }
+
+    public function reportVulnerability(
+        string $cveId,
+        Severity $severity,
+        string $title,
+        string $description,
+        string $patchedVersion,
+    ): void {
+        foreach ($this->vulnerabilities as $existing) {
+            if ($existing->getCveId() === $cveId) {
+                return;
+            }
+        }
+
+        Vulnerability::create(
+            cveId: $cveId,
+            severity: $severity,
+            title: $title,
+            description: $description,
+            patchedVersion: $patchedVersion,
+            status: VulnerabilityStatus::Open,
+            detectedAt: new DateTimeImmutable(),
+            dependency: $this,
+        );
+
+        $this->recordEvent(new VulnerabilityDetected(
+            dependencyId: $this->id->toRfc4122(),
+            dependencyName: $this->name,
+            cveId: $cveId,
+            severity: $severity->value,
+            affectedVersion: $this->currentVersion,
+        ));
+    }
+
+    public function resolveVulnerability(CveId $cveId, string $patchedVersion): void
+    {
+        foreach ($this->vulnerabilities as $vuln) {
+            if ($vuln->getCveId() === (string) $cveId) {
+                $vuln->update(status: VulnerabilityStatus::Fixed);
+
+                $this->recordEvent(new VulnerabilityResolved(
+                    dependencyId: $this->id->toRfc4122(),
+                    cveId: (string) $cveId,
+                    patchedVersion: $patchedVersion,
+                ));
+
+                return;
+            }
+        }
+    }
+
+    public function markDeprecated(): void
+    {
+        $this->registryStatus = RegistryStatus::Deprecated;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function markSynced(): void
+    {
+        $this->registryStatus = RegistryStatus::Synced;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function getSemanticCurrentVersion(): ?SemanticVersion
+    {
+        try {
+            return SemanticVersion::parse($this->currentVersion);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+    }
+
+    public function getSemanticLatestVersion(): ?SemanticVersion
+    {
+        try {
+            return SemanticVersion::parse($this->latestVersion);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+    }
+
+    private function determineGapType(string $previous, string $new): string
+    {
+        try {
+            $prev = SemanticVersion::parse($previous);
+            $next = SemanticVersion::parse($new);
+
+            return match (true) {
+                $prev->getMajorGap($next) > 0 => 'major',
+                $prev->getMinorGap($next) > 0 => 'minor',
+                default => 'patch',
+            };
+        } catch (InvalidArgumentException) {
+            return 'unknown';
+        }
     }
 }

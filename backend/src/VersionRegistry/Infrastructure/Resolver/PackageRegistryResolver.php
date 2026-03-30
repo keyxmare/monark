@@ -7,10 +7,10 @@ namespace App\VersionRegistry\Infrastructure\Resolver;
 use App\Dependency\Domain\Port\PackageRegistryResolverPort;
 use App\Shared\Domain\ValueObject\PackageManager;
 use App\VersionRegistry\Domain\DTO\ResolvedVersion;
-use App\VersionRegistry\Domain\Port\VersionResolverInterface;
+use App\VersionRegistry\Domain\Port\PackageManagerAwareVersionResolverInterface;
 use DateTimeImmutable;
 
-final readonly class PackageRegistryResolver implements VersionResolverInterface
+final readonly class PackageRegistryResolver implements PackageManagerAwareVersionResolverInterface
 {
     public function __construct(
         private PackageRegistryResolverPort $registryPort,

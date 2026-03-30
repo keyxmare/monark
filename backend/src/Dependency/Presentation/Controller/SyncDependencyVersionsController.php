@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Dependency\Presentation\Controller;
 
 use App\Dependency\Application\Command\SyncDependencyVersionsCommand;
+use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Application\DTO\ApiResponse;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,19 +23,21 @@ final readonly class SyncDependencyVersionsController
 {
     public function __construct(
         private MessageBusInterface $commandBus,
+        private DependencyRepositoryInterface $dependencyRepository,
     ) {
     }
 
     public function __invoke(): JsonResponse
     {
         $syncId = Uuid::v7()->toRfc4122();
+        $total = \count($this->dependencyRepository->findUniquePackages());
 
         $this->commandBus->dispatch(new SyncDependencyVersionsCommand(
             syncId: $syncId,
         ));
 
         return new JsonResponse(
-            ApiResponse::success(['syncId' => $syncId])->toArray(),
+            ApiResponse::success(['syncId' => $syncId, 'total' => $total])->toArray(),
             202,
         );
     }

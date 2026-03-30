@@ -9,6 +9,7 @@ final readonly class DependencyDeleted
     public function __construct(
         public string $dependencyId,
         public string $name,
+        public string $packageManager,
     ) {
     }
 }

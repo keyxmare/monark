@@ -82,6 +82,11 @@ function syncSingleDepRepo(array $deps = []): DependencyRepositoryInterface
             return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
         }
 
+        public function getStatsSingle(array $filters = []): array
+        {
+            return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
+
         public function findUniquePackages(): array
         {
             return [];
@@ -90,6 +95,15 @@ function syncSingleDepRepo(array $deps = []): DependencyRepositoryInterface
         public function findByName(string $name, string $packageManager): array
         {
             return $this->deps;
+        }
+        public function findByNameManagerAndProjectId(string $name, string $packageManager, Uuid $projectId): ?Dependency
+        {
+            return null;
+        }
+
+        public function findFilteredWithVersionDates(int $page, int $perPage, array $filters = []): array
+        {
+            return [];
         }
     };
 }
@@ -134,6 +148,10 @@ function syncSingleVersionRepo(?DependencyVersion $latest = null, ?DependencyVer
             $this->clearedLatest = true;
             $this->clearedName = $dependencyName;
             $this->clearedManager = $packageManager;
+        }
+
+        public function flush(): void
+        {
         }
     };
 }
@@ -242,7 +260,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         expect($dep2->getRegistryStatus())->toBe(RegistryStatus::NotFound);
     });
 
-    it('does not mark not-found when no registry versions but known latest exists', function () {
+    it('syncs from known latest when registry returns no new versions', function () {
         $dep = Dependency::create(
             name: 'vue',
             currentVersion: '3.4.0',
@@ -268,8 +286,8 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
-        expect($depRepo->saved)->toBeEmpty();
-        expect($dep->getRegistryStatus())->toBe(RegistryStatus::Pending);
+        expect($depRepo->saved)->toHaveCount(1);
+        expect($dep->getRegistryStatus())->toBe(RegistryStatus::Synced);
     });
 
     it('passes sinceVersion from latest known version to registry', function () {
@@ -389,7 +407,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         expect($dep->getRegistryStatus())->toBe(RegistryStatus::Synced);
     });
 
-    it('updates existing version isLatest flag', function () {
+    it('skips already-known versions when registry returns only existing ones', function () {
         $existingVersion = DependencyVersion::create(
             dependencyName: 'vue',
             packageManager: PackageManager::Npm,
@@ -407,9 +425,8 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
-        expect($existingVersion->isLatest())->toBeFalse();
-        expect($versionRepo->saved)->toHaveCount(1);
-        expect($versionRepo->saved[0])->toBe($existingVersion);
+        expect($versionRepo->saved)->toBeEmpty();
+        expect($versionRepo->clearedLatest)->toBeFalse();
     });
 
     it('publishes Mercure update with correct topic and payload when syncId is set', function () {

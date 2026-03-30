@@ -11,6 +11,7 @@ use App\VersionRegistry\Domain\Model\ResolverSource;
 use App\VersionRegistry\Domain\Port\VersionResolverInterface;
 use App\VersionRegistry\Domain\Repository\ProductRepositoryInterface;
 use App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface;
+use App\VersionRegistry\Domain\Service\VersionResolverSelector;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Envelope;
@@ -65,7 +66,7 @@ describe('SyncSingleProductHandler', function () {
         $handler = new SyncSingleProductHandler(
             productRepository: $productRepo,
             versionRepository: $versionRepo,
-            resolvers: [$resolver],
+            resolverSelector: new VersionResolverSelector([$resolver]),
             eventBus: $eventBus,
             mercureHub: $hub,
         );
@@ -105,7 +106,7 @@ describe('SyncSingleProductHandler', function () {
         $handler = new SyncSingleProductHandler(
             productRepository: $productRepo,
             versionRepository: $versionRepo,
-            resolvers: [$resolver],
+            resolverSelector: new VersionResolverSelector([$resolver]),
             eventBus: $eventBus,
             mercureHub: $hub,
         );
@@ -145,7 +146,7 @@ describe('SyncSingleProductHandler', function () {
         $handler = new SyncSingleProductHandler(
             productRepository: $productRepo,
             versionRepository: $versionRepo,
-            resolvers: [$resolver],
+            resolverSelector: new VersionResolverSelector([$resolver]),
             eventBus: $eventBus,
             mercureHub: $hub,
         );
@@ -189,7 +190,7 @@ describe('SyncSingleProductHandler', function () {
         $handler = new SyncSingleProductHandler(
             productRepository: $productRepo,
             versionRepository: $versionRepo,
-            resolvers: [$resolver],
+            resolverSelector: new VersionResolverSelector([$resolver]),
             eventBus: $eventBus,
             mercureHub: $hub,
         );

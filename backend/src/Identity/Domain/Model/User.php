@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Identity\Domain\Model;
 
+use App\Identity\Domain\Event\UserPasswordChanged;
+use App\Shared\Domain\Model\RecordsDomainEvents;
 use App\Shared\Domain\ValueObject\Email;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,6 +19,8 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\UniqueConstraint(name: 'uniq_user_email', columns: ['email'])]
 final class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    use RecordsDomainEvents;
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
     private Uuid $id;
@@ -187,5 +191,6 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->password = $hashedPassword;
         $this->updatedAt = new DateTimeImmutable();
+        $this->recordEvent(new UserPasswordChanged(userId: $this->id->toRfc4122()));
     }
 }

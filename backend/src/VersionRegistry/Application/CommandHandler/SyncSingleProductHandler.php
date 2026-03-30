@@ -8,10 +8,10 @@ use App\Shared\Domain\Event\ProductVersionsSyncedEvent;
 use App\Shared\Domain\ValueObject\PackageManager;
 use App\VersionRegistry\Application\Command\SyncSingleProductCommand;
 use App\VersionRegistry\Domain\Model\ProductVersion;
-use App\VersionRegistry\Domain\Port\VersionResolverInterface;
+use App\VersionRegistry\Domain\Port\PackageManagerAwareVersionResolverInterface;
 use App\VersionRegistry\Domain\Repository\ProductRepositoryInterface;
 use App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface;
-use App\VersionRegistry\Infrastructure\Resolver\PackageRegistryResolver;
+use App\VersionRegistry\Domain\Service\VersionResolverSelector;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Mercure\HubInterface;
@@ -22,25 +22,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[AsMessageHandler(bus: 'command.bus')]
 final readonly class SyncSingleProductHandler
 {
-    /** @var list<VersionResolverInterface> */
-    private array $resolverList;
-
-    /** @param iterable<VersionResolverInterface> $resolvers */
     public function __construct(
         private ProductRepositoryInterface $productRepository,
         private ProductVersionRepositoryInterface $versionRepository,
-        iterable $resolvers,
+        private VersionResolverSelector $resolverSelector,
         private MessageBusInterface $eventBus,
         private HubInterface $mercureHub,
         private LoggerInterface $logger = new NullLogger(),
     ) {
-        $all = $resolvers instanceof \Traversable
-            ? \iterator_to_array($resolvers)
-            : \array_values($resolvers);
-
-        /** @var list<VersionResolverInterface> $list */
-        $list = \array_values($all);
-        $this->resolverList = $list;
     }
 
     public function __invoke(SyncSingleProductCommand $command): void
@@ -54,12 +43,12 @@ final readonly class SyncSingleProductHandler
             return;
         }
 
-        $resolver = $this->findResolver($command->resolverSource);
+        $resolver = $this->resolverSelector->select($command->resolverSource);
         if ($resolver === null) {
             return;
         }
 
-        $resolvedVersions = $resolver instanceof PackageRegistryResolver
+        $resolvedVersions = $resolver instanceof PackageManagerAwareVersionResolverInterface
             ? $resolver->fetchVersions($command->productName, $product->getLastSyncedAt(), $packageManager)
             : $resolver->fetchVersions($command->productName, $product->getLastSyncedAt());
 
@@ -143,14 +132,4 @@ final readonly class SyncSingleProductHandler
         }
     }
 
-    private function findResolver(string $resolverSource): ?VersionResolverInterface
-    {
-        foreach ($this->resolverList as $resolver) {
-            if ($resolver->supports($resolverSource)) {
-                return $resolver;
-            }
-        }
-
-        return null;
-    }
 }

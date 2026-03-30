@@ -10,6 +10,7 @@ import type {
 } from '@/catalog/composables/useTechStackGrouping';
 
 import TechBadge from '@/shared/components/TechBadge.vue';
+import { formatRelative } from '@/shared/utils/dateFormat';
 
 const { t } = useI18n();
 
@@ -180,7 +181,7 @@ const emit = defineEmits<{
             <span v-else class="text-text-muted">—</span>
           </td>
           <td class="px-4 py-3 text-sm text-text-muted">
-            {{ row.ts.versionSyncedAt ?? '—' }}
+            {{ row.ts.versionSyncedAt ? formatRelative(row.ts.versionSyncedAt) : '—' }}
           </td>
         </tr>
       </tbody>

@@ -23,6 +23,8 @@ services:
     volumes:
       - ../frontend:/app
       - frontend-node-modules:/app/node_modules
+    environment:
+      CI: "true"
     command: >
       sh -c "pnpm install &&
              pnpm dev --host 0.0.0.0"
@@ -30,12 +32,6 @@ services:
   database:
     ports:
       - "5432:5432"
-
-  messenger-stats-publisher:
-    volumes:
-      - ../backend:/app
-    environment:
-      APP_ENV: dev
 
   messenger-consumer:
     volumes:

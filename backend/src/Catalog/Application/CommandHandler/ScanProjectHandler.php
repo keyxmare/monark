@@ -55,7 +55,6 @@ readonly class ScanProjectHandler
 
         $projectId = $project->getId();
         $this->techStackRepository->deleteByProjectId($projectId);
-        $this->dependencyWriter->deleteByProjectId($projectId);
 
         $stackOutputs = [];
         foreach ($scanResult->stacks as $detected) {
@@ -81,8 +80,9 @@ readonly class ScanProjectHandler
         }
 
         $depOutputs = [];
+        $scannedDeps = [];
         foreach ($scanResult->dependencies as $detected) {
-            $this->dependencyWriter->createFromScan(
+            $this->dependencyWriter->upsertFromScan(
                 name: $detected->name,
                 currentVersion: $detected->currentVersion,
                 packageManager: $detected->packageManager->value,
@@ -90,6 +90,10 @@ readonly class ScanProjectHandler
                 projectId: $project->getId(),
                 repositoryUrl: $detected->repositoryUrl,
             );
+            $scannedDeps[] = [
+                'name' => $detected->name,
+                'packageManager' => $detected->packageManager->value,
+            ];
             $depOutputs[] = [
                 'name' => $detected->name,
                 'version' => $detected->currentVersion,
@@ -97,6 +101,8 @@ readonly class ScanProjectHandler
                 'type' => $detected->type->value,
             ];
         }
+
+        $this->dependencyWriter->removeStaleByProjectId($projectId, $scannedDeps);
 
         $this->eventBus->dispatch(new ProjectScannedEvent(
             projectId: $command->projectId,

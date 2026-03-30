@@ -18,5 +18,7 @@ interface DependencyVersionRepositoryInterface
 
     public function save(DependencyVersion $version): void;
 
+    public function flush(): void;
+
     public function clearLatestFlag(string $dependencyName, PackageManager $packageManager): void;
 }

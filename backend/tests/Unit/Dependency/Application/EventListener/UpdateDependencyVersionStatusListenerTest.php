@@ -73,7 +73,7 @@ describe('UpdateDependencyVersionStatusListener', function () {
     });
 
     it('updates outdated dependency with new latest version and marks registry synced', function () {
-        $dep = makeComposerDependency('symfony/symfony', '6.4.0');
+        $dep = \makeComposerDependency('symfony/symfony', '6.4.0');
 
         $repo = $this->createMock(DependencyRepositoryInterface::class);
         $repo->method('findByName')->with('symfony/symfony', 'composer')->willReturn([$dep]);
@@ -96,7 +96,7 @@ describe('UpdateDependencyVersionStatusListener', function () {
     });
 
     it('marks dependency as not outdated when current version matches latest', function () {
-        $dep = makeComposerDependency('symfony/symfony', '7.2.0');
+        $dep = \makeComposerDependency('symfony/symfony', '7.2.0');
 
         $repo = $this->createMock(DependencyRepositoryInterface::class);
         $repo->method('findByName')->with('symfony/symfony', 'composer')->willReturn([$dep]);
@@ -117,8 +117,8 @@ describe('UpdateDependencyVersionStatusListener', function () {
     });
 
     it('updates multiple dependencies for the same package', function () {
-        $dep1 = makeNpmDependency('vue', '3.3.0');
-        $dep2 = makeNpmDependency('vue', '3.4.0');
+        $dep1 = \makeNpmDependency('vue', '3.3.0');
+        $dep2 = \makeNpmDependency('vue', '3.4.0');
 
         $savedDeps = [];
         $repo = $this->createMock(DependencyRepositoryInterface::class);
@@ -162,7 +162,7 @@ describe('UpdateDependencyVersionStatusListener', function () {
     });
 
     it('updates ltsVersion to empty string when event ltsVersion is null', function () {
-        $dep = makeComposerDependency('laravel/framework', '10.0.0');
+        $dep = \makeComposerDependency('laravel/framework', '10.0.0');
 
         $repo = $this->createMock(DependencyRepositoryInterface::class);
         $repo->method('findByName')->willReturn([$dep]);

@@ -137,13 +137,18 @@ function stubScanDependencyWriter(): DependencyWriterPort
         /** @var list<array{name: string, currentVersion: string, packageManager: string, type: string, projectId: Uuid, repositoryUrl: ?string}> */
         public array $created = [];
         public bool $deletedByProject = false;
+        public bool $removedStale = false;
         public function deleteByProjectId(Uuid $projectId): void
         {
             $this->deletedByProject = true;
         }
-        public function createFromScan(string $name, string $currentVersion, string $packageManager, string $type, Uuid $projectId, ?string $repositoryUrl): void
+        public function upsertFromScan(string $name, string $currentVersion, string $packageManager, string $type, Uuid $projectId, ?string $repositoryUrl): void
         {
             $this->created[] = \compact('name', 'currentVersion', 'packageManager', 'type', 'projectId', 'repositoryUrl');
+        }
+        public function removeStaleByProjectId(Uuid $projectId, array $scannedDeps): void
+        {
+            $this->removedStale = true;
         }
     };
 }
@@ -211,7 +216,7 @@ describe('ScanProjectHandler', function () {
         expect($techStackRepo->saved)->toHaveCount(2);
         expect($techStackRepo->deletedByProject)->toBeTrue();
         expect($depWriter->created)->toHaveCount(2);
-        expect($depWriter->deletedByProject)->toBeTrue();
+        expect($depWriter->removedStale)->toBeTrue();
         expect($eventBus->dispatched)->toHaveCount(1);
         expect($eventBus->dispatched[0])->toBeInstanceOf(ProjectScannedEvent::class);
         expect($eventBus->dispatched[0]->projectId)->toBe($project->getId()->toRfc4122());

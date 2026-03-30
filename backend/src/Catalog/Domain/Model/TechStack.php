@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Catalog\Domain\Model;
 
+use App\Catalog\Domain\Event\TechStackVersionStatusUpdated;
+use App\Shared\Domain\Model\RecordsDomainEvents;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
@@ -12,6 +14,8 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'catalog_tech_stacks')]
 final class TechStack
 {
+    use RecordsDomainEvents;
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
     private Uuid $id;
@@ -142,15 +146,38 @@ final class TechStack
         $this->maintenanceStatus = $maintenanceStatus;
         $this->eolDate = $eolDate;
         $this->versionSyncedAt = new DateTimeImmutable();
+
+        $this->recordEvent(new TechStackVersionStatusUpdated(
+            techStackId: $this->id->toRfc4122(),
+            projectId: $this->project->getId()->toRfc4122(),
+            framework: $this->framework,
+            latestLts: $latestLts,
+            maintenanceStatus: $maintenanceStatus,
+        ));
     }
 
-    public function getLatestLts(): ?string { return $this->latestLts; }
+    public function getLatestLts(): ?string
+    {
+        return $this->latestLts;
+    }
 
-    public function getLtsGap(): ?string { return $this->ltsGap; }
+    public function getLtsGap(): ?string
+    {
+        return $this->ltsGap;
+    }
 
-    public function getMaintenanceStatus(): ?string { return $this->maintenanceStatus; }
+    public function getMaintenanceStatus(): ?string
+    {
+        return $this->maintenanceStatus;
+    }
 
-    public function getEolDate(): ?DateTimeImmutable { return $this->eolDate; }
+    public function getEolDate(): ?DateTimeImmutable
+    {
+        return $this->eolDate;
+    }
 
-    public function getVersionSyncedAt(): ?DateTimeImmutable { return $this->versionSyncedAt; }
+    public function getVersionSyncedAt(): ?DateTimeImmutable
+    {
+        return $this->versionSyncedAt;
+    }
 }

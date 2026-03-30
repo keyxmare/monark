@@ -23,7 +23,7 @@ final readonly class DependencyWriterAdapter implements DependencyWriterPort
         $this->dependencyRepository->deleteByProjectId($projectId);
     }
 
-    public function createFromScan(
+    public function upsertFromScan(
         string $name,
         string $currentVersion,
         string $packageManager,
@@ -31,6 +31,21 @@ final readonly class DependencyWriterAdapter implements DependencyWriterPort
         Uuid $projectId,
         ?string $repositoryUrl,
     ): void {
+        $existing = $this->dependencyRepository->findByNameManagerAndProjectId($name, $packageManager, $projectId);
+
+        if ($existing !== null) {
+            $versionChanged = $existing->getCurrentVersion() !== $currentVersion;
+            $existing->update(
+                currentVersion: $currentVersion,
+                type: DependencyType::from($type),
+                repositoryUrl: $repositoryUrl,
+                isOutdated: $versionChanged ? \version_compare($currentVersion, $existing->getLatestVersion(), '<') : null,
+            );
+            $this->dependencyRepository->save($existing);
+
+            return;
+        }
+
         $dependency = Dependency::create(
             name: $name,
             currentVersion: $currentVersion,
@@ -44,5 +59,22 @@ final readonly class DependencyWriterAdapter implements DependencyWriterPort
         );
 
         $this->dependencyRepository->save($dependency);
+    }
+
+    public function removeStaleByProjectId(Uuid $projectId, array $scannedDeps): void
+    {
+        $existing = $this->dependencyRepository->findByProjectId($projectId, 1, 10000);
+
+        $scannedKeys = [];
+        foreach ($scannedDeps as $dep) {
+            $scannedKeys[$dep['name'] . '|' . $dep['packageManager']] = true;
+        }
+
+        foreach ($existing as $dep) {
+            $key = $dep->getName() . '|' . $dep->getPackageManager()->value;
+            if (!isset($scannedKeys[$key])) {
+                $this->dependencyRepository->delete($dep);
+            }
+        }
     }
 }

@@ -11,9 +11,12 @@ use App\Dependency\Domain\Event\DependencyDeleted;
 use App\Dependency\Domain\Event\DependencyUpdated;
 
 it('creates DependencyCreated event', function () {
-    $event = new DependencyCreated('d-1', 'symfony/http-kernel');
+    $event = new DependencyCreated('d-1', 'symfony/http-kernel', 'composer', '6.4.0', 'proj-1');
     expect($event->dependencyId)->toBe('d-1');
     expect($event->name)->toBe('symfony/http-kernel');
+    expect($event->packageManager)->toBe('composer');
+    expect($event->currentVersion)->toBe('6.4.0');
+    expect($event->projectId)->toBe('proj-1');
 });
 
 it('creates DependencyUpdated event', function () {
@@ -23,9 +26,10 @@ it('creates DependencyUpdated event', function () {
 });
 
 it('creates DependencyDeleted event', function () {
-    $event = new DependencyDeleted('d-1', 'symfony/http-kernel');
+    $event = new DependencyDeleted('d-1', 'symfony/http-kernel', 'composer');
     expect($event->dependencyId)->toBe('d-1');
     expect($event->name)->toBe('symfony/http-kernel');
+    expect($event->packageManager)->toBe('composer');
 });
 
 it('creates ProjectCreated event', function () {

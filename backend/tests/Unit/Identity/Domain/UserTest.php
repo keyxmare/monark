@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Identity\Domain\Event\UserPasswordChanged;
 use App\Identity\Domain\Model\User;
 
 describe('User', function () {
@@ -172,5 +173,48 @@ describe('User', function () {
             lastName: 'Doe',
             roles: ['ROLE_ADMIN'],
         ))->toThrow(\InvalidArgumentException::class, 'roles must contain at least ROLE_USER');
+    });
+});
+
+describe('User domain events', function () {
+    it('does not record events on create (events emitted by handler)', function () {
+        $user = User::create(
+            email: 'test@example.com',
+            hashedPassword: 'hashed',
+            firstName: 'John',
+            lastName: 'Doe',
+        );
+
+        expect($user->pullDomainEvents())->toBeEmpty();
+    });
+
+    it('emits UserPasswordChanged on updatePassword', function () {
+        $user = User::create(
+            email: 'test@example.com',
+            hashedPassword: 'hashed',
+            firstName: 'John',
+            lastName: 'Doe',
+        );
+
+        $user->updatePassword('new-hashed');
+
+        $events = $user->pullDomainEvents();
+
+        expect($events)->toHaveCount(1)
+            ->and($events[0])->toBeInstanceOf(UserPasswordChanged::class)
+            ->and($events[0]->userId)->toBe($user->getId()->toRfc4122());
+    });
+
+    it('clears events after pull', function () {
+        $user = User::create(
+            email: 'test@example.com',
+            hashedPassword: 'hashed',
+            firstName: 'John',
+            lastName: 'Doe',
+        );
+        $user->updatePassword('new-hashed');
+        $user->pullDomainEvents();
+
+        expect($user->pullDomainEvents())->toBeEmpty();
     });
 });

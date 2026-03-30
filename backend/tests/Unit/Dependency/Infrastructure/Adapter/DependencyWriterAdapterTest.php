@@ -63,20 +63,34 @@ function stubDepWriterRepo(): DependencyRepositoryInterface&stdClass
         {
             return [];
         }
+        public function findByNameManagerAndProjectId(string $name, string $packageManager, Uuid $projectId): ?Dependency
+        {
+            return null;
+        }
         public function getStats(array $filters = []): array
         {
             return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
+
+        public function getStatsSingle(array $filters = []): array
+        {
+            return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
+
+        public function findFilteredWithVersionDates(int $page, int $perPage, array $filters = []): array
+        {
+            return [];
         }
     };
 }
 
 describe('DependencyWriterAdapter', function () {
-    it('creates dependency from scan data', function () {
+    it('creates new dependency from scan data', function () {
         $repo = \stubDepWriterRepo();
         $adapter = new DependencyWriterAdapter($repo);
         $projectId = Uuid::v7();
 
-        $adapter->createFromScan(
+        $adapter->upsertFromScan(
             name: 'vue',
             currentVersion: '3.5.0',
             packageManager: 'npm',

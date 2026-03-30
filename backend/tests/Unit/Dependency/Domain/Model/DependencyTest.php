@@ -126,13 +126,8 @@ describe('Dependency', function () {
 
     it('returns vulnerability count from collection', function () {
         $dependency = DependencyFactory::create();
-        $vuln1 = VulnerabilityFactory::create($dependency);
-        $vuln2 = VulnerabilityFactory::create($dependency, ['cveId' => 'CVE-2026-99999']);
-
-        $ref = new ReflectionProperty($dependency, 'vulnerabilities');
-        $collection = $ref->getValue($dependency);
-        $collection->add($vuln1);
-        $collection->add($vuln2);
+        VulnerabilityFactory::create($dependency);
+        VulnerabilityFactory::create($dependency, ['cveId' => 'CVE-2026-99999']);
 
         expect($dependency->getVulnerabilityCount())->toBe(2);
     });

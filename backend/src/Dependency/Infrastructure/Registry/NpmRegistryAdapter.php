@@ -6,6 +6,7 @@ namespace App\Dependency\Infrastructure\Registry;
 
 use App\Dependency\Domain\DTO\RegistryVersion;
 use App\Dependency\Domain\Port\PackageRegistryPort;
+use App\Dependency\Infrastructure\Registry\Attribute\AsPackageRegistry;
 use App\Shared\Domain\ValueObject\PackageManager;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
@@ -13,6 +14,7 @@ use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
+#[AsPackageRegistry(PackageManager::Npm)]
 final readonly class NpmRegistryAdapter implements PackageRegistryPort
 {
     private const string BASE_URL = 'https://registry.npmjs.org';

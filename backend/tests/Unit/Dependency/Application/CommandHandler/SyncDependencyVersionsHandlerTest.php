@@ -58,11 +58,26 @@ function stubSyncVersionsDepRepo(array $packages): DependencyRepositoryInterface
         {
             return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
         }
+
+        public function getStatsSingle(array $filters = []): array
+        {
+            return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
+
         public function findUniquePackages(): array
         {
             return $this->packages;
         }
         public function findByName(string $name, string $packageManager): array
+        {
+            return [];
+        }
+        public function findByNameManagerAndProjectId(string $name, string $packageManager, Uuid $projectId): ?Dependency
+        {
+            return null;
+        }
+
+        public function findFilteredWithVersionDates(int $page, int $perPage, array $filters = []): array
         {
             return [];
         }

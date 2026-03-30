@@ -7,6 +7,7 @@ namespace App\VersionRegistry\Infrastructure\Persistence\Doctrine;
 use App\Shared\Domain\ValueObject\PackageManager;
 use App\VersionRegistry\Domain\Model\Product;
 use App\VersionRegistry\Domain\Repository\ProductRepositoryInterface;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class DoctrineProductRepository implements ProductRepositoryInterface
@@ -44,7 +45,7 @@ final readonly class DoctrineProductRepository implements ProductRepositoryInter
             ->getResult();
     }
 
-    public function findStale(\DateTimeImmutable $before): array
+    public function findStale(DateTimeImmutable $before): array
     {
         /** @var list<Product> */
         return $this->em->createQueryBuilder()

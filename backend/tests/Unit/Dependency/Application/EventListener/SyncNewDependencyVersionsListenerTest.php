@@ -41,6 +41,9 @@ function stubSyncNewVersionsRepo(array $knownPackages = []): DependencyVersionRe
         public function clearLatestFlag(string $dependencyName, PackageManager $packageManager): void
         {
         }
+        public function flush(): void
+        {
+        }
     };
 }
 

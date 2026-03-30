@@ -42,9 +42,23 @@ interface DependencyRepositoryInterface
     /** @return list<Dependency> */
     public function findByName(string $name, string $packageManager): array;
 
+    public function findByNameManagerAndProjectId(string $name, string $packageManager, Uuid $projectId): ?Dependency;
+
     /**
      * @param array{projectId?: string, packageManager?: string, type?: string} $filters
      * @return array{total: int, outdated: int, totalVulnerabilities: int}
      */
     public function getStats(array $filters = []): array;
+
+    /**
+     * @param array{projectId?: string, packageManager?: string, type?: string} $filters
+     * @return array{total: int, outdated: int, totalVulnerabilities: int}
+     */
+    public function getStatsSingle(array $filters = []): array;
+
+    /**
+     * @param array{projectId?: string, search?: string, packageManager?: string, type?: string, isOutdated?: bool, sort?: string, sortDir?: string} $filters
+     * @return list<array{dependency: Dependency, currentVersionReleasedAt: ?string, latestVersionReleasedAt: ?string}>
+     */
+    public function findFilteredWithVersionDates(int $page, int $perPage, array $filters = []): array;
 }

@@ -7,55 +7,19 @@ use App\Dependency\Application\DTO\DependencyOutput;
 use App\Dependency\Application\Query\ListDependenciesQuery;
 use App\Dependency\Application\QueryHandler\ListDependenciesHandler;
 use App\Dependency\Domain\Model\Dependency;
-use App\Dependency\Domain\Model\DependencyVersion;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
-use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Uid\Uuid;
 
-function stubListDepsVersionRepo(array $versionMap = []): DependencyVersionRepositoryInterface
+function stubListDepsRepo(array $rows = [], int $count = 0): object
 {
-    return new class ($versionMap) implements DependencyVersionRepositoryInterface {
-        public function __construct(private readonly array $versionMap)
-        {
-        }
-
-        public function findByNameAndManager(string $dependencyName, PackageManager $packageManager): array
-        {
-            return [];
-        }
-
-        public function findLatestByNameAndManager(string $dependencyName, PackageManager $packageManager): ?DependencyVersion
-        {
-            return null;
-        }
-
-        public function findByNameManagerAndVersion(string $dependencyName, PackageManager $packageManager, string $version): ?DependencyVersion
-        {
-            $key = $dependencyName . '|' . $packageManager->value . '|' . $version;
-
-            return $this->versionMap[$key] ?? null;
-        }
-
-        public function save(DependencyVersion $version): void
-        {
-        }
-
-        public function clearLatestFlag(string $dependencyName, PackageManager $packageManager): void
-        {
-        }
-    };
-}
-
-function stubListDepsRepo(array $dependencies = [], int $count = 0, ?array $receivedFilters = null): object
-{
-    return new class ($dependencies, $count) implements DependencyRepositoryInterface {
+    return new class ($rows, $count) implements DependencyRepositoryInterface {
         public ?array $receivedFilters = null;
         public ?int $receivedPage = null;
         public ?int $receivedPerPage = null;
 
-        public function __construct(private readonly array $dependencies, private readonly int $count)
+        public function __construct(private readonly array $rows, private readonly int $count)
         {
         }
 
@@ -66,7 +30,7 @@ function stubListDepsRepo(array $dependencies = [], int $count = 0, ?array $rece
 
         public function findAll(int $page = 1, int $perPage = 20): array
         {
-            return $this->dependencies;
+            return [];
         }
 
         public function count(): int
@@ -98,11 +62,16 @@ function stubListDepsRepo(array $dependencies = [], int $count = 0, ?array $rece
 
         public function findFiltered(int $page, int $perPage, array $filters = []): array
         {
+            return [];
+        }
+
+        public function findFilteredWithVersionDates(int $page, int $perPage, array $filters = []): array
+        {
             $this->receivedPage = $page;
             $this->receivedPerPage = $perPage;
             $this->receivedFilters = $filters;
 
-            return $this->dependencies;
+            return $this->rows;
         }
 
         public function countFiltered(array $filters = []): int
@@ -120,11 +89,30 @@ function stubListDepsRepo(array $dependencies = [], int $count = 0, ?array $rece
             return [];
         }
 
+        public function findByNameManagerAndProjectId(string $name, string $packageManager, Uuid $projectId): ?Dependency
+        {
+            return null;
+        }
+
         public function getStats(array $filters = []): array
         {
             return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
         }
+
+        public function getStatsSingle(array $filters = []): array
+        {
+            return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
     };
+}
+
+function makeDepRow(Dependency $dep, ?string $currentReleasedAt = null, ?string $latestReleasedAt = null): array
+{
+    return [
+        'dependency' => $dep,
+        'currentVersionReleasedAt' => $currentReleasedAt,
+        'latestVersionReleasedAt' => $latestReleasedAt,
+    ];
 }
 
 describe('ListDependenciesHandler', function () {
@@ -151,7 +139,8 @@ describe('ListDependenciesHandler', function () {
             projectId: $projectId,
         );
 
-        $handler = new ListDependenciesHandler(\stubListDepsRepo([$dep1, $dep2], 2), \stubListDepsVersionRepo());
+        $rows = [\makeDepRow($dep1), \makeDepRow($dep2)];
+        $handler = new ListDependenciesHandler(\stubListDepsRepo($rows, 2));
         $result = $handler(new ListDependenciesQuery(1, 20));
 
         expect($result)->toBeInstanceOf(DependencyListOutput::class);
@@ -180,7 +169,7 @@ describe('ListDependenciesHandler', function () {
     });
 
     it('returns empty list when no dependencies', function () {
-        $handler = new ListDependenciesHandler(\stubListDepsRepo([], 0), \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler(\stubListDepsRepo([], 0));
         $result = $handler(new ListDependenciesQuery());
 
         expect($result->pagination->items)->toBeEmpty();
@@ -191,7 +180,7 @@ describe('ListDependenciesHandler', function () {
 
     it('passes page and perPage to repository', function () {
         $repo = \stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler($repo);
         $handler(new ListDependenciesQuery(3, 50));
 
         expect($repo->receivedPage)->toBe(3);
@@ -200,7 +189,7 @@ describe('ListDependenciesHandler', function () {
 
     it('builds filters from query parameters excluding null and empty', function () {
         $repo = \stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler($repo);
         $handler(new ListDependenciesQuery(
             page: 1,
             perPage: 20,
@@ -224,7 +213,7 @@ describe('ListDependenciesHandler', function () {
 
     it('excludes null filters but keeps sort defaults', function () {
         $repo = \stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler($repo);
         $handler(new ListDependenciesQuery(
             page: 1,
             perPage: 20,
@@ -244,7 +233,7 @@ describe('ListDependenciesHandler', function () {
 
     it('adds isOutdated to filters when set to true', function () {
         $repo = \stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler($repo);
         $handler(new ListDependenciesQuery(isOutdated: true));
 
         expect($repo->receivedFilters)->toHaveKey('isOutdated');
@@ -253,7 +242,7 @@ describe('ListDependenciesHandler', function () {
 
     it('adds isOutdated to filters when set to false', function () {
         $repo = \stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler($repo);
         $handler(new ListDependenciesQuery(isOutdated: false));
 
         expect($repo->receivedFilters)->toHaveKey('isOutdated');
@@ -262,13 +251,13 @@ describe('ListDependenciesHandler', function () {
 
     it('does not add isOutdated to filters when null', function () {
         $repo = \stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler($repo);
         $handler(new ListDependenciesQuery(isOutdated: null));
 
         expect($repo->receivedFilters)->not->toHaveKey('isOutdated');
     });
 
-    it('populates release dates from version repository', function () {
+    it('populates release dates from version join data', function () {
         $dep = Dependency::create(
             name: 'vue',
             currentVersion: '3.4.0',
@@ -280,25 +269,8 @@ describe('ListDependenciesHandler', function () {
             projectId: Uuid::v7(),
         );
 
-        $currentVer = DependencyVersion::create(
-            dependencyName: 'vue',
-            packageManager: PackageManager::Npm,
-            version: '3.4.0',
-            releaseDate: new DateTimeImmutable('2024-06-15T10:00:00+00:00'),
-        );
-        $latestVer = DependencyVersion::create(
-            dependencyName: 'vue',
-            packageManager: PackageManager::Npm,
-            version: '3.5.0',
-            releaseDate: new DateTimeImmutable('2025-01-20T14:30:00+00:00'),
-        );
-
-        $versionRepo = \stubListDepsVersionRepo([
-            'vue|npm|3.4.0' => $currentVer,
-            'vue|npm|3.5.0' => $latestVer,
-        ]);
-
-        $handler = new ListDependenciesHandler(\stubListDepsRepo([$dep], 1), $versionRepo);
+        $rows = [\makeDepRow($dep, '2024-06-15T10:00:00+00:00', '2025-01-20T14:30:00+00:00')];
+        $handler = new ListDependenciesHandler(\stubListDepsRepo($rows, 1));
         $result = $handler(new ListDependenciesQuery());
 
         $item = $result->pagination->items[0];
@@ -318,18 +290,8 @@ describe('ListDependenciesHandler', function () {
             projectId: Uuid::v7(),
         );
 
-        $currentVer = DependencyVersion::create(
-            dependencyName: 'vue',
-            packageManager: PackageManager::Npm,
-            version: '3.4.0',
-            releaseDate: null,
-        );
-
-        $versionRepo = \stubListDepsVersionRepo([
-            'vue|npm|3.4.0' => $currentVer,
-        ]);
-
-        $handler = new ListDependenciesHandler(\stubListDepsRepo([$dep], 1), $versionRepo);
+        $rows = [\makeDepRow($dep, null, null)];
+        $handler = new ListDependenciesHandler(\stubListDepsRepo($rows, 1));
         $result = $handler(new ListDependenciesQuery());
 
         $item = $result->pagination->items[0];
@@ -339,7 +301,7 @@ describe('ListDependenciesHandler', function () {
 
     it('excludes empty string filters', function () {
         $repo = \stubListDepsRepo([], 0);
-        $handler = new ListDependenciesHandler($repo, \stubListDepsVersionRepo());
+        $handler = new ListDependenciesHandler($repo);
         $handler(new ListDependenciesQuery(
             projectId: '',
             search: '',

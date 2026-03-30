@@ -73,11 +73,26 @@ function stubDepStatsRepo(array $stats, ?array &$receivedFilters = null): Depend
             return [];
         }
 
+        public function findByNameManagerAndProjectId(string $name, string $packageManager, Uuid $projectId): ?Dependency
+        {
+            return null;
+        }
+
         public function getStats(array $filters = []): array
+        {
+            return $this->stats;
+        }
+
+        public function getStatsSingle(array $filters = []): array
         {
             $this->receivedFilters = $filters;
 
             return $this->stats;
+        }
+
+        public function findFilteredWithVersionDates(int $page, int $perPage, array $filters = []): array
+        {
+            return [];
         }
     };
 }

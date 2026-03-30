@@ -82,9 +82,23 @@ function stubDepReaderRepo(array $dependencies = []): DependencyRepositoryInterf
             return [];
         }
 
+        public function findByNameManagerAndProjectId(string $name, string $packageManager, Uuid $projectId): ?Dependency
+        {
+            return null;
+        }
         public function getStats(array $filters = []): array
         {
             return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
+
+        public function getStatsSingle(array $filters = []): array
+        {
+            return ['total' => 0, 'outdated' => 0, 'totalVulnerabilities' => 0];
+        }
+
+        public function findFilteredWithVersionDates(int $page, int $perPage, array $filters = []): array
+        {
+            return [];
         }
     };
 }

@@ -6,6 +6,7 @@ namespace App\VersionRegistry\Domain\Repository;
 
 use App\Shared\Domain\ValueObject\PackageManager;
 use App\VersionRegistry\Domain\Model\Product;
+use DateTimeImmutable;
 
 interface ProductRepositoryInterface
 {
@@ -15,7 +16,7 @@ interface ProductRepositoryInterface
     public function findAll(): array;
 
     /** @return list<Product> */
-    public function findStale(\DateTimeImmutable $before): array;
+    public function findStale(DateTimeImmutable $before): array;
 
     /**
      * @param list<string> $names

@@ -111,6 +111,10 @@ services:
         arguments:
             $eventBus: '@event.bus'
 
+    App\Catalog\Application\Service\TechStackVersionStatusUpdater:
+        arguments:
+            $eventBus: '@event.bus'
+
     App\Identity\Infrastructure\Security\ApiTokenHandler:
         arguments:
             $appSecret: '%kernel.secret%'
@@ -144,16 +148,16 @@ services:
         alias: App\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductVersionRepository
 
     App\VersionRegistry\Infrastructure\Resolver\EndOfLifeResolver:
-        tags: ['version_registry.resolver']
+        tags: [App\VersionRegistry\Domain\Port\VersionResolverInterface]
         arguments:
             $httpClient: '@external_api.client'
 
     App\VersionRegistry\Infrastructure\Resolver\PackageRegistryResolver:
-        tags: ['version_registry.resolver']
+        tags: [App\VersionRegistry\Domain\Port\VersionResolverInterface]
 
-    App\VersionRegistry\Application\CommandHandler\SyncSingleProductHandler:
+    App\VersionRegistry\Domain\Service\VersionResolverSelector:
         arguments:
-            $resolvers: !tagged_iterator version_registry.resolver
+            $resolvers: !tagged_iterator App\VersionRegistry\Domain\Port\VersionResolverInterface
 
     App\VersionRegistry\Presentation\Console\SyncProductVersionsConsoleCommand:
         arguments:

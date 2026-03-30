@@ -36,7 +36,7 @@ final readonly class GetDependencyStatsHandler
             $item->expiresAfter(300);
             $item->tag(['dependencies']);
 
-            $stats = $this->dependencyRepository->getStats($filters);
+            $stats = $this->dependencyRepository->getStatsSingle($filters);
 
             return new DependencyStatsOutput(
                 total: $stats['total'],

@@ -23,6 +23,7 @@ describe('DoctrineDependencyVersionRepository', function () {
         $this->repo->save($v1);
         $this->repo->save($v2);
         $this->repo->save($v3);
+        $this->repo->flush();
 
         $found = $this->repo->findByNameAndManager('symfony/console', PackageManager::Composer);
 
@@ -40,6 +41,7 @@ describe('DoctrineDependencyVersionRepository', function () {
 
         $this->repo->save($v1);
         $this->repo->save($v2);
+        $this->repo->flush();
 
         $latest = $this->repo->findLatestByNameAndManager('symfony/console', PackageManager::Composer);
 
@@ -51,6 +53,7 @@ describe('DoctrineDependencyVersionRepository', function () {
     it('returns null when no latest version exists', function () {
         $v1 = DependencyVersion::create('symfony/console', PackageManager::Composer, '6.0.0', isLatest: false);
         $this->repo->save($v1);
+        $this->repo->flush();
 
         $latest = $this->repo->findLatestByNameAndManager('symfony/console', PackageManager::Composer);
 
@@ -60,6 +63,7 @@ describe('DoctrineDependencyVersionRepository', function () {
     it('finds by name, manager, and version', function () {
         $v1 = DependencyVersion::create('symfony/console', PackageManager::Composer, '6.0.0');
         $this->repo->save($v1);
+        $this->repo->flush();
 
         $found = $this->repo->findByNameManagerAndVersion('symfony/console', PackageManager::Composer, '6.0.0');
 
@@ -80,6 +84,7 @@ describe('DoctrineDependencyVersionRepository', function () {
         $this->repo->save($v1);
         $this->repo->save($v2);
         $this->repo->save($v3);
+        $this->repo->flush();
 
         $this->repo->clearLatestFlag('symfony/console', PackageManager::Composer);
         $this->getEntityManager()->clear();

@@ -18,12 +18,12 @@ export function useDependencySyncProgress() {
   const { t } = useI18n();
   const toastStore = useToastStore();
 
-  function track(syncId: string): void {
+  function track(syncId: string, total = 0): void {
     const toastId = toastStore.addToast({
       variant: 'progress',
       title: t('dependency.dependencies.syncVersions'),
       message: t('dependency.dependencies.syncing'),
-      progress: { current: 0, total: 1 },
+      progress: { current: 0, total },
     });
 
     let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
@@ -40,7 +40,7 @@ export function useDependencySyncProgress() {
       }, TIMEOUT_MS);
     }
 
-    const { data, close } = useMercure<DependencySyncProgress>(`/dependency/sync/${syncId}`, {
+    const { close } = useMercure<DependencySyncProgress>(`/dependency/sync/${syncId}`, {
       onMessage(progress) {
         resetTimeout();
 
@@ -49,8 +49,8 @@ export function useDependencySyncProgress() {
           toastStore.updateToast(toastId, {
             variant: 'success',
             title: t('dependency.dependencies.syncVersions'),
-            message: `${progress.completed}/${progress.total}`,
-            progress: { current: progress.completed, total: progress.total },
+            message: t('dependency.dependencies.syncCompleted'),
+            progress: { current: progress.total, total: progress.total },
           });
           close();
         } else {

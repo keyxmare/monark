@@ -9,6 +9,9 @@ final readonly class DependencyCreated
     public function __construct(
         public string $dependencyId,
         public string $name,
+        public string $packageManager,
+        public string $currentVersion,
+        public string $projectId,
     ) {
     }
 }

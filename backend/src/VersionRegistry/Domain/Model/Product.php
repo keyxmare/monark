@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\VersionRegistry\Domain\Model;
 
 use App\Shared\Domain\ValueObject\PackageManager;
+use App\VersionRegistry\Domain\ValueObject\ResolvedSemanticVersion;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
@@ -82,13 +83,58 @@ final class Product
         $this->lastSyncedAt = new DateTimeImmutable();
     }
 
-    public function getId(): Uuid { return $this->id; }
-    public function getName(): string { return $this->name; }
-    public function getType(): ProductType { return $this->type; }
-    public function getPackageManager(): ?PackageManager { return $this->packageManager; }
-    public function getResolverSource(): ResolverSource { return $this->resolverSource; }
-    public function getLatestVersion(): ?string { return $this->latestVersion; }
-    public function getLtsVersion(): ?string { return $this->ltsVersion; }
-    public function getLastSyncedAt(): ?DateTimeImmutable { return $this->lastSyncedAt; }
-    public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
+    public function getLatestSemanticVersion(): ?ResolvedSemanticVersion
+    {
+        if ($this->latestVersion === null) {
+            return null;
+        }
+
+        return ResolvedSemanticVersion::tryFromString($this->latestVersion, isLts: false, isLatest: true);
+    }
+
+    public function getLtsSemanticVersion(): ?ResolvedSemanticVersion
+    {
+        if ($this->ltsVersion === null) {
+            return null;
+        }
+
+        return ResolvedSemanticVersion::tryFromString($this->ltsVersion, isLts: true, isLatest: false);
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getType(): ProductType
+    {
+        return $this->type;
+    }
+    public function getPackageManager(): ?PackageManager
+    {
+        return $this->packageManager;
+    }
+    public function getResolverSource(): ResolverSource
+    {
+        return $this->resolverSource;
+    }
+    public function getLatestVersion(): ?string
+    {
+        return $this->latestVersion;
+    }
+    public function getLtsVersion(): ?string
+    {
+        return $this->ltsVersion;
+    }
+    public function getLastSyncedAt(): ?DateTimeImmutable
+    {
+        return $this->lastSyncedAt;
+    }
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

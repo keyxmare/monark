@@ -10,7 +10,7 @@ interface DependencyWriterPort
 {
     public function deleteByProjectId(Uuid $projectId): void;
 
-    public function createFromScan(
+    public function upsertFromScan(
         string $name,
         string $currentVersion,
         string $packageManager,
@@ -18,4 +18,7 @@ interface DependencyWriterPort
         Uuid $projectId,
         ?string $repositoryUrl,
     ): void;
+
+    /** @param list<array{name: string, packageManager: string}> $scannedDeps */
+    public function removeStaleByProjectId(Uuid $projectId, array $scannedDeps): void;
 }

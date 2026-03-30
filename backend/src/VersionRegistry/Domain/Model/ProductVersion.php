@@ -86,15 +86,45 @@ class ProductVersion
         );
     }
 
-    public function markAsLatest(bool $isLatest): void { $this->isLatest = $isLatest; }
+    public function markAsLatest(bool $isLatest): void
+    {
+        $this->isLatest = $isLatest;
+    }
 
-    public function getId(): Uuid { return $this->id; }
-    public function getProductName(): string { return $this->productName; }
-    public function getPackageManager(): ?PackageManager { return $this->packageManager; }
-    public function getVersion(): string { return $this->version; }
-    public function getReleaseDate(): ?DateTimeImmutable { return $this->releaseDate; }
-    public function isLts(): bool { return $this->isLts; }
-    public function isLatest(): bool { return $this->isLatest; }
-    public function getEolDate(): ?string { return $this->eolDate; }
-    public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+    public function getProductName(): string
+    {
+        return $this->productName;
+    }
+    public function getPackageManager(): ?PackageManager
+    {
+        return $this->packageManager;
+    }
+    public function getVersion(): string
+    {
+        return $this->version;
+    }
+    public function getReleaseDate(): ?DateTimeImmutable
+    {
+        return $this->releaseDate;
+    }
+    public function isLts(): bool
+    {
+        return $this->isLts;
+    }
+    public function isLatest(): bool
+    {
+        return $this->isLatest;
+    }
+    public function getEolDate(): ?string
+    {
+        return $this->eolDate;
+    }
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

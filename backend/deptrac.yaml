@@ -83,6 +83,26 @@ deptrac:
         - type: directory
           value: src/Activity/Presentation/.*
 
+    - name: VersionRegistry_Domain
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Domain/.*
+
+    - name: VersionRegistry_Application
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Application/.*
+
+    - name: VersionRegistry_Infrastructure
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Infrastructure/.*
+
+    - name: VersionRegistry_Presentation
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Presentation/.*
+
     - name: Shared
       collectors:
         - type: directory
@@ -107,6 +127,7 @@ deptrac:
       - Shared
     Catalog_Application:
       - Catalog_Domain
+      - VersionRegistry_Domain
       - Shared
     Catalog_Infrastructure:
       - Catalog_Domain
@@ -144,6 +165,21 @@ deptrac:
     Activity_Presentation:
       - Activity_Domain
       - Activity_Application
+      - Shared
+
+    VersionRegistry_Domain:
+      - Shared
+    VersionRegistry_Application:
+      - VersionRegistry_Domain
+      - Shared
+    VersionRegistry_Infrastructure:
+      - VersionRegistry_Domain
+      - VersionRegistry_Application
+      - Dependency_Domain
+      - Shared
+    VersionRegistry_Presentation:
+      - VersionRegistry_Domain
+      - VersionRegistry_Application
       - Shared
 
     Shared: ~

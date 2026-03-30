@@ -28,8 +28,8 @@ export const dependencyService = {
     >(`${BASE_URL}?${params}`);
   },
 
-  sync(): Promise<ApiResponse<{ syncId: string }>> {
-    return api.post<ApiResponse<{ syncId: string }>>('/dependency/sync', {});
+  sync(): Promise<ApiResponse<{ syncId: string; total: number }>> {
+    return api.post<ApiResponse<{ syncId: string; total: number }>>('/dependency/sync', {});
   },
 
   stats(params?: {
