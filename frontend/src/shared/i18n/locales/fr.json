@@ -70,7 +70,9 @@
       "vulnerabilities": "les vulnérabilités",
       "dashboard": "le tableau de bord",
       "remoteProjects": "les projets distants",
-      "mergeRequests": "les merge requests"
+      "mergeRequests": "les merge requests",
+      "languages": "les langages",
+      "frameworks": "les frameworks"
     },
     "validation": {
       "required": "Ce champ est requis",
@@ -96,6 +98,8 @@
     "providers": "Fournisseurs",
     "projects": "Projets",
     "techStacks": "Stacks techniques",
+    "languages": "Langages",
+    "frameworks": "Frameworks",
     "dependencies": "Dépendances",
     "vulnerabilities": "Vulnérabilités",
     "users": "Utilisateurs",
@@ -155,6 +159,8 @@
       "slugHint": "Lettres minuscules, chiffres et tirets uniquement",
       "projectInfo": "Infos projet",
       "techStacks": "Stacks techniques",
+      "languages": "Langages",
+      "frameworks": "Frameworks",
       "noProjects": "Aucun projet trouvé.",
       "noProjectsHint": "Créez un projet ou importez depuis un fournisseur pour commencer.",
       "unfollow": "Ne plus suivre",
@@ -326,6 +332,32 @@
       "inactive": "Inactif",
       "inactiveSince": "Dernière release il y a {duration}",
       "syncedAt": "Dernière synchro"
+    },
+    "languages": {
+      "title": "Langages",
+      "project": "Projet",
+      "language": "Langage",
+      "version": "Version",
+      "eolDate": "Date de fin de vie",
+      "status": "Statut",
+      "searchPlaceholder": "Rechercher un projet ou langage…",
+      "allLanguages": "Tous les langages",
+      "allStatuses": "Tous les statuts",
+      "noLanguages": "Aucun langage détecté",
+      "noLanguagesHint": "Importez des projets depuis un fournisseur et lancez un scan pour détecter les langages.",
+      "noMatchingLanguages": "Aucun langage ne correspond aux filtres."
+    },
+    "frameworks": {
+      "title": "Frameworks",
+      "project": "Projet",
+      "language": "Langage",
+      "framework": "Framework",
+      "version": "Version",
+      "searchPlaceholder": "Rechercher un projet ou framework…",
+      "allFrameworks": "Tous les frameworks",
+      "noFrameworks": "Aucun framework détecté",
+      "noFrameworksHint": "Importez des projets depuis un fournisseur et lancez un scan pour détecter les frameworks.",
+      "noMatchingFrameworks": "Aucun framework ne correspond aux filtres."
     },
     "mergeRequests": {
       "title": "Merge Requests",

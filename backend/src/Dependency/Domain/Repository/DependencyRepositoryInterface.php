@@ -36,7 +36,7 @@ interface DependencyRepositoryInterface
     /** @param array{projectId?: string, search?: string, packageManager?: string, type?: string, isOutdated?: bool} $filters */
     public function countFiltered(array $filters = []): int;
 
-    /** @return list<array{name: string, packageManager: string}> */
+    /** @return list<array{name: string, packageManager: \App\Shared\Domain\ValueObject\PackageManager}> */
     public function findUniquePackages(): array;
 
     /** @return list<Dependency> */

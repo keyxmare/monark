@@ -22,7 +22,6 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
         /** @var Project|null */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
-            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->where('p.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
@@ -34,7 +33,6 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
         /** @var Project|null */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
-            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->where('p.slug = :slug')
             ->setParameter('slug', $slug)
             ->getQuery()
@@ -73,7 +71,6 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
     {
         $query = $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
-            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->orderBy('p.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)
@@ -89,7 +86,6 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
         /** @var list<Project> */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
-            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->where('p.provider = :providerId')
             ->setParameter('providerId', $providerId)
             ->getQuery()
@@ -102,7 +98,6 @@ final readonly class DoctrineProjectRepository implements ProjectRepositoryInter
         /** @var list<Project> */
         return $this->entityManager->getRepository(Project::class)
             ->createQueryBuilder('p')
-            ->leftJoin('p.techStacks', 'ts')->addSelect('ts')
             ->where('p.provider IS NOT NULL')
             ->andWhere('p.externalId IS NOT NULL')
             ->getQuery()

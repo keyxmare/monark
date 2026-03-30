@@ -40,16 +40,16 @@ export const catalogRoutes: RouteRecordRaw[] = [
     path: '/catalog/projects/:id',
   },
   {
-    component: () => import('@/catalog/pages/TechStackList.vue'),
+    component: () => import('@/catalog/pages/LanguageList.vue'),
     meta: { layout: Layout.Dashboard },
-    name: 'catalog-tech-stacks-list',
-    path: '/catalog/tech-stacks',
+    name: 'catalog-languages-list',
+    path: '/catalog/languages',
   },
   {
-    component: () => import('@/catalog/pages/TechStackForm.vue'),
+    component: () => import('@/catalog/pages/FrameworkList.vue'),
     meta: { layout: Layout.Dashboard },
-    name: 'catalog-tech-stacks-create',
-    path: '/catalog/tech-stacks/new',
+    name: 'catalog-frameworks-list',
+    path: '/catalog/frameworks',
   },
   {
     component: () => import('@/catalog/pages/MergeRequestList.vue'),

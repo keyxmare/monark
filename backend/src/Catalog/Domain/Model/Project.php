@@ -50,10 +50,6 @@ final class Project
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $externalId;
 
-    /** @var Collection<int, TechStack> */
-    #[ORM\OneToMany(targetEntity: TechStack::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $techStacks;
-
     /** @var Collection<int, MergeRequest> */
     #[ORM\OneToMany(targetEntity: MergeRequest::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $mergeRequests;
@@ -96,7 +92,6 @@ final class Project
         $this->ownerId = $ownerId;
         $this->provider = $provider;
         $this->externalId = $externalId;
-        $this->techStacks = new ArrayCollection();
         $this->mergeRequests = new ArrayCollection();
         $this->lastSyncedAt = null;
         $this->createdAt = new DateTimeImmutable();
@@ -176,12 +171,6 @@ final class Project
     public function getExternalId(): ?string
     {
         return $this->externalId;
-    }
-
-    /** @return Collection<int, TechStack> */
-    public function getTechStacks(): Collection
-    {
-        return $this->techStacks;
     }
 
     /** @return Collection<int, MergeRequest> */

@@ -36,9 +36,7 @@ final readonly class SyncDependencyVersionsHandler
         $index = 0;
 
         foreach ($packages as $pkg) {
-            $manager = $pkg['packageManager'] instanceof \App\Shared\Domain\ValueObject\PackageManager
-                ? $pkg['packageManager']->value
-                : $pkg['packageManager'];
+            $manager = $pkg['packageManager']->value;
 
             $index++;
 

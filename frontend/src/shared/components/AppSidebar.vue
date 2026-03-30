@@ -34,7 +34,8 @@ const navSections = computed<NavSection[]>(() => [
   {
     headingKey: 'nav.sections.governance',
     items: [
-      { icon: '🔧', labelKey: 'nav.techStacks', to: '/catalog/tech-stacks' },
+      { icon: '🗣', labelKey: 'nav.languages', to: '/catalog/languages' },
+      { icon: '🔧', labelKey: 'nav.frameworks', to: '/catalog/frameworks' },
       { icon: '📋', labelKey: 'nav.dependencies', to: '/dependency/dependencies' },
       { icon: '🛡', labelKey: 'nav.vulnerabilities', to: '/dependency/vulnerabilities' },
     ],

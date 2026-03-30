@@ -4,14 +4,14 @@ import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 import ProjectDependenciesTab from '@/catalog/components/ProjectDependenciesTab.vue';
+import ProjectFrameworksTab from '@/catalog/components/ProjectFrameworksTab.vue';
+import ProjectLanguagesTab from '@/catalog/components/ProjectLanguagesTab.vue';
 import ProjectMergeRequestsTab from '@/catalog/components/ProjectMergeRequestsTab.vue';
-import ProjectTechStacksTab from '@/catalog/components/ProjectTechStacksTab.vue';
+import { useFrameworkStore } from '@/catalog/stores/framework';
 import { useMergeRequestStore } from '@/catalog/stores/merge-request';
 import { useProjectStore } from '@/catalog/stores/project';
-import { useTechStackStore } from '@/catalog/stores/tech-stack';
 import { useDependencyStore } from '@/dependency/stores/dependency';
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
-import TechBadge from '@/shared/components/TechBadge.vue';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 import { useToastStore } from '@/shared/stores/toast';
 
@@ -22,13 +22,13 @@ const router = useRouter();
 const showUnfollow = ref(false);
 const { t } = useI18n();
 const projectStore = useProjectStore();
-const techStackStore = useTechStackStore();
 const dependencyStore = useDependencyStore();
 const mergeRequestStore = useMergeRequestStore();
 const toastStore = useToastStore();
 
-const activeTab = ref<'dependencies' | 'merge-requests' | 'tech-stacks'>('tech-stacks');
+const activeTab = ref<'dependencies' | 'frameworks' | 'languages' | 'merge-requests'>('languages');
 const projectId = computed(() => route.params.id as string);
+const frameworkStore = useFrameworkStore();
 
 const scanFreshness = computed(() => {
   if (!projectStore.selected?.updatedAt) return 'stale';
@@ -37,16 +37,6 @@ const scanFreshness = computed(() => {
   if (hours < 1) return 'fresh';
   if (hours < 24) return 'recent';
   return 'stale';
-});
-
-const uniqueTechs = computed(() => {
-  const seen = new Map<string, string>();
-  for (const ts of techStackStore.techStacks) {
-    if (ts.framework && ts.framework !== 'none' && !seen.has(ts.framework)) {
-      seen.set(ts.framework, ts.frameworkVersion);
-    }
-  }
-  return [...seen.entries()].map(([name, version]) => ({ name, version }));
 });
 
 function truncateUrl(url: string, max = 50): string {
@@ -67,10 +57,7 @@ async function handleScan() {
     }),
     variant: 'success',
   });
-  await Promise.all([
-    techStackStore.fetchAll(1, PER_PAGE, projectId.value),
-    dependencyStore.fetchAll(1, PER_PAGE, projectId.value),
-  ]);
+  await dependencyStore.fetchAll(1, PER_PAGE, projectId.value);
 }
 </script>
 
@@ -181,22 +168,16 @@ async function handleScan() {
 
           <div class="rounded-xl border border-border bg-surface p-4 text-left">
             <p class="mb-2 text-xs text-text-muted">
-              {{ t('catalog.projects.techStacks') }}
+              {{ t('catalog.projects.frameworks') }}
             </p>
             <div
-              v-if="techStackStore.techStacks.length > 0"
+              v-if="frameworkStore.frameworks.length > 0"
               class="flex flex-wrap gap-2"
-              data-testid="project-stat-stacks"
+              data-testid="project-stat-frameworks"
             >
-              <TechBadge
-                v-for="tech in uniqueTechs"
-                :key="tech.name"
-                :name="tech.name"
-                :version="tech.version"
-                size="md"
-              />
+              <span v-for="fw in frameworkStore.frameworks" :key="fw.id" class="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-text">{{ fw.name }} {{ fw.version }}</span>
             </div>
-            <p v-else class="text-sm text-text-muted" data-testid="project-stat-stacks">—</p>
+            <p v-else class="text-sm text-text-muted" data-testid="project-stat-frameworks">—</p>
           </div>
 
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
@@ -230,14 +211,26 @@ async function handleScan() {
           <button
             :class="[
               'px-4 py-2 text-sm font-medium transition-colors',
-              activeTab === 'tech-stacks'
+              activeTab === 'languages'
                 ? 'border-b-2 border-primary text-primary'
                 : 'text-text-muted hover:text-text',
             ]"
-            data-testid="tab-tech-stacks"
-            @click="activeTab = 'tech-stacks'"
+            data-testid="tab-languages"
+            @click="activeTab = 'languages'"
           >
-            {{ t('catalog.projects.techStacksCount', { count: techStackStore.total }) }}
+            {{ t('catalog.projects.languages') }}
+          </button>
+          <button
+            :class="[
+              'px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === 'frameworks'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-text-muted hover:text-text',
+            ]"
+            data-testid="tab-frameworks"
+            @click="activeTab = 'frameworks'"
+          >
+            {{ t('catalog.projects.frameworks') }}
           </button>
           <button
             :class="[
@@ -265,7 +258,8 @@ async function handleScan() {
           </button>
         </div>
 
-        <ProjectTechStacksTab v-if="activeTab === 'tech-stacks'" :project-id="projectId" />
+        <ProjectLanguagesTab v-if="activeTab === 'languages'" :project-id="projectId" />
+        <ProjectFrameworksTab v-if="activeTab === 'frameworks'" :project-id="projectId" />
         <ProjectDependenciesTab v-if="activeTab === 'dependencies'" :project-id="projectId" />
         <ProjectMergeRequestsTab v-if="activeTab === 'merge-requests'" :project-id="projectId" />
       </template>

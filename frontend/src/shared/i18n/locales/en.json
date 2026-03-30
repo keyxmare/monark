@@ -70,7 +70,9 @@
       "vulnerabilities": "vulnerabilities",
       "dashboard": "dashboard",
       "remoteProjects": "remote projects",
-      "mergeRequests": "merge requests"
+      "mergeRequests": "merge requests",
+      "languages": "languages",
+      "frameworks": "frameworks"
     },
     "validation": {
       "required": "This field is required",
@@ -96,6 +98,8 @@
     "providers": "Providers",
     "projects": "Projects",
     "techStacks": "Tech Stacks",
+    "languages": "Languages",
+    "frameworks": "Frameworks",
     "dependencies": "Dependencies",
     "vulnerabilities": "Vulnerabilities",
     "users": "Users",
@@ -155,6 +159,8 @@
       "slugHint": "Lowercase letters, numbers and hyphens only",
       "projectInfo": "Project Info",
       "techStacks": "Tech Stacks",
+      "languages": "Languages",
+      "frameworks": "Frameworks",
       "noProjects": "No projects found.",
       "noProjectsHint": "Create a project or import from a provider to get started.",
       "unfollow": "Unfollow",
@@ -326,6 +332,32 @@
       "inactive": "Inactive",
       "inactiveSince": "Last release {duration} ago",
       "syncedAt": "Last sync"
+    },
+    "languages": {
+      "title": "Languages",
+      "project": "Project",
+      "language": "Language",
+      "version": "Version",
+      "eolDate": "EOL Date",
+      "status": "Status",
+      "searchPlaceholder": "Search project or language…",
+      "allLanguages": "All languages",
+      "allStatuses": "All statuses",
+      "noLanguages": "No languages detected",
+      "noLanguagesHint": "Import projects from a provider and run a scan to detect languages.",
+      "noMatchingLanguages": "No languages match your filters."
+    },
+    "frameworks": {
+      "title": "Frameworks",
+      "project": "Project",
+      "language": "Language",
+      "framework": "Framework",
+      "version": "Version",
+      "searchPlaceholder": "Search project or framework…",
+      "allFrameworks": "All frameworks",
+      "noFrameworks": "No frameworks detected",
+      "noFrameworksHint": "Import projects from a provider and run a scan to detect frameworks.",
+      "noMatchingFrameworks": "No frameworks match your filters."
     },
     "mergeRequests": {
       "title": "Merge Requests",

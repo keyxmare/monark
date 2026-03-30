@@ -5,12 +5,14 @@ declare(strict_types=1);
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\CommandHandler\ScanProjectHandler;
 use App\Catalog\Application\DTO\ScanResultOutput;
+use App\Catalog\Domain\Model\Framework;
+use App\Catalog\Domain\Model\Language;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
-use App\Catalog\Domain\Model\TechStack;
 use App\Catalog\Domain\Port\ProjectScannerInterface;
+use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
+use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
-use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
 use App\Shared\Domain\DTO\DetectedDependency;
 use App\Shared\Domain\DTO\DetectedStack;
 use App\Shared\Domain\DTO\ScanResult;
@@ -83,50 +85,84 @@ function stubScanProjectRepo(?Project $project = null): ProjectRepositoryInterfa
     };
 }
 
-function stubScanTechStackRepo(): TechStackRepositoryInterface
+function stubScanLanguageRepo(): LanguageRepositoryInterface
 {
-    return new class () implements TechStackRepositoryInterface {
-        /** @var list<TechStack> */
+    return new class () implements LanguageRepositoryInterface {
+        /** @var list<Language> */
         public array $saved = [];
         public bool $deletedByProject = false;
-        public function findById(Uuid $id): ?TechStack
+
+        public function findById(Uuid $id): ?Language
         {
             return null;
         }
-        public function findAll(int $page = 1, int $perPage = 20): array
+        public function findAll(): array
         {
             return [];
         }
-        public function findByProjectId(Uuid $projectId, int $page = 1, int $perPage = 20): array
+        public function findByProjectId(Uuid $projectId): array
         {
             return [];
         }
-        public function countByProjectId(Uuid $projectId): int
+        public function findByNameAndProjectId(string $name, Uuid $projectId): ?Language
         {
-            return 0;
+            return null;
         }
-        public function count(): int
+        public function save(Language $language): void
         {
-            return 0;
+            $this->saved[] = $language;
         }
-        public function save(TechStack $techStack): void
-        {
-            $this->saved[] = $techStack;
-        }
-        public function delete(TechStack $techStack): void
+        public function delete(Language $language): void
         {
         }
         public function deleteByProjectId(Uuid $projectId): void
         {
             $this->deletedByProject = true;
         }
-        public function findByFramework(string $framework): array
+    };
+}
+
+function stubScanFrameworkRepo(): FrameworkRepositoryInterface
+{
+    return new class () implements FrameworkRepositoryInterface {
+        /** @var list<Framework> */
+        public array $saved = [];
+        public bool $deletedByProject = false;
+
+        public function findById(Uuid $id): ?Framework
+        {
+            return null;
+        }
+        public function findAll(): array
         {
             return [];
         }
-        public function findByLanguage(string $language): array
+        public function findByProjectId(Uuid $projectId): array
         {
             return [];
+        }
+        public function findByLanguageId(Uuid $languageId): array
+        {
+            return [];
+        }
+        public function findByNameAndProjectId(string $name, Uuid $projectId): ?Framework
+        {
+            return null;
+        }
+        public function findByName(string $name): array
+        {
+            return [];
+        }
+        public function save(Framework $framework): void
+        {
+            $this->saved[] = $framework;
+        }
+        public function delete(Framework $framework): void
+        {
+        }
+        public function deleteByProjectId(Uuid $projectId): void
+        {
+            $this->deletedByProject = true;
         }
     };
 }
@@ -168,7 +204,7 @@ function stubProjectScanner(ScanResult $result): ProjectScannerInterface
 }
 
 describe('ScanProjectHandler', function () {
-    it('scans a project and persists tech stacks and dependencies', function () {
+    it('scans a project and persists languages, frameworks and dependencies', function () {
         $provider = ProviderFactory::create();
         $project = Project::create(
             name: 'Test Project',
@@ -183,7 +219,8 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $techStackRepo = \stubScanTechStackRepo();
+        $languageRepo = \stubScanLanguageRepo();
+        $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
 
         $scanResult = new ScanResult(
@@ -199,7 +236,7 @@ describe('ScanProjectHandler', function () {
 
         $scanner = \stubProjectScanner($scanResult);
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
@@ -213,8 +250,10 @@ describe('ScanProjectHandler', function () {
         expect($result->stacks[0]['frameworkVersion'])->toBe('8.0');
         expect($result->dependencies[0]['name'])->toBe('symfony/framework-bundle');
         expect($result->dependencies[1]['packageManager'])->toBe('npm');
-        expect($techStackRepo->saved)->toHaveCount(2);
-        expect($techStackRepo->deletedByProject)->toBeTrue();
+        expect($languageRepo->saved)->toHaveCount(2);
+        expect($languageRepo->deletedByProject)->toBeTrue();
+        expect($frameworkRepo->saved)->toHaveCount(2);
+        expect($frameworkRepo->deletedByProject)->toBeTrue();
         expect($depWriter->created)->toHaveCount(2);
         expect($depWriter->removedStale)->toBeTrue();
         expect($eventBus->dispatched)->toHaveCount(1);
@@ -226,12 +265,13 @@ describe('ScanProjectHandler', function () {
 
     it('throws not found for unknown project', function () {
         $projectRepo = \stubScanProjectRepo(null);
-        $techStackRepo = \stubScanTechStackRepo();
+        $languageRepo = \stubScanLanguageRepo();
+        $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
@@ -251,17 +291,19 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $techStackRepo = \stubScanTechStackRepo();
+        $languageRepo = \stubScanLanguageRepo();
+        $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
         $eventBus = \spyScanEventBus();
 
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
         expect($result->stacksDetected)->toBe(0);
         expect($result->dependenciesDetected)->toBe(0);
-        expect($techStackRepo->deletedByProject)->toBeFalse();
+        expect($languageRepo->deletedByProject)->toBeFalse();
+        expect($frameworkRepo->deletedByProject)->toBeFalse();
         expect($depWriter->deletedByProject)->toBeFalse();
         expect($eventBus->dispatched)->toBeEmpty();
     });
@@ -281,7 +323,8 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $techStackRepo = \stubScanTechStackRepo();
+        $languageRepo = \stubScanLanguageRepo();
+        $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
 
         $scanResult = new ScanResult(
@@ -295,14 +338,14 @@ describe('ScanProjectHandler', function () {
 
         $scanner = \stubProjectScanner($scanResult);
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
         expect($result->stacksDetected)->toBe(2);
-        expect($techStackRepo->saved)->toHaveCount(2);
-        $savedFrameworks = \array_map(fn ($ts) => $ts->getFramework(), $techStackRepo->saved);
-        expect($savedFrameworks)->not->toContain('none');
+        expect($frameworkRepo->saved)->toHaveCount(2);
+        $savedFrameworkNames = \array_map(fn ($fw) => $fw->getName(), $frameworkRepo->saved);
+        expect($savedFrameworkNames)->not->toContain('none');
     });
 
     it('throws when project has no provider', function () {
@@ -317,12 +360,13 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $techStackRepo = \stubScanTechStackRepo();
+        $languageRepo = \stubScanLanguageRepo();
+        $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $techStackRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
 
         $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
     })->throws(\DomainException::class);

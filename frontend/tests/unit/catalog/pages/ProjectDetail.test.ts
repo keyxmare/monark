@@ -23,12 +23,12 @@ vi.mock('@/shared/components/ConfirmDialog.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/shared/components/TechBadge.vue', () => ({
-  default: { props: ['name', 'version', 'size'], template: '<span>{{ name }}</span>' },
+vi.mock('@/catalog/components/ProjectLanguagesTab.vue', () => ({
+  default: { props: ['projectId'], template: '<div data-testid="languages-tab" />' },
 }));
 
-vi.mock('@/catalog/components/ProjectTechStacksTab.vue', () => ({
-  default: { props: ['projectId'], template: '<div data-testid="tech-stacks-tab" />' },
+vi.mock('@/catalog/components/ProjectFrameworksTab.vue', () => ({
+  default: { props: ['projectId'], template: '<div data-testid="frameworks-tab" />' },
 }));
 
 vi.mock('@/catalog/components/ProjectDependenciesTab.vue', () => ({
@@ -58,14 +58,11 @@ vi.mock('@/catalog/stores/project', () => ({
   })),
 }));
 
-let techStackStoreOverrides: Record<string, unknown> = {};
-
-vi.mock('@/catalog/stores/tech-stack', () => ({
-  useTechStackStore: vi.fn(() => ({
+vi.mock('@/catalog/stores/framework', () => ({
+  useFrameworkStore: vi.fn(() => ({
     fetchAll: vi.fn(),
-    techStacks: [],
+    frameworks: [],
     total: 0,
-    ...techStackStoreOverrides,
   })),
 }));
 
@@ -95,7 +92,6 @@ describe('ProjectDetail', () => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
     projectStoreOverrides = {};
-    techStackStoreOverrides = {};
   });
 
   it('renders without errors', () => {
@@ -216,7 +212,8 @@ describe('ProjectDetail', () => {
       },
     };
     const wrapper = mount(ProjectDetail);
-    expect(wrapper.find('[data-testid="tab-tech-stacks"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="tab-languages"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="tab-frameworks"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="tab-dependencies"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="tab-merge-requests"]').exists()).toBe(true);
   });
@@ -237,14 +234,14 @@ describe('ProjectDetail', () => {
     };
     const wrapper = mount(ProjectDetail);
 
-    // Default is tech-stacks
-    expect(wrapper.find('[data-testid="tech-stacks-tab"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="languages-tab"]').exists()).toBe(true);
 
-    // Switch to dependencies
+    await wrapper.find('[data-testid="tab-frameworks"]').trigger('click');
+    expect(wrapper.find('[data-testid="frameworks-tab"]').exists()).toBe(true);
+
     await wrapper.find('[data-testid="tab-dependencies"]').trigger('click');
     expect(wrapper.find('[data-testid="dependencies-tab"]').exists()).toBe(true);
 
-    // Switch to merge-requests
     await wrapper.find('[data-testid="tab-merge-requests"]').trigger('click');
     expect(wrapper.find('[data-testid="merge-requests-tab"]').exists()).toBe(true);
   });

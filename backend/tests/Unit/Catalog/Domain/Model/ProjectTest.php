@@ -33,7 +33,6 @@ describe('Project', function () {
         expect($project->getOwnerId())->toBe($ownerId);
         expect($project->getProvider())->toBe($provider);
         expect($project->getExternalId())->toBe('ext-123');
-        expect($project->getTechStacks())->toBeEmpty();
         expect($project->getMergeRequests())->toBeEmpty();
         expect($project->getLastSyncedAt())->toBeNull();
         expect($project->getCreatedAt())->toBeInstanceOf(\DateTimeImmutable::class);

@@ -336,7 +336,7 @@ final readonly class DoctrineDependencyRepository implements DependencyRepositor
 
     public function findUniquePackages(): array
     {
-        /** @var list<array{name: string, packageManager: string}> */
+        /** @var list<array{name: string, packageManager: \App\Shared\Domain\ValueObject\PackageManager}> */
         return $this->entityManager->getRepository(Dependency::class)
             ->createQueryBuilder('d')
             ->select('d.name, d.packageManager')

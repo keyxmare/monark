@@ -4,23 +4,14 @@ declare(strict_types=1);
 
 namespace App\Catalog\Application\EventListener;
 
-use App\Catalog\Application\Service\TechStackVersionStatusUpdater;
-use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
+use App\Catalog\Application\Service\FrameworkVersionStatusUpdater;
+use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
 use App\Shared\Domain\Event\ProductVersionsSyncedEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(bus: 'event.bus')]
 final readonly class UpdateTechStackVersionStatusListener
 {
-    private const array LANGUAGE_REVERSE_MAP = [
-        'php' => 'PHP',
-        'python' => 'Python',
-        'nodejs' => ['JavaScript', 'TypeScript', 'Node.js'],
-        'go' => 'Go',
-        'rust' => 'Rust',
-        'ruby' => 'Ruby',
-    ];
-
     private const array FRAMEWORK_REVERSE_MAP = [
         'symfony' => 'Symfony',
         'laravel' => 'Laravel',
@@ -34,8 +25,8 @@ final readonly class UpdateTechStackVersionStatusListener
     ];
 
     public function __construct(
-        private TechStackRepositoryInterface $techStackRepository,
-        private TechStackVersionStatusUpdater $updater,
+        private FrameworkRepositoryInterface $frameworkRepository,
+        private FrameworkVersionStatusUpdater $updater,
     ) {
     }
 
@@ -46,19 +37,11 @@ final readonly class UpdateTechStackVersionStatusListener
         }
 
         $frameworkName = self::FRAMEWORK_REVERSE_MAP[$event->productName] ?? null;
-        $languageNames = self::LANGUAGE_REVERSE_MAP[$event->productName] ?? null;
-
-        $techStacks = [];
-
-        if ($frameworkName !== null) {
-            $techStacks = $this->techStackRepository->findByFramework($frameworkName);
-        } elseif ($languageNames !== null) {
-            $names = \is_array($languageNames) ? $languageNames : [$languageNames];
-            foreach ($names as $name) {
-                \array_push($techStacks, ...$this->techStackRepository->findByLanguage($name));
-            }
+        if ($frameworkName === null) {
+            return;
         }
 
-        $this->updater->refreshAll($techStacks);
+        $frameworks = $this->frameworkRepository->findByName($frameworkName);
+        $this->updater->refreshAll($frameworks);
     }
 }

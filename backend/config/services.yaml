@@ -33,9 +33,6 @@ services:
     App\Catalog\Domain\Repository\ProjectRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProjectRepository
 
-    App\Catalog\Domain\Repository\TechStackRepositoryInterface:
-        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineTechStackRepository
-
     App\Catalog\Domain\Repository\ProviderRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
 
@@ -108,10 +105,6 @@ services:
             $commandBus: '@command.bus'
 
     App\Catalog\Application\CommandHandler\SyncProjectMetadataHandler:
-        arguments:
-            $eventBus: '@event.bus'
-
-    App\Catalog\Application\Service\TechStackVersionStatusUpdater:
         arguments:
             $eventBus: '@event.bus'
 

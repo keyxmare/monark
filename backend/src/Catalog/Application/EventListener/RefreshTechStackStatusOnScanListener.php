@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Catalog\Application\EventListener;
 
-use App\Catalog\Application\Service\TechStackVersionStatusUpdater;
-use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
+use App\Catalog\Application\Service\FrameworkVersionStatusUpdater;
+use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
 use App\Shared\Domain\Event\ProjectScannedEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
@@ -14,19 +14,17 @@ use Symfony\Component\Uid\Uuid;
 final readonly class RefreshTechStackStatusOnScanListener
 {
     public function __construct(
-        private TechStackRepositoryInterface $techStackRepository,
-        private TechStackVersionStatusUpdater $updater,
+        private FrameworkRepositoryInterface $frameworkRepository,
+        private FrameworkVersionStatusUpdater $updater,
     ) {
     }
 
     public function __invoke(ProjectScannedEvent $event): void
     {
-        $stacks = $this->techStackRepository->findByProjectId(
+        $frameworks = $this->frameworkRepository->findByProjectId(
             Uuid::fromString($event->projectId),
-            1,
-            1000,
         );
 
-        $this->updater->refreshAll($stacks);
+        $this->updater->refreshAll($frameworks);
     }
 }

@@ -6,10 +6,12 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\DTO\ScanResultOutput;
-use App\Catalog\Domain\Model\TechStack;
+use App\Catalog\Domain\Model\Framework;
+use App\Catalog\Domain\Model\Language;
 use App\Catalog\Domain\Port\ProjectScannerInterface;
+use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
+use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
-use App\Catalog\Domain\Repository\TechStackRepositoryInterface;
 use App\Shared\Domain\Event\ProjectScannedEvent;
 use App\Shared\Domain\Exception\NotFoundException;
 use App\Shared\Domain\Port\DependencyWriterPort;
@@ -24,7 +26,8 @@ readonly class ScanProjectHandler
 {
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
-        private TechStackRepositoryInterface $techStackRepository,
+        private LanguageRepositoryInterface $languageRepository,
+        private FrameworkRepositoryInterface $frameworkRepository,
         private DependencyWriterPort $dependencyWriter,
         private ProjectScannerInterface $projectScanner,
         private MessageBusInterface $eventBus,
@@ -54,7 +57,8 @@ readonly class ScanProjectHandler
         }
 
         $projectId = $project->getId();
-        $this->techStackRepository->deleteByProjectId($projectId);
+        $this->languageRepository->deleteByProjectId($projectId);
+        $this->frameworkRepository->deleteByProjectId($projectId);
 
         $stackOutputs = [];
         foreach ($scanResult->stacks as $detected) {
@@ -62,15 +66,23 @@ readonly class ScanProjectHandler
                 continue;
             }
 
-            $techStack = TechStack::create(
-                language: $detected->language,
-                framework: $detected->framework,
+            $language = Language::create(
+                name: $detected->language,
                 version: $detected->version,
-                frameworkVersion: $detected->frameworkVersion,
                 detectedAt: new DateTimeImmutable(),
                 project: $project,
             );
-            $this->techStackRepository->save($techStack);
+            $this->languageRepository->save($language);
+
+            $framework = Framework::create(
+                name: $detected->framework,
+                version: $detected->frameworkVersion,
+                detectedAt: new DateTimeImmutable(),
+                language: $language,
+                project: $project,
+            );
+            $this->frameworkRepository->save($framework);
+
             $stackOutputs[] = [
                 'language' => $detected->language,
                 'framework' => $detected->framework,
