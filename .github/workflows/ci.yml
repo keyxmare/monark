@@ -47,7 +47,7 @@ jobs:
             echo \$stmts > 0 ? round((int) \$m['coveredstatements'] / \$stmts * 100, 2) : '0';
           ")
           echo "### Backend Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: backend-coverage
@@ -93,7 +93,7 @@ jobs:
             console.log(s.total.lines.pct);
           ")
           echo "### Frontend Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: frontend-coverage
@@ -253,7 +253,7 @@ jobs:
       - run: ${{ env.DC }} exec -T frontend pnpm playwright install --with-deps
       - name: Run E2E tests
         run: ${{ env.DC }} exec -T frontend pnpm e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
