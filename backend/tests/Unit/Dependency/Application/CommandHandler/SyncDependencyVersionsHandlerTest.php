@@ -7,6 +7,7 @@ use App\Dependency\Application\Command\SyncSingleDependencyVersionCommand;
 use App\Dependency\Application\CommandHandler\SyncDependencyVersionsHandler;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Shared\Domain\ValueObject\PackageManager;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
@@ -101,8 +102,8 @@ function spySyncVersionsBus(): object
 describe('SyncDependencyVersionsHandler', function () {
     it('dispatches SyncSingleDependencyVersionCommand for each unique package', function () {
         $depRepo = \stubSyncVersionsDepRepo([
-            ['name' => 'vue', 'packageManager' => 'npm'],
-            ['name' => 'symfony/http-kernel', 'packageManager' => 'composer'],
+            ['name' => 'vue', 'packageManager' => PackageManager::Npm],
+            ['name' => 'symfony/http-kernel', 'packageManager' => PackageManager::Composer],
         ]);
         $bus = \spySyncVersionsBus();
 
@@ -122,9 +123,9 @@ describe('SyncDependencyVersionsHandler', function () {
 
     it('filters by packageNames when provided', function () {
         $depRepo = \stubSyncVersionsDepRepo([
-            ['name' => 'vue', 'packageManager' => 'npm'],
-            ['name' => 'react', 'packageManager' => 'npm'],
-            ['name' => 'symfony/http-kernel', 'packageManager' => 'composer'],
+            ['name' => 'vue', 'packageManager' => PackageManager::Npm],
+            ['name' => 'react', 'packageManager' => PackageManager::Npm],
+            ['name' => 'symfony/http-kernel', 'packageManager' => PackageManager::Composer],
         ]);
         $bus = \spySyncVersionsBus();
 
@@ -149,7 +150,7 @@ describe('SyncDependencyVersionsHandler', function () {
 
     it('passes syncId to dispatched commands', function () {
         $depRepo = \stubSyncVersionsDepRepo([
-            ['name' => 'vue', 'packageManager' => 'npm'],
+            ['name' => 'vue', 'packageManager' => PackageManager::Npm],
         ]);
         $bus = \spySyncVersionsBus();
 
