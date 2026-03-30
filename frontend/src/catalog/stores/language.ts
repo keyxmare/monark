@@ -19,10 +19,18 @@ export const useLanguageStore = defineStore('catalog-language', () => {
     error.value = null;
     try {
       const response = await languageService.list(page, perPage, projectId);
-      languages.value = response.data.items;
-      totalPages.value = response.data.total_pages;
-      currentPage.value = response.data.page;
-      total.value = response.data.total;
+      const data = response.data;
+      if (Array.isArray(data)) {
+        languages.value = data;
+        total.value = data.length;
+        totalPages.value = 1;
+        currentPage.value = 1;
+      } else {
+        languages.value = data.items;
+        totalPages.value = data.total_pages;
+        currentPage.value = data.page;
+        total.value = data.total;
+      }
     } catch {
       error.value = t('common.errors.failedToLoad', { entity: t('common.entities.languages') });
     } finally {
