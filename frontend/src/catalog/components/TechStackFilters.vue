@@ -119,11 +119,9 @@ const groupBy = defineModel<GroupBy>('groupBy', { required: true });
   <!-- Group toggle -->
   <div class="mb-4 flex items-center gap-1" data-testid="tech-stack-group-toggle">
     <button
-      v-for="mode in
-        viewMode === 'languages'
-          ? (['project', 'language', 'provider'] as const)
-          : (['project', 'framework', 'provider'] as const)
-      "
+      v-for="mode in viewMode === 'languages'
+        ? (['project', 'language', 'provider'] as const)
+        : (['project', 'framework', 'provider'] as const)"
       :key="mode"
       :class="
         groupBy === mode

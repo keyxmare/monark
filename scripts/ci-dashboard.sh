@@ -130,7 +130,8 @@ if [ "$COV_STMTS" -gt 0 ]; then
     warn "Coverage" "${BCOV_INT}.${BCOV_DEC}% (< 80%)"
   fi
 else
-  warn "Coverage" "N/A"
+  BCOV_ERR=$($BACK 'tail -5 /tmp/ci-bcov.txt 2>/dev/null' 2>/dev/null | tr -d '\r')
+  fail "Coverage" "Error: ${BCOV_ERR:-unknown failure}"
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 150
@@ -143,7 +144,8 @@ if [ -n "$MSI_SCORE" ]; then
   MSI_TOTAL=$((${MSI_TESTED:-0} + ${MSI_UNTESTED:-0}))
   ok "Mutation" "MSI: ${MSI_SCORE}% (${MSI_TESTED:-0}/${MSI_TOTAL})"
 else
-  warn "Mutation" "N/A"
+  BMUT_ERR=$($BACK 'tail -5 /tmp/ci-mutate.txt 2>/dev/null' 2>/dev/null | tr -d '\r')
+  fail "Mutation" "Error: ${BMUT_ERR:-unknown failure}"
 fi
 
 # ── FRONTEND ─────────────────────────────────────
@@ -207,7 +209,8 @@ FCOV=$(echo "$FCOV_OUT" | grep "All files" | grep -oE "[0-9]+\.[0-9]+" | head -1
 if [ -n "$FCOV" ]; then
   ok "Coverage" "${FCOV}%"
 else
-  warn "Coverage" "N/A"
+  FCOV_ERR=$($FRONT 'tail -5 /tmp/ci-fcov.txt 2>/dev/null' 2>/dev/null | tr -d '\r')
+  fail "Coverage" "Error: ${FCOV_ERR:-unknown failure}"
 fi
 
 TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 120
@@ -221,7 +224,8 @@ if [ -n "$FMSI_SCORE" ] && [ "$FMSI_SCORE" != "" ]; then
   FMSI_TOTAL=$(( ${FMSI_KILLED:-0} + ${FMSI_SURVIVED:-0} ))
   ok "Mutation" "MSI: ${FMSI_SCORE}% (${FMSI_KILLED:-0}/${FMSI_TOTAL})"
 else
-  warn "Mutation" "N/A"
+  FMUT_ERR=$($FRONT 'tail -5 /tmp/ci-stryker.txt 2>/dev/null' 2>/dev/null | tr -d '\r')
+  fail "Mutation" "Error: ${FMUT_ERR:-unknown failure}"
 fi
 
 # ── RESULT ───────────────────────────────────────

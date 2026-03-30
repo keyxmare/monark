@@ -3,6 +3,8 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
+import type { Dependency } from '@/dependency/types';
+
 import { humanizeTimeDiff, ltsUrgency } from '@/catalog/composables/useFrameworkLts';
 import { useProjectStore } from '@/catalog/stores/project';
 import DependencyFilters from '@/dependency/components/DependencyFilters.vue';
@@ -14,7 +16,6 @@ import { useDependencyStats } from '@/dependency/composables/useDependencyStats'
 import { useDependencySyncProgress } from '@/dependency/composables/useDependencySyncProgress';
 import { dependencyService } from '@/dependency/services/dependency.service';
 import { useDependencyStore } from '@/dependency/stores/dependency';
-import type { Dependency } from '@/dependency/types';
 import ExportDropdown from '@/shared/components/ExportDropdown.vue';
 import Pagination from '@/shared/components/Pagination.vue';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
@@ -39,13 +40,17 @@ function projectName(id: string) {
   return projectMap.value.get(id) ?? id;
 }
 
-const { filters, filteredDeps, sortField, sortDir, sortIndicator, toggleSort } =
+const { filteredDeps, filters, sortDir, sortField, sortIndicator, toggleSort } =
   useDependencyFilters(allDeps, projectMap);
 
 const { groupedDeps } = useDependencyGrouping(filteredDeps, projectName, sortField, sortDir);
 
-const { healthScore, depGapStats, loadStats } =
-  useDependencyStats(allDeps, filteredDeps, filters, projectName);
+const { depGapStats, healthScore, loadStats } = useDependencyStats(
+  allDeps,
+  filteredDeps,
+  filters,
+  projectName,
+);
 
 const { handleExport } = useDependencyExport(filteredDeps, projectName, healthScore, depGapStats);
 
@@ -54,7 +59,13 @@ onMounted(async () => {
   await loadStats();
 });
 
-function changePage(page: number) { dependencyStore.fetchAll(page, 1000); }
+function changePage(page: number) {
+  dependencyStore.fetchAll(page, 1000);
+}
+
+async function handleDelete(id: string) {
+  await dependencyStore.remove(id);
+}
 
 async function handleSync() {
   syncing.value = true;
@@ -67,8 +78,6 @@ async function handleSync() {
     syncing.value = false;
   }
 }
-
-async function handleDelete(id: string) { await dependencyStore.remove(id); }
 </script>
 
 <template>
@@ -207,7 +216,9 @@ async function handleDelete(id: string) { await dependencyStore.remove(id); }
                       }}</span>
                     </template>
                     <template v-else-if="row.dep.registryStatus === 'pending'">
-                      <span class="text-text-muted italic text-xs">({{ t('dependency.dependencies.pendingSync') }})</span>
+                      <span class="text-text-muted italic text-xs"
+                        >({{ t('dependency.dependencies.pendingSync') }})</span
+                      >
                     </template>
                     <template v-else-if="row.dep.isOutdated && row.dep.latestVersion">
                       <span class="text-text-muted">→</span>
@@ -228,9 +239,7 @@ async function handleDelete(id: string) { await dependencyStore.remove(id); }
                   >
                   <template v-else-if="row.dep.isOutdated">
                     <span
-                      v-if="
-                        row.dep.currentVersionReleasedAt && row.dep.latestVersionReleasedAt
-                      "
+                      v-if="row.dep.currentVersionReleasedAt && row.dep.latestVersionReleasedAt"
                       :class="{
                         'text-success':
                           ltsUrgency(
@@ -260,9 +269,7 @@ async function handleDelete(id: string) { await dependencyStore.remove(id); }
                       {{ row.dep.currentVersion }} → {{ row.dep.latestVersion }}
                     </span>
                   </template>
-                  <span v-else class="text-success">{{
-                    t('catalog.techStacks.upToDate')
-                  }}</span>
+                  <span v-else class="text-success">{{ t('catalog.techStacks.upToDate') }}</span>
                 </td>
                 <td class="px-4 py-3">
                   <span

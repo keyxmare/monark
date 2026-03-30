@@ -1,6 +1,10 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import type { CreateDependencyInput, Dependency, UpdateDependencyInput } from '@/dependency/types/dependency';
+import type {
+  CreateDependencyInput,
+  Dependency,
+  UpdateDependencyInput,
+} from '@/dependency/types/dependency';
 import { dependencyService } from '@/dependency/services/dependency.service';
 import { createCrudStore } from '@/shared/stores/createCrudStore';
 
@@ -13,10 +17,18 @@ const useBaseStore = createCrudStore<Dependency, CreateDependencyInput, UpdateDe
       return (page?: number, perPage?: number) =>
         dependencyService.list(page, perPage, projectIdFilter.value);
     },
-    get get() { return dependencyService.get.bind(dependencyService); },
-    get create() { return dependencyService.create.bind(dependencyService); },
-    get update() { return dependencyService.update.bind(dependencyService); },
-    get remove() { return dependencyService.remove.bind(dependencyService); },
+    get get() {
+      return dependencyService.get.bind(dependencyService);
+    },
+    get create() {
+      return dependencyService.create.bind(dependencyService);
+    },
+    get update() {
+      return dependencyService.update.bind(dependencyService);
+    },
+    get remove() {
+      return dependencyService.remove.bind(dependencyService);
+    },
   },
   'dependencies',
 );

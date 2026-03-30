@@ -18,13 +18,17 @@ export function useDependencyGrouping(
     const dir = sortDir.value === 'asc' ? 1 : -1;
     const sorted = [...groups.entries()].sort(([nameA, depsA], [nameB, depsB]) => {
       switch (sortField.value as SortField) {
-        case 'name': return nameA.localeCompare(nameB) * dir;
+        case 'name':
+          return nameA.localeCompare(nameB) * dir;
         case 'project':
-          return projectName(depsA[0]?.projectId ?? '').localeCompare(
-            projectName(depsB[0]?.projectId ?? ''),
-          ) * dir;
+          return (
+            projectName(depsA[0]?.projectId ?? '').localeCompare(
+              projectName(depsB[0]?.projectId ?? ''),
+            ) * dir
+          );
         case 'status': {
-          const diff = depsA.filter(d => d.isOutdated).length - depsB.filter(d => d.isOutdated).length;
+          const diff =
+            depsA.filter((d) => d.isOutdated).length - depsB.filter((d) => d.isOutdated).length;
           return diff * dir;
         }
         case 'vulnerabilities': {
@@ -32,7 +36,8 @@ export function useDependencyGrouping(
           const vB = depsB.reduce((s, d) => s + d.vulnerabilityCount, 0);
           return (vB - vA) * dir;
         }
-        default: return 0;
+        default:
+          return 0;
       }
     });
 
@@ -41,7 +46,8 @@ export function useDependencyGrouping(
     for (const [, deps] of sorted) {
       deps.forEach((dep, i) => {
         rows.push({
-          dep, groupIndex,
+          dep,
+          groupIndex,
           groupSize: deps.length,
           isFirstInGroup: i === 0,
           projectId: dep.projectId,

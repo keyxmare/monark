@@ -9,36 +9,65 @@ interface ExportStrategy {
 
 const csvStrategy: ExportStrategy = {
   execute(deps, projectName) {
-    const headers = ['Projet', 'Nom', 'Version', 'Dernière version', 'Package Manager', 'Type', 'Statut', 'Vulnérabilités'];
-    const rows = deps.map(dep => [
-      projectName(dep.projectId), dep.name, dep.currentVersion, dep.latestVersion,
-      dep.packageManager, dep.type, dep.isOutdated ? 'Obsolète' : 'À jour',
+    const headers = [
+      'Projet',
+      'Nom',
+      'Version',
+      'Dernière version',
+      'Package Manager',
+      'Type',
+      'Statut',
+      'Vulnérabilités',
+    ];
+    const rows = deps.map((dep) => [
+      projectName(dep.projectId),
+      dep.name,
+      dep.currentVersion,
+      dep.latestVersion,
+      dep.packageManager,
+      dep.type,
+      dep.isOutdated ? 'Obsolète' : 'À jour',
       String(dep.vulnerabilityCount),
     ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'dependencies.csv'; a.click();
+    a.href = url;
+    a.download = 'dependencies.csv';
+    a.click();
     URL.revokeObjectURL(url);
   },
 };
 
 const pdfStrategy: ExportStrategy = {
   execute(deps, projectName, extra) {
-    const { healthScore, gapStats } = extra as { healthScore: HealthScore | null; gapStats: DepGapStats | null };
-    const rows = deps.map(dep => ({
+    const { healthScore, gapStats } = extra as {
+      healthScore: HealthScore | null;
+      gapStats: DepGapStats | null;
+    };
+    const rows = deps.map((dep) => ({
       project: projectName(dep.projectId),
-      name: dep.name, currentVersion: dep.currentVersion, latestVersion: dep.latestVersion,
-      packageManager: dep.packageManager, type: dep.type,
+      name: dep.name,
+      currentVersion: dep.currentVersion,
+      latestVersion: dep.latestVersion,
+      packageManager: dep.packageManager,
+      type: dep.type,
       status: dep.isOutdated ? 'Obsolete' : 'A jour',
       vulnerabilities: dep.vulnerabilityCount,
-      gap: dep.isOutdated && dep.currentVersionReleasedAt && dep.latestVersionReleasedAt
-        ? humanizeTimeDiff(dep.currentVersionReleasedAt, dep.latestVersionReleasedAt)
-        : dep.isOutdated ? '-' : 'A jour',
+      gap:
+        dep.isOutdated && dep.currentVersionReleasedAt && dep.latestVersionReleasedAt
+          ? humanizeTimeDiff(dep.currentVersionReleasedAt, dep.latestVersionReleasedAt)
+          : dep.isOutdated
+            ? '-'
+            : 'A jour',
     }));
     const gapData = gapStats
-      ? { average: humanizeMs(gapStats.average), median: humanizeMs(gapStats.median), cumulated: humanizeMs(gapStats.cumulated) }
+      ? {
+          average: humanizeMs(gapStats.average),
+          median: humanizeMs(gapStats.median),
+          cumulated: humanizeMs(gapStats.cumulated),
+        }
       : null;
     exportDependenciesPdf(rows, healthScore, gapData);
   },

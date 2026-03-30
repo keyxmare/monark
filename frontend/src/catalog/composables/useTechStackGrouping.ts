@@ -6,7 +6,13 @@ import type { TechStack } from '@/catalog/types/tech-stack';
 
 export type ViewMode = 'frameworks' | 'languages';
 export type GroupBy = 'framework' | 'language' | 'project' | 'provider';
-export type SortField = 'framework' | 'frameworkVersion' | 'language' | 'languageVersion' | 'ltsGap' | 'project';
+export type SortField =
+  | 'framework'
+  | 'frameworkVersion'
+  | 'language'
+  | 'languageVersion'
+  | 'ltsGap'
+  | 'project';
 
 export interface GroupedStack {
   groupIndex: number;
@@ -42,11 +48,7 @@ export interface UseTechStackGroupingOptions {
 }
 
 export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
-  const {
-    projectMap,
-    providerMap,
-    techStacks,
-  } = options;
+  const { projectMap, providerMap, techStacks } = options;
 
   const viewMode = ref<ViewMode>('frameworks');
   const search = ref('');
@@ -218,7 +220,8 @@ export function useTechStackGrouping(options: UseTechStackGroupingOptions) {
         if (worst < 0) worst = 0;
       } else {
         // Use a simple ranking: eol > warning > active, mapped to numeric
-        const rank = ts.maintenanceStatus === 'eol' ? 2 : ts.maintenanceStatus === 'warning' ? 1 : 0;
+        const rank =
+          ts.maintenanceStatus === 'eol' ? 2 : ts.maintenanceStatus === 'warning' ? 1 : 0;
         if (rank > worst) worst = rank;
       }
     }

@@ -14,10 +14,11 @@ export function useDependencyStats(
   const depGapStats = computed<DepGapStats | null>(() => {
     const maxGap = new Map<string, number>();
     for (const dep of filteredDeps.value) {
-      if (!dep.isOutdated || !dep.currentVersionReleasedAt || !dep.latestVersionReleasedAt) continue;
+      if (!dep.isOutdated || !dep.currentVersionReleasedAt || !dep.latestVersionReleasedAt)
+        continue;
       const gapMs = Math.abs(
         new Date(dep.latestVersionReleasedAt).getTime() -
-        new Date(dep.currentVersionReleasedAt).getTime(),
+          new Date(dep.currentVersionReleasedAt).getTime(),
       );
       if (gapMs > (maxGap.get(dep.name) ?? 0)) maxGap.set(dep.name, gapMs);
     }
@@ -25,9 +26,10 @@ export function useDependencyStats(
     if (gaps.length === 0) return null;
     const sorted = [...gaps].sort((a, b) => a - b);
     const cumulated = gaps.reduce((s, g) => s + g, 0);
-    const median = sorted.length % 2 === 0
-      ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-      : sorted[Math.floor(sorted.length / 2)];
+    const median =
+      sorted.length % 2 === 0
+        ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+        : sorted[Math.floor(sorted.length / 2)];
     return { average: cumulated / gaps.length, cumulated, median };
   });
 
@@ -35,7 +37,8 @@ export function useDependencyStats(
     const agg = new Map<string, { name: string; outdated: number; total: number; vulns: number }>();
     for (const dep of allDeps.value) {
       const name = projectName(dep.projectId);
-      if (!agg.has(dep.projectId)) agg.set(dep.projectId, { name, outdated: 0, total: 0, vulns: 0 });
+      if (!agg.has(dep.projectId))
+        agg.set(dep.projectId, { name, outdated: 0, total: 0, vulns: 0 });
       const e = agg.get(dep.projectId)!;
       e.total++;
       if (dep.isOutdated) e.outdated++;
@@ -58,10 +61,15 @@ export function useDependencyStats(
         totalVulns: s.totalVulnerabilities,
         upToDate: s.upToDate,
       };
-    } catch { /* silently ignored */ }
+    } catch {
+      /* silently ignored */
+    }
   }
 
-  watch([() => filters.value.projectId, () => filters.value.packageManager, () => filters.value.type], loadStats);
+  watch(
+    [() => filters.value.projectId, () => filters.value.packageManager, () => filters.value.type],
+    loadStats,
+  );
 
   return { depGapStats, healthScore, loadStats, projectAggregates };
 }

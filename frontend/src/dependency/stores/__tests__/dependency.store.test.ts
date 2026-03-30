@@ -31,18 +31,14 @@ describe('useDependencyStore', () => {
   });
 
   it('passes projectId to service.list when provided', async () => {
-    vi.mocked(dependencyService.list).mockResolvedValue(
-      mockPaginatedResponse([]) as never,
-    );
+    vi.mocked(dependencyService.list).mockResolvedValue(mockPaginatedResponse([]) as never);
     const store = useDependencyStore();
     await store.fetchAll(1, 20, 'project-42');
     expect(dependencyService.list).toHaveBeenCalledWith(1, 20, 'project-42');
   });
 
   it('passes undefined projectId when not provided', async () => {
-    vi.mocked(dependencyService.list).mockResolvedValue(
-      mockPaginatedResponse([]) as never,
-    );
+    vi.mocked(dependencyService.list).mockResolvedValue(mockPaginatedResponse([]) as never);
     const store = useDependencyStore();
     await store.fetchAll(1, 20);
     expect(dependencyService.list).toHaveBeenCalledWith(1, 20, undefined);
@@ -51,7 +47,9 @@ describe('useDependencyStore', () => {
   it('sets loading to true during fetch then false after', async () => {
     let resolveList!: (v: unknown) => void;
     vi.mocked(dependencyService.list).mockReturnValue(
-      new Promise((res) => { resolveList = res; }) as never,
+      new Promise((res) => {
+        resolveList = res;
+      }) as never,
     );
     const store = useDependencyStore();
     const fetchPromise = store.fetchAll();

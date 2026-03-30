@@ -19,8 +19,30 @@ describe('useDependencyExport', () => {
 
   it('calls pdf export with correct shape', async () => {
     const { exportDependenciesPdf } = await import('@/dependency/services/dependencyPdfExport');
-    const deps = computed(() => [{ id: '1', name: 'lib', isOutdated: false, projectId: 'p1', vulnerabilityCount: 0, currentVersion: '1.0.0', latestVersion: '1.0.0', packageManager: 'npm', type: 'runtime', currentVersionReleasedAt: null, latestVersionReleasedAt: null }] as never);
-    const { handleExport } = useDependencyExport(deps, () => 'My Project', ref(null), computed(() => null));
+    const deps = computed(
+      () =>
+        [
+          {
+            id: '1',
+            name: 'lib',
+            isOutdated: false,
+            projectId: 'p1',
+            vulnerabilityCount: 0,
+            currentVersion: '1.0.0',
+            latestVersion: '1.0.0',
+            packageManager: 'npm',
+            type: 'runtime',
+            currentVersionReleasedAt: null,
+            latestVersionReleasedAt: null,
+          },
+        ] as never,
+    );
+    const { handleExport } = useDependencyExport(
+      deps,
+      () => 'My Project',
+      ref(null),
+      computed(() => null),
+    );
     handleExport('pdf');
     expect(exportDependenciesPdf).toHaveBeenCalled();
   });
