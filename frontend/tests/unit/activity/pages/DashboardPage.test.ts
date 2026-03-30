@@ -29,20 +29,6 @@ vi.mock('@/activity/stores/dashboard', () => ({
   })),
 }));
 
-const mockFetchStats = vi.fn();
-let syncTaskOverrides: Record<string, unknown> = {};
-
-vi.mock('@/activity/stores/sync-task', () => ({
-  useSyncTaskStore: vi.fn(() => ({
-    error: null,
-    fetchStats: mockFetchStats,
-    loading: false,
-    stats: null,
-    tasks: [],
-    ...syncTaskOverrides,
-  })),
-}));
-
 import DashboardPage from '@/activity/pages/DashboardPage.vue';
 
 describe('DashboardPage', () => {
@@ -50,7 +36,6 @@ describe('DashboardPage', () => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
     dashboardOverrides = {};
-    syncTaskOverrides = {};
   });
 
   it('renders without errors', () => {
@@ -64,10 +49,9 @@ describe('DashboardPage', () => {
     expect(wrapper.find('[data-testid="dashboard-title"]').exists()).toBe(true);
   });
 
-  it('calls load and fetchStats on mount', () => {
+  it('calls load on mount', () => {
     mount(DashboardPage);
     expect(mockLoad).toHaveBeenCalled();
-    expect(mockFetchStats).toHaveBeenCalled();
   });
 
   it('shows loading state', () => {
@@ -86,29 +70,5 @@ describe('DashboardPage', () => {
     const wrapper = mount(DashboardPage);
     const cards = wrapper.findAll('[data-testid="metric-card"]');
     expect(cards).toHaveLength(2);
-  });
-
-  it('shows urgent tasks widget when critical tasks exist', () => {
-    syncTaskOverrides = {
-      stats: {
-        bySeverity: [
-          { label: 'critical', count: 3 },
-          { label: 'high', count: 2 },
-          { label: 'low', count: 10 },
-        ],
-      },
-    };
-    const wrapper = mount(DashboardPage);
-    expect(wrapper.find('[data-testid="dashboard-sync-tasks-widget"]').exists()).toBe(true);
-  });
-
-  it('hides urgent tasks widget when no critical tasks', () => {
-    syncTaskOverrides = {
-      stats: {
-        bySeverity: [{ label: 'low', count: 5 }],
-      },
-    };
-    const wrapper = mount(DashboardPage);
-    expect(wrapper.find('[data-testid="dashboard-sync-tasks-widget"]').exists()).toBe(false);
   });
 });

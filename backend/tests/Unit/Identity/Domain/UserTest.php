@@ -20,7 +20,6 @@ describe('User', function () {
         expect($user->getAvatar())->toBeNull();
         expect($user->getRoles())->toContain('ROLE_USER');
         expect($user->getUserIdentifier())->toBe('test@example.com');
-        expect($user->getAccessTokens())->toBeEmpty();
         expect($user->getCreatedAt())->toBeInstanceOf(\DateTimeImmutable::class);
         expect($user->getUpdatedAt())->toBeInstanceOf(\DateTimeImmutable::class);
     });

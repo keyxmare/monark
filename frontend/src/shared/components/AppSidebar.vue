@@ -29,31 +29,19 @@ const navSections = computed<NavSection[]>(() => [
     items: [
       { icon: '🔌', labelKey: 'nav.providers', to: '/catalog/providers' },
       { icon: '📦', labelKey: 'nav.projects', to: '/catalog/projects' },
-      { icon: '🔧', labelKey: 'nav.techStacks', to: '/catalog/tech-stacks' },
     ],
   },
   {
-    headingKey: 'nav.sections.dependency',
+    headingKey: 'nav.sections.governance',
     items: [
+      { icon: '🔧', labelKey: 'nav.techStacks', to: '/catalog/tech-stacks' },
       { icon: '📋', labelKey: 'nav.dependencies', to: '/dependency/dependencies' },
       { icon: '🛡', labelKey: 'nav.vulnerabilities', to: '/dependency/vulnerabilities' },
     ],
   },
   {
-    headingKey: 'nav.sections.activity',
-    items: [
-      { icon: '⚡', labelKey: 'nav.activityEvents', to: '/activity/events' },
-      { icon: '🔔', labelKey: 'nav.notifications', to: '/activity/notifications' },
-      { icon: '🔄', labelKey: 'nav.syncTasks', to: '/activity/sync-tasks' },
-      { icon: '📨', labelKey: 'nav.messenger', to: '/activity/messenger' },
-    ],
-  },
-  {
     headingKey: 'nav.sections.identity',
-    items: [
-      { icon: '👤', labelKey: 'nav.users', to: '/identity/users' },
-      { icon: '🔑', labelKey: 'nav.accessTokens', to: '/identity/access-tokens' },
-    ],
+    items: [{ icon: '👤', labelKey: 'nav.users', to: '/identity/users' }],
   },
 ]);
 

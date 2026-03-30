@@ -59,24 +59,18 @@
       "failedToScan": "Failed to scan {entity}",
       "failedToTestConnection": "Failed to test connection",
       "failedToImportProjects": "Failed to import projects",
-      "failedToMarkAsRead": "Failed to mark as read",
       "failedToSync": "Failed to start sync"
     },
     "entities": {
       "users": "users",
-      "accessTokens": "access tokens",
       "projects": "projects",
       "providers": "providers",
       "techStacks": "tech stacks",
       "dependencies": "dependencies",
       "vulnerabilities": "vulnerabilities",
-      "activityEvents": "activity events",
-      "notifications": "notifications",
       "dashboard": "dashboard",
       "remoteProjects": "remote projects",
-      "syncTasks": "sync tasks",
-      "mergeRequests": "merge requests",
-      "messenger": "messenger queues"
+      "mergeRequests": "merge requests"
     },
     "validation": {
       "required": "This field is required",
@@ -95,7 +89,7 @@
     "dashboard": "Dashboard",
     "sections": {
       "catalog": "Catalog",
-      "dependency": "Dependency",
+      "governance": "Technical Governance",
       "activity": "Activity",
       "identity": "Identity"
     },
@@ -104,12 +98,7 @@
     "techStacks": "Tech Stacks",
     "dependencies": "Dependencies",
     "vulnerabilities": "Vulnerabilities",
-    "activityEvents": "Activity Events",
-    "notifications": "Notifications",
     "users": "Users",
-    "accessTokens": "Access Tokens",
-    "syncTasks": "Sync Tasks",
-    "messenger": "Messenger",
     "logout": "Logout"
   },
   "identity": {
@@ -122,20 +111,6 @@
       "avatar": "Avatar",
       "createdAt": "Created At",
       "noUsers": "No users found."
-    },
-    "accessTokens": {
-      "title": "Access Tokens",
-      "addToken": "Add Token",
-      "provider": "Provider",
-      "token": "Token",
-      "scopes": "Scopes",
-      "scopesPlaceholder": "read_api, read_repository",
-      "scopesHint": "Scopes (comma-separated)",
-      "expiresAt": "Expires At",
-      "expiresAtOptional": "Expires At (optional)",
-      "createToken": "Create Token",
-      "noTokens": "No access tokens found.",
-      "createFailed": "Failed to create access token"
     },
     "auth": {
       "signIn": "Sign in",
@@ -319,11 +294,16 @@
       "healthScore": "{percent}% up to date",
       "healthEol": "{count} unmaintained",
       "healthWarning": "{count} inactive",
+      "tabLanguages": "Languages",
+      "tabFrameworks": "Frameworks",
       "groupByProject": "By project",
       "groupByFramework": "By framework",
+      "groupByLanguage": "By language",
       "groupByProvider": "By provider",
       "searchPlaceholder": "Search project or framework…",
+      "searchLanguagePlaceholder": "Search project or language…",
       "allFrameworks": "All frameworks",
+      "allLanguages": "All languages",
       "allProviders": "All providers",
       "allStatuses": "All statuses",
       "statusActive": "Up to date",
@@ -434,91 +414,6 @@
   "activity": {
     "dashboard": {
       "welcome": "Welcome to Monark"
-    },
-    "events": {
-      "title": "Activity Events",
-      "type": "Type",
-      "entityType": "Entity Type",
-      "entityId": "Entity ID",
-      "userId": "User ID",
-      "occurredAt": "Occurred At",
-      "payload": "Payload",
-      "noEvents": "No activity events found."
-    },
-    "notifications": {
-      "title": "Notifications",
-      "notifTitle": "Title",
-      "channel": "Channel",
-      "status": "Status",
-      "message": "Message",
-      "read": "Read",
-      "unread": "Unread",
-      "markAsRead": "Mark as read",
-      "readAt": "Read At",
-      "noNotifications": "No notifications found."
-    },
-    "messenger": {
-      "title": "Messenger Monitor",
-      "queuesCount": "Queues",
-      "totalMessages": "Total Messages",
-      "totalConsumers": "Consumers",
-      "queueName": "Queue",
-      "health": "Health",
-      "messages": "Messages",
-      "ready": "Ready",
-      "unacked": "Unacked",
-      "consumers": "Consumers",
-      "publishRate": "Publish Rate",
-      "deliverRate": "Deliver Rate",
-      "healthy": "Healthy",
-      "moderate": "Moderate",
-      "highBacklog": "High Backlog",
-      "noConsumer": "No Consumer",
-      "noQueues": "No queues found.",
-      "workers": "Workers",
-      "workersTitle": "Active Workers",
-      "noWorker": "No Worker",
-      "noWorkerWarning": "No active worker detected — messages will not be processed. Check that the messenger-consumer service is running.",
-      "queuesTitle": "Queues",
-      "liveUpdates": "Live updates",
-      "reconnecting": "Reconnecting…"
-    },
-    "syncTasks": {
-      "title": "Sync Tasks",
-      "taskTitle": "Title",
-      "typeLabel": "Type",
-      "severityLabel": "Severity",
-      "statusLabel": "Status",
-      "date": "Date",
-      "noTasks": "No sync tasks found.",
-      "allStatuses": "All statuses",
-      "allTypes": "All types",
-      "allSeverities": "All severities",
-      "acknowledge": "Acknowledge",
-      "resolve": "Resolve",
-      "dismiss": "Dismiss",
-      "type": {
-        "outdated_dependency": "Outdated Dep",
-        "vulnerability": "Vulnerability",
-        "stack_upgrade": "Stack Upgrade",
-        "new_dependency": "New Dep",
-        "stale_pr": "Stale PR"
-      },
-      "severity": {
-        "critical": "Critical",
-        "high": "High",
-        "medium": "Medium",
-        "low": "Low",
-        "info": "Info"
-      },
-      "status": {
-        "open": "Open",
-        "acknowledged": "Acknowledged",
-        "resolved": "Resolved",
-        "dismissed": "Dismissed"
-      },
-      "urgentWidget": "{count} critical/high sync task(s)",
-      "urgentWidgetHint": "Review these tasks that require attention"
     }
   },
   "aria": {

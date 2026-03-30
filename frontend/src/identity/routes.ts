@@ -33,16 +33,4 @@ export const identityRoutes: RouteRecordRaw[] = [
     name: 'identity-users-detail',
     path: '/identity/users/:id',
   },
-  {
-    component: () => import('@/identity/pages/AccessTokenList.vue'),
-    meta: { layout: Layout.Dashboard },
-    name: 'identity-access-tokens-list',
-    path: '/identity/access-tokens',
-  },
-  {
-    component: () => import('@/identity/pages/AccessTokenForm.vue'),
-    meta: { layout: Layout.Dashboard },
-    name: 'identity-access-tokens-create',
-    path: '/identity/access-tokens/create',
-  },
 ];

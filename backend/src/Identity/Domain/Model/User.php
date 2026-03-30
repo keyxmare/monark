@@ -6,8 +6,6 @@ namespace App\Identity\Domain\Model;
 
 use App\Shared\Domain\ValueObject\Email;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -41,10 +39,6 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     /** @var list<string> */
     #[ORM\Column(type: 'json')]
     private array $roles;
-
-    /** @var Collection<int, AccessToken> */
-    #[ORM\OneToMany(targetEntity: AccessToken::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $accessTokens;
 
     #[ORM\Column]
     private DateTimeImmutable $createdAt;
@@ -82,7 +76,6 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->lastName = $lastName;
         $this->avatar = $avatar;
         $this->roles = $roles;
-        $this->accessTokens = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
         $this->updatedAt = new DateTimeImmutable();
     }
@@ -144,12 +137,6 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles[] = 'ROLE_USER';
 
         return \array_values(\array_unique($roles));
-    }
-
-    /** @return Collection<int, AccessToken> */
-    public function getAccessTokens(): Collection
-    {
-        return $this->accessTokens;
     }
 
     public function getCreatedAt(): DateTimeImmutable

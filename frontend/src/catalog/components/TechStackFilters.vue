@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import type { GroupBy } from '@/catalog/composables/useTechStackGrouping';
+import type { GroupBy, ViewMode } from '@/catalog/composables/useTechStackGrouping';
 
 const { t } = useI18n();
 
 defineProps<{
   availableFrameworks: string[];
+  availableLanguages: string[];
   availableProviders: { id: string; name: string }[];
+  viewMode: ViewMode;
 }>();
 
 const search = defineModel<string>('search', { required: true });
 const filterFramework = defineModel<string>('filterFramework', { required: true });
+const filterLanguage = defineModel<string>('filterLanguage', { required: true });
 const filterProvider = defineModel<string>('filterProvider', { required: true });
 const filterStatus = defineModel<string>('filterStatus', { required: true });
 const groupBy = defineModel<GroupBy>('groupBy', { required: true });
@@ -37,13 +40,36 @@ const groupBy = defineModel<GroupBy>('groupBy', { required: true });
       <input
         v-model="search"
         type="search"
-        :aria-label="t('catalog.techStacks.searchPlaceholder')"
-        :placeholder="t('catalog.techStacks.searchPlaceholder')"
+        :aria-label="
+          viewMode === 'languages'
+            ? t('catalog.techStacks.searchLanguagePlaceholder')
+            : t('catalog.techStacks.searchPlaceholder')
+        "
+        :placeholder="
+          viewMode === 'languages'
+            ? t('catalog.techStacks.searchLanguagePlaceholder')
+            : t('catalog.techStacks.searchPlaceholder')
+        "
         class="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
         data-testid="tech-stack-search"
       />
     </div>
     <select
+      v-if="viewMode === 'languages'"
+      v-model="filterLanguage"
+      :aria-label="t('catalog.techStacks.allLanguages')"
+      class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+      data-testid="tech-stack-filter-language"
+    >
+      <option value="">
+        {{ t('catalog.techStacks.allLanguages') }}
+      </option>
+      <option v-for="lang in availableLanguages" :key="lang" :value="lang">
+        {{ lang }}
+      </option>
+    </select>
+    <select
+      v-else
       v-model="filterFramework"
       :aria-label="t('catalog.techStacks.allFrameworks')"
       class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
@@ -93,7 +119,11 @@ const groupBy = defineModel<GroupBy>('groupBy', { required: true });
   <!-- Group toggle -->
   <div class="mb-4 flex items-center gap-1" data-testid="tech-stack-group-toggle">
     <button
-      v-for="mode in ['project', 'framework', 'provider'] as const"
+      v-for="mode in
+        viewMode === 'languages'
+          ? (['project', 'language', 'provider'] as const)
+          : (['project', 'framework', 'provider'] as const)
+      "
       :key="mode"
       :class="
         groupBy === mode

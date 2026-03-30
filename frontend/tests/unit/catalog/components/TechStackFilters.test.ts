@@ -10,15 +10,18 @@ import TechStackFilters from '@/catalog/components/TechStackFilters.vue';
 describe('TechStackFilters', () => {
   const defaultProps = {
     availableFrameworks: ['Vue', 'React', 'Laravel'],
+    availableLanguages: ['TypeScript', 'PHP', 'Python'],
     availableProviders: [
       { id: 'p1', name: 'GitHub' },
       { id: 'p2', name: 'GitLab' },
     ],
     search: '',
     filterFramework: '',
+    filterLanguage: '',
     filterProvider: '',
     filterStatus: '',
     groupBy: 'project' as const,
+    viewMode: 'frameworks' as const,
   };
 
   beforeEach(() => {

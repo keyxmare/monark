@@ -104,28 +104,6 @@ services:
       - mercure-data:/data
       - mercure-config:/config
 
-  messenger-stats-publisher:
-    build:
-      context: ..
-      dockerfile: docker/backend/Dockerfile
-      target: dev
-    command: php bin/console app:messenger:publish-stats -v
-    restart: unless-stopped
-    depends_on:
-      backend:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      mercure:
-        condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      RABBITMQ_MANAGEMENT_URL: http://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:15672
-      MERCURE_URL: http://mercure/.well-known/mercure
-      MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
-      MERCURE_JWT_SECRET: '!ChangeThisMercureHubJWTSecretKey!'
-
   messenger-consumer:
     build:
       context: ..

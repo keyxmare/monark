@@ -59,24 +59,18 @@
       "failedToScan": "Impossible de scanner {entity}",
       "failedToTestConnection": "Impossible de tester la connexion",
       "failedToImportProjects": "Impossible d'importer les projets",
-      "failedToMarkAsRead": "Impossible de marquer comme lu",
       "failedToSync": "Impossible de lancer la synchronisation"
     },
     "entities": {
       "users": "les utilisateurs",
-      "accessTokens": "les jetons d'accès",
       "projects": "les projets",
       "providers": "les fournisseurs",
       "techStacks": "les stacks techniques",
       "dependencies": "les dépendances",
       "vulnerabilities": "les vulnérabilités",
-      "activityEvents": "les événements",
-      "notifications": "les notifications",
       "dashboard": "le tableau de bord",
       "remoteProjects": "les projets distants",
-      "syncTasks": "les tâches de sync",
-      "mergeRequests": "les merge requests",
-      "messenger": "les files messenger"
+      "mergeRequests": "les merge requests"
     },
     "validation": {
       "required": "Ce champ est requis",
@@ -95,7 +89,7 @@
     "dashboard": "Tableau de bord",
     "sections": {
       "catalog": "Catalogue",
-      "dependency": "Dépendances",
+      "governance": "Gouvernance technique",
       "activity": "Activité",
       "identity": "Identité"
     },
@@ -104,12 +98,7 @@
     "techStacks": "Stacks techniques",
     "dependencies": "Dépendances",
     "vulnerabilities": "Vulnérabilités",
-    "activityEvents": "Événements",
-    "notifications": "Notifications",
     "users": "Utilisateurs",
-    "accessTokens": "Jetons d'accès",
-    "syncTasks": "Tâches de sync",
-    "messenger": "Messenger",
     "logout": "Déconnexion"
   },
   "identity": {
@@ -122,20 +111,6 @@
       "avatar": "Avatar",
       "createdAt": "Créé le",
       "noUsers": "Aucun utilisateur trouvé."
-    },
-    "accessTokens": {
-      "title": "Jetons d'accès",
-      "addToken": "Ajouter un jeton",
-      "provider": "Fournisseur",
-      "token": "Jeton",
-      "scopes": "Portées",
-      "scopesPlaceholder": "read_api, read_repository",
-      "scopesHint": "Portées (séparées par des virgules)",
-      "expiresAt": "Expire le",
-      "expiresAtOptional": "Expire le (optionnel)",
-      "createToken": "Créer le jeton",
-      "noTokens": "Aucun jeton d'accès trouvé.",
-      "createFailed": "Échec de la création du jeton d'accès"
     },
     "auth": {
       "signIn": "Se connecter",
@@ -319,11 +294,16 @@
       "healthScore": "{percent}% à jour",
       "healthEol": "{count} non maintenu(s)",
       "healthWarning": "{count} inactif(s)",
+      "tabLanguages": "Langages",
+      "tabFrameworks": "Frameworks",
       "groupByProject": "Par projet",
       "groupByFramework": "Par framework",
+      "groupByLanguage": "Par langage",
       "groupByProvider": "Par provider",
       "searchPlaceholder": "Rechercher un projet ou framework…",
+      "searchLanguagePlaceholder": "Rechercher un projet ou langage…",
       "allFrameworks": "Tous les frameworks",
+      "allLanguages": "Tous les langages",
       "allProviders": "Tous les providers",
       "allStatuses": "Tous les statuts",
       "statusActive": "À jour",
@@ -434,91 +414,6 @@
   "activity": {
     "dashboard": {
       "welcome": "Bienvenue sur Monark"
-    },
-    "events": {
-      "title": "Événements",
-      "type": "Type",
-      "entityType": "Type d'entité",
-      "entityId": "ID d'entité",
-      "userId": "ID utilisateur",
-      "occurredAt": "Date",
-      "payload": "Données",
-      "noEvents": "Aucun événement trouvé."
-    },
-    "notifications": {
-      "title": "Notifications",
-      "notifTitle": "Titre",
-      "channel": "Canal",
-      "status": "Statut",
-      "message": "Message",
-      "read": "Lu",
-      "unread": "Non lu",
-      "markAsRead": "Marquer comme lu",
-      "readAt": "Lu le",
-      "noNotifications": "Aucune notification trouvée."
-    },
-    "messenger": {
-      "title": "Monitoring Messenger",
-      "queuesCount": "Files",
-      "totalMessages": "Messages totaux",
-      "totalConsumers": "Consumers",
-      "queueName": "File",
-      "health": "Santé",
-      "messages": "Messages",
-      "ready": "Prêts",
-      "unacked": "Non acquittés",
-      "consumers": "Consumers",
-      "publishRate": "Taux publication",
-      "deliverRate": "Taux livraison",
-      "healthy": "OK",
-      "moderate": "Modéré",
-      "highBacklog": "Backlog élevé",
-      "noConsumer": "Pas de consumer",
-      "noQueues": "Aucune file trouvée.",
-      "workers": "Workers",
-      "workersTitle": "Workers actifs",
-      "noWorker": "Pas de worker",
-      "noWorkerWarning": "Aucun worker actif détecté — les messages ne seront pas traités. Vérifiez que le service messenger-consumer est démarré.",
-      "queuesTitle": "Files",
-      "liveUpdates": "Temps réel",
-      "reconnecting": "Reconnexion…"
-    },
-    "syncTasks": {
-      "title": "Tâches de synchronisation",
-      "taskTitle": "Titre",
-      "typeLabel": "Type",
-      "severityLabel": "Sévérité",
-      "statusLabel": "Statut",
-      "date": "Date",
-      "noTasks": "Aucune tâche de synchronisation trouvée.",
-      "allStatuses": "Tous les statuts",
-      "allTypes": "Tous les types",
-      "allSeverities": "Toutes les sévérités",
-      "acknowledge": "Prendre en compte",
-      "resolve": "Résoudre",
-      "dismiss": "Ignorer",
-      "type": {
-        "outdated_dependency": "Dép. obsolète",
-        "vulnerability": "Vulnérabilité",
-        "stack_upgrade": "Mise à jour stack",
-        "new_dependency": "Nouvelle dép.",
-        "stale_pr": "PR inactive"
-      },
-      "severity": {
-        "critical": "Critique",
-        "high": "Élevée",
-        "medium": "Moyenne",
-        "low": "Faible",
-        "info": "Info"
-      },
-      "status": {
-        "open": "Ouvert",
-        "acknowledged": "Pris en compte",
-        "resolved": "Résolu",
-        "dismissed": "Ignoré"
-      },
-      "urgentWidget": "{count} tâche(s) critique(s)/élevée(s)",
-      "urgentWidgetHint": "Ces tâches nécessitent votre attention"
     }
   },
   "aria": {

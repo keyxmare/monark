@@ -61,14 +61,13 @@ describe('AppSidebar', () => {
   it('renders navigation links', () => {
     const wrapper = mountSidebar();
     const links = wrapper.findAll('a');
-    expect(links.length).toBeGreaterThanOrEqual(10);
+    expect(links.length).toBeGreaterThanOrEqual(6);
   });
 
   it('renders section headings when not collapsed', () => {
     const wrapper = mountSidebar();
     expect(wrapper.text()).toContain('nav.sections.catalog');
-    expect(wrapper.text()).toContain('nav.sections.dependency');
-    expect(wrapper.text()).toContain('nav.sections.activity');
+    expect(wrapper.text()).toContain('nav.sections.governance');
     expect(wrapper.text()).toContain('nav.sections.identity');
   });
 

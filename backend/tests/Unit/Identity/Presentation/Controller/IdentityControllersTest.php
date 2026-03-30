@@ -2,27 +2,16 @@
 
 declare(strict_types=1);
 
-use App\Identity\Application\Command\CreateAccessTokenCommand;
-use App\Identity\Application\Command\DeleteAccessTokenCommand;
 use App\Identity\Application\Command\RegisterUserCommand;
 use App\Identity\Application\Command\UpdateUserCommand;
-use App\Identity\Application\DTO\AccessTokenListOutput;
-use App\Identity\Application\DTO\AccessTokenOutput;
-use App\Identity\Application\DTO\CreateAccessTokenInput;
 use App\Identity\Application\DTO\RegisterUserInput;
 use App\Identity\Application\DTO\UpdateUserInput;
 use App\Identity\Application\DTO\UserListOutput;
 use App\Identity\Application\DTO\UserOutput;
-use App\Identity\Application\Query\GetAccessTokenQuery;
 use App\Identity\Application\Query\GetUserQuery;
-use App\Identity\Application\Query\ListAccessTokensQuery;
 use App\Identity\Application\Query\ListUsersQuery;
-use App\Identity\Presentation\Controller\CreateAccessTokenController;
-use App\Identity\Presentation\Controller\DeleteAccessTokenController;
-use App\Identity\Presentation\Controller\GetAccessTokenController;
 use App\Identity\Presentation\Controller\GetCurrentUserController;
 use App\Identity\Presentation\Controller\GetUserController;
-use App\Identity\Presentation\Controller\ListAccessTokensController;
 use App\Identity\Presentation\Controller\ListUsersController;
 use App\Identity\Presentation\Controller\LoginController;
 use App\Identity\Presentation\Controller\LogoutController;
@@ -127,53 +116,6 @@ it('lists users with pagination', function () {
 
     expect($response->getStatusCode())->toBe(200);
     expect($bus->dispatched)->toBeInstanceOf(ListUsersQuery::class);
-    expect($bus->dispatched->page)->toBe(1);
-    expect($bus->dispatched->perPage)->toBe(20);
-});
-
-it('creates an access token and returns 201', function () {
-    $output = new AccessTokenOutput('at-1', 'gitlab', ['api'], null, 'u-1', '2026-01-01T00:00:00+00:00');
-    $bus = \stubIdentityBus($output);
-    $controller = new CreateAccessTokenController($bus);
-    $user = UserFactory::create();
-
-    $response = $controller($user, new CreateAccessTokenInput(provider: 'gitlab', token: 'glpat-xxx', scopes: ['api']));
-
-    expect($response->getStatusCode())->toBe(201);
-    expect($bus->dispatched)->toBeInstanceOf(CreateAccessTokenCommand::class);
-});
-
-it('gets an access token', function () {
-    $output = new AccessTokenOutput('at-1', 'gitlab', ['api'], null, 'u-1', '2026-01-01T00:00:00+00:00');
-    $bus = \stubIdentityBus($output);
-    $controller = new GetAccessTokenController($bus);
-
-    $response = $controller('at-1');
-
-    expect($response->getStatusCode())->toBe(200);
-    expect($bus->dispatched)->toBeInstanceOf(GetAccessTokenQuery::class);
-});
-
-it('deletes an access token and returns 204', function () {
-    $bus = \stubIdentityBus();
-    $controller = new DeleteAccessTokenController($bus);
-
-    $response = $controller('at-1');
-
-    expect($response->getStatusCode())->toBe(204);
-    expect($bus->dispatched)->toBeInstanceOf(DeleteAccessTokenCommand::class);
-});
-
-it('lists access tokens with pagination', function () {
-    $listOutput = new AccessTokenListOutput(new PaginatedOutput(items: [], total: 0, page: 1, perPage: 20));
-    $bus = \stubIdentityBus($listOutput);
-    $controller = new ListAccessTokensController($bus);
-    $user = UserFactory::create();
-
-    $response = $controller($user, Request::create('/api/v1/identity/access-tokens', 'GET'));
-
-    expect($response->getStatusCode())->toBe(200);
-    expect($bus->dispatched)->toBeInstanceOf(ListAccessTokensQuery::class);
     expect($bus->dispatched->page)->toBe(1);
     expect($bus->dispatched->perPage)->toBe(20);
 });

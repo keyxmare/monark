@@ -26,8 +26,7 @@ describe('GET /api/v1/activity/dashboard', function () {
         expect($body['success'])->toBeTrue();
         expect($body['data'])->toBeArray();
         expect($body['data']['metrics'])->toBeArray();
-        expect($body['data']['metrics'])->toHaveCount(3);
-        expect($body['data']['metrics'][0])->toHaveKeys(['label', 'value']);
+        expect($body['data']['metrics'])->toBeEmpty();
     });
 
     it('returns 401 without authentication', function () {

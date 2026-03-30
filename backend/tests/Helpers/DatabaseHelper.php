@@ -29,7 +29,9 @@ trait DatabaseHelper
         $schemaTool = new SchemaTool($em);
 
         if (! self::$schemaCreated) {
-            $schemaTool->dropSchema($metadata);
+            $connection = $em->getConnection();
+            $connection->executeStatement('DROP SCHEMA public CASCADE');
+            $connection->executeStatement('CREATE SCHEMA public');
             $schemaTool->createSchema($metadata);
             self::$schemaCreated = true;
         } else {

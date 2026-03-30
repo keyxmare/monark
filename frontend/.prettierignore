@@ -3,3 +3,5 @@ coverage
 .pnpm-store
 .stryker-tmp
 pnpm-lock.yaml
+playwright-report
+test-results
