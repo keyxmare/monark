@@ -63,7 +63,7 @@ printf "${CYAN}  ╚════════════════════
 echo ""
 printf "${BLUE}  BACKEND ${DIM}PHP / Symfony / Pest${RESET}\n\n"
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Lint" 2
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Lint" 5
 $BACK 'php vendor/bin/php-cs-fixer fix --dry-run -q 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
 stop_countdown
 BG_RC=$($BACK 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
@@ -74,7 +74,7 @@ else
   hint "fix-backend"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Static analysis" 5
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Static analysis" 15
 $BACK 'vendor/bin/phpstan analyse --no-progress --error-format=raw > /tmp/ci-phpstan.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 PHPSTAN_ERRORS=$($BACK 'grep -c "^/app/" /tmp/ci-phpstan.txt 2>/dev/null || echo 0' 2>/dev/null | tr -dc '0-9')
@@ -87,7 +87,7 @@ fi
 
 for SUITE in Unit Integration Functional; do
   SUITE_LOWER=$(echo "$SUITE" | tr '[:upper:]' '[:lower:]')
-  TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests ($SUITE_LOWER)" 3
+  TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests ($SUITE_LOWER)" 10
   $BACK "vendor/bin/pest tests/${SUITE} --no-coverage --log-junit /tmp/pest-${SUITE_LOWER}.xml 2>/dev/null" >/dev/null 2>&1
   stop_countdown
   T=$($BACK "grep -o 'tests=\"[0-9]*\"' /tmp/pest-${SUITE_LOWER}.xml 2>/dev/null | head -1 | grep -oE '[0-9]+'" 2>/dev/null | tr -dc '0-9')
@@ -107,7 +107,7 @@ for SUITE in Unit Integration Functional; do
   fi
 done
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 10
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 20
 $BACK 'php -d xdebug.mode=coverage vendor/bin/pest --no-coverage --coverage-clover /tmp/clover-ci.xml 2>/dev/null' >/dev/null 2>&1
 stop_countdown
 COV_RESULT=$($BACK 'php -r "
@@ -134,7 +134,7 @@ else
   fail "Coverage" "Error: ${BCOV_ERR:-unknown failure}"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 150
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 300
 $BACK 'vendor/bin/pest tests/Unit --mutate --parallel --everything --covered-only --min=0 > /tmp/ci-mutate.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 MSI_SCORE=$($BACK 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-mutate.txt | grep -oE "Score:[[:space:]]+[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+" | head -1' 2>/dev/null | tr -dc '0-9.')
@@ -153,7 +153,7 @@ fi
 echo ""
 printf "${BLUE}  FRONTEND ${DIM}TypeScript / Vue / Vitest${RESET}\n\n"
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Lint" 5
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Lint" 10
 $FRONT 'pnpm lint 2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
 stop_countdown
 BG_RC=$($FRONT 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
@@ -164,7 +164,7 @@ else
   hint "lint-frontend"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Format" 10
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Format" 5
 $FRONT 'pnpm format:check  2>&1; echo $? > /tmp/ci-rc.txt' >/dev/null 2>&1
 stop_countdown
 BG_RC=$($FRONT 'cat /tmp/ci-rc.txt' 2>/dev/null | tr -dc '0-9')
@@ -175,7 +175,7 @@ else
   hint "lint-frontend"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests (unit)" 5
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Tests (unit)" 15
 $FRONT 'pnpm vitest run > /tmp/ci-vitest.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 VITEST_OUT=$($FRONT 'cat /tmp/ci-vitest.txt' 2>/dev/null)
@@ -201,7 +201,7 @@ else
   warn "Tests (e2e)" "Skipped (no browser)"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 10
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Coverage" 15
 $FRONT 'pnpm vitest run --coverage --reporter=dot > /tmp/ci-fcov.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 FCOV_OUT=$($FRONT 'cat /tmp/ci-fcov.txt' 2>/dev/null)
@@ -213,7 +213,7 @@ else
   fail "Coverage" "Error: ${FCOV_ERR:-unknown failure}"
 fi
 
-TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 120
+TOTAL=$((TOTAL + 1)); START_T=$(date +%s); start_countdown "Mutation" 600
 $FRONT 'pnpm mutation > /tmp/ci-stryker.txt 2>&1' >/dev/null 2>&1
 stop_countdown
 FMSI_LINE=$($FRONT 'sed "s/\x1b\[[0-9;]*[a-zA-Z]//g" /tmp/ci-stryker.txt | grep "All files"' 2>/dev/null | tr -d '\r')

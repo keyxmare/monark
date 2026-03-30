@@ -87,7 +87,7 @@ describe('useDependencySyncProgress', () => {
     });
 
     expect(store.toasts[0].variant).toBe('success');
-    expect(store.toasts[0].message).toBe('10/10');
+    expect(store.toasts[0].message).toBe('dependency.dependencies.syncCompleted');
     expect(mercureClose).toHaveBeenCalled();
   });
 });

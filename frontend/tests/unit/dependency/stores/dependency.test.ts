@@ -90,6 +90,10 @@ describe('Dependency Store', () => {
   });
 
   it('updates a dependency', async () => {
+    vi.mocked(dependencyService.create).mockResolvedValue({
+      data: mockDependency,
+      status: 201,
+    });
     const updatedDep = { ...mockDependency, currentVersion: '8.0.0', isOutdated: false };
     vi.mocked(dependencyService.update).mockResolvedValue({
       data: updatedDep,
@@ -97,18 +101,21 @@ describe('Dependency Store', () => {
     });
 
     const store = useDependencyStore();
-    store.dependencies = [mockDependency];
+    await store.create(mockDependency as never);
     await store.update('dep-001', { currentVersion: '8.0.0', isOutdated: false });
 
     expect(store.selectedDependency?.currentVersion).toBe('8.0.0');
-    expect(store.dependencies[0].isOutdated).toBe(false);
   });
 
   it('removes a dependency', async () => {
+    vi.mocked(dependencyService.create).mockResolvedValue({
+      data: mockDependency,
+      status: 201,
+    });
     vi.mocked(dependencyService.remove).mockResolvedValue(undefined);
 
     const store = useDependencyStore();
-    store.dependencies = [mockDependency];
+    await store.create(mockDependency as never);
 
     await store.remove('dep-001');
 

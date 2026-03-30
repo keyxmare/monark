@@ -21,7 +21,7 @@ export function useDependencyFilters(
   });
 
   const filteredDeps = computed(() =>
-    deps.value.filter((dep) => {
+    (deps.value ?? []).filter((dep) => {
       const { search, packageManager, type, status, projectId } = filters.value;
       if (search) {
         const q = search.toLowerCase();

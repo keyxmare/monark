@@ -28,7 +28,10 @@ const toastStore = useToastStore();
 const { track: trackSync } = useDependencySyncProgress();
 const syncing = ref(false);
 
-const allDeps = computed<Dependency[]>(() => dependencyStore.dependencies.value);
+const allDeps = computed<Dependency[]>(() => {
+  const raw = dependencyStore.dependencies;
+  return Array.isArray(raw) ? raw : (raw?.value ?? []);
+});
 
 const projectMap = computed(() => {
   const map = new Map<string, string>();
