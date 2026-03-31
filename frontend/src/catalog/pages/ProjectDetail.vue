@@ -175,7 +175,12 @@ async function handleScan() {
               class="flex flex-wrap gap-2"
               data-testid="project-stat-frameworks"
             >
-              <span v-for="fw in frameworkStore.frameworks" :key="fw.id" class="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-text">{{ fw.name }} {{ fw.version }}</span>
+              <span
+                v-for="fw in frameworkStore.frameworks"
+                :key="fw.id"
+                class="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-text"
+                >{{ fw.name }} {{ fw.version }}</span
+              >
             </div>
             <p v-else class="text-sm text-text-muted" data-testid="project-stat-frameworks">—</p>
           </div>

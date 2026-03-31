@@ -28,7 +28,11 @@ export interface UseFrameworkGroupingOptions {
   providerMap: Ref<Map<string, { name: string; type: string }>>;
 }
 
-export function useFrameworkGrouping({ frameworks, projectMap, providerMap }: UseFrameworkGroupingOptions) {
+export function useFrameworkGrouping({
+  frameworks,
+  projectMap,
+  providerMap,
+}: UseFrameworkGroupingOptions) {
   const search = ref('');
   const filterFramework = ref('');
   const filterStatus = ref('');
@@ -85,17 +89,28 @@ export function useFrameworkGrouping({ frameworks, projectMap, providerMap }: Us
   const healthScore = computed(() => {
     const fws = filteredFrameworks.value;
     if (fws.length === 0) return null;
-    let active = 0, eol = 0, warning = 0;
+    let active = 0,
+      eol = 0,
+      warning = 0;
     for (const fw of fws) {
       if (fw.maintenanceStatus === 'eol') eol++;
       else if (fw.maintenanceStatus === 'warning') warning++;
       else active++;
     }
-    return { active, eol, percent: Math.round((active / fws.length) * 100), total: fws.length, warning };
+    return {
+      active,
+      eol,
+      percent: Math.round((active / fws.length) * 100),
+      total: fws.length,
+      warning,
+    };
   });
 
   const providerAggregates = computed<ProviderAggregate[]>(() => {
-    const agg = new Map<string, { frameworks: Map<string, string[]>; name: string; projectIds: Set<string>; type: string }>();
+    const agg = new Map<
+      string,
+      { frameworks: Map<string, string[]>; name: string; projectIds: Set<string>; type: string }
+    >();
     for (const fw of frameworks.value) {
       if (!fw.name || fw.name === 'none') continue;
       const proj = projectMap.value.get(fw.projectId);
@@ -103,7 +118,12 @@ export function useFrameworkGrouping({ frameworks, projectMap, providerMap }: Us
       const provider = providerMap.value.get(proj.providerId);
       if (!provider) continue;
       if (!agg.has(proj.providerId)) {
-        agg.set(proj.providerId, { frameworks: new Map(), name: provider.name, projectIds: new Set(), type: provider.type });
+        agg.set(proj.providerId, {
+          frameworks: new Map(),
+          name: provider.name,
+          projectIds: new Set(),
+          type: provider.type,
+        });
       }
       const entry = agg.get(proj.providerId)!;
       entry.projectIds.add(fw.projectId);
@@ -112,7 +132,9 @@ export function useFrameworkGrouping({ frameworks, projectMap, providerMap }: Us
     }
     return [...agg.entries()].map(([id, entry]) => ({
       frameworks: [...entry.frameworks.entries()].map(([name, versions]) => {
-        const sorted = [...versions].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const sorted = [...versions].sort((a, b) =>
+          a.localeCompare(b, undefined, { numeric: true }),
+        );
         return { max: sorted[sorted.length - 1] ?? '—', min: sorted[0] ?? '—', name };
       }),
       id,
@@ -157,7 +179,8 @@ export function useFrameworkGrouping({ frameworks, projectMap, providerMap }: Us
     const dir = sortDir.value === 'asc' ? 1 : -1;
     const sorted = [...groups.entries()].sort(([keyA, fwsA], [keyB, fwsB]) => {
       if (sortField.value === 'ltsGap') {
-        const gA = worstGap(fwsA), gB = worstGap(fwsB);
+        const gA = worstGap(fwsA),
+          gB = worstGap(fwsB);
         if (gA === -1 && gB === -1) return 0;
         if (gA === -1) return 1;
         if (gB === -1) return -1;
@@ -173,7 +196,14 @@ export function useFrameworkGrouping({ frameworks, projectMap, providerMap }: Us
     for (const [key, fws] of sorted) {
       const label = groupLabel(key);
       fws.forEach((fw, i) => {
-        result.push({ fw, groupIndex, groupSize: fws.length, isFirstInGroup: i === 0, projectId: fw.projectId, projectName: label });
+        result.push({
+          fw,
+          groupIndex,
+          groupSize: fws.length,
+          isFirstInGroup: i === 0,
+          projectId: fw.projectId,
+          projectName: label,
+        });
       });
       groupIndex++;
     }
