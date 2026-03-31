@@ -44,8 +44,7 @@ function stepState(stepName: SyncStepName): 'active' | 'completed' | 'pending' {
 </script>
 
 <template>
-  <Transition name="banner">
-    <div
+  <div
       v-if="visible"
       :class="[
         'border-b border-primary/20 bg-primary/5 px-6 py-3',
@@ -124,5 +123,4 @@ function stepState(stepName: SyncStepName): 'active' | 'completed' | 'pending' {
         </div>
       </div>
     </div>
-  </Transition>
 </template>
