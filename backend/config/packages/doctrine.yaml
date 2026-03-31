@@ -40,3 +40,9 @@ doctrine:
                 dir: '%kernel.project_dir%/src/VersionRegistry/Domain/Model'
                 prefix: 'App\VersionRegistry\Domain\Model'
                 alias: VersionRegistry
+            Sync:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Sync/Domain/Model'
+                prefix: 'App\Sync\Domain\Model'
+                alias: Sync
