@@ -130,20 +130,6 @@ final readonly class SyncSingleProductHandler
                     'lastProduct' => $command->productName,
                 ]),
             ));
-
-            $this->mercureHub->publish(new Update(
-                \sprintf('/global-sync/%s', $command->syncId),
-                (string) \json_encode([
-                    'syncId' => $command->syncId,
-                    'status' => 'running',
-                    'currentStep' => 2,
-                    'currentStepName' => 'sync_versions',
-                    'stepProgress' => $command->index,
-                    'stepTotal' => $command->total,
-                    'completedSteps' => ['sync_projects'],
-                    'message' => $command->productName,
-                ]),
-            ));
         }
     }
 

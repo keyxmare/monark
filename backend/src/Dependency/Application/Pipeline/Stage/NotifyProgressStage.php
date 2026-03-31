@@ -39,20 +39,6 @@ final readonly class NotifyProgressStage implements SyncStageInterface
             $payload,
         ));
 
-        $this->mercureHub->publish(new Update(
-            \sprintf('/global-sync/%s', $context->syncId),
-            (string) \json_encode([
-                'syncId' => $context->syncId,
-                'status' => 'running',
-                'currentStep' => 2,
-                'currentStepName' => 'sync_versions',
-                'stepProgress' => $context->index,
-                'stepTotal' => $context->total,
-                'completedSteps' => ['sync_projects'],
-                'message' => $context->packageName,
-            ]),
-        ));
-
         return $context;
     }
 }

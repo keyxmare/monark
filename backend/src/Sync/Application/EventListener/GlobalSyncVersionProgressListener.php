@@ -4,62 +4,52 @@ declare(strict_types=1);
 
 namespace App\Sync\Application\EventListener;
 
-use App\Dependency\Application\Command\SyncDependencyVersionsCommand;
-use App\Shared\Domain\Event\ProjectScannedEvent;
+use App\Shared\Domain\Event\ProductVersionsSyncedEvent;
 use App\Sync\Domain\Model\GlobalSyncJob;
 use App\Sync\Domain\Model\GlobalSyncStep;
 use App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface;
-use App\VersionRegistry\Application\Command\SyncProductVersionsCommand;
-use App\VersionRegistry\Domain\Repository\ProductRepositoryInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler(bus: 'event.bus')]
-final readonly class GlobalSyncProgressListener
+final readonly class GlobalSyncVersionProgressListener
 {
     public function __construct(
         private GlobalSyncJobRepositoryInterface $repository,
-        private ProductRepositoryInterface $productRepository,
-        private MessageBusInterface $commandBus,
         private HubInterface $mercureHub,
     ) {
     }
 
-    public function __invoke(ProjectScannedEvent $event): void
+    public function __invoke(ProductVersionsSyncedEvent $event): void
     {
         $job = $this->repository->findRunning();
         if ($job === null) {
             return;
         }
 
-        if ($job->getCurrentStepName() !== GlobalSyncStep::SyncProjects->name()) {
+        if ($job->getCurrentStepName() !== GlobalSyncStep::SyncVersions->name()) {
             return;
         }
 
         $job->incrementProgress();
         $this->repository->save($job);
-        $this->publishProgress($job);
+        $this->publishProgress($job, $event->productName);
 
-        if ($job->getStepProgress() >= $job->getStepTotal()) {
-            $this->transitionToStep2($job);
+        if ($job->getStepTotal() > 0 && $job->getStepProgress() >= $job->getStepTotal()) {
+            $this->transitionToStep3($job);
         }
     }
 
-    private function transitionToStep2(GlobalSyncJob $job): void
+    private function transitionToStep3(GlobalSyncJob $job): void
     {
-        $totalProducts = \count($this->productRepository->findAll());
-        $job->startStep(GlobalSyncStep::SyncVersions, $totalProducts);
+        $job->startStep(GlobalSyncStep::ScanCve, 0);
+        $job->complete();
         $this->repository->save($job);
-        $this->publishProgress($job);
-
-        $syncId = $job->getId()->toRfc4122();
-        $this->commandBus->dispatch(new SyncDependencyVersionsCommand(syncId: $syncId));
-        $this->commandBus->dispatch(new SyncProductVersionsCommand(syncId: $syncId));
+        $this->publishProgress($job, null);
     }
 
-    private function publishProgress(GlobalSyncJob $job): void
+    private function publishProgress(GlobalSyncJob $job, ?string $message): void
     {
         $syncId = $job->getId()->toRfc4122();
 
@@ -73,6 +63,7 @@ final readonly class GlobalSyncProgressListener
                 'stepProgress' => $job->getStepProgress(),
                 'stepTotal' => $job->getStepTotal(),
                 'completedSteps' => $job->getCompletedStepNames(),
+                'message' => $message,
             ]),
         ));
     }
