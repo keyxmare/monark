@@ -48,6 +48,11 @@ readonly class ScanProjectHandler
         $scanResult = $this->projectScanner->scan($project);
 
         if ($scanResult->stacks === [] && $scanResult->dependencies === []) {
+            $this->eventBus->dispatch(new ProjectScannedEvent(
+                projectId: $command->projectId,
+                scanResult: $scanResult,
+            ));
+
             return new ScanResultOutput(
                 stacksDetected: 0,
                 dependenciesDetected: 0,

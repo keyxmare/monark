@@ -305,7 +305,8 @@ describe('ScanProjectHandler', function () {
         expect($languageRepo->deletedByProject)->toBeFalse();
         expect($frameworkRepo->deletedByProject)->toBeFalse();
         expect($depWriter->deletedByProject)->toBeFalse();
-        expect($eventBus->dispatched)->toBeEmpty();
+        expect($eventBus->dispatched)->toHaveCount(1);
+        expect($eventBus->dispatched[0])->toBeInstanceOf(ProjectScannedEvent::class);
     });
 
     it('skips stacks without framework', function () {
