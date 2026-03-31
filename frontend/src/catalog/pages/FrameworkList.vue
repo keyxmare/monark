@@ -40,10 +40,10 @@ const providerMap = computed(() => {
 const {
   availableFrameworks,
   availableProviders,
+  filteredFrameworks,
   filterFramework,
   filterProvider,
   filterStatus,
-  filteredFrameworks,
   groupBy,
   groupedFrameworks,
   healthScore,
