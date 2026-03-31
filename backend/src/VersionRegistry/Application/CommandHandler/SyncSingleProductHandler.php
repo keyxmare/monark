@@ -63,20 +63,27 @@ final readonly class SyncSingleProductHandler
         if ($resolvedVersions !== []) {
             $this->versionRepository->clearLatestFlag($command->productName, $packageManager);
 
-            foreach ($resolvedVersions as $rv) {
-                $existing = $this->versionRepository->findByNameManagerAndVersion(
-                    $command->productName,
-                    $packageManager,
-                    $rv->version,
-                );
+            $knownVersions = $this->versionRepository->findKnownVersionStrings($command->productName, $packageManager);
+            $newVersions = [];
 
-                if ($existing !== null) {
-                    $existing->markAsLatest($rv->isLatest);
-                    $this->versionRepository->save($existing);
+            foreach ($resolvedVersions as $rv) {
+                if (isset($knownVersions[$rv->version])) {
+                    // Already in DB — only update latest flag if needed
+                    if ($rv->isLatest) {
+                        $existing = $this->versionRepository->findByNameManagerAndVersion(
+                            $command->productName,
+                            $packageManager,
+                            $rv->version,
+                        );
+                        if ($existing !== null) {
+                            $existing->markAsLatest(true);
+                            $this->versionRepository->save($existing);
+                        }
+                    }
                     continue;
                 }
 
-                $version = ProductVersion::create(
+                $newVersions[] = ProductVersion::create(
                     productName: $command->productName,
                     version: $rv->version,
                     packageManager: $packageManager,
@@ -85,7 +92,10 @@ final readonly class SyncSingleProductHandler
                     isLatest: $rv->isLatest,
                     eolDate: $rv->eolDate,
                 );
-                $this->versionRepository->save($version);
+            }
+
+            if ($newVersions !== []) {
+                $this->versionRepository->saveMany(...$newVersions);
             }
 
             foreach ($resolvedVersions as $rv) {

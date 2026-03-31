@@ -16,7 +16,12 @@ interface ProductVersionRepositoryInterface
 
     public function findByNameManagerAndVersion(string $productName, ?PackageManager $packageManager, string $version): ?ProductVersion;
 
+    /** @return array<string, true> version string => true */
+    public function findKnownVersionStrings(string $productName, ?PackageManager $packageManager): array;
+
     public function save(ProductVersion $version): void;
+
+    public function saveMany(ProductVersion ...$versions): void;
 
     public function clearLatestFlag(string $productName, ?PackageManager $packageManager): void;
 }

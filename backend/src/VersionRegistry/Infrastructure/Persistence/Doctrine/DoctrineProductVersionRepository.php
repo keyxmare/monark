@@ -73,9 +73,42 @@ final readonly class DoctrineProductVersionRepository implements ProductVersionR
         return $qb->getQuery()->getOneOrNullResult();
     }
 
+    public function findKnownVersionStrings(string $productName, ?PackageManager $packageManager): array
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->select('v.version')
+            ->from(ProductVersion::class, 'v')
+            ->where('v.productName = :name')
+            ->setParameter('name', $productName);
+
+        if ($packageManager !== null) {
+            $qb->andWhere('v.packageManager = :pm')->setParameter('pm', $packageManager->value);
+        } else {
+            $qb->andWhere('v.packageManager IS NULL');
+        }
+
+        /** @var list<array{version: string}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['version']] = true;
+        }
+
+        return $map;
+    }
+
     public function save(ProductVersion $version): void
     {
         $this->em->persist($version);
+        $this->em->flush();
+    }
+
+    public function saveMany(ProductVersion ...$versions): void
+    {
+        foreach ($versions as $version) {
+            $this->em->persist($version);
+        }
         $this->em->flush();
     }
 
