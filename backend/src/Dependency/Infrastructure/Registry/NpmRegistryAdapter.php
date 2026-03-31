@@ -33,7 +33,9 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
     public function fetchVersions(string $packageName, PackageManager $manager, ?string $sinceVersion = null): array
     {
         try {
-            $response = $this->httpClient->request('GET', \sprintf('%s/%s', self::BASE_URL, $packageName));
+            $response = $this->httpClient->request('GET', \sprintf('%s/%s', self::BASE_URL, $packageName), [
+                'headers' => ['Accept' => 'application/vnd.npm.install-v1+json'],
+            ]);
             $data = $response->toArray();
         } catch (\Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface $e) {
             if ($e->getResponse()->getStatusCode() === 404) {
@@ -56,10 +58,18 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
         }
 
         /** @var array<string, string> $times */
-        $times = \is_array($data['time'] ?? null) ? $data['time'] : [];
+        $times = \is_array($data['modified'] ?? null) ? [] : (\is_array($data['time'] ?? null) ? $data['time'] : []);
         /** @var array<string, string> $distTags */
         $distTags = \is_array($data['dist-tags'] ?? null) ? $data['dist-tags'] : [];
         $latest = $distTags['latest'] ?? null;
+
+        if ($times === [] && isset($data['versions']) && \is_array($data['versions'])) {
+            foreach ($data['versions'] as $version => $meta) {
+                if (\is_array($meta)) {
+                    $times[$version] = '';
+                }
+            }
+        }
         unset($data);
 
         $versions = [];
