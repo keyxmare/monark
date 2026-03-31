@@ -3,37 +3,36 @@ import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 
 import SyncButton from '@/shared/components/SyncButton.vue';
-import { GLOBAL_SYNC_KEY } from '@/shared/composables/useGlobalSync';
 import { i18n } from '@/shared/i18n';
 
-function mountButton(isRunning: boolean, startSync = vi.fn()) {
-  const currentSync = ref(
-    isRunning
-      ? {
-          syncId: 'x',
-          status: 'running' as const,
-          currentStep: 1 as const,
-          currentStepName: 'sync_projects' as const,
-          stepProgress: 0,
-          stepTotal: 0,
-          completedSteps: [] as never[],
-        }
-      : null,
-  );
-  return mount(SyncButton, {
-    global: {
-      plugins: [i18n],
-      provide: {
-        [GLOBAL_SYNC_KEY as symbol]: {
-          currentSync,
-          isRunning: ref(isRunning),
-          startSync,
-          loadCurrent: vi.fn(),
-          onStepCompleted: vi.fn(),
-        },
-      },
-    },
-  });
+const mockStartSync = vi.fn();
+const mockCurrentSync = ref<unknown>(null);
+const mockIsRunning = ref(false);
+
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: mockCurrentSync,
+    isRunning: mockIsRunning,
+    startSync: mockStartSync,
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
+  }),
+}));
+
+function mountButton(running: boolean) {
+  mockIsRunning.value = running;
+  mockCurrentSync.value = running
+    ? {
+        syncId: 'x',
+        status: 'running',
+        currentStep: 1,
+        currentStepName: 'sync_projects',
+        stepProgress: 0,
+        stepTotal: 0,
+        completedSteps: [],
+      }
+    : null;
+  return mount(SyncButton, { global: { plugins: [i18n] } });
 }
 
 describe('SyncButton', () => {
@@ -48,10 +47,10 @@ describe('SyncButton', () => {
   });
 
   it('calls startSync on click', async () => {
-    const startSync = vi.fn().mockResolvedValue(undefined);
-    const wrapper = mountButton(false, startSync);
+    mockStartSync.mockResolvedValue(undefined);
+    const wrapper = mountButton(false);
     await wrapper.find('[data-testid="sync-button"]').trigger('click');
-    expect(startSync).toHaveBeenCalledOnce();
+    expect(mockStartSync).toHaveBeenCalledOnce();
   });
 
   it('shows step info when running', () => {

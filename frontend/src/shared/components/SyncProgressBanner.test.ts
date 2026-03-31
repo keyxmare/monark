@@ -3,25 +3,23 @@ import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 
 import SyncProgressBanner from '@/shared/components/SyncProgressBanner.vue';
-import { GLOBAL_SYNC_KEY } from '@/shared/composables/useGlobalSync';
 import type { GlobalSyncState } from '@/shared/types/globalSync';
 
+const mockCurrentSync = ref<GlobalSyncState | null>(null);
+
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: mockCurrentSync,
+    isRunning: ref(false),
+    startSync: vi.fn(),
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
+  }),
+}));
+
 function mountWithSync(state: GlobalSyncState | null) {
-  const currentSync = ref(state);
-  const isRunning = ref(state?.status === 'running');
-  return mount(SyncProgressBanner, {
-    global: {
-      provide: {
-        [GLOBAL_SYNC_KEY as symbol]: {
-          currentSync,
-          isRunning,
-          startSync: vi.fn(),
-          loadCurrent: vi.fn(),
-          onStepCompleted: vi.fn(),
-        },
-      },
-    },
-  });
+  mockCurrentSync.value = state;
+  return mount(SyncProgressBanner);
 }
 
 describe('SyncProgressBanner', () => {
