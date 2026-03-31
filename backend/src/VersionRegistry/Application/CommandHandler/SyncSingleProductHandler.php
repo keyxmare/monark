@@ -52,6 +52,10 @@ final readonly class SyncSingleProductHandler
             ? $resolver->fetchVersions($command->productName, $product->getLastSyncedAt(), $packageManager)
             : $resolver->fetchVersions($command->productName, $product->getLastSyncedAt());
 
+        $latestVersion = null;
+        $ltsVersion = null;
+        $eolCycles = [];
+
         if ($resolvedVersions !== []) {
             $this->versionRepository->clearLatestFlag($command->productName, $packageManager);
 
@@ -80,10 +84,6 @@ final readonly class SyncSingleProductHandler
                 $this->versionRepository->save($version);
             }
 
-            $latestVersion = null;
-            $ltsVersion = null;
-            $eolCycles = [];
-
             foreach ($resolvedVersions as $rv) {
                 if ($rv->isLatest) {
                     $latestVersion = $rv->version;
@@ -103,19 +103,19 @@ final readonly class SyncSingleProductHandler
             $product->updateSyncResult($latestVersion, $ltsVersion);
             $this->productRepository->save($product);
 
-            $this->eventBus->dispatch(new ProductVersionsSyncedEvent(
-                productName: $command->productName,
-                packageManager: $packageManager,
-                latestVersion: $latestVersion,
-                ltsVersion: $ltsVersion,
-                eolCycles: $eolCycles,
-            ));
-
             $this->logger->info('Synced {count} versions for {product}', [
                 'count' => \count($resolvedVersions),
                 'product' => $command->productName,
             ]);
         }
+
+        $this->eventBus->dispatch(new ProductVersionsSyncedEvent(
+            productName: $command->productName,
+            packageManager: $packageManager,
+            latestVersion: $latestVersion,
+            ltsVersion: $ltsVersion,
+            eolCycles: $eolCycles,
+        ));
 
         if ($command->syncId !== null && $command->total > 0) {
             $status = $command->index >= $command->total ? 'completed' : 'running';
