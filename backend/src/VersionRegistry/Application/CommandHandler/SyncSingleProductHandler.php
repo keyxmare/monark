@@ -40,11 +40,15 @@ final readonly class SyncSingleProductHandler
 
         $product = $this->productRepository->findByNameAndManager($command->productName, $packageManager);
         if ($product === null) {
+            $this->dispatchEvent($command->productName, $packageManager);
+
             return;
         }
 
         $resolver = $this->resolverSelector->select($command->resolverSource);
         if ($resolver === null) {
+            $this->dispatchEvent($command->productName, $packageManager);
+
             return;
         }
 
@@ -109,13 +113,7 @@ final readonly class SyncSingleProductHandler
             ]);
         }
 
-        $this->eventBus->dispatch(new ProductVersionsSyncedEvent(
-            productName: $command->productName,
-            packageManager: $packageManager,
-            latestVersion: $latestVersion,
-            ltsVersion: $ltsVersion,
-            eolCycles: $eolCycles,
-        ));
+        $this->dispatchEvent($command->productName, $packageManager, $latestVersion, $ltsVersion, $eolCycles);
 
         if ($command->syncId !== null && $command->total > 0) {
             $status = $command->index >= $command->total ? 'completed' : 'running';
@@ -133,4 +131,20 @@ final readonly class SyncSingleProductHandler
         }
     }
 
+    /** @param list<array{version: string, eolDate: string, isLts: bool}> $eolCycles */
+    private function dispatchEvent(
+        string $productName,
+        ?PackageManager $packageManager,
+        ?string $latestVersion = null,
+        ?string $ltsVersion = null,
+        array $eolCycles = [],
+    ): void {
+        $this->eventBus->dispatch(new ProductVersionsSyncedEvent(
+            productName: $productName,
+            packageManager: $packageManager,
+            latestVersion: $latestVersion,
+            ltsVersion: $ltsVersion,
+            eolCycles: $eolCycles,
+        ));
+    }
 }
