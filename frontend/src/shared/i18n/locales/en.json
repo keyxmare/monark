@@ -446,6 +446,11 @@
       "updateFailed": "Failed to update vulnerability"
     }
   },
+  "sync": {
+    "button": {
+      "label": "Synchronize"
+    }
+  },
   "activity": {
     "dashboard": {
       "welcome": "Welcome to Monark"

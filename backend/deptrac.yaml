@@ -103,6 +103,26 @@ deptrac:
         - type: directory
           value: src/VersionRegistry/Presentation/.*
 
+    - name: Sync_Domain
+      collectors:
+        - type: directory
+          value: src/Sync/Domain/.*
+
+    - name: Sync_Application
+      collectors:
+        - type: directory
+          value: src/Sync/Application/.*
+
+    - name: Sync_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Sync/Infrastructure/.*
+
+    - name: Sync_Presentation
+      collectors:
+        - type: directory
+          value: src/Sync/Presentation/.*
+
     - name: Shared
       collectors:
         - type: directory
@@ -180,6 +200,23 @@ deptrac:
     VersionRegistry_Presentation:
       - VersionRegistry_Domain
       - VersionRegistry_Application
+      - Shared
+
+    Sync_Domain:
+      - Shared
+    Sync_Application:
+      - Sync_Domain
+      - Catalog_Application
+      - Catalog_Domain
+      - Dependency_Application
+      - VersionRegistry_Application
+      - Shared
+    Sync_Infrastructure:
+      - Sync_Domain
+      - Shared
+    Sync_Presentation:
+      - Sync_Domain
+      - Sync_Application
       - Shared
 
     Shared: ~

@@ -61,17 +61,25 @@ vi.mock('@/catalog/stores/project', () => ({
 }));
 
 const mockProviderFetchAll = vi.fn();
-const mockSyncAllGlobal = vi.fn();
 vi.mock('@/catalog/stores/provider', () => ({
   useProviderStore: vi.fn(() => ({
     fetchAll: mockProviderFetchAll,
     providers: [],
-    syncAllGlobal: mockSyncAllGlobal,
   })),
 }));
 
-vi.mock('@/catalog/composables/useSyncProgress', () => ({
-  useSyncProgress: () => ({ track: vi.fn() }),
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: { value: null },
+    isRunning: { value: false },
+    startSync: vi.fn(),
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
+  }),
+}));
+
+vi.mock('@/shared/components/SyncButton.vue', () => ({
+  default: { template: '<button data-testid="sync-button" />' },
 }));
 
 vi.mock('@/catalog/composables/useFrameworkGrouping', () => ({
@@ -142,17 +150,9 @@ describe('FrameworkList', () => {
     expect(wrapper.find('[data-testid="framework-empty-providers-link"]').exists()).toBe(true);
   });
 
-  it('renders sync all button', () => {
+  it('renders sync button', () => {
     const wrapper = mount(FrameworkList);
-    expect(wrapper.find('[data-testid="framework-sync-all"]').exists()).toBe(true);
-  });
-
-  it('calls syncAllGlobal when sync button clicked', async () => {
-    mockSyncAllGlobal.mockResolvedValueOnce({ id: 'sync-1', projectsCount: 3 });
-    const wrapper = mount(FrameworkList);
-    await wrapper.find('[data-testid="framework-sync-all"]').trigger('click');
-    await vi.dynamicImportSettled();
-    expect(mockSyncAllGlobal).toHaveBeenCalled();
+    expect(wrapper.find('[data-testid="sync-button"]').exists()).toBe(true);
   });
 
   it('shows filters when not loading', () => {

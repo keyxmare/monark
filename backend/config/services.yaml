@@ -23,6 +23,9 @@ services:
     App\VersionRegistry\:
         resource: '../src/VersionRegistry/'
 
+    App\Sync\:
+        resource: '../src/Sync/'
+
     App\DataFixtures\:
         resource: '../src/DataFixtures/'
 
@@ -165,5 +168,16 @@ services:
             $commandBus: '@command.bus'
 
     App\VersionRegistry\Application\EventListener\RegisterScannedProductsListener:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface:
+        class: App\Sync\Infrastructure\Repository\DoctrineGlobalSyncJobRepository
+
+    App\Sync\Application\CommandHandler\GlobalSyncHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Sync\Presentation\Controller\StartGlobalSyncController:
         arguments:
             $commandBus: '@command.bus'

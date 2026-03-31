@@ -59,7 +59,7 @@ describe('SyncSingleProductHandler', function () {
             ->willReturnCallback(fn ($msg) => new Envelope($msg));
 
         $hub = $this->createMock(HubInterface::class);
-        $hub->expects($this->once())
+        $hub->expects($this->exactly(2))
             ->method('publish')
             ->with($this->isInstanceOf(Update::class));
 

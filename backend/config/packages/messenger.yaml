@@ -51,3 +51,4 @@ framework:
             App\Dependency\Application\Command\SyncSingleDependencyVersionCommand: async
             App\VersionRegistry\Application\Command\SyncProductVersionsCommand: async
             App\VersionRegistry\Application\Command\SyncSingleProductCommand: async
+            App\Sync\Application\Command\GlobalSyncCommand: async

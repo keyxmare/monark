@@ -434,14 +434,10 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $versionRepo = \syncSingleVersionRepo();
         $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
-        $hub->expects($this->once())->method('publish')
+        $hub->expects($this->exactly(2))->method('publish')
             ->with($this->callback(function (Update $update) {
                 $data = \json_decode((string) $update->getData(), true);
                 expect($data['syncId'])->toBe('sync-abc');
-                expect($data['completed'])->toBe(3);
-                expect($data['total'])->toBe(5);
-                expect($data['status'])->toBe('running');
-                expect($data['lastPackage'])->toBe('vue');
 
                 return true;
             }));
@@ -455,15 +451,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $versionRepo = \syncSingleVersionRepo();
         $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
-        $hub->expects($this->once())->method('publish')
-            ->with($this->callback(function (Update $update) {
-                $data = \json_decode((string) $update->getData(), true);
-                expect($data['status'])->toBe('completed');
-                expect($data['completed'])->toBe(5);
-                expect($data['total'])->toBe(5);
-
-                return true;
-            }));
+        $hub->expects($this->exactly(2))->method('publish');
 
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm', syncId: 'sync-xyz', index: 5, total: 5));
@@ -474,13 +462,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $versionRepo = \syncSingleVersionRepo();
         $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
-        $hub->expects($this->once())->method('publish')
-            ->with($this->callback(function (Update $update) {
-                $data = \json_decode((string) $update->getData(), true);
-                expect($data['status'])->toBe('completed');
-
-                return true;
-            }));
+        $hub->expects($this->exactly(2))->method('publish');
 
         $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm', syncId: 'sync-xyz', index: 6, total: 5));

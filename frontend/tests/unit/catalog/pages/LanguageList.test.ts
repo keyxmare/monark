@@ -61,6 +61,20 @@ vi.mock('@/catalog/composables/useLanguageFiltering', () => ({
   }),
 }));
 
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: { value: null },
+    isRunning: { value: false },
+    startSync: vi.fn(),
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
+  }),
+}));
+
+vi.mock('@/shared/components/SyncButton.vue', () => ({
+  default: { template: '<button data-testid="sync-button" />' },
+}));
+
 import LanguageList from '@/catalog/pages/LanguageList.vue';
 
 describe('LanguageList', () => {

@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute } from 'vue-router';
 
 import ProviderIcon from '@/catalog/components/ProviderIcon.vue';
 import { useFrameworkGrouping } from '@/catalog/composables/useFrameworkGrouping';
-import { useSyncProgress } from '@/catalog/composables/useSyncProgress';
 import { useFrameworkStore } from '@/catalog/stores/framework';
 import { useProjectStore } from '@/catalog/stores/project';
 import { useProviderStore } from '@/catalog/stores/provider';
 import ExportDropdown from '@/shared/components/ExportDropdown.vue';
 import Pagination from '@/shared/components/Pagination.vue';
+import SyncButton from '@/shared/components/SyncButton.vue';
 import TechBadge from '@/shared/components/TechBadge.vue';
+import { useGlobalSync } from '@/shared/composables/useGlobalSync';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 import { formatRelative } from '@/shared/utils/dateFormat';
 
@@ -20,8 +21,7 @@ const { t } = useI18n();
 const frameworkStore = useFrameworkStore();
 const projectStore = useProjectStore();
 const providerStore = useProviderStore();
-const { track } = useSyncProgress();
-const syncing = ref(false);
+const { onStepCompleted } = useGlobalSync();
 
 const projectId = route.query.project_id as string | undefined;
 
@@ -95,16 +95,11 @@ function handleExport(format: 'csv' | 'pdf') {
   if (format === 'csv') exportCsv();
 }
 
-async function handleSyncAll() {
-  syncing.value = true;
-  try {
-    const result = await providerStore.syncAllGlobal();
-    track(result.id, result.projectsCount);
-  } catch {
-  } finally {
-    syncing.value = false;
+onStepCompleted((step) => {
+  if (step === 'sync_projects' || step === 'sync_versions') {
+    frameworkStore.fetchAll(1, 1000, projectId);
   }
-}
+});
 </script>
 
 <template>
@@ -126,14 +121,7 @@ async function handleSyncAll() {
         </h2>
         <div class="flex items-center gap-3">
           <ExportDropdown @export="handleExport" />
-          <button
-            :disabled="syncing"
-            class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
-            data-testid="framework-sync-all"
-            @click="handleSyncAll"
-          >
-            {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
-          </button>
+          <SyncButton />
         </div>
       </div>
 

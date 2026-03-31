@@ -9,13 +9,16 @@ import { useProjectStore } from '@/catalog/stores/project';
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
 import DropdownMenu from '@/shared/components/DropdownMenu.vue';
 import Pagination from '@/shared/components/Pagination.vue';
+import SyncButton from '@/shared/components/SyncButton.vue';
 import TechBadge from '@/shared/components/TechBadge.vue';
 import { useConfirmDelete } from '@/shared/composables/useConfirmDelete';
+import { useGlobalSync } from '@/shared/composables/useGlobalSync';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
 const router = useRouter();
 const { t } = useI18n();
 const projectStore = useProjectStore();
+const { onStepCompleted } = useGlobalSync();
 const {
   cancel: cancelDelete,
   confirm: confirmDelete,
@@ -65,6 +68,12 @@ function changePage(page: number) {
   projectStore.fetchAll(page);
 }
 
+onStepCompleted((step) => {
+  if (step === 'sync_projects') {
+    projectStore.fetchAll();
+  }
+});
+
 function getUniqueTechNames(project: Project): string[] {
   const names = new Set<string>();
   for (const ts of project.techStacks ?? []) {
@@ -91,6 +100,7 @@ function getUniqueTechNames(project: Project): string[] {
         <h2 class="text-2xl font-bold text-text">
           {{ t('catalog.projects.title') }}
         </h2>
+        <SyncButton />
       </div>
 
       <div

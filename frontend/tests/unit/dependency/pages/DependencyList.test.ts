@@ -38,18 +38,11 @@ vi.mock('@/catalog/composables/useFrameworkLts', () => ({
   ltsUrgency: vi.fn(() => 'fresh'),
 }));
 
-vi.mock('@/dependency/composables/useDependencySyncProgress', () => ({
-  useDependencySyncProgress: () => ({
-    track: vi.fn(),
-  }),
-}));
-
 vi.mock('@/dependency/services/dependency.service', () => ({
   dependencyService: {
     stats: vi
       .fn()
       .mockResolvedValue({ data: { outdated: 0, total: 0, upToDate: 0, totalVulnerabilities: 0 } }),
-    sync: vi.fn().mockResolvedValue({ data: { syncId: 'abc' } }),
   },
 }));
 
@@ -57,11 +50,18 @@ vi.mock('@/dependency/services/dependencyPdfExport', () => ({
   exportDependenciesPdf: vi.fn(),
 }));
 
-vi.mock('@/shared/stores/toast', () => ({
-  useToastStore: vi.fn(() => ({
-    addToast: vi.fn(),
-    toasts: [],
-  })),
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: { value: null },
+    isRunning: { value: false },
+    startSync: vi.fn(),
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
+  }),
+}));
+
+vi.mock('@/shared/components/SyncButton.vue', () => ({
+  default: { template: '<button data-testid="sync-button" />' },
 }));
 
 const mockDepFetchAll = vi.fn();

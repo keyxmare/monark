@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
@@ -13,20 +13,17 @@ import { useDependencyExport } from '@/dependency/composables/useDependencyExpor
 import { useDependencyFilters } from '@/dependency/composables/useDependencyFilters';
 import { useDependencyGrouping } from '@/dependency/composables/useDependencyGrouping';
 import { useDependencyStats } from '@/dependency/composables/useDependencyStats';
-import { useDependencySyncProgress } from '@/dependency/composables/useDependencySyncProgress';
-import { dependencyService } from '@/dependency/services/dependency.service';
 import { useDependencyStore } from '@/dependency/stores/dependency';
 import ExportDropdown from '@/shared/components/ExportDropdown.vue';
 import Pagination from '@/shared/components/Pagination.vue';
+import SyncButton from '@/shared/components/SyncButton.vue';
+import { useGlobalSync } from '@/shared/composables/useGlobalSync';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
-import { useToastStore } from '@/shared/stores/toast';
 
 const { t } = useI18n();
 const dependencyStore = useDependencyStore();
 const projectStore = useProjectStore();
-const toastStore = useToastStore();
-const { track: trackSync } = useDependencySyncProgress();
-const syncing = ref(false);
+const { onStepCompleted } = useGlobalSync();
 
 const allDeps = computed<Dependency[]>(() => {
   const raw = dependencyStore.dependencies;
@@ -70,17 +67,11 @@ async function handleDelete(id: string) {
   await dependencyStore.remove(id);
 }
 
-async function handleSync() {
-  syncing.value = true;
-  try {
-    const response = await dependencyService.sync();
-    trackSync(response.data.syncId, response.data.total);
-  } catch {
-    toastStore.addToast({ title: t('common.errors.failedToSync'), variant: 'error' });
-  } finally {
-    syncing.value = false;
+onStepCompleted((step) => {
+  if (step === 'sync_projects' || step === 'sync_versions') {
+    dependencyStore.fetchAll(1, 1000);
   }
-}
+});
 </script>
 
 <template>
@@ -96,17 +87,7 @@ async function handleSync() {
         </h2>
         <div class="flex items-center gap-3">
           <ExportDropdown @export="handleExport" />
-          <button
-            :disabled="syncing"
-            class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
-            @click="handleSync"
-          >
-            {{
-              syncing
-                ? t('dependency.dependencies.syncing')
-                : t('dependency.dependencies.syncVersions')
-            }}
-          </button>
+          <SyncButton />
         </div>
       </div>
 

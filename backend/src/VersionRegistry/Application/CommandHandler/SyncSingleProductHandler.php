@@ -119,6 +119,7 @@ final readonly class SyncSingleProductHandler
 
         if ($command->syncId !== null && $command->total > 0) {
             $status = $command->index >= $command->total ? 'completed' : 'running';
+
             $this->mercureHub->publish(new Update(
                 \sprintf('/version-registry/sync/%s', $command->syncId),
                 (string) \json_encode([
@@ -127,6 +128,20 @@ final readonly class SyncSingleProductHandler
                     'total' => $command->total,
                     'status' => $status,
                     'lastProduct' => $command->productName,
+                ]),
+            ));
+
+            $this->mercureHub->publish(new Update(
+                \sprintf('/global-sync/%s', $command->syncId),
+                (string) \json_encode([
+                    'syncId' => $command->syncId,
+                    'status' => 'running',
+                    'currentStep' => 2,
+                    'currentStepName' => 'sync_versions',
+                    'stepProgress' => $command->index,
+                    'stepTotal' => $command->total,
+                    'completedSteps' => ['sync_projects'],
+                    'message' => $command->productName,
                 ]),
             ));
         }

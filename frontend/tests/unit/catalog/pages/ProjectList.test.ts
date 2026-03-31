@@ -42,6 +42,20 @@ vi.mock('@/shared/composables/useConfirmDelete', () => ({
   }),
 }));
 
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: { value: null },
+    isRunning: { value: false },
+    startSync: vi.fn(),
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
+  }),
+}));
+
+vi.mock('@/shared/components/SyncButton.vue', () => ({
+  default: { template: '<button data-testid="sync-button" />' },
+}));
+
 const mockFetchAll = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 

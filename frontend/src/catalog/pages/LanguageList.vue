@@ -7,13 +7,16 @@ import { useLanguageFiltering } from '@/catalog/composables/useLanguageFiltering
 import { useLanguageStore } from '@/catalog/stores/language';
 import { useProjectStore } from '@/catalog/stores/project';
 import Pagination from '@/shared/components/Pagination.vue';
+import SyncButton from '@/shared/components/SyncButton.vue';
 import TechBadge from '@/shared/components/TechBadge.vue';
+import { useGlobalSync } from '@/shared/composables/useGlobalSync';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 
 const route = useRoute();
 const { t } = useI18n();
 const languageStore = useLanguageStore();
 const projectStore = useProjectStore();
+const { onStepCompleted } = useGlobalSync();
 
 const projectId = route.query.project_id as string | undefined;
 
@@ -40,6 +43,12 @@ onMounted(async () => {
 function changePage(page: number) {
   languageStore.fetchAll(page, 1000, projectId);
 }
+
+onStepCompleted((step) => {
+  if (step === 'sync_projects' || step === 'sync_versions') {
+    languageStore.fetchAll(1, 1000, projectId);
+  }
+});
 </script>
 
 <template>
@@ -59,6 +68,7 @@ function changePage(page: number) {
             ({{ languageStore.total }})
           </span>
         </h2>
+        <SyncButton />
       </div>
 
       <div
