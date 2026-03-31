@@ -25,7 +25,8 @@ export const syncService = {
     const res = await fetch(`${BASE_URL}/sync`, { method: 'POST', headers });
     if (res.status === 409) throw new Error('sync_already_running');
     if (!res.ok) throw new Error('sync_start_failed');
-    return res.json() as Promise<StartSyncResponse>;
+    const body = await res.json();
+    return (body.data ?? body) as StartSyncResponse;
   },
 
   async getCurrentSync(): Promise<GlobalSyncState | null> {
