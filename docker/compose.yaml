@@ -109,8 +109,8 @@ services:
       context: ..
       dockerfile: docker/backend/Dockerfile
       target: dev
-    command: php -d memory_limit=512M bin/console messenger:consume async --memory-limit=512M -vv
-    restart: unless-stopped
+    command: php -d memory_limit=1G bin/console messenger:consume async --memory-limit=1G -vv
+    restart: always
     depends_on:
       backend:
         condition: service_healthy
