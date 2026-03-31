@@ -85,7 +85,7 @@ final readonly class EndOfLifeResolver implements VersionResolverInterface
             $versions[] = new ResolvedVersion(
                 version: $latestVersion,
                 releaseDate: $releaseDate,
-                isLts: $cycle['lts'] ?? false,
+                isLts: (bool) ($cycle['lts'] ?? false),
                 isLatest: $isFirst,
                 eolDate: $eolDate,
             );
