@@ -3,10 +3,12 @@ import { api } from '@/shared/utils/api';
 
 export const coverageService = {
   async getDashboard(): Promise<CoverageDashboard> {
-    return api.get<CoverageDashboard>('/coverage');
+    const res = await api.get<{ data: CoverageDashboard }>('/coverage');
+    return res.data;
   },
 
   async getProjectHistory(projectSlug: string): Promise<ProjectCoverageHistory> {
-    return api.get<ProjectCoverageHistory>(`/coverage/${projectSlug}`);
+    const res = await api.get<{ data: ProjectCoverageHistory }>(`/coverage/${projectSlug}`);
+    return res.data;
   },
 };
