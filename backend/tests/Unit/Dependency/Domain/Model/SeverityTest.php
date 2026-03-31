@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Dependency\Domain\Model\Severity;
+use App\Shared\Domain\ValueObject\Severity;
 
 describe('Severity', function () {
     it('has 4 cases', function () {

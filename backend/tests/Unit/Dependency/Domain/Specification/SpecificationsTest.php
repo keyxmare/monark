@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\RegistryStatus;
-use App\Dependency\Domain\Model\Severity;
+use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\Service\DependencyHealthCalculator;
 use App\Dependency\Domain\Specification\BelongsToProjectSpecification;
 use App\Dependency\Domain\Specification\HasSeverityAboveSpecification;

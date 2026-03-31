@@ -13,6 +13,8 @@ use App\Dependency\Domain\ValueObject\SemanticVersion;
 use App\Shared\Domain\Model\RecordsDomainEvents;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
+use App\Shared\Domain\ValueObject\Severity;
+use App\Shared\Domain\ValueObject\VulnerabilityStatus;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

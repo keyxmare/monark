@@ -23,6 +23,9 @@ services:
     App\VersionRegistry\:
         resource: '../src/VersionRegistry/'
 
+    App\Coverage\:
+        resource: '../src/Coverage/'
+
     App\Sync\:
         resource: '../src/Sync/'
 
@@ -56,6 +59,9 @@ services:
 
     App\Activity\Domain\Repository\BuildMetricRepositoryInterface:
         alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineBuildMetricRepository
+
+    App\Catalog\Domain\Repository\LanguageVulnerabilityRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineLanguageVulnerabilityRepository
 
     App\Dependency\Domain\Repository\DependencyRepositoryInterface:
         alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyRepository
@@ -111,9 +117,30 @@ services:
         arguments:
             $eventBus: '@event.bus'
 
+    App\Catalog\Application\Service\FrameworkVersionStatusUpdater:
+        arguments:
+            $eventBus: '@event.bus'
+
+
     App\Dependency\Application\CommandHandler\SyncSingleDependencyVersionHandler:
         arguments:
             $eventBus: '@event.bus'
+
+    App\Dependency\Application\CommandHandler\SyncDependencyCveHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\CommandHandler\SyncLanguageCveHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\EventListener\SyncLanguageCveOnScanListener:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Dependency\Application\EventListener\SyncCveOnScanListener:
+        arguments:
+            $commandBus: '@command.bus'
 
     App\Identity\Infrastructure\Security\ApiTokenHandler:
         arguments:
@@ -127,6 +154,13 @@ services:
 
     App\Shared\Domain\Port\MergeRequestReaderPort:
         alias: App\Catalog\Infrastructure\Adapter\MergeRequestReaderAdapter
+
+    App\Shared\Domain\Port\OsvClientInterface:
+        alias: App\Shared\Infrastructure\Osv\OsvApiClient
+
+    App\Shared\Infrastructure\Osv\OsvApiClient:
+        arguments:
+            $httpClient: '@external_api.client'
 
     App\Shared\Infrastructure\Logging\CorrelationIdProcessor:
         tags:
@@ -174,6 +208,9 @@ services:
     App\VersionRegistry\Application\EventListener\RegisterScannedProductsListener:
         arguments:
             $commandBus: '@command.bus'
+
+    App\Coverage\Domain\Repository\CoverageSnapshotRepositoryInterface:
+        alias: App\Coverage\Infrastructure\Persistence\Doctrine\DoctrineCoverageSnapshotRepository
 
     App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface:
         class: App\Sync\Infrastructure\Repository\DoctrineGlobalSyncJobRepository

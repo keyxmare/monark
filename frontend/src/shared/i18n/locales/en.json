@@ -102,6 +102,7 @@
     "frameworks": "Frameworks",
     "dependencies": "Dependencies",
     "vulnerabilities": "Vulnerabilities",
+    "coverage": "Coverage",
     "users": "Users",
     "logout": "Logout"
   },

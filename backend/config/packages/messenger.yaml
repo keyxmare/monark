@@ -49,6 +49,9 @@ framework:
             App\Catalog\Application\Command\SyncMergeRequestsCommand: async
             App\Dependency\Application\Command\SyncDependencyVersionsCommand: async
             App\Dependency\Application\Command\SyncSingleDependencyVersionCommand: async
+            App\Dependency\Application\Command\SyncDependencyCveCommand: async
             App\VersionRegistry\Application\Command\SyncProductVersionsCommand: async
             App\VersionRegistry\Application\Command\SyncSingleProductCommand: async
+            App\Catalog\Application\Command\SyncLanguageCveCommand: async
             App\Sync\Application\Command\GlobalSyncCommand: async
+            App\Coverage\Application\Command\FetchProjectCoverageCommand: async

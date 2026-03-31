@@ -25,7 +25,7 @@ async function handleClick() {
 
 function stepLabel(): string {
   if (!currentSync.value) return '';
-  return `Step ${currentSync.value.currentStep}/3`;
+  return `Step ${currentSync.value.currentStep}/4`;
 }
 </script>
 

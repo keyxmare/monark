@@ -8,7 +8,7 @@ use App\Dependency\Domain\Event\VulnerabilityDetected;
 use App\Dependency\Domain\Event\VulnerabilityResolved;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\RegistryStatus;
-use App\Dependency\Domain\Model\Severity;
+use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\ValueObject\CveId;
 use App\Dependency\Domain\ValueObject\SemanticVersion;
 use App\Shared\Domain\ValueObject\DependencyType;

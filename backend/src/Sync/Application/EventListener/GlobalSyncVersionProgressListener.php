@@ -24,16 +24,16 @@ final readonly class GlobalSyncVersionProgressListener
     #[AsMessageHandler(bus: 'event.bus')]
     public function onProductSynced(ProductVersionsSyncedEvent $event): void
     {
-        $this->incrementStep2($event->productName);
+        $this->incrementSyncVersions($event->productName);
     }
 
     #[AsMessageHandler(bus: 'event.bus')]
     public function onDependencySynced(DependencyVersionSynced $event): void
     {
-        $this->incrementStep2($event->packageName);
+        $this->incrementSyncVersions($event->packageName);
     }
 
-    private function incrementStep2(?string $message): void
+    private function incrementSyncVersions(?string $message): void
     {
         $job = $this->repository->findRunning();
         if ($job === null) {
@@ -49,11 +49,11 @@ final readonly class GlobalSyncVersionProgressListener
         $this->publishProgress($job, $message);
 
         if ($job->getStepTotal() > 0 && $job->getStepProgress() >= $job->getStepTotal()) {
-            $this->transitionToStep3($job);
+            $this->transitionToScanCve($job);
         }
     }
 
-    private function transitionToStep3(GlobalSyncJob $job): void
+    private function transitionToScanCve(GlobalSyncJob $job): void
     {
         $job->startStep(GlobalSyncStep::ScanCve, 0);
         $job->complete();

@@ -3,10 +3,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { STORAGE_KEYS } from '@/shared/constants';
 import { activityRoutes } from '@/activity/routes';
 import { catalogRoutes } from '@/catalog/routes';
+import { coverageRoutes } from '@/coverage/routes';
 import { dependencyRoutes } from '@/dependency/routes';
 import { identityRoutes } from '@/identity/routes';
 
-const routes = [...activityRoutes, ...catalogRoutes, ...dependencyRoutes, ...identityRoutes];
+const routes = [...activityRoutes, ...catalogRoutes, ...coverageRoutes, ...dependencyRoutes, ...identityRoutes];
 
 export const router = createRouter({
   history: createWebHistory(),

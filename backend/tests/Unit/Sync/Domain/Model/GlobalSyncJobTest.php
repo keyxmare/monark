@@ -22,7 +22,7 @@ describe('GlobalSyncJob', function (): void {
         $job = GlobalSyncJob::create();
         $job->startStep(GlobalSyncStep::SyncVersions, 42);
 
-        expect($job->getCurrentStep())->toBe(2)
+        expect($job->getCurrentStep())->toBe(3)
             ->and($job->getCurrentStepName())->toBe('sync_versions')
             ->and($job->getStepTotal())->toBe(42)
             ->and($job->getStepProgress())->toBe(0);
@@ -56,7 +56,7 @@ describe('GlobalSyncJob', function (): void {
         $job = GlobalSyncJob::create();
         $job->startStep(GlobalSyncStep::SyncVersions, 10);
 
-        expect($job->getCompletedStepNames())->toBe(['sync_projects']);
+        expect($job->getCompletedStepNames())->toBe(['sync_projects', 'sync_coverage']);
     });
 
     it('returns all steps completed when done', function (): void {
@@ -64,6 +64,6 @@ describe('GlobalSyncJob', function (): void {
         $job->startStep(GlobalSyncStep::ScanCve, 0);
         $job->complete();
 
-        expect($job->getCompletedStepNames())->toBe(['sync_projects', 'sync_versions', 'scan_cve']);
+        expect($job->getCompletedStepNames())->toBe(['sync_projects', 'sync_coverage', 'sync_versions', 'scan_cve']);
     });
 });

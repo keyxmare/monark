@@ -34,18 +34,35 @@ final readonly class GlobalSyncHandler
             return;
         }
 
-        $projects = $this->projectRepository->findAllWithProvider();
-        $total = \count($projects);
+        try {
+            $projects = $this->projectRepository->findAllWithProvider();
+            $total = \count($projects);
 
-        $job->startStep(GlobalSyncStep::SyncProjects, $total);
-        $this->globalSyncJobRepository->save($job);
-        $this->publishProgress($command->syncId, $job);
+            if ($total === 0) {
+                $job->startStep(GlobalSyncStep::ScanCve, 0);
+                $job->complete();
+                $this->globalSyncJobRepository->save($job);
+                $this->publishProgress($command->syncId, $job);
 
-        foreach ($projects as $project) {
-            $projectId = $project->getId()->toRfc4122();
+                return;
+            }
 
-            $this->commandBus->dispatch(new ScanProjectCommand($projectId));
-            $this->commandBus->dispatch(new SyncProjectMetadataCommand($projectId));
+            $job->startStep(GlobalSyncStep::SyncProjects, $total);
+            $this->globalSyncJobRepository->save($job);
+            $this->publishProgress($command->syncId, $job);
+
+            foreach ($projects as $project) {
+                $projectId = $project->getId()->toRfc4122();
+
+                $this->commandBus->dispatch(new ScanProjectCommand($projectId));
+                $this->commandBus->dispatch(new SyncProjectMetadataCommand($projectId));
+            }
+        } catch (\Throwable $e) {
+            $job->markFailed();
+            $this->globalSyncJobRepository->save($job);
+            $this->publishProgress($command->syncId, $job);
+
+            throw $e;
         }
     }
 

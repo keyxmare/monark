@@ -29,7 +29,7 @@ describe('SyncProgressBanner', () => {
     expect(wrapper.find('[data-testid="sync-progress-banner"]').exists()).toBe(false);
   });
 
-  it('shows all 3 steps when running', async () => {
+  it('shows all 4 steps when running', async () => {
     const wrapper = mountWithSync({
       syncId: 'abc',
       status: 'running',
@@ -42,7 +42,7 @@ describe('SyncProgressBanner', () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.find('[data-testid="sync-progress-banner"]').exists()).toBe(true);
     expect(wrapper.findAll('[data-testid="step-active"]')).toHaveLength(1);
-    expect(wrapper.findAll('[data-testid="step-pending"]')).toHaveLength(2);
+    expect(wrapper.findAll('[data-testid="step-pending"]')).toHaveLength(3);
   });
 
   it('shows progress bar with correct width', async () => {
@@ -64,13 +64,13 @@ describe('SyncProgressBanner', () => {
     const wrapper = mountWithSync({
       syncId: 'abc',
       status: 'completed',
-      currentStep: 3,
+      currentStep: 4,
       currentStepName: 'scan_cve',
       stepProgress: 0,
       stepTotal: 0,
-      completedSteps: ['sync_projects', 'sync_versions', 'scan_cve'],
+      completedSteps: ['sync_projects', 'sync_coverage', 'sync_versions', 'scan_cve'],
     });
     await wrapper.vm.$nextTick();
-    expect(wrapper.findAll('[data-testid="step-completed"]')).toHaveLength(3);
+    expect(wrapper.findAll('[data-testid="step-completed"]')).toHaveLength(4);
   });
 });

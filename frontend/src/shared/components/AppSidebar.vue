@@ -38,6 +38,7 @@ const navSections = computed<NavSection[]>(() => [
       { icon: '🔧', labelKey: 'nav.frameworks', to: '/catalog/frameworks' },
       { icon: '📋', labelKey: 'nav.dependencies', to: '/dependency/dependencies' },
       { icon: '🛡', labelKey: 'nav.vulnerabilities', to: '/dependency/vulnerabilities' },
+      { icon: '🧪', labelKey: 'nav.coverage', to: '/coverage' },
     ],
   },
   {

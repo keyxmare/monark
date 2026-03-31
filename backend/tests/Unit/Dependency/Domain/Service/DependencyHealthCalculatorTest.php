@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\RegistryStatus;
-use App\Dependency\Domain\Model\Severity;
+use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\Model\Vulnerability;
-use App\Dependency\Domain\Model\VulnerabilityStatus;
+use App\Shared\Domain\ValueObject\VulnerabilityStatus;
 use App\Dependency\Domain\Service\DependencyHealthCalculator;
 use App\Dependency\Domain\ValueObject\DependencyHealth;
 use App\Shared\Domain\ValueObject\DependencyType;

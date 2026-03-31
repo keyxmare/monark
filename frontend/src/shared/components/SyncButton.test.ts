@@ -55,6 +55,6 @@ describe('SyncButton', () => {
 
   it('shows step info when running', () => {
     const wrapper = mountButton(true);
-    expect(wrapper.text()).toContain('Step 1/3');
+    expect(wrapper.text()).toContain('Step 1/4');
   });
 });

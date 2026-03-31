@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dependency\Domain\Service\Assessment;
 
-use App\Dependency\Domain\Model\VulnerabilityStatus;
+use App\Shared\Domain\ValueObject\VulnerabilityStatus;
 use Override;
 
 final readonly class PatchAvailabilityHandler implements AssessmentHandlerInterface

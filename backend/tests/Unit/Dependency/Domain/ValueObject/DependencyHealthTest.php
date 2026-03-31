@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Dependency\Domain\Model\Severity;
+use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\ValueObject\DependencyHealth;
 use App\Dependency\Domain\ValueObject\RiskLevel;
 

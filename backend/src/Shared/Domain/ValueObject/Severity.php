@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dependency\Domain\Model;
+namespace App\Shared\Domain\ValueObject;
 
 enum Severity: string
 {
@@ -14,6 +14,16 @@ enum Severity: string
     public function isHigherThan(self $other): bool
     {
         return $this->weight() > $other->weight();
+    }
+
+    public static function fromCvssScore(float $score): self
+    {
+        return match (true) {
+            $score >= 9.0 => self::Critical,
+            $score >= 7.0 => self::High,
+            $score >= 4.0 => self::Medium,
+            default => self::Low,
+        };
     }
 
     private function weight(): int

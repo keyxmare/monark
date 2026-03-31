@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dependency\Domain\ValueObject;
 
-use App\Dependency\Domain\Model\Severity;
+use App\Shared\Domain\ValueObject\Severity;
 use JsonSerializable;
 
 final readonly class DependencyHealth implements JsonSerializable

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Sync\Application\EventListener;
 
+use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
+use App\Coverage\Application\Command\FetchProjectCoverageCommand;
 use App\Dependency\Application\Command\SyncDependencyVersionsCommand;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Shared\Domain\Event\ProjectScannedEvent;
@@ -22,6 +24,7 @@ final readonly class GlobalSyncProgressListener
 {
     public function __construct(
         private GlobalSyncJobRepositoryInterface $repository,
+        private ProjectRepositoryInterface $projectRepository,
         private DependencyRepositoryInterface $dependencyRepository,
         private ProductRepositoryInterface $productRepository,
         private MessageBusInterface $commandBus,
@@ -45,11 +48,34 @@ final readonly class GlobalSyncProgressListener
         $this->publishProgress($job);
 
         if ($job->getStepProgress() >= $job->getStepTotal()) {
-            $this->transitionToStep2($job);
+            $this->transitionToSyncCoverage($job);
         }
     }
 
-    private function transitionToStep2(GlobalSyncJob $job): void
+    private function transitionToSyncCoverage(GlobalSyncJob $job): void
+    {
+        $eligibleProjects = $this->projectRepository->findAllWithProvider();
+
+        if (\count($eligibleProjects) === 0) {
+            $this->skipToSyncVersions($job);
+
+            return;
+        }
+
+        $job->startStep(GlobalSyncStep::SyncCoverage, \count($eligibleProjects));
+        $this->repository->save($job);
+        $this->publishProgress($job);
+
+        $syncId = $job->getId()->toRfc4122();
+        foreach ($eligibleProjects as $project) {
+            $this->commandBus->dispatch(new FetchProjectCoverageCommand(
+                projectId: $project->getId()->toRfc4122(),
+                syncId: $syncId,
+            ));
+        }
+    }
+
+    private function skipToSyncVersions(GlobalSyncJob $job): void
     {
         $totalDeps = \count($this->dependencyRepository->findUniquePackages());
         $totalProducts = \count($this->productRepository->findAll());
