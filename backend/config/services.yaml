@@ -111,6 +111,10 @@ services:
         arguments:
             $eventBus: '@event.bus'
 
+    App\Dependency\Application\CommandHandler\SyncSingleDependencyVersionHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
     App\Identity\Infrastructure\Security\ApiTokenHandler:
         arguments:
             $appSecret: '%kernel.secret%'

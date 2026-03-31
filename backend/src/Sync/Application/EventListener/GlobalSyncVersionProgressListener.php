@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Sync\Application\EventListener;
 
+use App\Dependency\Domain\Event\DependencyVersionSynced;
 use App\Shared\Domain\Event\ProductVersionsSyncedEvent;
 use App\Sync\Domain\Model\GlobalSyncJob;
 use App\Sync\Domain\Model\GlobalSyncStep;
@@ -12,7 +13,6 @@ use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'event.bus')]
 final readonly class GlobalSyncVersionProgressListener
 {
     public function __construct(
@@ -21,7 +21,19 @@ final readonly class GlobalSyncVersionProgressListener
     ) {
     }
 
-    public function __invoke(ProductVersionsSyncedEvent $event): void
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onProductSynced(ProductVersionsSyncedEvent $event): void
+    {
+        $this->incrementStep2($event->productName);
+    }
+
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onDependencySynced(DependencyVersionSynced $event): void
+    {
+        $this->incrementStep2($event->packageName);
+    }
+
+    private function incrementStep2(?string $message): void
     {
         $job = $this->repository->findRunning();
         if ($job === null) {
@@ -34,7 +46,7 @@ final readonly class GlobalSyncVersionProgressListener
 
         $job->incrementProgress();
         $this->repository->save($job);
-        $this->publishProgress($job, $event->productName);
+        $this->publishProgress($job, $message);
 
         if ($job->getStepTotal() > 0 && $job->getStepProgress() >= $job->getStepTotal()) {
             $this->transitionToStep3($job);

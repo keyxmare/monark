@@ -6,6 +6,7 @@ namespace App\Dependency\Application\CommandHandler;
 
 use App\Dependency\Application\Command\SyncSingleDependencyVersionCommand;
 use App\Dependency\Application\Pipeline\Stage\CalculateHealthStage;
+use App\Dependency\Domain\Event\DependencyVersionSynced;
 use App\Dependency\Application\Pipeline\Stage\FetchRegistryVersionsStage;
 use App\Dependency\Application\Pipeline\Stage\FilterNewVersionsStage;
 use App\Dependency\Application\Pipeline\Stage\NotifyProgressStage;
@@ -21,6 +22,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler(bus: 'command.bus')]
 final readonly class SyncSingleDependencyVersionHandler
@@ -30,6 +32,7 @@ final readonly class SyncSingleDependencyVersionHandler
         private DependencyVersionRepositoryInterface $versionRepository,
         private PackageRegistryResolverPort $registryFactory,
         private HubInterface $mercureHub,
+        private MessageBusInterface $eventBus,
         private LoggerInterface $logger = new NullLogger(),
     ) {
     }
@@ -75,5 +78,10 @@ final readonly class SyncSingleDependencyVersionHandler
                 'manager' => $command->packageManager,
             ]);
         }
+
+        $this->eventBus->dispatch(new DependencyVersionSynced(
+            packageName: $command->packageName,
+            packageManager: $command->packageManager,
+        ));
     }
 }
