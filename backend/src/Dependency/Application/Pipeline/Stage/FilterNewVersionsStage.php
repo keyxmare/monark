@@ -24,6 +24,15 @@ final readonly class FilterNewVersionsStage implements SyncStageInterface
             return $context;
         }
 
+        $existingVersions = $this->versionRepository->findByNameAndManager(
+            $context->packageName,
+            $context->packageManager,
+        );
+        $existingSet = [];
+        foreach ($existingVersions as $v) {
+            $existingSet[$v->getVersion()] = true;
+        }
+
         $newVersions = [];
         $latestVersion = null;
 
@@ -32,13 +41,7 @@ final readonly class FilterNewVersionsStage implements SyncStageInterface
                 $latestVersion = $rv->version;
             }
 
-            $existing = $this->versionRepository->findByNameManagerAndVersion(
-                $context->packageName,
-                $context->packageManager,
-                $rv->version,
-            );
-
-            if ($existing !== null) {
+            if (isset($existingSet[$rv->version])) {
                 continue;
             }
 

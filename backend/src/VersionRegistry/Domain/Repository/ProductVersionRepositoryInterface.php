@@ -18,5 +18,9 @@ interface ProductVersionRepositoryInterface
 
     public function save(ProductVersion $version): void;
 
+    public function persist(ProductVersion $version): void;
+
+    public function flush(): void;
+
     public function clearLatestFlag(string $productName, ?PackageManager $packageManager): void;
 }

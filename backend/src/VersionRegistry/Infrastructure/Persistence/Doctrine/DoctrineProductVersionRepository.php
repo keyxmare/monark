@@ -79,6 +79,16 @@ final readonly class DoctrineProductVersionRepository implements ProductVersionR
         $this->em->flush();
     }
 
+    public function persist(ProductVersion $version): void
+    {
+        $this->em->persist($version);
+    }
+
+    public function flush(): void
+    {
+        $this->em->flush();
+    }
+
     public function clearLatestFlag(string $productName, ?PackageManager $packageManager): void
     {
         $qb = $this->em->createQueryBuilder()

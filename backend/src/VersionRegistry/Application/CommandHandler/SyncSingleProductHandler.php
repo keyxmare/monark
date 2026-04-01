@@ -63,16 +63,17 @@ final readonly class SyncSingleProductHandler
         if ($resolvedVersions !== []) {
             $this->versionRepository->clearLatestFlag($command->productName, $packageManager);
 
+            $existingVersions = $this->versionRepository->findByNameAndManager($command->productName, $packageManager);
+            $existingMap = [];
+            foreach ($existingVersions as $ev) {
+                $existingMap[$ev->getVersion()] = $ev;
+            }
+
             foreach ($resolvedVersions as $rv) {
-                $existing = $this->versionRepository->findByNameManagerAndVersion(
-                    $command->productName,
-                    $packageManager,
-                    $rv->version,
-                );
+                $existing = $existingMap[$rv->version] ?? null;
 
                 if ($existing !== null) {
                     $existing->markAsLatest($rv->isLatest);
-                    $this->versionRepository->save($existing);
                     continue;
                 }
 
@@ -85,8 +86,10 @@ final readonly class SyncSingleProductHandler
                     isLatest: $rv->isLatest,
                     eolDate: $rv->eolDate,
                 );
-                $this->versionRepository->save($version);
+                $this->versionRepository->persist($version);
             }
+
+            $this->versionRepository->flush();
 
             foreach ($resolvedVersions as $rv) {
                 if ($rv->isLatest) {

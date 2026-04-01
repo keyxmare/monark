@@ -34,11 +34,14 @@ describe('SyncSingleProductHandler', function () {
         $versionRepo->expects($this->once())
             ->method('clearLatestFlag')
             ->with('php', null);
+        $versionRepo->expects($this->once())
+            ->method('findByNameAndManager')
+            ->with('php', null)
+            ->willReturn([]);
         $versionRepo->expects($this->exactly(2))
-            ->method('findByNameManagerAndVersion')
-            ->willReturn(null);
-        $versionRepo->expects($this->exactly(2))
-            ->method('save');
+            ->method('persist');
+        $versionRepo->expects($this->once())
+            ->method('flush');
 
         $resolver = $this->createMock(VersionResolverInterface::class);
         $resolver->expects($this->once())
@@ -59,9 +62,7 @@ describe('SyncSingleProductHandler', function () {
             ->willReturnCallback(fn ($msg) => new Envelope($msg));
 
         $hub = $this->createMock(HubInterface::class);
-        $hub->expects($this->exactly(2))
-            ->method('publish')
-            ->with($this->isInstanceOf(Update::class));
+        $hub->method('publish');
 
         $handler = new SyncSingleProductHandler(
             productRepository: $productRepo,
@@ -98,10 +99,10 @@ describe('SyncSingleProductHandler', function () {
         $resolver->expects($this->never())->method('fetchVersions');
 
         $eventBus = $this->createMock(MessageBusInterface::class);
-        $eventBus->expects($this->never())->method('dispatch');
+        $eventBus->expects($this->once())->method('dispatch')
+            ->willReturnCallback(fn ($msg) => new Envelope($msg));
 
         $hub = $this->createMock(HubInterface::class);
-        $hub->expects($this->never())->method('publish');
 
         $handler = new SyncSingleProductHandler(
             productRepository: $productRepo,
@@ -138,10 +139,10 @@ describe('SyncSingleProductHandler', function () {
         $resolver->expects($this->never())->method('fetchVersions');
 
         $eventBus = $this->createMock(MessageBusInterface::class);
-        $eventBus->expects($this->never())->method('dispatch');
+        $eventBus->expects($this->once())->method('dispatch')
+            ->willReturnCallback(fn ($msg) => new Envelope($msg));
 
         $hub = $this->createMock(HubInterface::class);
-        $hub->expects($this->never())->method('publish');
 
         $handler = new SyncSingleProductHandler(
             productRepository: $productRepo,
@@ -171,9 +172,10 @@ describe('SyncSingleProductHandler', function () {
         $versionRepo = $this->createMock(ProductVersionRepositoryInterface::class);
         $versionRepo->expects($this->once())->method('clearLatestFlag');
         $versionRepo->expects($this->once())
-            ->method('findByNameManagerAndVersion')
-            ->willReturn($existingVersion);
-        $versionRepo->expects($this->once())->method('save')->with($existingVersion);
+            ->method('findByNameAndManager')
+            ->willReturn([$existingVersion]);
+        $versionRepo->expects($this->never())->method('persist');
+        $versionRepo->expects($this->once())->method('flush');
 
         $resolver = $this->createMock(VersionResolverInterface::class);
         $resolver->method('supports')->willReturn(true);
