@@ -36,14 +36,16 @@ final readonly class GitLabCoverageProvider implements CoverageProviderInterface
                 return null;
             }
 
-            $url = \sprintf(
-                '%s/api/v4/projects/%s/pipelines',
-                $provider->getUrl(),
-                \rawurlencode((string) $project->getExternalId()),
-            );
+            $baseUrl = $provider->getUrl();
+            $externalId = \rawurlencode((string) $project->getExternalId());
+            $headers = ['PRIVATE-TOKEN' => $provider->getApiToken()];
 
-            $response = $this->httpClient->request('GET', $url, [
-                'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
+            $listResponse = $this->httpClient->request('GET', \sprintf(
+                '%s/api/v4/projects/%s/pipelines',
+                $baseUrl,
+                $externalId,
+            ), [
+                'headers' => $headers,
                 'query' => [
                     'ref' => $project->getDefaultBranch(),
                     'status' => 'success',
@@ -52,24 +54,39 @@ final readonly class GitLabCoverageProvider implements CoverageProviderInterface
                 'timeout' => 15,
             ]);
 
-            /** @var list<array{id?: int|string, sha?: string, coverage?: float|null}> $pipelines */
-            $pipelines = $response->toArray();
+            $pipelines = $listResponse->toArray();
 
             if ($pipelines === []) {
                 return null;
             }
 
-            $pipeline = $pipelines[0];
+            $pipelineId = $pipelines[0]['id'] ?? null;
+            if ($pipelineId === null) {
+                return null;
+            }
 
-            if (!isset($pipeline['coverage']) || $pipeline['coverage'] === null) {
+            $detailResponse = $this->httpClient->request('GET', \sprintf(
+                '%s/api/v4/projects/%s/pipelines/%s',
+                $baseUrl,
+                $externalId,
+                $pipelineId,
+            ), [
+                'headers' => $headers,
+                'timeout' => 15,
+            ]);
+
+            $pipeline = $detailResponse->toArray();
+            $coverage = $pipeline['coverage'] ?? null;
+
+            if ($coverage === null) {
                 return null;
             }
 
             return new CoverageResult(
-                coveragePercent: (float) $pipeline['coverage'],
+                coveragePercent: (float) $coverage,
                 commitHash: (string) ($pipeline['sha'] ?? ''),
                 ref: $project->getDefaultBranch(),
-                pipelineId: isset($pipeline['id']) ? (string) $pipeline['id'] : null,
+                pipelineId: (string) $pipelineId,
             );
         } catch (Throwable $e) {
             $this->logger->warning('GitLab coverage fetch failed.', [
