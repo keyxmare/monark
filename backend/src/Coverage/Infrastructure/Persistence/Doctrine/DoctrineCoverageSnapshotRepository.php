@@ -52,16 +52,28 @@ final readonly class DoctrineCoverageSnapshotRepository implements CoverageSnaps
     /** @return list<CoverageSnapshot> */
     public function findLatestPerProject(): array
     {
-        $subquery = $this->em->createQueryBuilder()
-            ->select('MAX(sub.id)')
-            ->from(CoverageSnapshot::class, 'sub')
-            ->groupBy('sub.projectId')
-            ->getDQL();
+        $conn = $this->em->getConnection();
+        $sql = <<<'SQL'
+            SELECT cs.id
+            FROM coverage_snapshots cs
+            INNER JOIN (
+                SELECT project_id, MAX(created_at) AS max_created
+                FROM coverage_snapshots
+                GROUP BY project_id
+            ) latest ON cs.project_id = latest.project_id AND cs.created_at = latest.max_created
+            ORDER BY cs.coverage_percent DESC
+            SQL;
+
+        $ids = $conn->fetchFirstColumn($sql);
+        if ($ids === []) {
+            return [];
+        }
 
         return $this->em->createQueryBuilder()
             ->select('s')
             ->from(CoverageSnapshot::class, 's')
-            ->where("s.id IN ({$subquery})")
+            ->where('s.id IN (:ids)')
+            ->setParameter('ids', $ids)
             ->orderBy('s.coveragePercent', 'DESC')
             ->getQuery()
             ->getResult();
