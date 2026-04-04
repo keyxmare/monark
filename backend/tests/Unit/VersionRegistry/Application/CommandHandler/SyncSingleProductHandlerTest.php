@@ -13,7 +13,6 @@ use App\VersionRegistry\Domain\Repository\ProductRepositoryInterface;
 use App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface;
 use App\VersionRegistry\Domain\Service\VersionResolverSelector;
 use Symfony\Component\Mercure\HubInterface;
-use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 

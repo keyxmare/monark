@@ -70,6 +70,10 @@ function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactoryInte
         {
             return [];
         }
+        public function listBranches(Provider $provider, string $externalProjectId): array
+        {
+            return [];
+        }
     };
 
     $factory = new class ($gitClient) implements GitProviderFactoryInterface {

@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Throwable;
 
 final readonly class GlobalSyncVersionProgressListener
 {
@@ -81,7 +82,7 @@ final readonly class GlobalSyncVersionProgressListener
                     'message' => $message,
                 ]),
             ));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Failed to publish sync progress to Mercure', [
                 'syncId' => $syncId,
                 'error' => $e->getMessage(),

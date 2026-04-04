@@ -16,6 +16,7 @@ use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
+use Throwable;
 
 #[AsMessageHandler(bus: 'command.bus')]
 final readonly class GlobalSyncHandler
@@ -71,7 +72,7 @@ final readonly class GlobalSyncHandler
                 $this->commandBus->dispatch(new ScanProjectCommand($projectId));
                 $this->commandBus->dispatch(new SyncProjectMetadataCommand($projectId));
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $job->markFailed();
             $this->globalSyncJobRepository->save($job);
             $this->publishProgress($command->syncId, $job);
@@ -95,7 +96,7 @@ final readonly class GlobalSyncHandler
                     'completedSteps' => $job->getCompletedStepNames(),
                 ]),
             ));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Failed to publish sync progress to Mercure', [
                 'syncId' => $syncId,
                 'error' => $e->getMessage(),

@@ -10,5 +10,6 @@ final readonly class CoverageDashboardOutput
     public function __construct(
         public CoverageSummaryOutput $summary,
         public array $projects,
-    ) {}
+    ) {
+    }
 }

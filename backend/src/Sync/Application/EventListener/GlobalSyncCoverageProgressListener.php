@@ -18,6 +18,7 @@ use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
+use Throwable;
 
 #[AsMessageHandler(bus: 'event.bus')]
 final readonly class GlobalSyncCoverageProgressListener
@@ -89,7 +90,7 @@ final readonly class GlobalSyncCoverageProgressListener
                     'message' => $message,
                 ]),
             ));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Failed to publish sync progress to Mercure', [
                 'syncId' => $syncId,
                 'error' => $e->getMessage(),

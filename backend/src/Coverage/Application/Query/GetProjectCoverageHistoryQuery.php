@@ -8,5 +8,6 @@ final readonly class GetProjectCoverageHistoryQuery
 {
     public function __construct(
         public string $projectSlug,
-    ) {}
+    ) {
+    }
 }

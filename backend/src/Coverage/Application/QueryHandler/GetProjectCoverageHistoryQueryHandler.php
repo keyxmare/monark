@@ -17,7 +17,8 @@ final readonly class GetProjectCoverageHistoryQueryHandler
     public function __construct(
         private ProjectRepositoryInterface $projectRepository,
         private CoverageSnapshotRepositoryInterface $snapshotRepository,
-    ) {}
+    ) {
+    }
 
     public function __invoke(GetProjectCoverageHistoryQuery $query): array
     {

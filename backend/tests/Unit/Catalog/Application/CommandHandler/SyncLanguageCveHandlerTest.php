@@ -132,9 +132,9 @@ describe('SyncLanguageCveHandler', function () {
         $project = ProjectFactory::create();
         $language = LanguageFactory::create(name: 'PHP', version: '8.4', project: $project);
 
-        $langRepo = stubLangCveLanguageRepo([$language]);
-        $vulnRepo = stubLangCveVulnRepo();
-        $osvClient = stubLangCveOsvClient([
+        $langRepo = \stubLangCveLanguageRepo([$language]);
+        $vulnRepo = \stubLangCveVulnRepo();
+        $osvClient = \stubLangCveOsvClient([
             [
                 new OsvVulnerability(
                     id: 'GHSA-xxxx',
@@ -148,7 +148,7 @@ describe('SyncLanguageCveHandler', function () {
                 ),
             ],
         ]);
-        $eventBus = spyLangCveEventBus();
+        $eventBus = \spyLangCveEventBus();
 
         $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($project->getId()->toRfc4122()));
@@ -177,9 +177,9 @@ describe('SyncLanguageCveHandler', function () {
             patchedVersion: '8.4.1',
         );
 
-        $langRepo = stubLangCveLanguageRepo([$language]);
-        $vulnRepo = stubLangCveVulnRepo(['GHSA-xxxx' => $existingVuln]);
-        $osvClient = stubLangCveOsvClient([
+        $langRepo = \stubLangCveLanguageRepo([$language]);
+        $vulnRepo = \stubLangCveVulnRepo(['GHSA-xxxx' => $existingVuln]);
+        $osvClient = \stubLangCveOsvClient([
             [
                 new OsvVulnerability(
                     id: 'GHSA-xxxx',
@@ -193,7 +193,7 @@ describe('SyncLanguageCveHandler', function () {
                 ),
             ],
         ]);
-        $eventBus = spyLangCveEventBus();
+        $eventBus = \spyLangCveEventBus();
 
         $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($project->getId()->toRfc4122()));
@@ -205,10 +205,10 @@ describe('SyncLanguageCveHandler', function () {
 
     it('dispatches event with zero when no languages found', function () {
         $projectId = Uuid::v7();
-        $langRepo = stubLangCveLanguageRepo([]);
-        $vulnRepo = stubLangCveVulnRepo();
-        $osvClient = stubLangCveOsvClient([]);
-        $eventBus = spyLangCveEventBus();
+        $langRepo = \stubLangCveLanguageRepo([]);
+        $vulnRepo = \stubLangCveVulnRepo();
+        $osvClient = \stubLangCveOsvClient([]);
+        $eventBus = \spyLangCveEventBus();
 
         $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($projectId->toRfc4122()));
@@ -222,10 +222,10 @@ describe('SyncLanguageCveHandler', function () {
         $project = ProjectFactory::create();
         $language = LanguageFactory::create(name: 'Haskell', version: '9.8', project: $project);
 
-        $langRepo = stubLangCveLanguageRepo([$language]);
-        $vulnRepo = stubLangCveVulnRepo();
-        $osvClient = stubLangCveOsvClient([]);
-        $eventBus = spyLangCveEventBus();
+        $langRepo = \stubLangCveLanguageRepo([$language]);
+        $vulnRepo = \stubLangCveVulnRepo();
+        $osvClient = \stubLangCveOsvClient([]);
+        $eventBus = \spyLangCveEventBus();
 
         $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($project->getId()->toRfc4122()));

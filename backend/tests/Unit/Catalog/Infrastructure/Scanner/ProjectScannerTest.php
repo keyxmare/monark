@@ -70,6 +70,11 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
             return $this->tree[$path] ?? [];
         }
 
+        public function listBranches(Provider $provider, string $externalProjectId): array
+        {
+            return [];
+        }
+
     };
 }
 
@@ -857,6 +862,10 @@ describe('ProjectScanner', function () {
                 throw new \Symfony\Component\HttpClient\Exception\ClientException(
                     new \Symfony\Component\HttpClient\Response\MockResponse('', ['http_code' => 403]),
                 );
+            }
+            public function listBranches(Provider $provider, string $externalProjectId): array
+            {
+                return [];
             }
         };
 

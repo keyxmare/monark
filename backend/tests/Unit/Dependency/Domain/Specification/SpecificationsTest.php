@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\RegistryStatus;
-use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\Service\DependencyHealthCalculator;
 use App\Dependency\Domain\Specification\BelongsToProjectSpecification;
 use App\Dependency\Domain\Specification\HasSeverityAboveSpecification;
@@ -17,6 +16,7 @@ use App\Dependency\Domain\ValueObject\CveId;
 use App\Shared\Domain\Specification\AndSpecification;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
+use App\Shared\Domain\ValueObject\Severity;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\Uid\Uuid;
 

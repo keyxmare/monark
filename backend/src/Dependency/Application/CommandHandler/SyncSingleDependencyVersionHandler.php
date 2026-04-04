@@ -6,7 +6,6 @@ namespace App\Dependency\Application\CommandHandler;
 
 use App\Dependency\Application\Command\SyncSingleDependencyVersionCommand;
 use App\Dependency\Application\Pipeline\Stage\CalculateHealthStage;
-use App\Dependency\Domain\Event\DependencyVersionSynced;
 use App\Dependency\Application\Pipeline\Stage\FetchRegistryVersionsStage;
 use App\Dependency\Application\Pipeline\Stage\FilterNewVersionsStage;
 use App\Dependency\Application\Pipeline\Stage\NotifyProgressStage;
@@ -14,6 +13,7 @@ use App\Dependency\Application\Pipeline\Stage\PersistVersionsStage;
 use App\Dependency\Application\Pipeline\Stage\UpdateDependencyStatusStage;
 use App\Dependency\Application\Pipeline\SyncContext;
 use App\Dependency\Application\Pipeline\SyncPipeline;
+use App\Dependency\Domain\Event\DependencyVersionSynced;
 use App\Dependency\Domain\Port\PackageRegistryResolverPort;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
 use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;

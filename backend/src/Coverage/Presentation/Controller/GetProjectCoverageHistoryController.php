@@ -27,7 +27,8 @@ final readonly class GetProjectCoverageHistoryController
 {
     public function __construct(
         private MessageBusInterface $queryBus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(string $projectSlug): JsonResponse
     {

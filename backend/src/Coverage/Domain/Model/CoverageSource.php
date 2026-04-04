@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Coverage\Domain\Model;
 
 use App\Catalog\Domain\Model\ProviderType;
+use LogicException;
 
 enum CoverageSource: string
 {
@@ -17,7 +18,7 @@ enum CoverageSource: string
         return match ($type) {
             ProviderType::GitLab => self::CiGitlab,
             ProviderType::GitHub => self::CiGithub,
-            ProviderType::Bitbucket => throw new \LogicException('Bitbucket coverage not supported yet.'),
+            ProviderType::Bitbucket => throw new LogicException('Bitbucket coverage not supported yet.'),
         };
     }
 }

@@ -7,7 +7,6 @@ use App\Dependency\Application\CommandHandler\SyncDependencyCveHandler;
 use App\Dependency\Domain\Event\DependencyCveSyncedEvent;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
-use App\Shared\Domain\DTO\OsvQuery;
 use App\Shared\Domain\DTO\OsvVulnerability;
 use App\Shared\Domain\Port\OsvClientInterface;
 use App\Shared\Domain\ValueObject\DependencyType;

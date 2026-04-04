@@ -103,6 +103,12 @@ function createFwEmptyVersionRepo(): ProductVersionRepositoryInterface
         public function clearLatestFlag(string $name, ?\App\Shared\Domain\ValueObject\PackageManager $pm): void
         {
         }
+        public function persist(ProductVersion $pv): void
+        {
+        }
+        public function flush(): void
+        {
+        }
     };
 }
 
@@ -202,6 +208,12 @@ describe('FrameworkVersionStatusUpdater', function () {
             {
             }
             public function clearLatestFlag(string $name, ?\App\Shared\Domain\ValueObject\PackageManager $pm): void
+            {
+            }
+            public function persist(ProductVersion $pv): void
+            {
+            }
+            public function flush(): void
             {
             }
         };

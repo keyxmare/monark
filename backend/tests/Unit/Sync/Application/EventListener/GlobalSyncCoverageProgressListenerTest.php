@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
-use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
 use App\Shared\Domain\Event\ProjectCoverageFetchedEvent;
 use App\Sync\Application\EventListener\GlobalSyncCoverageProgressListener;
 use App\Sync\Domain\Model\GlobalSyncJob;

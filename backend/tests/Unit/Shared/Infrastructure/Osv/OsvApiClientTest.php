@@ -43,7 +43,7 @@ function sampleOsvVuln(
 
 describe('OsvApiClient', function () {
     it('queries a single package', function () {
-        $response = new MockResponse(createOsvResponse([sampleOsvVuln()]));
+        $response = new MockResponse(\createOsvResponse([\sampleOsvVuln()]));
         $httpClient = new MockHttpClient([$response]);
         $client = new OsvApiClient($httpClient);
 
@@ -67,8 +67,8 @@ describe('OsvApiClient', function () {
     });
 
     it('queries batch', function () {
-        $response = new MockResponse(createBatchOsvResponse([
-            ['vulns' => [sampleOsvVuln('GHSA-1111', 'CVE-2026-0001', 7.5, '2.0.0')]],
+        $response = new MockResponse(\createBatchOsvResponse([
+            ['vulns' => [\sampleOsvVuln('GHSA-1111', 'CVE-2026-0001', 7.5, '2.0.0')]],
             ['vulns' => []],
         ]));
         $httpClient = new MockHttpClient([$response]);
@@ -86,8 +86,8 @@ describe('OsvApiClient', function () {
     });
 
     it('handles vulnerability without CVE alias', function () {
-        $vuln = sampleOsvVuln('PYSEC-2026-001', null, 5.0, null);
-        $response = new MockResponse(createOsvResponse([$vuln]));
+        $vuln = \sampleOsvVuln('PYSEC-2026-001', null, 5.0, null);
+        $response = new MockResponse(\createOsvResponse([$vuln]));
         $httpClient = new MockHttpClient([$response]);
         $client = new OsvApiClient($httpClient);
 

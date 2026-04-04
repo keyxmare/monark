@@ -16,5 +16,6 @@ final readonly class CoverageProjectOutput
         public ?string $commitHash,
         public ?string $ref,
         public ?string $syncedAt,
-    ) {}
+    ) {
+    }
 }

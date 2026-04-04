@@ -51,17 +51,34 @@ function stubHttpClient(array $responseData): HttpClientInterface
                 {
                 }
 
-                public function getStatusCode(): int { return 200; }
+                public function getStatusCode(): int
+                {
+                    return 200;
+                }
 
-                public function getHeaders(bool $throw = true): array { return []; }
+                public function getHeaders(bool $throw = true): array
+                {
+                    return [];
+                }
 
-                public function getContent(bool $throw = true): string { return ''; }
+                public function getContent(bool $throw = true): string
+                {
+                    return '';
+                }
 
-                public function toArray(bool $throw = true): array { return $this->data; }
+                public function toArray(bool $throw = true): array
+                {
+                    return $this->data;
+                }
 
-                public function cancel(): void {}
+                public function cancel(): void
+                {
+                }
 
-                public function getInfo(?string $type = null): mixed { return null; }
+                public function getInfo(?string $type = null): mixed
+                {
+                    return null;
+                }
             };
         }
 
@@ -105,7 +122,7 @@ describe('GitLabCoverageProvider', function (): void {
     describe('supports()', function (): void {
         it('returns true for GitLab', function (): void {
             $provider = new GitLabCoverageProvider(
-                stubHttpClient([]),
+                \stubHttpClient([]),
                 new NullLogger(),
             );
 
@@ -114,7 +131,7 @@ describe('GitLabCoverageProvider', function (): void {
 
         it('returns false for GitHub', function (): void {
             $provider = new GitLabCoverageProvider(
-                stubHttpClient([]),
+                \stubHttpClient([]),
                 new NullLogger(),
             );
 
@@ -124,7 +141,7 @@ describe('GitLabCoverageProvider', function (): void {
 
     describe('fetchCoverage()', function (): void {
         it('returns a CoverageResult when pipeline has coverage', function (): void {
-            $http = stubHttpClient([
+            $http = \stubHttpClient([
                 [
                     'id' => 42,
                     'sha' => 'abc123def456',
@@ -132,7 +149,7 @@ describe('GitLabCoverageProvider', function (): void {
                 ],
             ]);
 
-            $project = makeGitLabProject(defaultBranch: 'main', externalId: '123');
+            $project = \makeGitLabProject(defaultBranch: 'main', externalId: '123');
             $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
             $result = $coverageProvider->fetchCoverage($project);
 
@@ -144,7 +161,7 @@ describe('GitLabCoverageProvider', function (): void {
         });
 
         it('returns null when pipeline has null coverage', function (): void {
-            $http = stubHttpClient([
+            $http = \stubHttpClient([
                 [
                     'id' => 42,
                     'sha' => 'abc123def456',
@@ -152,23 +169,23 @@ describe('GitLabCoverageProvider', function (): void {
                 ],
             ]);
 
-            $project = makeGitLabProject();
+            $project = \makeGitLabProject();
             $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
 
             expect($coverageProvider->fetchCoverage($project))->toBeNull();
         });
 
         it('returns null when no pipelines found', function (): void {
-            $http = stubHttpClient([]);
+            $http = \stubHttpClient([]);
 
-            $project = makeGitLabProject();
+            $project = \makeGitLabProject();
             $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
 
             expect($coverageProvider->fetchCoverage($project))->toBeNull();
         });
 
         it('returns null and logs warning on API exception', function (): void {
-            $http = stubThrowingHttpClient(new \RuntimeException('connection refused'));
+            $http = \stubThrowingHttpClient(new \RuntimeException('connection refused'));
 
             $logger = $this->createMock(LoggerInterface::class);
             $logger->expects($this->once())
@@ -178,7 +195,7 @@ describe('GitLabCoverageProvider', function (): void {
                     $this->arrayHasKey('error'),
                 );
 
-            $project = makeGitLabProject();
+            $project = \makeGitLabProject();
             $coverageProvider = new GitLabCoverageProvider($http, $logger);
 
             expect($coverageProvider->fetchCoverage($project))->toBeNull();

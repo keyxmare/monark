@@ -21,7 +21,8 @@ final readonly class GetCoverageDashboardQueryHandler
     public function __construct(
         private CoverageSnapshotRepositoryInterface $snapshotRepository,
         private ProjectRepositoryInterface $projectRepository,
-    ) {}
+    ) {
+    }
 
     public function __invoke(GetCoverageDashboardQuery $query): CoverageDashboardOutput
     {

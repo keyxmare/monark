@@ -85,12 +85,36 @@ final class CoverageSnapshot
         );
     }
 
-    public function getId(): Uuid { return $this->id; }
-    public function getProjectId(): Uuid { return $this->projectId; }
-    public function getCommitHash(): string { return $this->commitHash; }
-    public function getCoveragePercent(): float { return $this->coveragePercent; }
-    public function getSource(): CoverageSource { return $this->source; }
-    public function getRef(): string { return $this->ref; }
-    public function getPipelineId(): ?string { return $this->pipelineId; }
-    public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+    public function getProjectId(): Uuid
+    {
+        return $this->projectId;
+    }
+    public function getCommitHash(): string
+    {
+        return $this->commitHash;
+    }
+    public function getCoveragePercent(): float
+    {
+        return $this->coveragePercent;
+    }
+    public function getSource(): CoverageSource
+    {
+        return $this->source;
+    }
+    public function getRef(): string
+    {
+        return $this->ref;
+    }
+    public function getPipelineId(): ?string
+    {
+        return $this->pipelineId;
+    }
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

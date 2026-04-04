@@ -25,7 +25,8 @@ final readonly class GetCoverageDashboardController
 {
     public function __construct(
         private MessageBusInterface $queryBus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(): JsonResponse
     {

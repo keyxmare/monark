@@ -56,17 +56,34 @@ function stubSequentialHttpClient(array $responses): HttpClientInterface
                 {
                 }
 
-                public function getStatusCode(): int { return 200; }
+                public function getStatusCode(): int
+                {
+                    return 200;
+                }
 
-                public function getHeaders(bool $throw = true): array { return []; }
+                public function getHeaders(bool $throw = true): array
+                {
+                    return [];
+                }
 
-                public function getContent(bool $throw = true): string { return ''; }
+                public function getContent(bool $throw = true): string
+                {
+                    return '';
+                }
 
-                public function toArray(bool $throw = true): array { return $this->data; }
+                public function toArray(bool $throw = true): array
+                {
+                    return $this->data;
+                }
 
-                public function cancel(): void {}
+                public function cancel(): void
+                {
+                }
 
-                public function getInfo(?string $type = null): mixed { return null; }
+                public function getInfo(?string $type = null): mixed
+                {
+                    return null;
+                }
             };
         }
 
@@ -110,7 +127,7 @@ describe('GitHubCoverageProvider', function (): void {
     describe('supports()', function (): void {
         it('returns true for GitHub', function (): void {
             $provider = new GitHubCoverageProvider(
-                stubSequentialHttpClient([]),
+                \stubSequentialHttpClient([]),
                 new NullLogger(),
             );
 
@@ -119,7 +136,7 @@ describe('GitHubCoverageProvider', function (): void {
 
         it('returns false for GitLab', function (): void {
             $provider = new GitHubCoverageProvider(
-                stubSequentialHttpClient([]),
+                \stubSequentialHttpClient([]),
                 new NullLogger(),
             );
 
@@ -129,7 +146,7 @@ describe('GitHubCoverageProvider', function (): void {
 
     describe('fetchCoverage()', function (): void {
         it('fetches coverage from check run output summary', function (): void {
-            $http = stubSequentialHttpClient([
+            $http = \stubSequentialHttpClient([
                 [
                     'workflow_runs' => [
                         [
@@ -151,7 +168,7 @@ describe('GitHubCoverageProvider', function (): void {
                 ],
             ]);
 
-            $project = makeGitHubProject(defaultBranch: 'main');
+            $project = \makeGitHubProject(defaultBranch: 'main');
             $coverageProvider = new GitHubCoverageProvider($http, new NullLogger());
             $result = $coverageProvider->fetchCoverage($project);
 
@@ -163,7 +180,7 @@ describe('GitHubCoverageProvider', function (): void {
         });
 
         it('returns null when no coverage pattern found in check runs', function (): void {
-            $http = stubSequentialHttpClient([
+            $http = \stubSequentialHttpClient([
                 [
                     'workflow_runs' => [
                         [
@@ -185,25 +202,25 @@ describe('GitHubCoverageProvider', function (): void {
                 ],
             ]);
 
-            $project = makeGitHubProject();
+            $project = \makeGitHubProject();
             $coverageProvider = new GitHubCoverageProvider($http, new NullLogger());
 
             expect($coverageProvider->fetchCoverage($project))->toBeNull();
         });
 
         it('returns null when no workflow runs found', function (): void {
-            $http = stubSequentialHttpClient([
+            $http = \stubSequentialHttpClient([
                 ['workflow_runs' => []],
             ]);
 
-            $project = makeGitHubProject();
+            $project = \makeGitHubProject();
             $coverageProvider = new GitHubCoverageProvider($http, new NullLogger());
 
             expect($coverageProvider->fetchCoverage($project))->toBeNull();
         });
 
         it('extracts owner and repo from repository URL with .git suffix', function (): void {
-            $http = stubSequentialHttpClient([
+            $http = \stubSequentialHttpClient([
                 [
                     'workflow_runs' => [
                         [
@@ -225,7 +242,7 @@ describe('GitHubCoverageProvider', function (): void {
                 ],
             ]);
 
-            $project = makeGitHubProject(
+            $project = \makeGitHubProject(
                 repositoryUrl: 'https://github.com/acme-corp/awesome-project.git',
             );
             $coverageProvider = new GitHubCoverageProvider($http, new NullLogger());
@@ -236,7 +253,7 @@ describe('GitHubCoverageProvider', function (): void {
         });
 
         it('returns null and logs warning on API exception', function (): void {
-            $http = stubThrowingGitHubHttpClient(new \RuntimeException('connection refused'));
+            $http = \stubThrowingGitHubHttpClient(new \RuntimeException('connection refused'));
 
             $logger = $this->createMock(LoggerInterface::class);
             $logger->expects($this->once())
@@ -246,7 +263,7 @@ describe('GitHubCoverageProvider', function (): void {
                     $this->arrayHasKey('error'),
                 );
 
-            $project = makeGitHubProject();
+            $project = \makeGitHubProject();
             $coverageProvider = new GitHubCoverageProvider($http, $logger);
 
             expect($coverageProvider->fetchCoverage($project))->toBeNull();

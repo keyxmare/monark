@@ -76,6 +76,10 @@ function stubFailingGitFactory(\Throwable $exception): GitProviderFactoryInterfa
         {
             return [];
         }
+        public function listBranches(Provider $provider, string $externalProjectId): array
+        {
+            return [];
+        }
     };
 
     return new class ($gitClient) implements GitProviderFactoryInterface {
@@ -163,6 +167,10 @@ function stubRemoteGitFactory(array $remoteProjects): GitProviderFactoryInterfac
             return null;
         }
         public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array
+        {
+            return [];
+        }
+        public function listBranches(Provider $provider, string $externalProjectId): array
         {
             return [];
         }

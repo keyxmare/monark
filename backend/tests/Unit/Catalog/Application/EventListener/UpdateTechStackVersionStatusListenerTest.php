@@ -57,6 +57,12 @@ function makeFrameworkUpdaterForListener(FrameworkRepositoryInterface $fwRepo): 
         public function clearLatestFlag(string $name, ?\App\Shared\Domain\ValueObject\PackageManager $pm): void
         {
         }
+        public function persist(ProductVersion $pv): void
+        {
+        }
+        public function flush(): void
+        {
+        }
     };
 
     $eventBus = new class () implements MessageBusInterface {

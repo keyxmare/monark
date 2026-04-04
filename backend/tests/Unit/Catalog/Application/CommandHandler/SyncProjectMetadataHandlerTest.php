@@ -136,6 +136,10 @@ function stubMetadataGitProviderFactory(RemoteProject $remoteProject): GitProvid
         {
             return [];
         }
+        public function listBranches(Provider $provider, string $externalProjectId): array
+        {
+            return [];
+        }
     };
 
     return new class ($client) implements GitProviderFactoryInterface {

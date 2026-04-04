@@ -8,11 +8,11 @@ use App\Dependency\Domain\Event\VulnerabilityDetected;
 use App\Dependency\Domain\Event\VulnerabilityResolved;
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\RegistryStatus;
-use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\ValueObject\CveId;
 use App\Dependency\Domain\ValueObject\SemanticVersion;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
+use App\Shared\Domain\ValueObject\Severity;
 use Symfony\Component\Uid\Uuid;
 
 function createAggregateDependency(string $currentVersion = '1.0.0', string $latestVersion = '1.0.0'): Dependency

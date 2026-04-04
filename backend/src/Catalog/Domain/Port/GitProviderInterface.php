@@ -6,6 +6,7 @@ namespace App\Catalog\Domain\Port;
 
 use App\Catalog\Domain\Model\Provider;
 use App\Catalog\Domain\Model\RemoteProject;
+
 interface GitProviderInterface
 {
     /** @return list<RemoteProject> */

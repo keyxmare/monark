@@ -34,9 +34,17 @@ vi.mock('@/shared/composables/useConfirmDelete', () => ({
   }),
 }));
 
-vi.mock('@/catalog/composables/useSyncProgress', () => ({
-  useSyncProgress: () => ({
-    track: vi.fn(),
+vi.mock('@/shared/components/SyncButton.vue', () => ({
+  default: { template: '<button data-testid="sync-button" />' },
+}));
+
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: { value: null },
+    isRunning: { value: false },
+    startSync: vi.fn(),
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
   }),
 }));
 
@@ -123,8 +131,8 @@ describe('ProviderList', () => {
     expect(wrapper.find('[data-testid="provider-create-link"]').exists()).toBe(true);
   });
 
-  it('renders sync all button', () => {
+  it('renders sync button', () => {
     const wrapper = mount(ProviderList);
-    expect(wrapper.find('[data-testid="provider-sync-all-global"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="sync-button"]').exists()).toBe(true);
   });
 });

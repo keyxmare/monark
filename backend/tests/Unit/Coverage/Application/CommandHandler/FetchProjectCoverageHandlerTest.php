@@ -40,23 +40,61 @@ function makeFetchProject(
     );
 
     $projectRepo = new class ($builtProject) implements ProjectRepositoryInterface {
-        public function __construct(private readonly ?Project $project) {}
-        public function findById(Uuid $id): ?Project { return $this->project; }
-        public function findBySlug(string $slug): ?Project { return null; }
-        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project { return null; }
-        public function findExternalIdMapByProvider(Uuid $providerId): array { return []; }
-        public function findAll(int $page = 1, int $perPage = 20): array { return []; }
-        public function findByProviderId(Uuid $providerId): array { return []; }
-        public function findAllWithProvider(): array { return []; }
-        public function count(): int { return 0; }
-        public function save(Project $project): void {}
-        public function delete(Project $project): void {}
+        public function __construct(private readonly ?Project $project)
+        {
+        }
+        public function findById(Uuid $id): ?Project
+        {
+            return $this->project;
+        }
+        public function findBySlug(string $slug): ?Project
+        {
+            return null;
+        }
+        public function findByExternalIdAndProvider(string $externalId, Uuid $providerId): ?Project
+        {
+            return null;
+        }
+        public function findExternalIdMapByProvider(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAll(int $page = 1, int $perPage = 20): array
+        {
+            return [];
+        }
+        public function findByProviderId(Uuid $providerId): array
+        {
+            return [];
+        }
+        public function findAllWithProvider(): array
+        {
+            return [];
+        }
+        public function count(): int
+        {
+            return 0;
+        }
+        public function save(Project $project): void
+        {
+        }
+        public function delete(Project $project): void
+        {
+        }
     };
 
     $coverageProvider = new class ($coverageResult) implements CoverageProviderInterface {
-        public function __construct(private readonly ?CoverageResult $result) {}
-        public function supports(ProviderType $type): bool { return true; }
-        public function fetchCoverage(Project $project): ?CoverageResult { return $this->result; }
+        public function __construct(private readonly ?CoverageResult $result)
+        {
+        }
+        public function supports(ProviderType $type): bool
+        {
+            return true;
+        }
+        public function fetchCoverage(Project $project): ?CoverageResult
+        {
+            return $this->result;
+        }
     };
 
     $registry = new CoverageProviderRegistry($resolveProvider ? [$coverageProvider] : []);
@@ -64,11 +102,26 @@ function makeFetchProject(
     $snapshotRepo = new class () implements CoverageSnapshotRepositoryInterface {
         /** @var list<CoverageSnapshot> */
         public array $saved = [];
-        public function save(CoverageSnapshot $snapshot): void { $this->saved[] = $snapshot; }
-        public function findLatestByProject(Uuid $projectId): ?CoverageSnapshot { return null; }
-        public function findAllByProject(Uuid $projectId, int $limit = 50): array { return []; }
-        public function findLatestPerProject(): array { return []; }
-        public function findPreviousPerProject(): array { return []; }
+        public function save(CoverageSnapshot $snapshot): void
+        {
+            $this->saved[] = $snapshot;
+        }
+        public function findLatestByProject(Uuid $projectId): ?CoverageSnapshot
+        {
+            return null;
+        }
+        public function findAllByProject(Uuid $projectId, int $limit = 50): array
+        {
+            return [];
+        }
+        public function findLatestPerProject(): array
+        {
+            return [];
+        }
+        public function findPreviousPerProject(): array
+        {
+            return [];
+        }
     };
 
     return [$builtProject, $projectRepo, $registry, $snapshotRepo];
@@ -83,12 +136,13 @@ describe('FetchProjectCoverageHandler', function () {
             pipelineId: '999',
         );
 
-        [$project, $projectRepo, $registry, $snapshotRepo] = makeFetchProject(coverageResult: $coverageResult);
+        [$project, $projectRepo, $registry, $snapshotRepo] = \makeFetchProject(coverageResult: $coverageResult);
 
         $syncId = Uuid::v7()->toRfc4122();
         $eventBus = $this->createMock(MessageBusInterface::class);
         $eventBus->expects($this->once())->method('dispatch')
-            ->with($this->callback(fn ($event) => $event instanceof ProjectCoverageFetchedEvent
+            ->with($this->callback(
+                fn ($event) => $event instanceof ProjectCoverageFetchedEvent
                 && $event->projectId === $project->getId()->toRfc4122()
                 && $event->syncId === $syncId
                 && $event->projectName === 'My Project'
@@ -105,12 +159,13 @@ describe('FetchProjectCoverageHandler', function () {
     });
 
     it('dispatches event with null coverage when project has no provider', function () {
-        [$project, $projectRepo, $registry, $snapshotRepo] = makeFetchProject(hasProvider: false);
+        [$project, $projectRepo, $registry, $snapshotRepo] = \makeFetchProject(hasProvider: false);
 
         $syncId = Uuid::v7()->toRfc4122();
         $eventBus = $this->createMock(MessageBusInterface::class);
         $eventBus->expects($this->once())->method('dispatch')
-            ->with($this->callback(fn ($event) => $event instanceof ProjectCoverageFetchedEvent
+            ->with($this->callback(
+                fn ($event) => $event instanceof ProjectCoverageFetchedEvent
                 && $event->coveragePercent === null
             ))
             ->willReturn(new Envelope(new \stdClass()));
@@ -122,7 +177,7 @@ describe('FetchProjectCoverageHandler', function () {
     });
 
     it('dispatches event with null coverage when fetchCoverage returns null', function () {
-        [$project, $projectRepo, $registry, $snapshotRepo] = makeFetchProject(
+        [$project, $projectRepo, $registry, $snapshotRepo] = \makeFetchProject(
             coverageResult: null,
             hasProvider: true,
             resolveProvider: true,
@@ -131,7 +186,8 @@ describe('FetchProjectCoverageHandler', function () {
         $syncId = Uuid::v7()->toRfc4122();
         $eventBus = $this->createMock(MessageBusInterface::class);
         $eventBus->expects($this->once())->method('dispatch')
-            ->with($this->callback(fn ($event) => $event instanceof ProjectCoverageFetchedEvent
+            ->with($this->callback(
+                fn ($event) => $event instanceof ProjectCoverageFetchedEvent
                 && $event->coveragePercent === null
             ))
             ->willReturn(new Envelope(new \stdClass()));
@@ -143,7 +199,7 @@ describe('FetchProjectCoverageHandler', function () {
     });
 
     it('does not save snapshot when coverage is null', function () {
-        [$project, $projectRepo, $registry, $snapshotRepo] = makeFetchProject(resolveProvider: false);
+        [$project, $projectRepo, $registry, $snapshotRepo] = \makeFetchProject(resolveProvider: false);
 
         $syncId = Uuid::v7()->toRfc4122();
         $eventBus = $this->createMock(MessageBusInterface::class);

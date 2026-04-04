@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Dependency\Domain\Model\Dependency;
 use App\Dependency\Domain\Model\RegistryStatus;
-use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\Specification\HasCriticalVulnerabilitySpecification;
 use App\Dependency\Domain\Specification\IsDeprecatedSpecification;
 use App\Dependency\Domain\Specification\IsOutdatedSpecification;
 use App\Shared\Domain\Specification\AndSpecification;
+use App\Shared\Domain\ValueObject\Severity;
 use App\Tests\Factory\Dependency\DependencyFactory;
 use App\Tests\Factory\Dependency\VulnerabilityFactory;
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Shared\Domain\ValueObject\Severity;
 use App\Dependency\Domain\ValueObject\DependencyHealth;
 use App\Dependency\Domain\ValueObject\RiskLevel;
+use App\Shared\Domain\ValueObject\Severity;
 
 describe('DependencyHealth', function () {
     it('scores perfectly healthy dependency at 100', function () {

@@ -13,5 +13,6 @@ final readonly class CoverageSummaryOutput
         public int $aboveThreshold,
         public int $belowThreshold,
         public ?float $trend,
-    ) {}
+    ) {
+    }
 }

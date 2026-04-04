@@ -94,6 +94,11 @@ function stubTestConnectionGitProviderFactory(bool $connectionResult): GitProvid
                     return [];
                 }
 
+                public function listBranches(Provider $provider, string $externalProjectId): array
+                {
+                    return [];
+                }
+
             };
         }
     };

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Dependency\Domain\Specification;
 
 use App\Dependency\Domain\Model\Dependency;
-use App\Shared\Domain\ValueObject\Severity;
 use App\Shared\Domain\Specification\QueryableSpecificationInterface;
+use App\Shared\Domain\ValueObject\Severity;
 use Doctrine\Common\Collections\Criteria;
 use Override;
 
