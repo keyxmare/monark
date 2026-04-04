@@ -141,18 +141,6 @@ final readonly class FrameworkVersionStatusUpdater
             }
         }
 
-        foreach ($allVersions as $pv) {
-            try {
-                $pvParsed = SemanticVersion::parse($pv->getVersion());
-            } catch (InvalidArgumentException) {
-                continue;
-            }
-
-            if ($pvParsed->major === $current->major && $pv->getEolDate() !== null) {
-                return $pv->getEolDate();
-            }
-        }
-
         return null;
     }
 
