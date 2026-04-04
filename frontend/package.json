@@ -48,6 +48,6 @@
     "typescript-eslint": "^8.58.0",
     "vite": "^6.0",
     "vitest": "^3.0",
-    "vue-tsc": "^2.0"
+    "vue-tsc": "^3.2"
   }
 }
