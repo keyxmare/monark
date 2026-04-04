@@ -26,8 +26,9 @@ const { onStepCompleted } = useGlobalSync();
 const projectId = route.query.project_id as string | undefined;
 
 const projectMap = computed(() => {
-  const map = new Map<string, { name: string; providerId: null | string }>();
-  for (const p of projectStore.projects) map.set(p.id, { name: p.name, providerId: p.providerId });
+  const map = new Map<string, { defaultBranch: string; name: string; providerId: null | string }>();
+  for (const p of projectStore.projects)
+    map.set(p.id, { defaultBranch: p.defaultBranch, name: p.name, providerId: p.providerId });
   return map;
 });
 
@@ -303,6 +304,9 @@ onStepCompleted((step) => {
                 >
                   {{ t('catalog.frameworks.project') }}{{ sortIndicator('project') }}
                 </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
+                  {{ t('catalog.frameworks.branch') }}
+                </th>
                 <th
                   class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
                   @click="toggleSort('framework')"
@@ -352,6 +356,17 @@ onStepCompleted((step) => {
                     {{ row.projectName }}
                   </RouterLink>
                   <span v-else class="font-medium text-text">{{ row.projectName }}</span>
+                </td>
+                <td
+                  v-if="row.isFirstInGroup"
+                  :rowspan="row.groupSize"
+                  class="px-4 py-3 text-sm text-text-muted align-top"
+                >
+                  <span
+                    class="inline-flex items-center gap-1 rounded bg-surface-muted px-1.5 py-0.5 text-xs font-mono"
+                  >
+                    {{ projectMap.get(row.projectId)?.defaultBranch ?? '—' }}
+                  </span>
                 </td>
                 <td class="px-4 py-3 text-sm text-text">
                   <TechBadge :name="row.fw.name" :version="row.fw.version" size="sm" />

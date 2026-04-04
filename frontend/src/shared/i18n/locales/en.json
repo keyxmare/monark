@@ -330,6 +330,7 @@
     "frameworks": {
       "title": "Frameworks",
       "project": "Project",
+      "branch": "Branch",
       "framework": "Framework",
       "version": "Version",
       "searchPlaceholder": "Search project or framework…",
