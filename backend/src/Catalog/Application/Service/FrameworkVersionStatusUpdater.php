@@ -178,6 +178,8 @@ final readonly class FrameworkVersionStatusUpdater
             return null;
         }
 
+        $minorFallback = null;
+
         foreach ($allVersions as $pv) {
             try {
                 $pvParsed = SemanticVersion::parse($pv->getVersion());
@@ -185,11 +187,19 @@ final readonly class FrameworkVersionStatusUpdater
                 continue;
             }
 
-            if ($pvParsed->major === $target->major && $pvParsed->minor === $target->minor && $pvParsed->patch === $target->patch && $pv->getReleaseDate() !== null) {
+            if ($pvParsed->major !== $target->major || $pvParsed->minor !== $target->minor || $pv->getReleaseDate() === null) {
+                continue;
+            }
+
+            if ($pvParsed->patch === $target->patch) {
                 return $pv->getReleaseDate();
+            }
+
+            if ($minorFallback === null || $pv->getReleaseDate() > $minorFallback) {
+                $minorFallback = $pv->getReleaseDate();
             }
         }
 
-        return null;
+        return $minorFallback;
     }
 }
