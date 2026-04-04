@@ -67,10 +67,6 @@ final readonly class SyncProjectMetadataHandler
         if ($remote->description !== $project->getDescription()) {
             $changedFields[] = 'description';
         }
-        if ($remote->defaultBranch !== $project->getDefaultBranch()) {
-            $changedFields[] = 'defaultBranch';
-        }
-
         $remoteVisibility = ProjectVisibility::tryFrom($remote->visibility);
         if ($remoteVisibility !== null && $remoteVisibility !== $project->getVisibility()) {
             $changedFields[] = 'visibility';
@@ -83,7 +79,6 @@ final readonly class SyncProjectMetadataHandler
         $project->update(
             name: $remote->name,
             description: $remote->description,
-            defaultBranch: $remote->defaultBranch,
             visibility: $remoteVisibility,
         );
 
