@@ -12,6 +12,7 @@ use App\Sync\Domain\Model\GlobalSyncStep;
 use App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface;
 use App\VersionRegistry\Application\Command\SyncProductVersionsCommand;
 use App\VersionRegistry\Domain\Repository\ProductRepositoryInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -26,6 +27,7 @@ final readonly class GlobalSyncCoverageProgressListener
         private ProductRepositoryInterface $productRepository,
         private MessageBusInterface $commandBus,
         private HubInterface $mercureHub,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -70,18 +72,25 @@ final readonly class GlobalSyncCoverageProgressListener
     {
         $syncId = $job->getId()->toRfc4122();
 
-        $this->mercureHub->publish(new Update(
-            \sprintf('/global-sync/%s', $syncId),
-            (string) \json_encode([
+        try {
+            $this->mercureHub->publish(new Update(
+                \sprintf('/global-sync/%s', $syncId),
+                (string) \json_encode([
+                    'syncId' => $syncId,
+                    'status' => $job->getStatus()->value,
+                    'currentStep' => $job->getCurrentStep(),
+                    'currentStepName' => $job->getCurrentStepName(),
+                    'stepProgress' => $job->getStepProgress(),
+                    'stepTotal' => $job->getStepTotal(),
+                    'completedSteps' => $job->getCompletedStepNames(),
+                    'message' => $message,
+                ]),
+            ));
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to publish sync progress to Mercure', [
                 'syncId' => $syncId,
-                'status' => $job->getStatus()->value,
-                'currentStep' => $job->getCurrentStep(),
-                'currentStepName' => $job->getCurrentStepName(),
-                'stepProgress' => $job->getStepProgress(),
-                'stepTotal' => $job->getStepTotal(),
-                'completedSteps' => $job->getCompletedStepNames(),
-                'message' => $message,
-            ]),
-        ));
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

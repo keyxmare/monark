@@ -11,7 +11,6 @@ use App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 final readonly class StartGlobalSyncController
@@ -45,10 +44,7 @@ final readonly class StartGlobalSyncController
         $this->globalSyncJobRepository->save($job);
         $syncId = $job->getId()->toRfc4122();
 
-        $this->commandBus->dispatch(
-            new GlobalSyncCommand($syncId),
-            [new DispatchAfterCurrentBusStamp()],
-        );
+        $this->commandBus->dispatch(new GlobalSyncCommand($syncId));
 
         return new JsonResponse(
             ApiResponse::success([

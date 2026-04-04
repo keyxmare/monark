@@ -6,10 +6,11 @@ import { RouterLink, useRouter } from 'vue-router';
 import type { Provider } from '@/catalog/types/provider';
 
 import ProviderCard from '@/catalog/components/ProviderCard.vue';
-import { useSyncProgress } from '@/catalog/composables/useSyncProgress';
 import { useProviderStore } from '@/catalog/stores/provider';
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
+import SyncButton from '@/shared/components/SyncButton.vue';
 import { useConfirmDelete } from '@/shared/composables/useConfirmDelete';
+import { useGlobalSync } from '@/shared/composables/useGlobalSync';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 import { useToastStore } from '@/shared/stores/toast';
 
@@ -17,9 +18,8 @@ const router = useRouter();
 const { t } = useI18n();
 const providerStore = useProviderStore();
 const toastStore = useToastStore();
-const { track } = useSyncProgress();
+const { onStepCompleted } = useGlobalSync();
 const testingId = ref<null | string>(null);
-const syncing = ref(false);
 const search = ref('');
 const typeFilter = ref('');
 const statusFilter = ref('');
@@ -48,6 +48,10 @@ onMounted(() => {
   providerStore.fetchAll();
 });
 
+onStepCompleted((step) => {
+  if (step === 'sync_projects') providerStore.fetchAll();
+});
+
 function getDropdownItems(provider: Provider) {
   return [
     {
@@ -71,18 +75,6 @@ function handleDropdownAction(action: string, provider: Provider) {
   else if (action === 'edit')
     router.push({ name: 'catalog-providers-edit', params: { id: provider.id } });
   else if (action === 'delete') requestDelete(provider);
-}
-
-async function handleSyncAll() {
-  syncing.value = true;
-  try {
-    const result = await providerStore.syncAllGlobal();
-    track(result.id, result.projectsCount);
-  } catch {
-    // error handled by store
-  } finally {
-    syncing.value = false;
-  }
 }
 
 async function handleTestConnection(provider: { id: string; name: string }) {
@@ -119,14 +111,7 @@ function navigateToDetail(id: string) {
           {{ t('catalog.providers.title') }}
         </h2>
         <div class="flex items-center gap-3">
-          <button
-            :disabled="syncing"
-            class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
-            data-testid="provider-sync-all-global"
-            @click="handleSyncAll"
-          >
-            {{ syncing ? t('catalog.providers.syncing') : t('catalog.providers.syncAll') }}
-          </button>
+          <SyncButton />
           <RouterLink
             :to="{ name: 'catalog-providers-create' }"
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
