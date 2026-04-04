@@ -8,6 +8,7 @@ use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\DTO\ScanResultOutput;
 use App\Catalog\Domain\Model\Framework;
 use App\Catalog\Domain\Model\Language;
+use App\Catalog\Domain\Port\GitProviderFactoryInterface;
 use App\Catalog\Domain\Port\ProjectScannerInterface;
 use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
 use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
@@ -29,6 +30,7 @@ readonly class ScanProjectHandler
         private LanguageRepositoryInterface $languageRepository,
         private FrameworkRepositoryInterface $frameworkRepository,
         private DependencyWriterPort $dependencyWriter,
+        private GitProviderFactoryInterface $gitProviderFactory,
         private ProjectScannerInterface $projectScanner,
         private MessageBusInterface $eventBus,
     ) {
@@ -43,6 +45,16 @@ readonly class ScanProjectHandler
 
         if ($project->getProvider() === null || $project->getExternalId() === null) {
             throw new DomainException(\sprintf('Project "%s" is not linked to a provider.', $command->projectId));
+        }
+
+        $provider = $project->getProvider();
+        $client = $this->gitProviderFactory->create($provider);
+        $branches = $client->listBranches($provider, $project->getExternalId());
+
+        if ($branches !== [] && !\in_array($project->getDefaultBranch(), $branches, true)) {
+            $remote = $client->getProject($provider, $project->getExternalId());
+            $project->update(defaultBranch: $remote->defaultBranch);
+            $this->projectRepository->save($project);
         }
 
         $scanResult = $this->projectScanner->scan($project);

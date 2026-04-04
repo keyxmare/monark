@@ -16,4 +16,9 @@ export const projectService = {
   scan(id: string): Promise<ApiResponse<ScanResult>> {
     return api.post<ApiResponse<ScanResult>>(`${BASE_URL}/${id}/scan`, {});
   },
+
+  async listBranches(id: string): Promise<string[]> {
+    const body = await api.get<ApiResponse<string[]>>(`${BASE_URL}/${id}/branches`);
+    return body.data ?? [];
+  },
 };

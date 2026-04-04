@@ -20,6 +20,7 @@ export const useProjectStore = defineStore('catalog-project', () => {
   const currentPage = ref(1);
   const total = ref(0);
   const scanResult = ref<ScanResult | null>(null);
+  const branches = ref<string[]>([]);
 
   async function fetchAll(page = 1, perPage = 20): Promise<void> {
     loading.value = true;
@@ -117,6 +118,14 @@ export const useProjectStore = defineStore('catalog-project', () => {
     }
   }
 
+  async function fetchBranches(id: string): Promise<void> {
+    try {
+      branches.value = await projectService.listBranches(id);
+    } catch {
+      branches.value = [];
+    }
+  }
+
   return {
     projects,
     selected,
@@ -127,11 +136,13 @@ export const useProjectStore = defineStore('catalog-project', () => {
     currentPage,
     total,
     scanResult,
+    branches,
     fetchAll,
     fetchOne,
     create,
     update,
     remove,
     scan,
+    fetchBranches,
   };
 });
