@@ -95,14 +95,7 @@ final readonly class FrameworkVersionStatusUpdater
 
         $gap = null;
         if ($latestLts !== null) {
-            try {
-                $current = SemanticVersion::parse($currentVersion);
-                $latest = SemanticVersion::parse($latestLts);
-                if ($latest->isNewerThan($current)) {
-                    $gap = $this->computeGap($current, $latest);
-                }
-            } catch (InvalidArgumentException) {
-            }
+            $gap = $this->computeDateGap($currentVersion, $latestLts, $allVersions);
         }
 
         $fw->updateVersionStatus(
@@ -144,12 +137,59 @@ final readonly class FrameworkVersionStatusUpdater
         return null;
     }
 
-    private function computeGap(SemanticVersion $current, SemanticVersion $latest): string
+    /** @param list<ProductVersion> $allVersions */
+    private function computeDateGap(string $currentVersion, string $latestLtsVersion, array $allVersions): ?string
     {
-        if ($current->major === $latest->major && $current->minor === $latest->minor) {
-            return \sprintf('%d patch(es)', $current->getPatchGap($latest));
+        $currentDate = $this->findReleaseDate($currentVersion, $allVersions);
+        $ltsDate = $this->findReleaseDate($latestLtsVersion, $allVersions);
+
+        if ($currentDate === null || $ltsDate === null) {
+            return null;
         }
 
-        return \sprintf('%s → %s', $current, $latest);
+        $diff = $currentDate->diff($ltsDate);
+        $days = (int) $diff->format('%r%a');
+
+        if ($days <= 0) {
+            return null;
+        }
+
+        if ($days >= 365) {
+            $years = \intdiv($days, 365);
+            $remainingMonths = \intdiv($days % 365, 30);
+            return $remainingMonths > 0
+                ? \sprintf('%da %dm', $years, $remainingMonths)
+                : \sprintf('%da', $years);
+        }
+
+        if ($days >= 30) {
+            return \sprintf('%dm', \intdiv($days, 30));
+        }
+
+        return \sprintf('%dj', $days);
+    }
+
+    /** @param list<ProductVersion> $allVersions */
+    private function findReleaseDate(string $version, array $allVersions): ?DateTimeImmutable
+    {
+        try {
+            $target = SemanticVersion::parse($version);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+
+        foreach ($allVersions as $pv) {
+            try {
+                $pvParsed = SemanticVersion::parse($pv->getVersion());
+            } catch (InvalidArgumentException) {
+                continue;
+            }
+
+            if ($pvParsed->major === $target->major && $pvParsed->minor === $target->minor && $pvParsed->patch === $target->patch && $pv->getReleaseDate() !== null) {
+                return $pv->getReleaseDate();
+            }
+        }
+
+        return null;
     }
 }
