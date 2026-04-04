@@ -20,7 +20,6 @@ final readonly class SyncDependencyCveHandler
         'composer' => 'Packagist',
         'npm' => 'npm',
         'pip' => 'PyPI',
-        'poetry' => 'PyPI',
     ];
 
     public function __construct(
@@ -44,18 +43,10 @@ final readonly class SyncDependencyCveHandler
         $indexMap = [];
         $queryIndex = 0;
         foreach ($dependencies as $depIndex => $dep) {
-            $ecosystem = self::ECOSYSTEM_MAP[$dep->getPackageManager()->value] ?? null;
-            if ($ecosystem === null) {
-                continue;
-            }
+            $ecosystem = self::ECOSYSTEM_MAP[$dep->getPackageManager()->value];
             $queries[] = new OsvQuery($ecosystem, $dep->getName(), $dep->getCurrentVersion());
             $indexMap[$queryIndex] = $depIndex;
             ++$queryIndex;
-        }
-
-        if ($queries === []) {
-            $this->eventBus->dispatch(new DependencyCveSyncedEvent($command->projectId, 0));
-            return;
         }
 
         $results = $this->osvClient->queryBatch($queries);

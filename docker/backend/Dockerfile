@@ -26,6 +26,8 @@ RUN echo '#!/bin/sh' > /usr/local/bin/php-fpm-healthcheck && \
     echo 'SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1' >> /usr/local/bin/php-fpm-healthcheck && \
     chmod +x /usr/local/bin/php-fpm-healthcheck
 
+RUN echo 'memory_limit=-1' > /usr/local/etc/php/conf.d/memory.ini
+
 WORKDIR /app
 
 FROM base AS dev

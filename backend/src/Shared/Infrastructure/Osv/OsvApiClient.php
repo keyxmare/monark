@@ -32,6 +32,7 @@ final readonly class OsvApiClient implements OsvClientInterface
             'timeout' => 30,
         ]);
 
+        /** @var array{vulns?: list<array{id: string, aliases?: list<string>, summary?: string, details?: string, severity?: list<array{type?: string, score?: string}>, database_specific?: array{cvss_score?: float}, affected?: list<array{ranges?: list<array{events?: list<array{fixed?: string}>}>}>, references?: list<array{url?: string}>, published?: string}>} $data */
         $data = $response->toArray(false);
 
         return $this->mapVulnerabilities($data['vulns'] ?? []);
@@ -64,6 +65,7 @@ final readonly class OsvApiClient implements OsvClientInterface
                 'timeout' => 60,
             ]);
 
+            /** @var array{results?: list<array{vulns?: list<array{id: string, aliases?: list<string>, summary?: string, details?: string, severity?: list<array{type?: string, score?: string}>, database_specific?: array{cvss_score?: float}, affected?: list<array{ranges?: list<array{events?: list<array{fixed?: string}>}>}>, references?: list<array{url?: string}>, published?: string}>}>} $data */
             $data = $response->toArray(false);
             foreach ($data['results'] ?? [] as $result) {
                 $allResults[] = $this->mapVulnerabilities($result['vulns'] ?? []);
@@ -73,7 +75,10 @@ final readonly class OsvApiClient implements OsvClientInterface
         return $allResults;
     }
 
-    /** @return list<OsvVulnerability> */
+    /**
+     * @param list<array{id: string, aliases?: list<string>, summary?: string, details?: string, severity?: list<array{type?: string, score?: string}>, database_specific?: array{cvss_score?: float}, affected?: list<array{ranges?: list<array{events?: list<array{fixed?: string}>}>}>, references?: list<array{url?: string}>, published?: string}> $rawVulns
+     * @return list<OsvVulnerability>
+     */
     private function mapVulnerabilities(array $rawVulns): array
     {
         $results = [];
@@ -100,10 +105,11 @@ final readonly class OsvApiClient implements OsvClientInterface
         return $results;
     }
 
+    /** @param list<string> $aliases */
     private function extractCveAlias(array $aliases): ?string
     {
         foreach ($aliases as $alias) {
-            if (\is_string($alias) && \str_starts_with($alias, 'CVE-')) {
+            if (\str_starts_with($alias, 'CVE-')) {
                 return $alias;
             }
         }
@@ -111,6 +117,7 @@ final readonly class OsvApiClient implements OsvClientInterface
         return null;
     }
 
+    /** @param array{severity?: list<array{type?: string, score?: string}>, database_specific?: array{cvss_score?: float}} $raw */
     private function extractCvssScore(array $raw): ?float
     {
         if (isset($raw['database_specific']['cvss_score'])) {
@@ -131,6 +138,7 @@ final readonly class OsvApiClient implements OsvClientInterface
         return null;
     }
 
+    /** @param list<array{ranges?: list<array{events?: list<array{fixed?: string}>}>}> $affected */
     private function extractPatchedVersion(array $affected): ?string
     {
         foreach ($affected as $entry) {
@@ -146,7 +154,10 @@ final readonly class OsvApiClient implements OsvClientInterface
         return null;
     }
 
-    /** @return list<string> */
+    /**
+     * @param list<array{url?: string}> $references
+     * @return list<string>
+     */
     private function extractReferences(array $references): array
     {
         $urls = [];

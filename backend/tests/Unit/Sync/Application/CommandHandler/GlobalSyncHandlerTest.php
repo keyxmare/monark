@@ -189,6 +189,7 @@ describe('GlobalSyncHandler', function (): void {
             \stubGlobalProjectRepo([]),
             \stubGlobalSyncCommandBus(),
             \stubGlobalSyncMercureHub(),
+            new \Psr\Log\NullLogger(),
         );
 
         ($handler)(new GlobalSyncCommand($syncId));
@@ -205,6 +206,7 @@ describe('GlobalSyncHandler', function (): void {
             \stubGlobalSyncThrowingProjectRepo(),
             \stubGlobalSyncCommandBus(),
             \stubGlobalSyncMercureHub(),
+            new \Psr\Log\NullLogger(),
         );
 
         expect(static fn () => ($handler)(new GlobalSyncCommand($syncId)))
@@ -235,6 +237,7 @@ describe('GlobalSyncHandler', function (): void {
             \stubGlobalProjectRepo([]),
             \stubGlobalSyncCommandBus(),
             \stubGlobalSyncMercureHub(),
+            new \Psr\Log\NullLogger(),
         );
 
         ($handler)(new GlobalSyncCommand(Uuid::v7()->toRfc4122()));

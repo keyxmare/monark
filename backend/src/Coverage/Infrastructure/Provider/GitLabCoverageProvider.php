@@ -54,6 +54,7 @@ final readonly class GitLabCoverageProvider implements CoverageProviderInterface
                 'timeout' => 15,
             ]);
 
+            /** @var list<array{id?: int|string, coverage?: string|float|null, sha?: string}> $pipelines */
             $pipelines = $listResponse->toArray();
 
             if ($pipelines === []) {
@@ -69,12 +70,13 @@ final readonly class GitLabCoverageProvider implements CoverageProviderInterface
                 '%s/api/v4/projects/%s/pipelines/%s',
                 $baseUrl,
                 $externalId,
-                $pipelineId,
+                (string) $pipelineId,
             ), [
                 'headers' => $headers,
                 'timeout' => 15,
             ]);
 
+            /** @var array{coverage?: string|float|null, sha?: string} $pipeline */
             $pipeline = $detailResponse->toArray();
             $coverage = $pipeline['coverage'] ?? null;
 

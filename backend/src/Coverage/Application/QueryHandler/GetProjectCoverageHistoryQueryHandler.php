@@ -20,6 +20,7 @@ final readonly class GetProjectCoverageHistoryQueryHandler
     ) {
     }
 
+    /** @return array{project: array{id: string, name: string, slug: string}, snapshots: list<array{coveragePercent: float, source: string, commitHash: ?string, ref: string, pipelineId: ?string, createdAt: string}>} */
     public function __invoke(GetProjectCoverageHistoryQuery $query): array
     {
         $project = $this->projectRepository->findBySlug($query->projectSlug);

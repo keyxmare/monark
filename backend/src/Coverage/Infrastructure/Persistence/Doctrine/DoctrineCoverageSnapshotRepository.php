@@ -24,6 +24,7 @@ final readonly class DoctrineCoverageSnapshotRepository implements CoverageSnaps
 
     public function findLatestByProject(Uuid $projectId): ?CoverageSnapshot
     {
+        /** @var CoverageSnapshot|null */
         return $this->em->createQueryBuilder()
             ->select('s')
             ->from(CoverageSnapshot::class, 's')
@@ -38,6 +39,7 @@ final readonly class DoctrineCoverageSnapshotRepository implements CoverageSnaps
     /** @return list<CoverageSnapshot> */
     public function findAllByProject(Uuid $projectId, int $limit = 50): array
     {
+        /** @var list<CoverageSnapshot> */
         return $this->em->createQueryBuilder()
             ->select('s')
             ->from(CoverageSnapshot::class, 's')
@@ -69,6 +71,7 @@ final readonly class DoctrineCoverageSnapshotRepository implements CoverageSnaps
             return [];
         }
 
+        /** @var list<CoverageSnapshot> */
         return $this->em->createQueryBuilder()
             ->select('s')
             ->from(CoverageSnapshot::class, 's')
@@ -103,6 +106,7 @@ final readonly class DoctrineCoverageSnapshotRepository implements CoverageSnaps
             return [];
         }
 
+        /** @var list<CoverageSnapshot> */
         return $this->em->createQueryBuilder()
             ->select('s')
             ->from(CoverageSnapshot::class, 's')

@@ -227,6 +227,7 @@ describe('GlobalSyncCoverageProgressListener', function (): void {
             \makeCoverageProductRepo(0),
             \makeCoverageCommandBus(),
             $hub,
+            new \Psr\Log\NullLogger(),
         );
 
         ($listener)(\makeCoverageEvent('my-project', 85.5));
@@ -251,6 +252,7 @@ describe('GlobalSyncCoverageProgressListener', function (): void {
             \makeCoverageProductRepo(0),
             \makeCoverageCommandBus(),
             $hub,
+            new \Psr\Log\NullLogger(),
         );
 
         ($listener)(\makeCoverageEvent('no-cov-project', null));
@@ -272,6 +274,7 @@ describe('GlobalSyncCoverageProgressListener', function (): void {
             \makeCoverageProductRepo(2),
             $commandBus,
             $hub,
+            new \Psr\Log\NullLogger(),
         );
 
         ($listener)(\makeCoverageEvent());
@@ -294,6 +297,7 @@ describe('GlobalSyncCoverageProgressListener', function (): void {
             \makeCoverageProductRepo(0),
             $commandBus,
             $hub,
+            new \Psr\Log\NullLogger(),
         );
 
         ($listener)(\makeCoverageEvent());
@@ -312,6 +316,7 @@ describe('GlobalSyncCoverageProgressListener', function (): void {
             \makeCoverageProductRepo(0),
             $commandBus,
             $hub,
+            new \Psr\Log\NullLogger(),
         );
 
         ($listener)(\makeCoverageEvent());

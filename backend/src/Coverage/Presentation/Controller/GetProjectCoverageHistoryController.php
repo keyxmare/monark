@@ -34,6 +34,7 @@ final readonly class GetProjectCoverageHistoryController
     {
         try {
             $envelope = $this->queryBus->dispatch(new GetProjectCoverageHistoryQuery($projectSlug));
+            /** @var array{project: array<string, mixed>, snapshots: list<array<string, mixed>>} $result */
             $result = $envelope->last(HandledStamp::class)?->getResult();
         } catch (NotFoundException $e) {
             return new JsonResponse(

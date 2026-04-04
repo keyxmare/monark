@@ -25,6 +25,45 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\Factory\Catalog\ProviderFactory;
 
+function stubScanGitProviderFactory(): \App\Catalog\Domain\Port\GitProviderFactoryInterface
+{
+    return new class () implements \App\Catalog\Domain\Port\GitProviderFactoryInterface {
+        public function create(\App\Catalog\Domain\Model\Provider $provider): \App\Catalog\Domain\Port\GitProviderInterface
+        {
+            return new class () implements \App\Catalog\Domain\Port\GitProviderInterface {
+                public function listProjects(\App\Catalog\Domain\Model\Provider $provider, int $page = 1, int $perPage = 20, ?string $search = null, ?string $visibility = null, string $sort = 'name', string $sortDir = 'asc'): array
+                {
+                    return [];
+                }
+                public function countProjects(\App\Catalog\Domain\Model\Provider $provider, ?string $search = null, ?string $visibility = null): int
+                {
+                    return 0;
+                }
+                public function testConnection(\App\Catalog\Domain\Model\Provider $provider): bool
+                {
+                    return true;
+                }
+                public function getProject(\App\Catalog\Domain\Model\Provider $provider, string $externalId): \App\Catalog\Domain\Model\RemoteProject
+                {
+                    throw new \RuntimeException('not implemented');
+                }
+                public function getFileContent(\App\Catalog\Domain\Model\Provider $provider, string $externalProjectId, string $filePath, string $ref = 'main'): ?string
+                {
+                    return null;
+                }
+                public function listDirectory(\App\Catalog\Domain\Model\Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array
+                {
+                    return [];
+                }
+                public function listBranches(\App\Catalog\Domain\Model\Provider $provider, string $externalProjectId): array
+                {
+                    return ['main'];
+                }
+            };
+        }
+    };
+}
+
 function spyScanEventBus(): object
 {
     return new class () implements MessageBusInterface {
@@ -236,7 +275,7 @@ describe('ScanProjectHandler', function () {
 
         $scanner = \stubProjectScanner($scanResult);
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
@@ -271,7 +310,7 @@ describe('ScanProjectHandler', function () {
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $handler(new ScanProjectCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
@@ -297,7 +336,7 @@ describe('ScanProjectHandler', function () {
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
         $eventBus = \spyScanEventBus();
 
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
         expect($result->stacksDetected)->toBe(0);
@@ -339,7 +378,7 @@ describe('ScanProjectHandler', function () {
 
         $scanner = \stubProjectScanner($scanResult);
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
@@ -367,7 +406,7 @@ describe('ScanProjectHandler', function () {
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
     })->throws(\DomainException::class);

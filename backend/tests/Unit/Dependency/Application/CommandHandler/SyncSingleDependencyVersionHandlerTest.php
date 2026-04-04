@@ -17,6 +17,8 @@ use App\Shared\Domain\ValueObject\PackageManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 
 function syncSingleDepRepo(array $deps = []): DependencyRepositoryInterface
@@ -185,6 +187,16 @@ function syncSingleRegistryAdapter(array $versions = []): PackageRegistryFactory
     return new PackageRegistryFactory([$adapter]);
 }
 
+function syncSingleEventBus(): MessageBusInterface
+{
+    return new class () implements MessageBusInterface {
+        public function dispatch(object $message, array $stamps = []): Envelope
+        {
+            return Envelope::wrap($message, $stamps);
+        }
+    };
+}
+
 describe('SyncSingleDependencyVersionHandler', function () {
     it('returns early for invalid package manager', function () {
         $depRepo = \syncSingleDepRepo();
@@ -193,7 +205,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->never())->method('publish');
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'invalid-manager'));
 
         expect($versionRepo->saved)->toBeEmpty();
@@ -217,7 +229,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('unknown-pkg', 'npm'));
 
         expect($depRepo->saved)->toHaveCount(1);
@@ -252,7 +264,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('unknown-pkg', 'npm'));
 
         expect($depRepo->saved)->toHaveCount(2);
@@ -283,7 +295,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $factory = \syncSingleRegistryAdapter([]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($depRepo->saved)->toHaveCount(1);
@@ -304,7 +316,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $factory = \syncSingleRegistryAdapter([$rv]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($versionRepo->saved)->toHaveCount(1);
@@ -329,7 +341,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         ]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($versionRepo->saved)->toHaveCount(2);
@@ -372,7 +384,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         ]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($versionRepo->saved)->toHaveCount(2);
@@ -399,7 +411,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         ]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($dep->getLatestVersion())->toBe('3.5.1');
@@ -422,7 +434,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         ]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($versionRepo->saved)->toBeEmpty();
@@ -442,7 +454,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
                 return true;
             }));
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm', syncId: 'sync-abc', index: 3, total: 5));
     });
 
@@ -453,7 +465,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->exactly(2))->method('publish');
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm', syncId: 'sync-xyz', index: 5, total: 5));
     });
 
@@ -464,7 +476,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->exactly(2))->method('publish');
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm', syncId: 'sync-xyz', index: 6, total: 5));
     });
 
@@ -475,7 +487,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->never())->method('publish');
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
     });
 
@@ -486,7 +498,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         $hub = $this->createMock(HubInterface::class);
         $hub->expects($this->never())->method('publish');
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm', syncId: 'sync-abc', index: 1, total: 0));
     });
 
@@ -509,7 +521,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
                 ],
             );
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, $logger);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus(), $logger);
         $handler(new SyncSingleDependencyVersionCommand('test-pkg', 'npm'));
     });
 
@@ -541,7 +553,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         ]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($dep1->getLatestVersion())->toBe('3.5.1');
@@ -574,7 +586,7 @@ describe('SyncSingleDependencyVersionHandler', function () {
         ]);
         $hub = $this->createMock(HubInterface::class);
 
-        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub);
+        $handler = new SyncSingleDependencyVersionHandler($depRepo, $versionRepo, $factory, $hub, \syncSingleEventBus());
         $handler(new SyncSingleDependencyVersionCommand('vue', 'npm'));
 
         expect($dep->getLatestVersion())->toBe('3.5.0');
