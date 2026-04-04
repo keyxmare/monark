@@ -82,10 +82,33 @@ final readonly class GetCoverageDashboardQueryHandler
             );
         }
 
+        $coveredProjectIds = \array_map(
+            static fn (CoverageProjectOutput $p): string => $p->projectId,
+            $projects,
+        );
+
+        foreach ($allProjects as $project) {
+            $projectIdStr = $project->getId()->toRfc4122();
+            if (!\in_array($projectIdStr, $coveredProjectIds, true)) {
+                ++$belowThreshold;
+                $projects[] = new CoverageProjectOutput(
+                    projectId: $projectIdStr,
+                    projectName: $project->getName(),
+                    projectSlug: $project->getSlug(),
+                    coveragePercent: 0.0,
+                    trend: null,
+                    source: null,
+                    commitHash: null,
+                    ref: null,
+                    syncedAt: null,
+                );
+            }
+        }
+
         $totalProjects = \count($allProjects);
-        $averageCoverage = $coveredProjects > 0
-            ? \round($totalCoverage / $coveredProjects, 2)
-            : null;
+        $averageCoverage = $totalProjects > 0
+            ? \round($totalCoverage / $totalProjects, 2)
+            : 0.0;
 
         $overallTrend = null;
         if (\count($previousByProjectId) > 0 && $coveredProjects > 0) {
@@ -98,7 +121,7 @@ final readonly class GetCoverageDashboardQueryHandler
                     ++$previousCount;
                 }
             }
-            if ($previousCount > 0 && $averageCoverage !== null) {
+            if ($previousCount > 0) {
                 $overallTrend = \round($averageCoverage - ($previousTotal / $previousCount), 2);
             }
         }

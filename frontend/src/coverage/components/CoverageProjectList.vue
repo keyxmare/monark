@@ -130,7 +130,12 @@ function truncate(hash: null | string, len = 7): string {
                 {{ project.coveragePercent }}%
               </span>
             </div>
-            <span v-else class="text-sm text-text-muted">—</span>
+            <div v-else class="flex items-center gap-2">
+              <div class="h-2 w-24 overflow-hidden rounded-full bg-surface-muted">
+                <div class="h-full w-0 rounded-full bg-gray-300" data-testid="coverage-bar" />
+              </div>
+              <span class="text-sm font-medium text-text-muted">0%</span>
+            </div>
           </td>
           <td class="px-4 py-3 text-sm">
             <span v-if="project.trend !== null && project.trend > 0" class="text-green-500">↑ +{{ project.trend }}</span>
