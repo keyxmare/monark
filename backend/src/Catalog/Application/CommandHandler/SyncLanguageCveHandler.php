@@ -7,7 +7,7 @@ namespace App\Catalog\Application\CommandHandler;
 use App\Catalog\Application\Command\SyncLanguageCveCommand;
 use App\Catalog\Domain\Event\LanguageCveSyncedEvent;
 use App\Catalog\Domain\Model\LanguageVulnerability;
-use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
+use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
 use App\Catalog\Domain\Repository\LanguageVulnerabilityRepositoryInterface;
 use App\Shared\Domain\DTO\OsvQuery;
 use App\Shared\Domain\Port\OsvClientInterface;
@@ -29,7 +29,7 @@ final readonly class SyncLanguageCveHandler
     ];
 
     public function __construct(
-        private LanguageRepositoryInterface $languageRepository,
+        private FrameworkRepositoryInterface $frameworkRepository,
         private LanguageVulnerabilityRepositoryInterface $vulnerabilityRepository,
         private OsvClientInterface $osvClient,
         private MessageBusInterface $eventBus,
@@ -39,21 +39,32 @@ final readonly class SyncLanguageCveHandler
     public function __invoke(SyncLanguageCveCommand $command): void
     {
         $projectId = Uuid::fromString($command->projectId);
-        $languages = $this->languageRepository->findByProjectId($projectId);
+        $frameworks = $this->frameworkRepository->findByProjectId($projectId);
 
-        if ($languages === []) {
+        if ($frameworks === []) {
             $this->eventBus->dispatch(new LanguageCveSyncedEvent($command->projectId, 0));
             return;
         }
 
+        $uniqueLanguages = [];
+        foreach ($frameworks as $framework) {
+            $key = $framework->getLanguageName() . '|' . $framework->getLanguageVersion();
+            if (!isset($uniqueLanguages[$key])) {
+                $uniqueLanguages[$key] = [
+                    'name' => $framework->getLanguageName(),
+                    'version' => $framework->getLanguageVersion(),
+                ];
+            }
+        }
+
         $queries = [];
         $languageIndex = [];
-        foreach ($languages as $language) {
-            $ecosystem = self::LANGUAGE_ECOSYSTEM_MAP[$language->getName()] ?? null;
+        foreach ($uniqueLanguages as $language) {
+            $ecosystem = self::LANGUAGE_ECOSYSTEM_MAP[$language['name']] ?? null;
             if ($ecosystem === null) {
                 continue;
             }
-            $queries[] = new OsvQuery($ecosystem, \strtolower($language->getName()), $language->getVersion());
+            $queries[] = new OsvQuery($ecosystem, \strtolower($language['name']), $language['version']);
             $languageIndex[] = $language;
         }
 
@@ -72,9 +83,10 @@ final readonly class SyncLanguageCveHandler
             $language = $languageIndex[$index];
 
             foreach ($vulns as $osvVuln) {
-                $existing = $this->vulnerabilityRepository->findByOsvIdAndLanguageId(
+                $existing = $this->vulnerabilityRepository->findByOsvIdAndLanguageNameAndProjectId(
                     $osvVuln->id,
-                    $language->getId(),
+                    $language['name'],
+                    $projectId,
                 );
 
                 if ($existing !== null) {
@@ -82,7 +94,9 @@ final readonly class SyncLanguageCveHandler
                 }
 
                 $vuln = LanguageVulnerability::create(
-                    language: $language,
+                    languageName: $language['name'],
+                    languageVersion: $language['version'],
+                    projectId: $projectId,
                     cveId: $osvVuln->cveId,
                     osvId: $osvVuln->id,
                     summary: $osvVuln->summary,

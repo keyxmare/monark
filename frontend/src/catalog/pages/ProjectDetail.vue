@@ -5,7 +5,6 @@ import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 import ProjectDependenciesTab from '@/catalog/components/ProjectDependenciesTab.vue';
 import ProjectFrameworksTab from '@/catalog/components/ProjectFrameworksTab.vue';
-import ProjectLanguagesTab from '@/catalog/components/ProjectLanguagesTab.vue';
 import { useFrameworkStore } from '@/catalog/stores/framework';
 import { useProjectStore } from '@/catalog/stores/project';
 import { useDependencyStore } from '@/dependency/stores/dependency';
@@ -24,7 +23,7 @@ const projectStore = useProjectStore();
 const dependencyStore = useDependencyStore();
 const toastStore = useToastStore();
 
-const activeTab = ref<'dependencies' | 'frameworks' | 'languages'>('languages');
+const activeTab = ref<'dependencies' | 'frameworks'>('frameworks');
 const projectId = computed(() => route.params.id as string);
 const frameworkStore = useFrameworkStore();
 const { isRunning, onStepCompleted, startSync } = useGlobalSync();
@@ -245,18 +244,6 @@ async function handleScan() {
           <button
             :class="[
               'px-4 py-2 text-sm font-medium transition-colors',
-              activeTab === 'languages'
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-text-muted hover:text-text',
-            ]"
-            data-testid="tab-languages"
-            @click="activeTab = 'languages'"
-          >
-            {{ t('catalog.projects.languages') }}
-          </button>
-          <button
-            :class="[
-              'px-4 py-2 text-sm font-medium transition-colors',
               activeTab === 'frameworks'
                 ? 'border-b-2 border-primary text-primary'
                 : 'text-text-muted hover:text-text',
@@ -280,7 +267,6 @@ async function handleScan() {
           </button>
         </div>
 
-        <ProjectLanguagesTab v-if="activeTab === 'languages'" :project-id="projectId" />
         <ProjectFrameworksTab v-if="activeTab === 'frameworks'" :project-id="projectId" />
         <ProjectDependenciesTab v-if="activeTab === 'dependencies'" :project-id="projectId" />
       </template>

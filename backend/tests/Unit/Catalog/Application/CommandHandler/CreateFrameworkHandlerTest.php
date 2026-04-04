@@ -7,14 +7,11 @@ use App\Catalog\Application\CommandHandler\CreateFrameworkHandler;
 use App\Catalog\Application\DTO\CreateFrameworkInput;
 use App\Catalog\Application\DTO\FrameworkOutput;
 use App\Catalog\Domain\Model\Framework;
-use App\Catalog\Domain\Model\Language;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
-use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use Symfony\Component\Uid\Uuid;
-use Tests\Factory\Catalog\LanguageFactory;
 use Tests\Factory\Catalog\ProjectFactory;
 
 function stubCreateFrameworkProjectRepo(?Project $project = null): ProjectRepositoryInterface
@@ -65,41 +62,6 @@ function stubCreateFrameworkProjectRepo(?Project $project = null): ProjectReposi
     };
 }
 
-function stubCreateFrameworkLanguageRepo(?Language $language = null): LanguageRepositoryInterface
-{
-    return new class ($language) implements LanguageRepositoryInterface {
-        public function __construct(private readonly ?Language $language)
-        {
-        }
-
-        public function findById(Uuid $id): ?Language
-        {
-            return $this->language;
-        }
-        public function findAll(): array
-        {
-            return [];
-        }
-        public function findByProjectId(Uuid $projectId): array
-        {
-            return [];
-        }
-        public function findByNameAndProjectId(string $name, Uuid $projectId): ?Language
-        {
-            return null;
-        }
-        public function save(Language $language): void
-        {
-        }
-        public function delete(Language $language): void
-        {
-        }
-        public function deleteByProjectId(Uuid $projectId): void
-        {
-        }
-    };
-}
-
 function stubCreateFrameworkRepo(): FrameworkRepositoryInterface
 {
     return new class () implements FrameworkRepositoryInterface {
@@ -145,20 +107,19 @@ function stubCreateFrameworkRepo(): FrameworkRepositoryInterface
 describe('CreateFrameworkHandler', function () {
     it('creates a framework and returns output', function () {
         $project = ProjectFactory::create();
-        $language = LanguageFactory::create(project: $project);
         $frameworkRepo = \stubCreateFrameworkRepo();
-        $languageRepo = \stubCreateFrameworkLanguageRepo($language);
         $projectRepo = \stubCreateFrameworkProjectRepo($project);
 
         $input = new CreateFrameworkInput(
             name: 'Symfony',
             version: '7.1',
             detectedAt: '2026-03-30T00:00:00+00:00',
-            languageId: $language->getId()->toRfc4122(),
+            languageName: 'PHP',
+            languageVersion: '8.4',
             projectId: $project->getId()->toRfc4122(),
         );
 
-        $handler = new CreateFrameworkHandler($frameworkRepo, $languageRepo, $projectRepo);
+        $handler = new CreateFrameworkHandler($frameworkRepo, $projectRepo);
         $result = $handler(new CreateFrameworkCommand($input));
 
         expect($result)->toBeInstanceOf(FrameworkOutput::class)
@@ -168,30 +129,9 @@ describe('CreateFrameworkHandler', function () {
             ->and($frameworkRepo->saved)->not->toBeNull();
     });
 
-    it('throws NotFoundException when language does not exist', function () {
-        $project = ProjectFactory::create();
-        $handler = new CreateFrameworkHandler(
-            \stubCreateFrameworkRepo(),
-            \stubCreateFrameworkLanguageRepo(null),
-            \stubCreateFrameworkProjectRepo($project),
-        );
-
-        $input = new CreateFrameworkInput(
-            name: 'Symfony',
-            version: '7.1',
-            detectedAt: '2026-03-30T00:00:00+00:00',
-            languageId: '00000000-0000-0000-0000-000000000000',
-            projectId: $project->getId()->toRfc4122(),
-        );
-
-        $handler(new CreateFrameworkCommand($input));
-    })->throws(NotFoundException::class);
-
     it('throws NotFoundException when project does not exist', function () {
-        $language = LanguageFactory::create();
         $handler = new CreateFrameworkHandler(
             \stubCreateFrameworkRepo(),
-            \stubCreateFrameworkLanguageRepo($language),
             \stubCreateFrameworkProjectRepo(null),
         );
 
@@ -199,7 +139,8 @@ describe('CreateFrameworkHandler', function () {
             name: 'Symfony',
             version: '7.1',
             detectedAt: '2026-03-30T00:00:00+00:00',
-            languageId: $language->getId()->toRfc4122(),
+            languageName: 'PHP',
+            languageVersion: '8.4',
             projectId: '00000000-0000-0000-0000-000000000000',
         );
 

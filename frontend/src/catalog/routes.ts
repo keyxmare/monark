@@ -39,13 +39,7 @@ export const catalogRoutes: RouteRecordRaw[] = [
     name: 'catalog-projects-detail',
     path: '/catalog/projects/:id',
   },
-  {
-    component: () => import('@/catalog/pages/LanguageList.vue'),
-    meta: { layout: Layout.Dashboard },
-    name: 'catalog-languages-list',
-    path: '/catalog/languages',
-  },
-  {
+{
     component: () => import('@/catalog/pages/FrameworkList.vue'),
     meta: { layout: Layout.Dashboard },
     name: 'catalog-frameworks-list',

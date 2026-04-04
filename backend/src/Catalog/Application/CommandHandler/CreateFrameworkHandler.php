@@ -9,7 +9,6 @@ use App\Catalog\Application\DTO\FrameworkOutput;
 use App\Catalog\Application\Mapper\FrameworkMapper;
 use App\Catalog\Domain\Model\Framework;
 use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
-use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Shared\Domain\Exception\NotFoundException;
 use DateTimeImmutable;
@@ -21,7 +20,6 @@ final readonly class CreateFrameworkHandler
 {
     public function __construct(
         private FrameworkRepositoryInterface $frameworkRepository,
-        private LanguageRepositoryInterface $languageRepository,
         private ProjectRepositoryInterface $projectRepository,
     ) {
     }
@@ -29,11 +27,6 @@ final readonly class CreateFrameworkHandler
     public function __invoke(CreateFrameworkCommand $command): FrameworkOutput
     {
         $input = $command->input;
-
-        $language = $this->languageRepository->findById(Uuid::fromString($input->languageId));
-        if ($language === null) {
-            throw NotFoundException::forEntity('Language', $input->languageId);
-        }
 
         $project = $this->projectRepository->findById(Uuid::fromString($input->projectId));
         if ($project === null) {
@@ -44,7 +37,8 @@ final readonly class CreateFrameworkHandler
             name: $input->name,
             version: $input->version,
             detectedAt: new DateTimeImmutable($input->detectedAt),
-            language: $language,
+            languageName: $input->languageName,
+            languageVersion: $input->languageVersion,
             project: $project,
         );
 

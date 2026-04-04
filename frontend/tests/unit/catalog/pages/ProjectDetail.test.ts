@@ -23,10 +23,6 @@ vi.mock('@/shared/components/ConfirmDialog.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/catalog/components/ProjectLanguagesTab.vue', () => ({
-  default: { props: ['projectId'], template: '<div data-testid="languages-tab" />' },
-}));
-
 vi.mock('@/catalog/components/ProjectFrameworksTab.vue', () => ({
   default: { props: ['projectId'], template: '<div data-testid="frameworks-tab" />' },
 }));
@@ -207,7 +203,6 @@ describe('ProjectDetail', () => {
       },
     };
     const wrapper = mount(ProjectDetail);
-    expect(wrapper.find('[data-testid="tab-languages"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="tab-frameworks"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="tab-dependencies"]').exists()).toBe(true);
   });
@@ -228,9 +223,6 @@ describe('ProjectDetail', () => {
     };
     const wrapper = mount(ProjectDetail);
 
-    expect(wrapper.find('[data-testid="languages-tab"]').exists()).toBe(true);
-
-    await wrapper.find('[data-testid="tab-frameworks"]').trigger('click');
     expect(wrapper.find('[data-testid="frameworks-tab"]').exists()).toBe(true);
 
     await wrapper.find('[data-testid="tab-dependencies"]').trigger('click');

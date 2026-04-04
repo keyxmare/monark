@@ -17,9 +17,6 @@ interface FrameworkRepositoryInterface
     /** @return list<Framework> */
     public function findByProjectId(Uuid $projectId): array;
 
-    /** @return list<Framework> */
-    public function findByLanguageId(Uuid $languageId): array;
-
     public function findByNameAndProjectId(string $name, Uuid $projectId): ?Framework;
 
     /** @return list<Framework> */

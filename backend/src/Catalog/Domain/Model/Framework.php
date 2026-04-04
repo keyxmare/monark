@@ -45,9 +45,11 @@ final class Framework
     #[ORM\Column(nullable: true)]
     private ?DateTimeImmutable $versionSyncedAt = null;
 
-    #[ORM\ManyToOne(targetEntity: Language::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Language $language;
+    #[ORM\Column(length: 100)]
+    private string $languageName;
+
+    #[ORM\Column(length: 50)]
+    private string $languageVersion;
 
     #[ORM\ManyToOne(targetEntity: Project::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -64,14 +66,16 @@ final class Framework
         string $name,
         string $version,
         DateTimeImmutable $detectedAt,
-        Language $language,
+        string $languageName,
+        string $languageVersion,
         Project $project,
     ) {
         $this->id = $id;
         $this->name = $name;
         $this->version = $version;
         $this->detectedAt = $detectedAt;
-        $this->language = $language;
+        $this->languageName = $languageName;
+        $this->languageVersion = $languageVersion;
         $this->project = $project;
         $this->createdAt = new DateTimeImmutable();
         $this->updatedAt = new DateTimeImmutable();
@@ -81,7 +85,8 @@ final class Framework
         string $name,
         string $version,
         DateTimeImmutable $detectedAt,
-        Language $language,
+        string $languageName,
+        string $languageVersion,
         Project $project,
     ): self {
         return new self(
@@ -89,7 +94,8 @@ final class Framework
             name: $name,
             version: $version,
             detectedAt: $detectedAt,
-            language: $language,
+            languageName: $languageName,
+            languageVersion: $languageVersion,
             project: $project,
         );
     }
@@ -130,9 +136,13 @@ final class Framework
     {
         return $this->versionSyncedAt;
     }
-    public function getLanguage(): Language
+    public function getLanguageName(): string
     {
-        return $this->language;
+        return $this->languageName;
+    }
+    public function getLanguageVersion(): string
+    {
+        return $this->languageVersion;
     }
     public function getProject(): Project
     {

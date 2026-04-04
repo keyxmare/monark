@@ -303,9 +303,6 @@ onStepCompleted((step) => {
                 >
                   {{ t('catalog.frameworks.project') }}{{ sortIndicator('project') }}
                 </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">
-                  {{ t('catalog.frameworks.language') }}
-                </th>
                 <th
                   class="cursor-pointer px-4 py-3 text-left text-sm font-medium text-text-muted hover:text-text"
                   @click="toggleSort('framework')"
@@ -356,7 +353,6 @@ onStepCompleted((step) => {
                   </RouterLink>
                   <span v-else class="font-medium text-text">{{ row.projectName }}</span>
                 </td>
-                <td class="px-4 py-3 text-sm text-text-muted">—</td>
                 <td class="px-4 py-3 text-sm text-text">
                   <TechBadge :name="row.fw.name" :version="row.fw.version" size="sm" />
                 </td>

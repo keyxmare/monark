@@ -139,8 +139,7 @@ describe('FrameworkVersionStatusUpdater', function () {
         );
 
         $project = ProjectFactory::create();
-        $language = \App\Catalog\Domain\Model\Language::create('PHP', '8.4', new \DateTimeImmutable(), $project);
-        $fw = Framework::create('UnknownFramework', '1.0.0', new \DateTimeImmutable(), $language, $project);
+        $fw = Framework::create('UnknownFramework', '1.0.0', new \DateTimeImmutable(), 'PHP', '8.4', $project);
 
         expect($updater->refreshAll([$fw]))->toBe(0)
             ->and($dispatched)->toBeEmpty();
@@ -157,8 +156,7 @@ describe('FrameworkVersionStatusUpdater', function () {
         );
 
         $project = ProjectFactory::create();
-        $language = \App\Catalog\Domain\Model\Language::create('TypeScript', '', new \DateTimeImmutable(), $project);
-        $fw = Framework::create('Vue', '3.5.0', new \DateTimeImmutable(), $language, $project);
+        $fw = Framework::create('Vue', '3.5.0', new \DateTimeImmutable(), 'TypeScript', '', $project);
 
         expect($updater->refreshAll([$fw]))->toBe(0)
             ->and($dispatched)->toBeEmpty();
@@ -226,8 +224,7 @@ describe('FrameworkVersionStatusUpdater', function () {
         );
 
         $project = ProjectFactory::create();
-        $language = \App\Catalog\Domain\Model\Language::create('PHP', '8.4', new \DateTimeImmutable(), $project);
-        $fw = Framework::create('Symfony', '7.1.0', new \DateTimeImmutable(), $language, $project);
+        $fw = Framework::create('Symfony', '7.1.0', new \DateTimeImmutable(), 'PHP', '8.4', $project);
 
         $updated = $updater->refreshAll([$fw]);
 

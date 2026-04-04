@@ -6,12 +6,10 @@ use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\CommandHandler\ScanProjectHandler;
 use App\Catalog\Application\DTO\ScanResultOutput;
 use App\Catalog\Domain\Model\Framework;
-use App\Catalog\Domain\Model\Language;
 use App\Catalog\Domain\Model\Project;
 use App\Catalog\Domain\Model\ProjectVisibility;
 use App\Catalog\Domain\Port\ProjectScannerInterface;
 use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
-use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
 use App\Catalog\Domain\Repository\ProjectRepositoryInterface;
 use App\Shared\Domain\DTO\DetectedDependency;
 use App\Shared\Domain\DTO\DetectedStack;
@@ -124,43 +122,6 @@ function stubScanProjectRepo(?Project $project = null): ProjectRepositoryInterfa
     };
 }
 
-function stubScanLanguageRepo(): LanguageRepositoryInterface
-{
-    return new class () implements LanguageRepositoryInterface {
-        /** @var list<Language> */
-        public array $saved = [];
-        public bool $deletedByProject = false;
-
-        public function findById(Uuid $id): ?Language
-        {
-            return null;
-        }
-        public function findAll(): array
-        {
-            return [];
-        }
-        public function findByProjectId(Uuid $projectId): array
-        {
-            return [];
-        }
-        public function findByNameAndProjectId(string $name, Uuid $projectId): ?Language
-        {
-            return null;
-        }
-        public function save(Language $language): void
-        {
-            $this->saved[] = $language;
-        }
-        public function delete(Language $language): void
-        {
-        }
-        public function deleteByProjectId(Uuid $projectId): void
-        {
-            $this->deletedByProject = true;
-        }
-    };
-}
-
 function stubScanFrameworkRepo(): FrameworkRepositoryInterface
 {
     return new class () implements FrameworkRepositoryInterface {
@@ -258,7 +219,6 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $languageRepo = \stubScanLanguageRepo();
         $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
 
@@ -275,7 +235,7 @@ describe('ScanProjectHandler', function () {
 
         $scanner = \stubProjectScanner($scanResult);
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
@@ -289,8 +249,6 @@ describe('ScanProjectHandler', function () {
         expect($result->stacks[0]['frameworkVersion'])->toBe('8.0');
         expect($result->dependencies[0]['name'])->toBe('symfony/framework-bundle');
         expect($result->dependencies[1]['packageManager'])->toBe('npm');
-        expect($languageRepo->saved)->toHaveCount(2);
-        expect($languageRepo->deletedByProject)->toBeTrue();
         expect($frameworkRepo->saved)->toHaveCount(2);
         expect($frameworkRepo->deletedByProject)->toBeTrue();
         expect($depWriter->created)->toHaveCount(2);
@@ -304,13 +262,12 @@ describe('ScanProjectHandler', function () {
 
     it('throws not found for unknown project', function () {
         $projectRepo = \stubScanProjectRepo(null);
-        $languageRepo = \stubScanLanguageRepo();
         $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $handler(new ScanProjectCommand(Uuid::v7()->toRfc4122()));
     })->throws(\DomainException::class);
@@ -330,18 +287,16 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $languageRepo = \stubScanLanguageRepo();
         $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
         $eventBus = \spyScanEventBus();
 
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
         expect($result->stacksDetected)->toBe(0);
         expect($result->dependenciesDetected)->toBe(0);
-        expect($languageRepo->deletedByProject)->toBeFalse();
         expect($frameworkRepo->deletedByProject)->toBeFalse();
         expect($depWriter->deletedByProject)->toBeFalse();
         expect($eventBus->dispatched)->toHaveCount(1);
@@ -363,7 +318,6 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $languageRepo = \stubScanLanguageRepo();
         $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
 
@@ -378,7 +332,7 @@ describe('ScanProjectHandler', function () {
 
         $scanner = \stubProjectScanner($scanResult);
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $result = $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
 
@@ -400,13 +354,12 @@ describe('ScanProjectHandler', function () {
         );
 
         $projectRepo = \stubScanProjectRepo($project);
-        $languageRepo = \stubScanLanguageRepo();
         $frameworkRepo = \stubScanFrameworkRepo();
         $depWriter = \stubScanDependencyWriter();
         $scanner = \stubProjectScanner(new ScanResult(stacks: [], dependencies: []));
 
         $eventBus = \spyScanEventBus();
-        $handler = new ScanProjectHandler($projectRepo, $languageRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
+        $handler = new ScanProjectHandler($projectRepo, $frameworkRepo, $depWriter, \stubScanGitProviderFactory(), $scanner, $eventBus);
 
         $handler(new ScanProjectCommand($project->getId()->toRfc4122()));
     })->throws(\DomainException::class);

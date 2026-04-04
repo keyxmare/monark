@@ -46,19 +46,6 @@ final readonly class DoctrineFrameworkRepository implements FrameworkRepositoryI
     }
 
     /** @return list<Framework> */
-    public function findByLanguageId(Uuid $languageId): array
-    {
-        /** @var list<Framework> */
-        return $this->entityManager->getRepository(Framework::class)
-            ->createQueryBuilder('f')
-            ->where('f.language = :languageId')
-            ->setParameter('languageId', $languageId)
-            ->orderBy('f.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /** @return list<Framework> */
     public function findByName(string $name): array
     {
         /** @var list<Framework> */

@@ -5,20 +5,19 @@ declare(strict_types=1);
 use App\Catalog\Domain\Event\FrameworkVersionStatusUpdated;
 use App\Catalog\Domain\Model\Framework;
 use Tests\Factory\Catalog\FrameworkFactory;
-use Tests\Factory\Catalog\LanguageFactory;
 use Tests\Factory\Catalog\ProjectFactory;
 
 describe('Framework', function () {
     it('creates a framework with all fields', function () {
         $project = ProjectFactory::create();
-        $language = LanguageFactory::create(project: $project);
         $detectedAt = new \DateTimeImmutable('2026-03-15T12:00:00+00:00');
 
         $framework = Framework::create(
             name: 'Symfony',
             version: '7.1',
             detectedAt: $detectedAt,
-            language: $language,
+            languageName: 'PHP',
+            languageVersion: '8.4',
             project: $project,
         );
 
@@ -26,7 +25,8 @@ describe('Framework', function () {
             ->and($framework->getName())->toBe('Symfony')
             ->and($framework->getVersion())->toBe('7.1')
             ->and($framework->getDetectedAt())->toBe($detectedAt)
-            ->and($framework->getLanguage())->toBe($language)
+            ->and($framework->getLanguageName())->toBe('PHP')
+            ->and($framework->getLanguageVersion())->toBe('8.4')
             ->and($framework->getProject())->toBe($project)
             ->and($framework->getCreatedAt())->toBeInstanceOf(\DateTimeImmutable::class)
             ->and($framework->getUpdatedAt())->toBeInstanceOf(\DateTimeImmutable::class)
@@ -42,7 +42,7 @@ describe('Framework', function () {
 
         expect($framework->getName())->toBe('Symfony')
             ->and($framework->getVersion())->toBe('7.1')
-            ->and($framework->getLanguage())->not->toBeNull()
+            ->and($framework->getLanguageName())->toBe('PHP')
             ->and($framework->getProject())->not->toBeNull();
     });
 

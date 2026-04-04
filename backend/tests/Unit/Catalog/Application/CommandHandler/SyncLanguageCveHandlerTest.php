@@ -5,9 +5,9 @@ declare(strict_types=1);
 use App\Catalog\Application\Command\SyncLanguageCveCommand;
 use App\Catalog\Application\CommandHandler\SyncLanguageCveHandler;
 use App\Catalog\Domain\Event\LanguageCveSyncedEvent;
-use App\Catalog\Domain\Model\Language;
+use App\Catalog\Domain\Model\Framework;
 use App\Catalog\Domain\Model\LanguageVulnerability;
-use App\Catalog\Domain\Repository\LanguageRepositoryInterface;
+use App\Catalog\Domain\Repository\FrameworkRepositoryInterface;
 use App\Catalog\Domain\Repository\LanguageVulnerabilityRepositoryInterface;
 use App\Shared\Domain\DTO\OsvVulnerability;
 use App\Shared\Domain\Port\OsvClientInterface;
@@ -15,16 +15,16 @@ use App\Shared\Domain\ValueObject\Severity;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
-use Tests\Factory\Catalog\LanguageFactory;
+use Tests\Factory\Catalog\FrameworkFactory;
 use Tests\Factory\Catalog\ProjectFactory;
 
-function stubLangCveLanguageRepo(array $languages = []): LanguageRepositoryInterface
+function stubLangCveFrameworkRepo(array $frameworks = []): FrameworkRepositoryInterface
 {
-    return new class ($languages) implements LanguageRepositoryInterface {
-        public function __construct(private readonly array $langs)
+    return new class ($frameworks) implements FrameworkRepositoryInterface {
+        public function __construct(private readonly array $frameworks)
         {
         }
-        public function findById(Uuid $id): ?Language
+        public function findById(Uuid $id): ?Framework
         {
             return null;
         }
@@ -34,9 +34,13 @@ function stubLangCveLanguageRepo(array $languages = []): LanguageRepositoryInter
         }
         public function findByProjectId(Uuid $projectId): array
         {
-            return $this->langs;
+            return $this->frameworks;
         }
-        public function findByNameAndProjectId(string $name, Uuid $projectId): ?Language
+        public function findByLanguageId(Uuid $languageId): array
+        {
+            return [];
+        }
+        public function findByNameAndProjectId(string $name, Uuid $projectId): ?Framework
         {
             return null;
         }
@@ -44,10 +48,10 @@ function stubLangCveLanguageRepo(array $languages = []): LanguageRepositoryInter
         {
             return [];
         }
-        public function save(Language $language): void
+        public function save(Framework $framework): void
         {
         }
-        public function delete(Language $language): void
+        public function delete(Framework $framework): void
         {
         }
         public function deleteByProjectId(Uuid $projectId): void
@@ -56,25 +60,25 @@ function stubLangCveLanguageRepo(array $languages = []): LanguageRepositoryInter
     };
 }
 
-function stubLangCveVulnRepo(array $existingByOsvId = []): LanguageVulnerabilityRepositoryInterface
+function stubLangCveVulnRepo(array $existingByKey = []): LanguageVulnerabilityRepositoryInterface
 {
-    return new class ($existingByOsvId) implements LanguageVulnerabilityRepositoryInterface {
+    return new class ($existingByKey) implements LanguageVulnerabilityRepositoryInterface {
         /** @var list<LanguageVulnerability> */
         public array $saved = [];
-        public function __construct(private readonly array $existingByOsvId)
+        public function __construct(private readonly array $existingByKey)
         {
         }
         public function save(LanguageVulnerability $vulnerability): void
         {
             $this->saved[] = $vulnerability;
         }
-        public function findByLanguageId(Uuid $languageId): array
+        public function findByProjectId(Uuid $projectId): array
         {
             return [];
         }
-        public function findByOsvIdAndLanguageId(string $osvId, Uuid $languageId): ?LanguageVulnerability
+        public function findByOsvIdAndLanguageNameAndProjectId(string $osvId, string $languageName, Uuid $projectId): ?LanguageVulnerability
         {
-            return $this->existingByOsvId[$osvId] ?? null;
+            return $this->existingByKey[$osvId] ?? null;
         }
         public function findById(Uuid $id): ?LanguageVulnerability
         {
@@ -88,7 +92,7 @@ function stubLangCveVulnRepo(array $existingByOsvId = []): LanguageVulnerability
         {
             return 0;
         }
-        public function deleteByLanguageId(Uuid $languageId): void
+        public function deleteByProjectId(Uuid $projectId): void
         {
         }
     };
@@ -130,9 +134,15 @@ function spyLangCveEventBus(): object
 describe('SyncLanguageCveHandler', function () {
     it('creates language vulnerabilities from OSV results', function () {
         $project = ProjectFactory::create();
-        $language = LanguageFactory::create(name: 'PHP', version: '8.4', project: $project);
+        $framework = FrameworkFactory::create(
+            name: 'Symfony',
+            version: '8.0',
+            languageName: 'PHP',
+            languageVersion: '8.4',
+            project: $project,
+        );
 
-        $langRepo = \stubLangCveLanguageRepo([$language]);
+        $frameworkRepo = \stubLangCveFrameworkRepo([$framework]);
         $vulnRepo = \stubLangCveVulnRepo();
         $osvClient = \stubLangCveOsvClient([
             [
@@ -150,7 +160,7 @@ describe('SyncLanguageCveHandler', function () {
         ]);
         $eventBus = \spyLangCveEventBus();
 
-        $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
+        $handler = new SyncLanguageCveHandler($frameworkRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($project->getId()->toRfc4122()));
 
         expect($vulnRepo->saved)->toHaveCount(1)
@@ -165,10 +175,18 @@ describe('SyncLanguageCveHandler', function () {
 
     it('skips already tracked vulnerabilities', function () {
         $project = ProjectFactory::create();
-        $language = LanguageFactory::create(name: 'PHP', version: '8.4', project: $project);
+        $framework = FrameworkFactory::create(
+            name: 'Symfony',
+            version: '8.0',
+            languageName: 'PHP',
+            languageVersion: '8.4',
+            project: $project,
+        );
 
         $existingVuln = LanguageVulnerability::create(
-            language: $language,
+            languageName: 'PHP',
+            languageVersion: '8.4',
+            projectId: $project->getId(),
             cveId: 'CVE-2024-0001',
             osvId: 'GHSA-xxxx',
             summary: 'Already known',
@@ -177,7 +195,7 @@ describe('SyncLanguageCveHandler', function () {
             patchedVersion: '8.4.1',
         );
 
-        $langRepo = \stubLangCveLanguageRepo([$language]);
+        $frameworkRepo = \stubLangCveFrameworkRepo([$framework]);
         $vulnRepo = \stubLangCveVulnRepo(['GHSA-xxxx' => $existingVuln]);
         $osvClient = \stubLangCveOsvClient([
             [
@@ -195,7 +213,7 @@ describe('SyncLanguageCveHandler', function () {
         ]);
         $eventBus = \spyLangCveEventBus();
 
-        $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
+        $handler = new SyncLanguageCveHandler($frameworkRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($project->getId()->toRfc4122()));
 
         expect($vulnRepo->saved)->toHaveCount(0)
@@ -203,14 +221,14 @@ describe('SyncLanguageCveHandler', function () {
             ->and($eventBus->dispatched[0]->vulnerabilitiesFound)->toBe(0);
     });
 
-    it('dispatches event with zero when no languages found', function () {
+    it('dispatches event with zero when no frameworks found', function () {
         $projectId = Uuid::v7();
-        $langRepo = \stubLangCveLanguageRepo([]);
+        $frameworkRepo = \stubLangCveFrameworkRepo([]);
         $vulnRepo = \stubLangCveVulnRepo();
         $osvClient = \stubLangCveOsvClient([]);
         $eventBus = \spyLangCveEventBus();
 
-        $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
+        $handler = new SyncLanguageCveHandler($frameworkRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($projectId->toRfc4122()));
 
         expect($eventBus->dispatched)->toHaveCount(1)
@@ -220,14 +238,20 @@ describe('SyncLanguageCveHandler', function () {
 
     it('skips languages with unknown ecosystem', function () {
         $project = ProjectFactory::create();
-        $language = LanguageFactory::create(name: 'Haskell', version: '9.8', project: $project);
+        $framework = FrameworkFactory::create(
+            name: 'Yesod',
+            version: '1.6',
+            languageName: 'Haskell',
+            languageVersion: '9.8',
+            project: $project,
+        );
 
-        $langRepo = \stubLangCveLanguageRepo([$language]);
+        $frameworkRepo = \stubLangCveFrameworkRepo([$framework]);
         $vulnRepo = \stubLangCveVulnRepo();
         $osvClient = \stubLangCveOsvClient([]);
         $eventBus = \spyLangCveEventBus();
 
-        $handler = new SyncLanguageCveHandler($langRepo, $vulnRepo, $osvClient, $eventBus);
+        $handler = new SyncLanguageCveHandler($frameworkRepo, $vulnRepo, $osvClient, $eventBus);
         $handler(new SyncLanguageCveCommand($project->getId()->toRfc4122()));
 
         expect($osvClient->queriedBatches)->toHaveCount(0)

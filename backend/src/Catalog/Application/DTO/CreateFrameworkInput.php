@@ -18,8 +18,11 @@ final readonly class CreateFrameworkInput
         #[Assert\NotBlank]
         public string $detectedAt,
         #[Assert\NotBlank]
-        #[Assert\Uuid]
-        public string $languageId,
+        #[Assert\Length(min: 1, max: 100)]
+        public string $languageName,
+        #[Assert\NotBlank]
+        #[Assert\Length(min: 1, max: 50)]
+        public string $languageVersion,
         #[Assert\NotBlank]
         #[Assert\Uuid]
         public string $projectId,
