@@ -127,6 +127,24 @@ function createFwEventBus(array &$dispatched): MessageBusInterface
     };
 }
 
+function createFwHttpClient(): \Symfony\Contracts\HttpClient\HttpClientInterface
+{
+    return new class () implements \Symfony\Contracts\HttpClient\HttpClientInterface {
+        public function request(string $method, string $url, array $options = []): \Symfony\Contracts\HttpClient\ResponseInterface
+        {
+            throw new \RuntimeException('not called in tests');
+        }
+        public function stream(\Symfony\Contracts\HttpClient\ResponseInterface|iterable $responses, ?float $timeout = null): \Symfony\Contracts\HttpClient\ResponseStreamInterface
+        {
+            throw new \RuntimeException('not called in tests');
+        }
+        public function withOptions(array $options): static
+        {
+            return $this;
+        }
+    };
+}
+
 describe('FrameworkVersionStatusUpdater', function () {
     it('returns 0 when framework is not in the map', function () {
         $dispatched = [];
@@ -136,6 +154,7 @@ describe('FrameworkVersionStatusUpdater', function () {
             \createFwEmptyVersionRepo(),
             \createFwEmptyProductRepo(),
             \createFwEventBus($dispatched),
+            \createFwHttpClient(),
         );
 
         $project = ProjectFactory::create();
@@ -153,6 +172,7 @@ describe('FrameworkVersionStatusUpdater', function () {
             \createFwEmptyVersionRepo(),
             \createFwEmptyProductRepo(),
             \createFwEventBus($dispatched),
+            \createFwHttpClient(),
         );
 
         $project = ProjectFactory::create();
@@ -221,6 +241,7 @@ describe('FrameworkVersionStatusUpdater', function () {
             $versionRepo,
             $productRepo,
             \createFwEventBus($dispatched),
+            \createFwHttpClient(),
         );
 
         $project = ProjectFactory::create();

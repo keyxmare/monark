@@ -89,9 +89,11 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
             }
 
             $releaseDate = null;
-            try {
-                $releaseDate = new DateTimeImmutable($dateStr);
-            } catch (Throwable) {
+            if ($dateStr !== '') {
+                try {
+                    $releaseDate = new DateTimeImmutable($dateStr);
+                } catch (Throwable) {
+                }
             }
 
             $versions[] = new RegistryVersion(

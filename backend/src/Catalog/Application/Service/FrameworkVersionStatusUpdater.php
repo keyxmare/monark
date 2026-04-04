@@ -13,9 +13,10 @@ use App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
-final readonly class FrameworkVersionStatusUpdater
+final class FrameworkVersionStatusUpdater
 {
     private const array FRAMEWORK_MAP = [
         'Symfony' => 'symfony',
@@ -29,11 +30,28 @@ final readonly class FrameworkVersionStatusUpdater
         'Rails' => 'rails',
     ];
 
+    private const array NPM_PACKAGE_MAP = [
+        'vue' => 'vue',
+        'nuxt' => 'nuxt',
+        'angular' => '@angular/core',
+        'react' => 'react',
+        'next.js' => 'next',
+    ];
+
+    private const array PACKAGIST_PACKAGE_MAP = [
+        'symfony' => 'symfony/symfony',
+        'laravel' => 'laravel/framework',
+    ];
+
+    /** @var array<string, array<string, string>> */
+    private array $registryTimeCache = [];
+
     public function __construct(
-        private FrameworkRepositoryInterface $frameworkRepository,
-        private ProductVersionRepositoryInterface $productVersionRepository,
-        private ProductRepositoryInterface $productRepository,
-        private MessageBusInterface $eventBus,
+        private readonly FrameworkRepositoryInterface $frameworkRepository,
+        private readonly ProductVersionRepositoryInterface $productVersionRepository,
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly MessageBusInterface $eventBus,
+        private readonly HttpClientInterface $httpClient,
     ) {
     }
 
@@ -95,7 +113,7 @@ final readonly class FrameworkVersionStatusUpdater
 
         $gap = null;
         if ($latestLts !== null) {
-            $gap = $this->computeDateGap($currentVersion, $latestLts, $allVersions);
+            $gap = $this->computeDateGap($currentVersion, $latestLts, $productName, $allVersions);
         }
 
         $fw->updateVersionStatus(
@@ -138,10 +156,10 @@ final readonly class FrameworkVersionStatusUpdater
     }
 
     /** @param list<ProductVersion> $allVersions */
-    private function computeDateGap(string $currentVersion, string $latestLtsVersion, array $allVersions): ?string
+    private function computeDateGap(string $currentVersion, string $latestLtsVersion, string $productName, array $allVersions): ?string
     {
-        $currentDate = $this->findReleaseDate($currentVersion, $allVersions);
-        $ltsDate = $this->findReleaseDate($latestLtsVersion, $allVersions);
+        $currentDate = $this->findReleaseDate($currentVersion, $productName, $allVersions);
+        $ltsDate = $this->findReleaseDate($latestLtsVersion, $productName, $allVersions);
 
         if ($currentDate === null || $ltsDate === null) {
             return null;
@@ -170,7 +188,7 @@ final readonly class FrameworkVersionStatusUpdater
     }
 
     /** @param list<ProductVersion> $allVersions */
-    private function findReleaseDate(string $version, array $allVersions): ?DateTimeImmutable
+    private function findReleaseDate(string $version, string $productName, array $allVersions): ?DateTimeImmutable
     {
         try {
             $target = SemanticVersion::parse($version);
@@ -200,6 +218,89 @@ final readonly class FrameworkVersionStatusUpdater
             }
         }
 
-        return $minorFallback;
+        if ($minorFallback !== null) {
+            return $minorFallback;
+        }
+
+        return $this->fetchReleaseDateFromRegistry($productName, $version);
+    }
+
+    private function fetchReleaseDateFromRegistry(string $productName, string $version): ?DateTimeImmutable
+    {
+        $npmPackage = self::NPM_PACKAGE_MAP[$productName] ?? null;
+        if ($npmPackage !== null) {
+            return $this->fetchNpmReleaseDate($npmPackage, $version);
+        }
+
+        $packagistPackage = self::PACKAGIST_PACKAGE_MAP[$productName] ?? null;
+        if ($packagistPackage !== null) {
+            return $this->fetchPackagistReleaseDate($packagistPackage, $version);
+        }
+
+        return null;
+    }
+
+    private function fetchNpmReleaseDate(string $packageName, string $version): ?DateTimeImmutable
+    {
+        $times = $this->getNpmTimes($packageName);
+
+        $dateStr = $times[$version] ?? null;
+        if ($dateStr === null) {
+            return null;
+        }
+
+        try {
+            return new DateTimeImmutable($dateStr);
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /** @return array<string, string> */
+    private function getNpmTimes(string $packageName): array
+    {
+        if (isset($this->registryTimeCache[$packageName])) {
+            return $this->registryTimeCache[$packageName];
+        }
+
+        try {
+            $encodedName = \str_contains($packageName, '/') ? \rawurlencode($packageName) : $packageName;
+            $response = $this->httpClient->request('GET', \sprintf('https://registry.npmjs.org/%s', $encodedName), [
+                'headers' => ['Accept' => 'application/json'],
+                'timeout' => 10,
+            ]);
+
+            /** @var array{time?: array<string, string>} $data */
+            $data = $response->toArray();
+
+            $this->registryTimeCache[$packageName] = $data['time'] ?? [];
+        } catch (Throwable) {
+            $this->registryTimeCache[$packageName] = [];
+        }
+
+        return $this->registryTimeCache[$packageName];
+    }
+
+    private function fetchPackagistReleaseDate(string $packageName, string $version): ?DateTimeImmutable
+    {
+        try {
+            $response = $this->httpClient->request('GET', \sprintf('https://repo.packagist.org/p2/%s.json', $packageName), [
+                'headers' => ['Accept' => 'application/json'],
+                'timeout' => 10,
+            ]);
+
+            /** @var array{packages?: array<string, list<array{version: string, time?: string}>>} $data */
+            $data = $response->toArray();
+
+            foreach ($data['packages'][$packageName] ?? [] as $release) {
+                $releaseVersion = \ltrim($release['version'], 'v');
+                if ($releaseVersion === $version && isset($release['time'])) {
+                    return new DateTimeImmutable($release['time']);
+                }
+            }
+        } catch (Throwable) {
+        }
+
+        return null;
     }
 }

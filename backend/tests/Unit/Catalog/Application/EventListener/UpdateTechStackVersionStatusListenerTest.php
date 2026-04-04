@@ -72,7 +72,22 @@ function makeFrameworkUpdaterForListener(FrameworkRepositoryInterface $fwRepo): 
         }
     };
 
-    return new FrameworkVersionStatusUpdater($fwRepo, $versionRepo, $productRepo, $eventBus);
+    $httpClient = new class () implements \Symfony\Contracts\HttpClient\HttpClientInterface {
+        public function request(string $method, string $url, array $options = []): \Symfony\Contracts\HttpClient\ResponseInterface
+        {
+            throw new \RuntimeException('not called in tests');
+        }
+        public function stream(\Symfony\Contracts\HttpClient\ResponseInterface|iterable $responses, ?float $timeout = null): \Symfony\Contracts\HttpClient\ResponseStreamInterface
+        {
+            throw new \RuntimeException('not called in tests');
+        }
+        public function withOptions(array $options): static
+        {
+            return $this;
+        }
+    };
+
+    return new FrameworkVersionStatusUpdater($fwRepo, $versionRepo, $productRepo, $eventBus, $httpClient);
 }
 
 describe('UpdateTechStackVersionStatusListener', function () {
