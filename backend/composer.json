@@ -36,7 +36,7 @@
         "twig/extra-bundle": "^3.0"
     },
     "require-dev": {
-        "deptrac/deptrac": "^2.0",
+        "deptrac/deptrac": "^4.6",
         "doctrine/doctrine-fixtures-bundle": "^4.0",
         "friendsofphp/php-cs-fixer": "^3.0",
         "infection/extension-installer": "^0.1",
