@@ -10,6 +10,7 @@ import { useFrameworkStore } from '@/catalog/stores/framework';
 import { useProjectStore } from '@/catalog/stores/project';
 import { useDependencyStore } from '@/dependency/stores/dependency';
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
+import { useGlobalSync } from '@/shared/composables/useGlobalSync';
 import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
 import { useToastStore } from '@/shared/stores/toast';
 
@@ -26,6 +27,17 @@ const toastStore = useToastStore();
 const activeTab = ref<'dependencies' | 'frameworks' | 'languages'>('languages');
 const projectId = computed(() => route.params.id as string);
 const frameworkStore = useFrameworkStore();
+const { isRunning, onStepCompleted, startSync } = useGlobalSync();
+
+onStepCompleted((step) => {
+  if (step === 'sync_projects') {
+    projectStore.fetchOne(projectId.value);
+    frameworkStore.fetchAll(1, 1000, projectId.value);
+  }
+  if (step === 'sync_versions') {
+    dependencyStore.fetchAll(1, PER_PAGE, projectId.value);
+  }
+});
 
 const scanFreshness = computed(() => {
   if (!projectStore.selected?.updatedAt) return 'stale';
@@ -60,15 +72,7 @@ async function handleBranchChange(event: Event) {
 }
 
 async function handleScan() {
-  await projectStore.scan(projectId.value);
-  toastStore.addToast({
-    title: t('catalog.projects.scanComplete', {
-      deps: projectStore.scanResult?.dependenciesDetected ?? 0,
-      stacks: projectStore.scanResult?.stacksDetected ?? 0,
-    }),
-    variant: 'success',
-  });
-  await dependencyStore.fetchAll(1, PER_PAGE, projectId.value);
+  await startSync(projectId.value);
 }
 </script>
 
@@ -163,16 +167,12 @@ async function handleScan() {
           <div class="flex gap-2">
             <button
               v-if="projectStore.selected.externalId"
-              :disabled="projectStore.scanning"
+              :disabled="isRunning"
               class="rounded-lg border border-primary bg-transparent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-50"
               data-testid="project-scan-btn"
               @click="handleScan"
             >
-              {{
-                projectStore.scanning
-                  ? t('catalog.projects.scanning')
-                  : t('catalog.projects.scanProject')
-              }}
+              {{ isRunning ? t('catalog.projects.scanning') : t('catalog.projects.scanProject') }}
             </button>
             <button
               class="rounded-lg border border-danger bg-transparent px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger hover:text-white"

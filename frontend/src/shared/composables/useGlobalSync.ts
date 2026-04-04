@@ -7,7 +7,7 @@ import type { GlobalSyncState } from '@/shared/types/globalSync';
 export interface UseGlobalSyncReturn {
   currentSync: Ref<GlobalSyncState | null>;
   isRunning: Ref<boolean>;
-  startSync: () => Promise<void>;
+  startSync: (projectId?: string) => Promise<void>;
   loadCurrent: () => Promise<void>;
   onStepCompleted: (cb: (stepName: string) => void) => void;
 }
@@ -50,8 +50,8 @@ async function loadCurrent() {
   }
 }
 
-async function startSync() {
-  const result = await syncService.startSync();
+async function startSync(projectId?: string) {
+  const result = await syncService.startSync(projectId);
   const state = await syncService.getCurrentSync();
   if (state) {
     currentSync.value = state;

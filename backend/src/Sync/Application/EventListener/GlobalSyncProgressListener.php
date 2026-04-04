@@ -19,6 +19,7 @@ use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Uid\Uuid;
 
 #[AsMessageHandler(bus: 'event.bus')]
 final readonly class GlobalSyncProgressListener
@@ -56,7 +57,12 @@ final readonly class GlobalSyncProgressListener
 
     private function transitionToSyncCoverage(GlobalSyncJob $job): void
     {
-        $eligibleProjects = $this->projectRepository->findAllWithProvider();
+        if ($job->getProjectId() !== null) {
+            $singleProject = $this->projectRepository->findById(Uuid::fromString($job->getProjectId()));
+            $eligibleProjects = $singleProject !== null && $singleProject->getProvider() !== null ? [$singleProject] : [];
+        } else {
+            $eligibleProjects = $this->projectRepository->findAllWithProvider();
+        }
 
         if (\count($eligibleProjects) === 0) {
             $this->skipToSyncVersions($job);
@@ -79,7 +85,9 @@ final readonly class GlobalSyncProgressListener
 
     private function skipToSyncVersions(GlobalSyncJob $job): void
     {
-        $totalDeps = \count($this->dependencyRepository->findUniquePackages());
+        $totalDeps = $job->getProjectId() !== null
+            ? $this->dependencyRepository->countByProjectId(Uuid::fromString($job->getProjectId()))
+            : \count($this->dependencyRepository->findUniquePackages());
         $totalProducts = \count($this->productRepository->findAll());
         $job->startStep(GlobalSyncStep::SyncVersions, $totalDeps + $totalProducts);
         $this->repository->save($job);

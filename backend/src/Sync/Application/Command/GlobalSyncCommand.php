@@ -8,6 +8,7 @@ final readonly class GlobalSyncCommand
 {
     public function __construct(
         public string $syncId,
+        public ?string $projectId = null,
     ) {
     }
 }

@@ -10,6 +10,7 @@ use App\Sync\Domain\Model\GlobalSyncJob;
 use App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -30,7 +31,7 @@ final readonly class StartGlobalSyncController
             new OA\Response(response: 409, description: 'Sync already running'),
         ],
     )]
-    public function __invoke(): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
         $running = $this->globalSyncJobRepository->findRunning();
         if ($running !== null) {
@@ -40,11 +41,15 @@ final readonly class StartGlobalSyncController
             );
         }
 
-        $job = GlobalSyncJob::create();
+        /** @var array{projectId?: string}|null $data */
+        $data = \json_decode($request->getContent(), true);
+        $projectId = \is_string($data['projectId'] ?? null) ? $data['projectId'] : null;
+
+        $job = GlobalSyncJob::create($projectId);
         $this->globalSyncJobRepository->save($job);
         $syncId = $job->getId()->toRfc4122();
 
-        $this->commandBus->dispatch(new GlobalSyncCommand($syncId));
+        $this->commandBus->dispatch(new GlobalSyncCommand($syncId, $projectId));
 
         return new JsonResponse(
             ApiResponse::success([

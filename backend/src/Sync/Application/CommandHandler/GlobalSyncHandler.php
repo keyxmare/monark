@@ -37,7 +37,19 @@ final readonly class GlobalSyncHandler
         }
 
         try {
-            $projects = $this->projectRepository->findAllWithProvider();
+            if ($command->projectId !== null) {
+                $singleProject = $this->projectRepository->findById(Uuid::fromString($command->projectId));
+                if ($singleProject === null || $singleProject->getProvider() === null) {
+                    $job->markFailed();
+                    $this->globalSyncJobRepository->save($job);
+                    $this->publishProgress($command->syncId, $job);
+
+                    return;
+                }
+                $projects = [$singleProject];
+            } else {
+                $projects = $this->projectRepository->findAllWithProvider();
+            }
             $total = \count($projects);
 
             if ($total === 0) {

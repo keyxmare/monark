@@ -37,9 +37,13 @@ final class GlobalSyncJob
     #[ORM\Column(nullable: true)]
     private ?DateTimeImmutable $completedAt;
 
-    private function __construct(Uuid $id)
+    #[ORM\Column(type: 'uuid', nullable: true)]
+    private ?Uuid $projectId;
+
+    private function __construct(Uuid $id, ?Uuid $projectId = null)
     {
         $this->id = $id;
+        $this->projectId = $projectId;
         $this->status = GlobalSyncStatus::Running;
         $this->currentStep = GlobalSyncStep::SyncProjects->value;
         $this->currentStepName = GlobalSyncStep::SyncProjects->name();
@@ -49,9 +53,12 @@ final class GlobalSyncJob
         $this->completedAt = null;
     }
 
-    public static function create(): self
+    public static function create(?string $projectId = null): self
     {
-        return new self(Uuid::v7());
+        return new self(
+            Uuid::v7(),
+            $projectId !== null ? Uuid::fromString($projectId) : null,
+        );
     }
 
     public function getId(): Uuid
@@ -92,6 +99,11 @@ final class GlobalSyncJob
     public function getCompletedAt(): ?DateTimeImmutable
     {
         return $this->completedAt;
+    }
+
+    public function getProjectId(): ?string
+    {
+        return $this->projectId?->toRfc4122();
     }
 
     public function startStep(GlobalSyncStep $step, int $total): void
