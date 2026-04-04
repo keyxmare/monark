@@ -70,10 +70,6 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
             return $this->tree[$path] ?? [];
         }
 
-        public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
-        {
-            return [];
-        }
     };
 }
 
@@ -861,10 +857,6 @@ describe('ProjectScanner', function () {
                 throw new \Symfony\Component\HttpClient\Exception\ClientException(
                     new \Symfony\Component\HttpClient\Response\MockResponse('', ['http_code' => 403]),
                 );
-            }
-            public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
-            {
-                return [];
             }
         };
 

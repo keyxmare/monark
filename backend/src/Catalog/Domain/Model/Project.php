@@ -7,8 +7,6 @@ namespace App\Catalog\Domain\Model;
 use App\Shared\Domain\ValueObject\RepositoryUrl;
 use App\Shared\Domain\ValueObject\Slug;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Uid\Uuid;
@@ -50,10 +48,6 @@ final class Project
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $externalId;
 
-    /** @var Collection<int, MergeRequest> */
-    #[ORM\OneToMany(targetEntity: MergeRequest::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $mergeRequests;
-
     #[ORM\Column(nullable: true)]
     private ?DateTimeImmutable $lastSyncedAt;
 
@@ -92,7 +86,6 @@ final class Project
         $this->ownerId = $ownerId;
         $this->provider = $provider;
         $this->externalId = $externalId;
-        $this->mergeRequests = new ArrayCollection();
         $this->lastSyncedAt = null;
         $this->createdAt = new DateTimeImmutable();
         $this->updatedAt = new DateTimeImmutable();
@@ -171,12 +164,6 @@ final class Project
     public function getExternalId(): ?string
     {
         return $this->externalId;
-    }
-
-    /** @return Collection<int, MergeRequest> */
-    public function getMergeRequests(): Collection
-    {
-        return $this->mergeRequests;
     }
 
     public function getCreatedAt(): DateTimeImmutable

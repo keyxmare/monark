@@ -42,9 +42,6 @@ services:
     App\Catalog\Domain\Repository\ProviderRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
 
-    App\Catalog\Domain\Repository\MergeRequestRepositoryInterface:
-        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineMergeRequestRepository
-
     App\Catalog\Domain\Repository\SyncJobRepositoryInterface:
         alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineSyncJobRepository
 
@@ -105,10 +102,6 @@ services:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Catalog\Application\CommandHandler\SyncMergeRequestsHandler:
-        arguments:
-            $eventBus: '@event.bus'
-
     App\Catalog\Application\CommandHandler\SyncAllProjectsHandler:
         arguments:
             $commandBus: '@command.bus'
@@ -151,9 +144,6 @@ services:
 
     App\Shared\Domain\Port\DependencyWriterPort:
         alias: App\Dependency\Infrastructure\Adapter\DependencyWriterAdapter
-
-    App\Shared\Domain\Port\MergeRequestReaderPort:
-        alias: App\Catalog\Infrastructure\Adapter\MergeRequestReaderAdapter
 
     App\Shared\Domain\Port\OsvClientInterface:
         alias: App\Shared\Infrastructure\Osv\OsvApiClient

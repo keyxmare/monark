@@ -5,27 +5,9 @@ declare(strict_types=1);
 use App\Shared\Domain\DTO\DetectedDependency;
 use App\Shared\Domain\DTO\DetectedStack;
 use App\Shared\Domain\DTO\ScanResult;
-use App\Shared\Domain\Event\MergeRequestsSyncedEvent;
 use App\Shared\Domain\Event\ProjectScannedEvent;
 use App\Shared\Domain\ValueObject\DependencyType;
 use App\Shared\Domain\ValueObject\PackageManager;
-
-describe('MergeRequestsSyncedEvent', function () {
-    it('stores projectId, created and updated counts', function () {
-        $event = new MergeRequestsSyncedEvent('proj-123', 5, 3);
-
-        expect($event->projectId)->toBe('proj-123');
-        expect($event->created)->toBe(5);
-        expect($event->updated)->toBe(3);
-    });
-
-    it('accepts zero counts', function () {
-        $event = new MergeRequestsSyncedEvent('proj-456', 0, 0);
-
-        expect($event->created)->toBe(0);
-        expect($event->updated)->toBe(0);
-    });
-});
 
 describe('ProjectScannedEvent', function () {
     it('stores projectId and scanResult', function () {

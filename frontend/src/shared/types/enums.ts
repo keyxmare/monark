@@ -9,13 +9,6 @@ export const SyncStatus = {
   Running: 'running',
 } as const;
 
-export const MergeRequestState = {
-  Closed: 'closed',
-  Draft: 'draft',
-  Merged: 'merged',
-  Open: 'open',
-} as const;
-
 export const ImportStatus = {
   Error: 'error',
   Imported: 'imported',

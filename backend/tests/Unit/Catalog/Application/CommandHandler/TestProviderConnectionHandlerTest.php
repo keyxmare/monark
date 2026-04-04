@@ -94,10 +94,6 @@ function stubTestConnectionGitProviderFactory(bool $connectionResult): GitProvid
                     return [];
                 }
 
-                public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?\DateTimeImmutable $updatedAfter = null): array
-                {
-                    return [];
-                }
             };
         }
     };

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Shared\Domain\DTO\DependencyReadDTO;
 use App\Shared\Domain\DTO\DetectedDependency;
 use App\Shared\Domain\DTO\DetectedStack;
-use App\Shared\Domain\DTO\MergeRequestReadDTO;
 use App\Shared\Domain\DTO\ScanResult;
 use App\Shared\Domain\DTO\VulnerabilityReadDTO;
 use App\Shared\Domain\ValueObject\DependencyType;
@@ -64,20 +63,6 @@ describe('DetectedStack', function () {
         expect($dto->framework)->toBe('Symfony');
         expect($dto->version)->toBe('8.4');
         expect($dto->frameworkVersion)->toBe('7.0');
-    });
-});
-
-describe('MergeRequestReadDTO', function () {
-    it('stores all properties', function () {
-        $date = new DateTimeImmutable('2025-01-15T10:30:00+00:00');
-        $dto = new MergeRequestReadDTO('123', 'Fix bug', 'alice', 'merged', 'https://gitlab.com/mr/123', $date);
-
-        expect($dto->externalId)->toBe('123');
-        expect($dto->title)->toBe('Fix bug');
-        expect($dto->author)->toBe('alice');
-        expect($dto->status)->toBe('merged');
-        expect($dto->url)->toBe('https://gitlab.com/mr/123');
-        expect($dto->updatedAt)->toBe($date);
     });
 });
 

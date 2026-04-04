@@ -3,7 +3,6 @@ export { createAccessToken } from './access-token.factory';
 export { createProject } from './project.factory';
 export { createProvider } from './provider.factory';
 export { createTechStack } from './tech-stack.factory';
-export { createMergeRequest } from './merge-request.factory';
 export { createDependency } from './dependency.factory';
 export { createVulnerability } from './vulnerability.factory';
 export { createActivityEvent } from './activity-event.factory';

@@ -6,7 +6,6 @@ namespace App\Catalog\Application\CommandHandler;
 
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\Command\SyncAllProjectsCommand;
-use App\Catalog\Application\Command\SyncMergeRequestsCommand;
 use App\Catalog\Application\Command\SyncProjectMetadataCommand;
 use App\Catalog\Application\DTO\SyncJobOutput;
 use App\Catalog\Domain\Model\SyncJob;
@@ -69,10 +68,6 @@ final readonly class SyncAllProjectsHandler
                 [new DispatchAfterCurrentBusStamp()],
             );
 
-            $this->commandBus->dispatch(
-                new SyncMergeRequestsCommand($projectId, $command->force, $syncJobId),
-                [new DispatchAfterCurrentBusStamp()],
-            );
         }
 
         return new SyncJobOutput(

@@ -35,18 +35,18 @@ vi.mock('@/catalog/components/ProjectDependenciesTab.vue', () => ({
   default: { props: ['projectId'], template: '<div data-testid="dependencies-tab" />' },
 }));
 
-vi.mock('@/catalog/components/ProjectMergeRequestsTab.vue', () => ({
-  default: { props: ['projectId'], template: '<div data-testid="merge-requests-tab" />' },
-}));
-
 const mockProjectFetchOne = vi.fn();
 const mockProjectScan = vi.fn();
 const mockProjectRemove = vi.fn();
+const mockProjectFetchBranches = vi.fn();
+const mockProjectUpdate = vi.fn();
 let projectStoreOverrides: Record<string, unknown> = {};
 
 vi.mock('@/catalog/stores/project', () => ({
   useProjectStore: vi.fn(() => ({
+    branches: [],
     error: null,
+    fetchBranches: mockProjectFetchBranches,
     fetchOne: mockProjectFetchOne,
     loading: false,
     remove: mockProjectRemove,
@@ -54,6 +54,7 @@ vi.mock('@/catalog/stores/project', () => ({
     scanResult: null,
     scanning: false,
     selected: null,
+    update: mockProjectUpdate,
     ...projectStoreOverrides,
   })),
 }));
@@ -69,12 +70,6 @@ vi.mock('@/catalog/stores/framework', () => ({
 vi.mock('@/dependency/stores/dependency', () => ({
   useDependencyStore: vi.fn(() => ({
     fetchAll: vi.fn(),
-    total: 0,
-  })),
-}));
-
-vi.mock('@/catalog/stores/merge-request', () => ({
-  useMergeRequestStore: vi.fn(() => ({
     total: 0,
   })),
 }));
@@ -215,7 +210,6 @@ describe('ProjectDetail', () => {
     expect(wrapper.find('[data-testid="tab-languages"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="tab-frameworks"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="tab-dependencies"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="tab-merge-requests"]').exists()).toBe(true);
   });
 
   it('switches tabs on click', async () => {
@@ -241,8 +235,5 @@ describe('ProjectDetail', () => {
 
     await wrapper.find('[data-testid="tab-dependencies"]').trigger('click');
     expect(wrapper.find('[data-testid="dependencies-tab"]').exists()).toBe(true);
-
-    await wrapper.find('[data-testid="tab-merge-requests"]').trigger('click');
-    expect(wrapper.find('[data-testid="merge-requests-tab"]').exists()).toBe(true);
   });
 });

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Catalog\Application\Command\ScanProjectCommand;
 use App\Catalog\Application\Command\SyncAllProjectsCommand;
-use App\Catalog\Application\Command\SyncMergeRequestsCommand;
 use App\Catalog\Application\Command\SyncProjectMetadataCommand;
 use App\Catalog\Application\CommandHandler\SyncAllProjectsHandler;
 use App\Catalog\Application\DTO\SyncJobOutput;
@@ -156,13 +155,11 @@ describe('SyncAllProjectsHandler', function () {
 
         expect($result)->toBeInstanceOf(SyncJobOutput::class);
         expect($result->projectsCount)->toBe(3);
-        expect($bus->dispatched)->toHaveCount(9);
+        expect($bus->dispatched)->toHaveCount(6);
         expect($bus->dispatched[0])->toBeInstanceOf(ScanProjectCommand::class);
         expect($bus->dispatched[0]->projectId)->toBe($p1->getId()->toRfc4122());
         expect($bus->dispatched[1])->toBeInstanceOf(SyncProjectMetadataCommand::class);
         expect($bus->dispatched[1]->projectId)->toBe($p1->getId()->toRfc4122());
-        expect($bus->dispatched[2])->toBeInstanceOf(SyncMergeRequestsCommand::class);
-        expect($bus->dispatched[2]->projectId)->toBe($p1->getId()->toRfc4122());
     });
 
     it('dispatches scan commands for all projects globally', function () {
@@ -178,7 +175,7 @@ describe('SyncAllProjectsHandler', function () {
         $result = $handler(new SyncAllProjectsCommand());
 
         expect($result->projectsCount)->toBe(2);
-        expect($bus->dispatched)->toHaveCount(6);
+        expect($bus->dispatched)->toHaveCount(4);
     });
 
     it('returns zero when provider has no projects', function () {

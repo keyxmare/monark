@@ -51,10 +51,4 @@ export const catalogRoutes: RouteRecordRaw[] = [
     name: 'catalog-frameworks-list',
     path: '/catalog/frameworks',
   },
-  {
-    component: () => import('@/catalog/pages/MergeRequestList.vue'),
-    meta: { layout: Layout.Dashboard },
-    name: 'catalog-merge-requests-list',
-    path: '/catalog/projects/:projectId/merge-requests',
-  },
 ];

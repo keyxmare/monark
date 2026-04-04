@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Catalog\Infrastructure\GitProvider;
 
 use App\Catalog\Domain\Model\Provider;
-use App\Catalog\Domain\Model\RemoteMergeRequest;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -114,91 +111,6 @@ final readonly class GitLabClient implements GitProviderInterface
         return self::mapProject($p);
     }
 
-    /** @return list<RemoteMergeRequest> */
-    public function listMergeRequests(Provider $provider, string $externalProjectId, ?string $state = null, int $page = 1, int $perPage = 20, ?DateTimeImmutable $updatedAfter = null): array
-    {
-        $url = \sprintf('%s/api/v4/projects/%s/merge_requests', $provider->getUrl(), \rawurlencode($externalProjectId));
-
-        $query = [
-            'page' => $page,
-            'per_page' => $perPage,
-            'order_by' => 'updated_at',
-            'sort' => 'desc',
-        ];
-
-        if ($state !== null) {
-            $query['state'] = match ($state) {
-                'open' => 'opened',
-                'merged' => 'merged',
-                'closed' => 'closed',
-                default => 'all',
-            };
-        } else {
-            $query['state'] = 'all';
-        }
-
-        if ($updatedAfter !== null) {
-            $query['updated_after'] = $updatedAfter->format(DateTimeInterface::ATOM);
-        }
-
-        $response = $this->httpClient->request('GET', $url, [
-            'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
-            'query' => $query,
-        ]);
-
-        /** @var list<array{state?: string, draft?: bool, iid: int|string, title: string, description?: string|null, source_branch: string, target_branch: string, author?: array{username: string}, web_url?: string, reviewers?: list<array{username: string}>, labels?: list<string>, created_at?: string, updated_at?: string, merged_at?: string|null, closed_at?: string|null}> $items */
-        $items = $response->toArray();
-
-        return \array_map(
-            static fn (array $mr): RemoteMergeRequest => self::mapGitLabMergeRequest($mr),
-            $items,
-        );
-    }
-
-    /** @param array{state?: string, draft?: bool, iid: int|string, title: string, description?: string|null, source_branch: string, target_branch: string, author?: array{username: string}, web_url?: string, reviewers?: list<array{username: string}>, labels?: list<string>, created_at?: string, updated_at?: string, merged_at?: string|null, closed_at?: string|null} $mr */
-    private static function mapGitLabMergeRequest(array $mr): RemoteMergeRequest
-    {
-        $state = (string) ($mr['state'] ?? 'opened');
-        $isDraft = $mr['draft'] ?? false;
-
-        if ($isDraft && $state === 'opened') {
-            $status = 'draft';
-        } else {
-            $status = match ($state) {
-                'opened' => 'open',
-                'merged' => 'merged',
-                'closed' => 'closed',
-                default => 'open',
-            };
-        }
-
-        $reviewers = \array_map(
-            static fn (array $r): string => $r['username'],
-            $mr['reviewers'] ?? [],
-        );
-
-        $labels = $mr['labels'] ?? [];
-
-        return new RemoteMergeRequest(
-            externalId: (string) $mr['iid'],
-            title: $mr['title'],
-            description: $mr['description'] ?? null,
-            sourceBranch: $mr['source_branch'],
-            targetBranch: $mr['target_branch'],
-            status: $status,
-            author: ($mr['author'] ?? ['username' => ''])['username'],
-            url: $mr['web_url'] ?? '',
-            additions: null,
-            deletions: null,
-            reviewers: $reviewers,
-            labels: $labels,
-            createdAt: $mr['created_at'] ?? null,
-            updatedAt: $mr['updated_at'] ?? null,
-            mergedAt: $mr['merged_at'] ?? null,
-            closedAt: $mr['closed_at'] ?? null,
-        );
-    }
-
     /** @return list<array{name: string, type: string, path: string}> */
     public function listDirectory(Provider $provider, string $externalProjectId, string $path = '', string $ref = 'main'): array
     {
@@ -254,6 +166,31 @@ final readonly class GitLabClient implements GitProviderInterface
             }
 
             throw $e;
+        }
+    }
+
+    public function listBranches(Provider $provider, string $externalProjectId): array
+    {
+        $url = \sprintf('%s/api/v4/projects/%s/repository/branches', $provider->getUrl(), $externalProjectId);
+
+        try {
+            $response = $this->httpClient->request('GET', $url, [
+                'headers' => ['PRIVATE-TOKEN' => $provider->getApiToken()],
+                'query' => ['per_page' => 100],
+            ]);
+
+            /** @var list<array{name: string}> $data */
+            $data = $response->toArray();
+
+            $branches = \array_map(
+                static fn (array $b): string => $b['name'],
+                $data,
+            );
+            \sort($branches);
+
+            return $branches;
+        } catch (Throwable) {
+            return [];
         }
     }
 

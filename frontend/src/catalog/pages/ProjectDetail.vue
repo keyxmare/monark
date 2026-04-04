@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 import ProjectDependenciesTab from '@/catalog/components/ProjectDependenciesTab.vue';
 import ProjectFrameworksTab from '@/catalog/components/ProjectFrameworksTab.vue';
 import ProjectLanguagesTab from '@/catalog/components/ProjectLanguagesTab.vue';
-import ProjectMergeRequestsTab from '@/catalog/components/ProjectMergeRequestsTab.vue';
 import { useFrameworkStore } from '@/catalog/stores/framework';
-import { useMergeRequestStore } from '@/catalog/stores/merge-request';
 import { useProjectStore } from '@/catalog/stores/project';
 import { useDependencyStore } from '@/dependency/stores/dependency';
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
@@ -23,10 +21,9 @@ const showUnfollow = ref(false);
 const { t } = useI18n();
 const projectStore = useProjectStore();
 const dependencyStore = useDependencyStore();
-const mergeRequestStore = useMergeRequestStore();
 const toastStore = useToastStore();
 
-const activeTab = ref<'dependencies' | 'frameworks' | 'languages' | 'merge-requests'>('languages');
+const activeTab = ref<'dependencies' | 'frameworks' | 'languages'>('languages');
 const projectId = computed(() => route.params.id as string);
 const frameworkStore = useFrameworkStore();
 
@@ -44,9 +41,23 @@ function truncateUrl(url: string, max = 50): string {
   return `${url.slice(0, max)}…`;
 }
 
+const branchLoading: Ref<boolean> = ref(false);
+
 onMounted(async () => {
   await projectStore.fetchOne(projectId.value);
+  branchLoading.value = true;
+  await projectStore.fetchBranches(projectId.value);
+  branchLoading.value = false;
 });
+
+async function handleBranchChange(event: Event) {
+  const newBranch = (event.target as HTMLSelectElement).value;
+  await projectStore.update(projectId.value, { defaultBranch: newBranch });
+  toastStore.addToast({
+    title: t('catalog.projects.branchChanged', { branch: newBranch }),
+    variant: 'success',
+  });
+}
 
 async function handleScan() {
   await projectStore.scan(projectId.value);
@@ -121,6 +132,33 @@ async function handleScan() {
                 >{{ truncateUrl(projectStore.selected.repositoryUrl) }} ↗</a
               >
             </p>
+            <div class="mt-2 flex items-center gap-2">
+              <svg
+                class="h-4 w-4 text-text-muted"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.374a4.5 4.5 0 00-1.242-7.244l4.5-4.5a4.5 4.5 0 016.364 6.364l-1.757 1.757"
+                />
+              </svg>
+              <select
+                :value="projectStore.selected.defaultBranch"
+                :disabled="projectStore.branches.length === 0"
+                :aria-label="t('catalog.projects.defaultBranch')"
+                class="rounded-lg border border-border bg-surface px-2 py-1 text-sm text-text focus:border-primary focus:outline-none"
+                data-testid="project-branch-select"
+                @change="handleBranchChange"
+              >
+                <option v-for="branch in projectStore.branches" :key="branch" :value="branch">
+                  {{ branch }}
+                </option>
+              </select>
+            </div>
           </div>
           <div class="flex gap-2">
             <button
@@ -186,15 +224,6 @@ async function handleScan() {
           </div>
 
           <div class="rounded-xl border border-border bg-surface p-4 text-center">
-            <div class="text-lg font-bold tabular-nums text-text" data-testid="project-stat-mrs">
-              {{ mergeRequestStore.total }}
-            </div>
-            <p class="mt-1 text-xs text-text-muted">
-              {{ t('catalog.projects.mergeRequests') }}
-            </p>
-          </div>
-
-          <div class="rounded-xl border border-border bg-surface p-4 text-center">
             <div
               :class="{
                 'text-green-600': scanFreshness === 'fresh',
@@ -249,24 +278,11 @@ async function handleScan() {
           >
             {{ t('catalog.projects.dependenciesCount', { count: dependencyStore.total }) }}
           </button>
-          <button
-            :class="[
-              'px-4 py-2 text-sm font-medium transition-colors',
-              activeTab === 'merge-requests'
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-text-muted hover:text-text',
-            ]"
-            data-testid="tab-merge-requests"
-            @click="activeTab = 'merge-requests'"
-          >
-            {{ t('catalog.projects.mergeRequestsCount', { count: mergeRequestStore.total }) }}
-          </button>
         </div>
 
         <ProjectLanguagesTab v-if="activeTab === 'languages'" :project-id="projectId" />
         <ProjectFrameworksTab v-if="activeTab === 'frameworks'" :project-id="projectId" />
         <ProjectDependenciesTab v-if="activeTab === 'dependencies'" :project-id="projectId" />
-        <ProjectMergeRequestsTab v-if="activeTab === 'merge-requests'" :project-id="projectId" />
       </template>
 
       <ConfirmDialog
