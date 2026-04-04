@@ -19,4 +19,9 @@ export const STEP_LABELS: Record<SyncStepName, string> = {
   scan_cve: 'Scan CVE',
 };
 
-export const STEP_ORDER: SyncStepName[] = ['sync_projects', 'sync_coverage', 'sync_versions', 'scan_cve'];
+export const STEP_ORDER: SyncStepName[] = [
+  'sync_projects',
+  'sync_coverage',
+  'sync_versions',
+  'scan_cve',
+];

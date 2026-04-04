@@ -9,16 +9,16 @@ use App\Dependency\Domain\Model\DependencyVersion;
 use App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface;
 use App\Shared\Domain\ValueObject\PackageManager;
 
-function makeFilterVersionRepo(?DependencyVersion $existing = null): DependencyVersionRepositoryInterface
+function makeFilterVersionRepo(array $existingVersions = []): DependencyVersionRepositoryInterface
 {
-    return new class ($existing) implements DependencyVersionRepositoryInterface {
-        public function __construct(private readonly ?DependencyVersion $existing)
+    return new class ($existingVersions) implements DependencyVersionRepositoryInterface {
+        public function __construct(private readonly array $existingVersions)
         {
         }
 
         public function findByNameAndManager(string $dependencyName, PackageManager $packageManager): array
         {
-            return [];
+            return $this->existingVersions;
         }
 
         public function findLatestByNameAndManager(string $dependencyName, PackageManager $packageManager): ?DependencyVersion
@@ -28,7 +28,7 @@ function makeFilterVersionRepo(?DependencyVersion $existing = null): DependencyV
 
         public function findByNameManagerAndVersion(string $dependencyName, PackageManager $packageManager, string $version): ?DependencyVersion
         {
-            return $this->existing;
+            return null;
         }
 
         public function save(DependencyVersion $version): void
@@ -47,7 +47,7 @@ function makeFilterVersionRepo(?DependencyVersion $existing = null): DependencyV
 
 describe('FilterNewVersionsStage', function () {
     it('keeps versions not already in repository', function () {
-        $repo = \makeFilterVersionRepo(existing: null);
+        $repo = \makeFilterVersionRepo();
         $stage = new FilterNewVersionsStage($repo);
         $ctx = SyncContext::initial('vue', PackageManager::Npm)
             ->withRegistryVersions([
@@ -62,7 +62,7 @@ describe('FilterNewVersionsStage', function () {
 
     it('filters out versions already in repository', function () {
         $existing = DependencyVersion::create('vue', PackageManager::Npm, '1.0.0', isLatest: false);
-        $repo = \makeFilterVersionRepo(existing: $existing);
+        $repo = \makeFilterVersionRepo([$existing]);
         $stage = new FilterNewVersionsStage($repo);
         $ctx = SyncContext::initial('vue', PackageManager::Npm)
             ->withRegistryVersions([
@@ -75,7 +75,7 @@ describe('FilterNewVersionsStage', function () {
     });
 
     it('extracts latestVersion from registry versions marked isLatest', function () {
-        $repo = \makeFilterVersionRepo(existing: null);
+        $repo = \makeFilterVersionRepo();
         $stage = new FilterNewVersionsStage($repo);
         $ctx = SyncContext::initial('vue', PackageManager::Npm)
             ->withRegistryVersions([
@@ -89,7 +89,7 @@ describe('FilterNewVersionsStage', function () {
     });
 
     it('latestVersion remains null when no version is marked isLatest', function () {
-        $repo = \makeFilterVersionRepo(existing: null);
+        $repo = \makeFilterVersionRepo();
         $stage = new FilterNewVersionsStage($repo);
         $ctx = SyncContext::initial('vue', PackageManager::Npm)
             ->withRegistryVersions([

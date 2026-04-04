@@ -35,16 +35,19 @@ function makeGitLabProject(string $defaultBranch = 'main', ?string $externalId =
     );
 }
 
-function stubHttpClient(array $responseData): HttpClientInterface
+function stubHttpClient(array ...$responsesPerCall): HttpClientInterface
 {
-    return new class ($responseData) implements HttpClientInterface {
-        public function __construct(private readonly array $responseData)
+    return new class ($responsesPerCall) implements HttpClientInterface {
+        private int $callIndex = 0;
+
+        public function __construct(private readonly array $responsesPerCall)
         {
         }
 
         public function request(string $method, string $url, array $options = []): ResponseInterface
         {
-            $data = $this->responseData;
+            $data = $this->responsesPerCall[$this->callIndex] ?? [];
+            $this->callIndex++;
 
             return new class ($data) implements ResponseInterface {
                 public function __construct(private readonly array $data)
@@ -141,13 +144,10 @@ describe('GitLabCoverageProvider', function (): void {
 
     describe('fetchCoverage()', function (): void {
         it('returns a CoverageResult when pipeline has coverage', function (): void {
-            $http = \stubHttpClient([
-                [
-                    'id' => 42,
-                    'sha' => 'abc123def456',
-                    'coverage' => 87.5,
-                ],
-            ]);
+            $http = \stubHttpClient(
+                [['id' => 42, 'sha' => 'abc123def456', 'coverage' => 87.5]],
+                ['id' => 42, 'sha' => 'abc123def456', 'coverage' => 87.5],
+            );
 
             $project = \makeGitLabProject(defaultBranch: 'main', externalId: '123');
             $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
@@ -161,13 +161,10 @@ describe('GitLabCoverageProvider', function (): void {
         });
 
         it('returns null when pipeline has null coverage', function (): void {
-            $http = \stubHttpClient([
-                [
-                    'id' => 42,
-                    'sha' => 'abc123def456',
-                    'coverage' => null,
-                ],
-            ]);
+            $http = \stubHttpClient(
+                [['id' => 42, 'sha' => 'abc123def456', 'coverage' => null]],
+                ['id' => 42, 'sha' => 'abc123def456', 'coverage' => null],
+            );
 
             $project = \makeGitLabProject();
             $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
@@ -176,7 +173,7 @@ describe('GitLabCoverageProvider', function (): void {
         });
 
         it('returns null when no pipelines found', function (): void {
-            $http = \stubHttpClient([]);
+            $http = \stubHttpClient([], );
 
             $project = \makeGitLabProject();
             $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());

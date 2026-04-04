@@ -7,7 +7,13 @@ import { coverageRoutes } from '@/coverage/routes';
 import { dependencyRoutes } from '@/dependency/routes';
 import { identityRoutes } from '@/identity/routes';
 
-const routes = [...activityRoutes, ...catalogRoutes, ...coverageRoutes, ...dependencyRoutes, ...identityRoutes];
+const routes = [
+  ...activityRoutes,
+  ...catalogRoutes,
+  ...coverageRoutes,
+  ...dependencyRoutes,
+  ...identityRoutes,
+];
 
 export const router = createRouter({
   history: createWebHistory(),
