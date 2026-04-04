@@ -109,8 +109,10 @@ services:
       context: ..
       dockerfile: docker/backend/Dockerfile
       target: dev
-    command: php -d memory_limit=1G bin/console messenger:consume async --memory-limit=1G -vv
+    command: sh -c 'APP_DEBUG=0 php bin/console cache:warmup --env=prod 2>/dev/null; APP_DEBUG=0 php -d memory_limit=1G bin/console messenger:consume async --env=prod --memory-limit=1G -vv'
     restart: always
+    tmpfs:
+      - /app/var/cache
     deploy:
       replicas: ${MESSENGER_CONSUMERS:-1}
     depends_on:
