@@ -80,7 +80,7 @@ final readonly class NpmRegistryAdapter implements PackageRegistryPort
                 continue;
             }
 
-            if (!$sinceReached && $sinceVersion !== null) {
+            if (!$sinceReached) {
                 if (\version_compare($version, $sinceVersion, '>')) {
                     $sinceReached = true;
                 } else {

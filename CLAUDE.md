@@ -77,6 +77,6 @@ Ne jamais commit avec des tests rouge ou du lint KO.
 ## Pièges connus
 
 - **PHPStan** : `memory_limit=-1` dans le Dockerfile, sinon crash silencieux
-- **Consumer RabbitMQ** : single-thread, un message lent bloque toute la queue
+- **Consumer RabbitMQ** : single-thread, un message lent bloque toute la queue. Après toute modification de code backend, toujours `cache:clear` + restart du consumer (`docker compose restart messenger-consumer`), sinon le cache Symfony compilé référence des classes supprimées
 - **Pest output** : avec `exec -T` (no TTY), pest écrit sur stderr — utiliser `--log-junit` pour parser les résultats
 - **BusyBox grep** : le container Alpine n'a pas `grep -P`, utiliser `grep -oE` à la place
