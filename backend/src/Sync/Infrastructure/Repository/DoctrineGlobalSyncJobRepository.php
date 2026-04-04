@@ -34,4 +34,33 @@ final readonly class DoctrineGlobalSyncJobRepository implements GlobalSyncJobRep
             'status' => GlobalSyncStatus::Running,
         ]);
     }
+
+    /** @return array{progress: int, total: int} */
+    public function incrementProgressAtomic(Uuid $jobId): array
+    {
+        $conn = $this->em->getConnection();
+
+        /** @var array{step_progress: int, step_total: int} $row */
+        $row = $conn->fetchAssociative(
+            'UPDATE global_sync_jobs SET step_progress = step_progress + 1 WHERE id = :id RETURNING step_progress, step_total',
+            ['id' => $jobId->toRfc4122()],
+        );
+
+        $this->em->clear();
+
+        return ['progress' => (int) $row['step_progress'], 'total' => (int) $row['step_total']];
+    }
+
+    public function findByIdForUpdate(Uuid $id): ?GlobalSyncJob
+    {
+        /** @var GlobalSyncJob|null */
+        return $this->em->createQueryBuilder()
+            ->select('j')
+            ->from(GlobalSyncJob::class, 'j')
+            ->where('j.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->setLockMode(\Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE)
+            ->getOneOrNullResult();
+    }
 }

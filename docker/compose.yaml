@@ -111,6 +111,8 @@ services:
       target: dev
     command: php -d memory_limit=1G bin/console messenger:consume async --memory-limit=1G -vv
     restart: always
+    deploy:
+      replicas: ${MESSENGER_CONSUMERS:-1}
     depends_on:
       backend:
         condition: service_healthy

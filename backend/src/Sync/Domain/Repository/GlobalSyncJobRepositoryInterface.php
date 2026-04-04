@@ -14,4 +14,9 @@ interface GlobalSyncJobRepositoryInterface
     public function findById(Uuid $id): ?GlobalSyncJob;
 
     public function findRunning(): ?GlobalSyncJob;
+
+    /** @return array{progress: int, total: int} */
+    public function incrementProgressAtomic(Uuid $jobId): array;
+
+    public function findByIdForUpdate(Uuid $id): ?GlobalSyncJob;
 }

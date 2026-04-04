@@ -41,6 +41,22 @@ function makeCoverageJobRepo(?GlobalSyncJob $job): GlobalSyncJobRepositoryInterf
         {
             return $this->job?->isRunning() ? $this->job : null;
         }
+
+        public function incrementProgressAtomic(\Symfony\Component\Uid\Uuid $jobId): array
+        {
+            if ($this->job !== null) {
+                $this->job->incrementProgress();
+
+                return ['progress' => $this->job->getStepProgress(), 'total' => $this->job->getStepTotal()];
+            }
+
+            return ['progress' => 0, 'total' => 0];
+        }
+
+        public function findByIdForUpdate(\Symfony\Component\Uid\Uuid $jobId): ?\App\Sync\Domain\Model\GlobalSyncJob
+        {
+            return $this->job ?? null;
+        }
     };
 }
 

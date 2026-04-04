@@ -36,6 +36,16 @@ function stubGlobalSyncJobRepo(GlobalSyncJob $job): GlobalSyncJobRepositoryInter
         {
             return $this->job->isRunning() ? $this->job : null;
         }
+
+        public function incrementProgressAtomic(\Symfony\Component\Uid\Uuid $jobId): array
+        {
+            return ['progress' => 0, 'total' => 0];
+        }
+
+        public function findByIdForUpdate(\Symfony\Component\Uid\Uuid $jobId): ?\App\Sync\Domain\Model\GlobalSyncJob
+        {
+            return $this->job ?? null;
+        }
     };
 }
 
@@ -227,6 +237,16 @@ describe('GlobalSyncHandler', function (): void {
             }
 
             public function findRunning(): ?GlobalSyncJob
+            {
+                return null;
+            }
+
+            public function incrementProgressAtomic(\Symfony\Component\Uid\Uuid $jobId): array
+            {
+                return ['progress' => 0, 'total' => 0];
+            }
+
+            public function findByIdForUpdate(\Symfony\Component\Uid\Uuid $jobId): ?\App\Sync\Domain\Model\GlobalSyncJob
             {
                 return null;
             }

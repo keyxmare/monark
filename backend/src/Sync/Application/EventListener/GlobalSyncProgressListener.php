@@ -47,12 +47,14 @@ final readonly class GlobalSyncProgressListener
             return;
         }
 
-        $job->incrementProgress();
-        $this->repository->save($job);
-        $this->publishProgress($job);
+        $result = $this->repository->incrementProgressAtomic($job->getId());
+        $this->publishProgressFromValues($job->getId()->toRfc4122(), $job, $result['progress'], $result['total']);
 
-        if ($job->getStepProgress() >= $job->getStepTotal()) {
-            $this->transitionToSyncCoverage($job);
+        if ($result['progress'] === $result['total']) {
+            $job = $this->repository->findByIdForUpdate($job->getId());
+            if ($job !== null && $job->getCurrentStepName() === GlobalSyncStep::SyncProjects->name()) {
+                $this->transitionToSyncCoverage($job);
+            }
         }
     }
 
@@ -101,8 +103,11 @@ final readonly class GlobalSyncProgressListener
 
     private function publishProgress(GlobalSyncJob $job): void
     {
-        $syncId = $job->getId()->toRfc4122();
+        $this->publishProgressFromValues($job->getId()->toRfc4122(), $job, $job->getStepProgress(), $job->getStepTotal());
+    }
 
+    private function publishProgressFromValues(string $syncId, GlobalSyncJob $job, int $progress, int $total): void
+    {
         try {
             $this->mercureHub->publish(new Update(
                 \sprintf('/global-sync/%s', $syncId),
@@ -111,8 +116,8 @@ final readonly class GlobalSyncProgressListener
                     'status' => $job->getStatus()->value,
                     'currentStep' => $job->getCurrentStep(),
                     'currentStepName' => $job->getCurrentStepName(),
-                    'stepProgress' => $job->getStepProgress(),
-                    'stepTotal' => $job->getStepTotal(),
+                    'stepProgress' => $progress,
+                    'stepTotal' => $total,
                     'completedSteps' => $job->getCompletedStepNames(),
                 ]),
             ));

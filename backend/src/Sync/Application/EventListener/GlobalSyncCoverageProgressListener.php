@@ -44,16 +44,18 @@ final readonly class GlobalSyncCoverageProgressListener
             return;
         }
 
-        $job->incrementProgress();
-        $this->repository->save($job);
+        $result = $this->repository->incrementProgressAtomic($job->getId());
 
         $message = $event->coveragePercent !== null
             ? \sprintf('%s: %.1f%%', $event->projectName, $event->coveragePercent)
             : \sprintf('%s: n/a', $event->projectName);
-        $this->publishProgress($job, $message);
+        $this->publishProgressFromValues($job->getId()->toRfc4122(), $job, $result['progress'], $result['total'], $message);
 
-        if ($job->getStepProgress() >= $job->getStepTotal()) {
-            $this->transitionToSyncVersions($job);
+        if ($result['progress'] === $result['total']) {
+            $job = $this->repository->findByIdForUpdate($job->getId());
+            if ($job !== null && $job->getCurrentStepName() === GlobalSyncStep::SyncCoverage->name()) {
+                $this->transitionToSyncVersions($job);
+            }
         }
     }
 
@@ -74,8 +76,11 @@ final readonly class GlobalSyncCoverageProgressListener
 
     private function publishProgress(GlobalSyncJob $job, ?string $message): void
     {
-        $syncId = $job->getId()->toRfc4122();
+        $this->publishProgressFromValues($job->getId()->toRfc4122(), $job, $job->getStepProgress(), $job->getStepTotal(), $message);
+    }
 
+    private function publishProgressFromValues(string $syncId, GlobalSyncJob $job, int $progress, int $total, ?string $message): void
+    {
         try {
             $this->mercureHub->publish(new Update(
                 \sprintf('/global-sync/%s', $syncId),
@@ -84,8 +89,8 @@ final readonly class GlobalSyncCoverageProgressListener
                     'status' => $job->getStatus()->value,
                     'currentStep' => $job->getCurrentStep(),
                     'currentStepName' => $job->getCurrentStepName(),
-                    'stepProgress' => $job->getStepProgress(),
-                    'stepTotal' => $job->getStepTotal(),
+                    'stepProgress' => $progress,
+                    'stepTotal' => $total,
                     'completedSteps' => $job->getCompletedStepNames(),
                     'message' => $message,
                 ]),
