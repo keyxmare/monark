@@ -196,8 +196,6 @@ final class FrameworkVersionStatusUpdater
             return null;
         }
 
-        $minorFallback = null;
-
         foreach ($allVersions as $pv) {
             try {
                 $pvParsed = SemanticVersion::parse($pv->getVersion());
@@ -205,24 +203,32 @@ final class FrameworkVersionStatusUpdater
                 continue;
             }
 
-            if ($pvParsed->major !== $target->major || $pvParsed->minor !== $target->minor || $pv->getReleaseDate() === null) {
+            if ($pvParsed->major === $target->major && $pvParsed->minor === $target->minor && $pvParsed->patch === $target->patch && $pv->getReleaseDate() !== null) {
+                return $pv->getReleaseDate();
+            }
+        }
+
+        $registryDate = $this->fetchReleaseDateFromRegistry($productName, $version);
+        if ($registryDate !== null) {
+            return $registryDate;
+        }
+
+        $minorFallback = null;
+        foreach ($allVersions as $pv) {
+            try {
+                $pvParsed = SemanticVersion::parse($pv->getVersion());
+            } catch (InvalidArgumentException) {
                 continue;
             }
 
-            if ($pvParsed->patch === $target->patch) {
-                return $pv->getReleaseDate();
-            }
-
-            if ($minorFallback === null || $pv->getReleaseDate() > $minorFallback) {
-                $minorFallback = $pv->getReleaseDate();
+            if ($pvParsed->major === $target->major && $pvParsed->minor === $target->minor && $pv->getReleaseDate() !== null) {
+                if ($minorFallback === null || $pv->getReleaseDate() > $minorFallback) {
+                    $minorFallback = $pv->getReleaseDate();
+                }
             }
         }
 
-        if ($minorFallback !== null) {
-            return $minorFallback;
-        }
-
-        return $this->fetchReleaseDateFromRegistry($productName, $version);
+        return $minorFallback;
     }
 
     private function fetchReleaseDateFromRegistry(string $productName, string $version): ?DateTimeImmutable
