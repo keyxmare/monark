@@ -198,6 +198,35 @@ describe('FetchProjectCoverageHandler', function () {
         expect($snapshotRepo->saved)->toHaveCount(0);
     });
 
+    it('persists jobs from CoverageResult into snapshot', function () {
+        $coverageResult = new CoverageResult(
+            coveragePercent: 87.5,
+            commitHash: 'abc123def456abc123def456abc123def456abcd',
+            ref: 'main',
+            pipelineId: '999',
+            jobs: [
+                new \App\Coverage\Domain\ValueObject\JobCoverage('backend', 92.0),
+                new \App\Coverage\Domain\ValueObject\JobCoverage('frontend', 78.5),
+            ],
+        );
+
+        [$project, $projectRepo, $registry, $snapshotRepo] = \makeFetchProject(coverageResult: $coverageResult);
+
+        $syncId = Uuid::v7()->toRfc4122();
+        $eventBus = $this->createMock(MessageBusInterface::class);
+        $eventBus->expects($this->once())->method('dispatch')
+            ->willReturn(new Envelope(new \stdClass()));
+
+        $handler = new FetchProjectCoverageHandler($projectRepo, $registry, $snapshotRepo, $eventBus);
+        $handler(new FetchProjectCoverageCommand($project->getId()->toRfc4122(), $syncId));
+
+        expect($snapshotRepo->saved)->toHaveCount(1);
+        expect($snapshotRepo->saved[0]->getJobs())->toBe([
+            ['name' => 'backend', 'percent' => 92.0],
+            ['name' => 'frontend', 'percent' => 78.5],
+        ]);
+    });
+
     it('does not save snapshot when coverage is null', function () {
         [$project, $projectRepo, $registry, $snapshotRepo] = \makeFetchProject(resolveProvider: false);
 

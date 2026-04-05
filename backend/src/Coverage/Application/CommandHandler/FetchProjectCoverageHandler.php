@@ -41,6 +41,15 @@ final readonly class FetchProjectCoverageHandler
             if ($coverageProvider !== null) {
                 $result = $coverageProvider->fetchCoverage($project);
                 if ($result !== null) {
+                    $jobsData = $result->jobs !== []
+                        ? \array_map(
+                            static fn (\App\Coverage\Domain\ValueObject\JobCoverage $j): array => [
+                                'name' => $j->name,
+                                'percent' => $j->percent,
+                            ],
+                            $result->jobs,
+                        )
+                        : null;
                     $snapshot = CoverageSnapshot::create(
                         projectId: $project->getId(),
                         commitHash: $result->commitHash,
@@ -48,6 +57,7 @@ final readonly class FetchProjectCoverageHandler
                         source: CoverageSource::fromProviderType($provider->getType()),
                         ref: $result->ref,
                         pipelineId: $result->pipelineId,
+                        jobs: $jobsData,
                     );
                     $this->snapshotRepository->save($snapshot);
                     $coveragePercent = $result->coveragePercent;
