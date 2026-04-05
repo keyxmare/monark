@@ -59,7 +59,35 @@ final readonly class GetCoverageDashboardQueryHandler
                 ? \round($snapshot->getCoveragePercent() - $previous->getCoveragePercent(), 2)
                 : null;
 
-            $coverage = $snapshot->getCoveragePercent();
+            $jobs = $snapshot->getJobs();
+            $jobOutputs = [];
+
+            if ($jobs !== null && $jobs !== []) {
+                $previousJobs = $previous?->getJobs();
+                $previousJobsByName = [];
+                if ($previousJobs !== null) {
+                    foreach ($previousJobs as $pj) {
+                        $previousJobsByName[$pj['name']] = $pj['percent'];
+                    }
+                }
+
+                foreach ($jobs as $job) {
+                    $jobTrend = isset($previousJobsByName[$job['name']])
+                        ? \round($job['percent'] - $previousJobsByName[$job['name']], 2)
+                        : null;
+
+                    $jobOutputs[] = [
+                        'name' => $job['name'],
+                        'percent' => $job['percent'],
+                        'trend' => $jobTrend,
+                    ];
+                }
+
+                $coverage = \round(\array_sum(\array_column($jobs, 'percent')) / \count($jobs), 2);
+            } else {
+                $coverage = $snapshot->getCoveragePercent();
+            }
+
             $totalCoverage += $coverage;
             ++$coveredProjects;
 
@@ -79,6 +107,7 @@ final readonly class GetCoverageDashboardQueryHandler
                 commitHash: $snapshot->getCommitHash(),
                 ref: $snapshot->getRef(),
                 syncedAt: $snapshot->getCreatedAt()->format(DateTimeInterface::ATOM),
+                jobs: $jobOutputs,
             );
         }
 
