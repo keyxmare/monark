@@ -13,17 +13,23 @@ services:
         condition: service_healthy
       mercure:
         condition: service_healthy
-    ports:
-      - "8000:8000"
     env_file:
       - .env
+    networks:
+      - default
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.monark-backend.rule=Host(`api.monark.localhost`)"
+      - "traefik.http.services.monark-backend.loadbalancer.server.port=8000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-changeme}@database:5432/${POSTGRES_DB:-monark}?serverVersion=17
       MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672/%2f/messages
       RABBITMQ_MANAGEMENT_URL: http://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:15672
       MERCURE_URL: http://mercure/.well-known/mercure
-      MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://mercure.monark.localhost/.well-known/mercure
       MERCURE_JWT_SECRET: '!ChangeThisMercureHubJWTSecretKey!'
+      CORS_ALLOW_ORIGIN: '^https?://(localhost|127\.0\.0\.1|[\w-]+\.localhost)(:[0-9]+)?$$'
     healthcheck:
       test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
       interval: 10s
@@ -38,14 +44,19 @@ services:
       target: dev
     depends_on:
       - backend
-    ports:
-      - "3000:3000"
     env_file:
       - .env
+    networks:
+      - default
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.monark-frontend.rule=Host(`monark.localhost`)"
+      - "traefik.http.services.monark-frontend.loadbalancer.server.port=3000"
     environment:
-      VITE_API_URL: http://localhost:8000
+      VITE_API_BASE_URL: http://api.monark.localhost/api/v1
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000 || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000 || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -86,13 +97,20 @@ services:
   mercure:
     image: dunglas/mercure
     restart: unless-stopped
+    networks:
+      - default
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.monark-mercure.rule=Host(`mercure.monark.localhost`)"
+      - "traefik.http.services.monark-mercure.loadbalancer.server.port=80"
     environment:
       SERVER_NAME: ':80'
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_EXTRA_DIRECTIVES: |
         anonymous
-        cors_origins http://localhost:3000
+        cors_origins http://monark.localhost
     command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost/healthz"]
@@ -126,8 +144,12 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-changeme}@database:5432/${POSTGRES_DB:-monark}?serverVersion=17
       MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672/%2f/messages
       MERCURE_URL: http://mercure/.well-known/mercure
-      MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://mercure.monark.localhost/.well-known/mercure
       MERCURE_JWT_SECRET: '!ChangeThisMercureHubJWTSecretKey!'
+
+networks:
+  traefik:
+    external: true
 
 volumes:
   postgres-data:
