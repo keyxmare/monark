@@ -20,7 +20,7 @@ final readonly class GetProjectCoverageHistoryQueryHandler
     ) {
     }
 
-    /** @return array{project: array{id: string, name: string, slug: string}, snapshots: list<array{coveragePercent: float, source: string, commitHash: ?string, ref: string, pipelineId: ?string, createdAt: string}>} */
+    /** @return array{project: array{id: string, name: string, slug: string}, snapshots: list<array{coveragePercent: float, source: string, commitHash: ?string, ref: string, pipelineId: ?string, jobs: ?array<int, array{name: string, percent: float}>, createdAt: string}>} */
     public function __invoke(GetProjectCoverageHistoryQuery $query): array
     {
         $project = $this->projectRepository->findBySlug($query->projectSlug);
@@ -38,6 +38,7 @@ final readonly class GetProjectCoverageHistoryQueryHandler
                 'commitHash' => $snapshot->getCommitHash(),
                 'ref' => $snapshot->getRef(),
                 'pipelineId' => $snapshot->getPipelineId(),
+                'jobs' => $snapshot->getJobs(),
                 'createdAt' => $snapshot->getCreatedAt()->format(DateTimeInterface::ATOM),
             ],
             $snapshots,
