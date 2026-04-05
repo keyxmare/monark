@@ -37,9 +37,16 @@ final class CoverageSnapshot
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $pipelineId;
 
+    /** @var list<array{name: string, percent: float}>|null */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $jobs;
+
     #[ORM\Column]
     private DateTimeImmutable $createdAt;
 
+    /**
+     * @param list<array{name: string, percent: float}>|null $jobs
+     */
     private function __construct(
         Uuid $id,
         Uuid $projectId,
@@ -48,6 +55,7 @@ final class CoverageSnapshot
         CoverageSource $source,
         string $ref,
         ?string $pipelineId,
+        ?array $jobs,
     ) {
         if (\trim($commitHash) === '') {
             throw new InvalidArgumentException('Commit hash must not be blank.');
@@ -63,9 +71,13 @@ final class CoverageSnapshot
         $this->source = $source;
         $this->ref = $ref;
         $this->pipelineId = $pipelineId;
+        $this->jobs = $jobs;
         $this->createdAt = new DateTimeImmutable();
     }
 
+    /**
+     * @param list<array{name: string, percent: float}>|null $jobs
+     */
     public static function create(
         Uuid $projectId,
         string $commitHash,
@@ -73,6 +85,7 @@ final class CoverageSnapshot
         CoverageSource $source,
         string $ref,
         ?string $pipelineId = null,
+        ?array $jobs = null,
     ): self {
         return new self(
             id: Uuid::v7(),
@@ -82,6 +95,7 @@ final class CoverageSnapshot
             source: $source,
             ref: $ref,
             pipelineId: $pipelineId,
+            jobs: $jobs,
         );
     }
 
@@ -112,6 +126,11 @@ final class CoverageSnapshot
     public function getPipelineId(): ?string
     {
         return $this->pipelineId;
+    }
+    /** @return list<array{name: string, percent: float}>|null */
+    public function getJobs(): ?array
+    {
+        return $this->jobs;
     }
     public function getCreatedAt(): DateTimeImmutable
     {
