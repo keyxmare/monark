@@ -6,6 +6,9 @@ namespace App\Coverage\Application\DTO;
 
 final readonly class CoverageProjectOutput
 {
+    /**
+     * @param list<array{name: string, percent: float, trend: float|null}> $jobs
+     */
     public function __construct(
         public string $projectId,
         public string $projectName,
@@ -16,6 +19,7 @@ final readonly class CoverageProjectOutput
         public ?string $commitHash,
         public ?string $ref,
         public ?string $syncedAt,
+        public array $jobs = [],
     ) {
     }
 }
