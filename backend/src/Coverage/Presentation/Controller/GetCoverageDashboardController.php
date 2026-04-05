@@ -55,6 +55,7 @@ final readonly class GetCoverageDashboardController
                     'commitHash' => $p->commitHash,
                     'ref' => $p->ref,
                     'syncedAt' => $p->syncedAt,
+                    'jobs' => $p->jobs,
                 ],
                 $result->projects,
             ),
