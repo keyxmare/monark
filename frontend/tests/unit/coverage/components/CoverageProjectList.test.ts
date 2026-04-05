@@ -19,6 +19,7 @@ const projects: CoverageProject[] = [
     commitHash: 'abc1234567890',
     ref: 'main',
     syncedAt: '2024-01-15T10:00:00Z',
+    jobs: [],
   },
   {
     projectId: '2',
@@ -30,6 +31,7 @@ const projects: CoverageProject[] = [
     commitHash: 'def9876543210',
     ref: 'main',
     syncedAt: '2024-01-14T08:00:00Z',
+    jobs: [],
   },
   {
     projectId: '3',
@@ -41,6 +43,7 @@ const projects: CoverageProject[] = [
     commitHash: null,
     ref: null,
     syncedAt: null,
+    jobs: [],
   },
 ];
 
@@ -82,10 +85,10 @@ describe('CoverageProjectList', () => {
     expect(commits[2].text()).toBe('—');
   });
 
-  it('shows coverage bar for projects with coverage', () => {
+  it('shows coverage bar for all projects without jobs', () => {
     const wrapper = mount(CoverageProjectList, { props: { projects } });
     const bars = wrapper.findAll('[data-testid="coverage-bar"]');
-    expect(bars).toHaveLength(2);
+    expect(bars).toHaveLength(3);
   });
 
   it('applies green bar class for coverage >= 80%', () => {

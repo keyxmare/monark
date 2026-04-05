@@ -7,6 +7,12 @@ export interface CoverageSummary {
   trend: number | null;
 }
 
+export interface CoverageJobDetail {
+  name: string;
+  percent: number;
+  trend: number | null;
+}
+
 export interface CoverageProject {
   projectId: string;
   projectName: string;
@@ -17,6 +23,7 @@ export interface CoverageProject {
   commitHash: string | null;
   ref: string | null;
   syncedAt: string | null;
+  jobs: CoverageJobDetail[];
 }
 
 export interface CoverageDashboard {
@@ -30,6 +37,7 @@ export interface CoverageSnapshot {
   source: string;
   ref: string;
   pipelineId: string | null;
+  jobs: Array<{ name: string; percent: number }> | null;
   createdAt: string;
 }
 

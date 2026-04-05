@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import type { CoverageProject } from '@/coverage/types';
+import type { CoverageJobDetail, CoverageProject } from '@/coverage/types';
 
 const props = defineProps<{ projects: CoverageProject[] }>();
 
@@ -13,6 +13,13 @@ type SortField = 'coverage' | 'name' | 'syncedAt';
 
 const sortField = ref<SortField>('coverage');
 const sortDir = ref<SortDir>('desc');
+
+function averageCoverage(project: CoverageProject): number {
+  if (project.jobs.length > 0) {
+    return project.jobs.reduce((sum, j) => sum + j.percent, 0) / project.jobs.length;
+  }
+  return project.coveragePercent ?? -1;
+}
 
 function sortIndicator(field: SortField): string {
   if (sortField.value !== field) return '';
@@ -32,9 +39,7 @@ const sorted = computed<CoverageProject[]>(() => {
   return [...props.projects].sort((a, b) => {
     let cmp = 0;
     if (sortField.value === 'coverage') {
-      const av = a.coveragePercent ?? -1;
-      const bv = b.coveragePercent ?? -1;
-      cmp = av - bv;
+      cmp = averageCoverage(a) - averageCoverage(b);
     } else if (sortField.value === 'name') {
       cmp = a.projectName.localeCompare(b.projectName);
     } else if (sortField.value === 'syncedAt') {
@@ -73,6 +78,19 @@ function navigate(slug: string) {
   router.push(`/coverage/${slug}`);
 }
 
+function trendClass(trend: null | number): string {
+  if (trend === null) return '';
+  if (trend > 0) return 'text-green-500';
+  if (trend < 0) return 'text-red-500';
+  return 'text-text-muted';
+}
+
+function trendText(trend: null | number): string {
+  if (trend === null) return '';
+  if (trend > 0) return `+${trend}`;
+  return `${trend}`;
+}
+
 function truncate(hash: null | string, len = 7): string {
   if (!hash) return '—';
   return hash.slice(0, len);
@@ -96,7 +114,6 @@ function truncate(hash: null | string, len = 7): string {
           >
             Coverage{{ sortIndicator('coverage') }}
           </th>
-          <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">Tendance</th>
           <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">Source</th>
           <th class="px-4 py-3 text-left text-sm font-medium text-text-muted">Commit</th>
           <th
@@ -117,30 +134,40 @@ function truncate(hash: null | string, len = 7): string {
         >
           <td class="px-4 py-3 text-sm font-medium text-text">{{ project.projectName }}</td>
           <td class="px-4 py-3">
-            <div v-if="project.coveragePercent !== null" class="flex items-center gap-2">
+            <div v-if="project.jobs.length > 0" class="flex flex-col gap-1">
+              <div v-for="job in project.jobs" :key="job.name" class="flex items-center gap-2">
+                <div class="h-1.5 w-16 overflow-hidden rounded-full bg-surface-muted">
+                  <div
+                    :class="coverageBarClass(job.percent)"
+                    :style="{ width: `${job.percent}%` }"
+                    class="h-full rounded-full transition-all"
+                  />
+                </div>
+                <span :class="coverageTextClass(job.percent)" class="text-xs font-medium">
+                  {{ job.name }} {{ job.percent }}%
+                </span>
+                <span v-if="job.trend !== null" :class="trendClass(job.trend)" class="text-xs">
+                  {{ job.trend > 0 ? '↑' : '↓' }} {{ trendText(job.trend) }}
+                </span>
+              </div>
+            </div>
+            <div v-else class="flex items-center gap-2">
               <div class="h-2 w-24 overflow-hidden rounded-full bg-surface-muted">
                 <div
+                  v-if="project.coveragePercent !== null"
                   :class="coverageBarClass(project.coveragePercent)"
                   :style="{ width: `${project.coveragePercent}%` }"
                   class="h-full rounded-full transition-all"
                   data-testid="coverage-bar"
                 />
+                <div v-else class="h-full w-0 rounded-full bg-gray-300" data-testid="coverage-bar" />
               </div>
               <span :class="coverageTextClass(project.coveragePercent)" class="text-sm font-medium">
-                {{ project.coveragePercent }}%
+                {{ project.coveragePercent ?? 0 }}%
               </span>
+              <span v-if="project.trend !== null && project.trend > 0" class="text-green-500 text-sm">↑ +{{ project.trend }}</span>
+              <span v-else-if="project.trend !== null && project.trend < 0" class="text-red-500 text-sm">↓ {{ project.trend }}</span>
             </div>
-            <div v-else class="flex items-center gap-2">
-              <div class="h-2 w-24 overflow-hidden rounded-full bg-surface-muted">
-                <div class="h-full w-0 rounded-full bg-gray-300" data-testid="coverage-bar" />
-              </div>
-              <span class="text-sm font-medium text-text-muted">0%</span>
-            </div>
-          </td>
-          <td class="px-4 py-3 text-sm">
-            <span v-if="project.trend !== null && project.trend > 0" class="text-green-500">↑ +{{ project.trend }}</span>
-            <span v-else-if="project.trend !== null && project.trend < 0" class="text-red-500">↓ {{ project.trend }}</span>
-            <span v-else class="text-text-muted">—</span>
           </td>
           <td class="px-4 py-3 text-sm text-text-muted">{{ project.source ?? '—' }}</td>
           <td class="px-4 py-3 font-mono text-xs text-text-muted" data-testid="coverage-commit">
