@@ -147,6 +147,7 @@ describe('GitLabCoverageProvider', function (): void {
             $http = \stubHttpClient(
                 [['id' => 42, 'sha' => 'abc123def456', 'coverage' => 87.5]],
                 ['id' => 42, 'sha' => 'abc123def456', 'coverage' => 87.5],
+                [],
             );
 
             $project = \makeGitLabProject(defaultBranch: 'main', externalId: '123');
@@ -179,6 +180,64 @@ describe('GitLabCoverageProvider', function (): void {
             $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
 
             expect($coverageProvider->fetchCoverage($project))->toBeNull();
+        });
+
+        it('returns jobs when pipeline has per-job coverage', function (): void {
+            $http = \stubHttpClient(
+                [['id' => 42, 'sha' => 'abc123def456', 'coverage' => 87.5]],
+                ['id' => 42, 'sha' => 'abc123def456', 'coverage' => 87.5],
+                [
+                    ['name' => 'test:backend', 'coverage' => 92.0, 'status' => 'success'],
+                    ['name' => 'test:frontend', 'coverage' => 78.5, 'status' => 'success'],
+                    ['name' => 'deploy', 'coverage' => null, 'status' => 'success'],
+                ],
+            );
+
+            $project = \makeGitLabProject(defaultBranch: 'main', externalId: '123');
+            $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
+            $result = $coverageProvider->fetchCoverage($project);
+
+            expect($result)->not->toBeNull();
+            expect($result->jobs)->toHaveCount(2);
+            expect($result->jobs[0]->name)->toBe('backend');
+            expect($result->jobs[0]->percent)->toBe(92.0);
+            expect($result->jobs[1]->name)->toBe('frontend');
+            expect($result->jobs[1]->percent)->toBe(78.5);
+        });
+
+        it('strips longest common prefix from job names', function (): void {
+            $http = \stubHttpClient(
+                [['id' => 42, 'sha' => 'abc123def456', 'coverage' => 85.0]],
+                ['id' => 42, 'sha' => 'abc123def456', 'coverage' => 85.0],
+                [
+                    ['name' => 'coverage:unit:backend', 'coverage' => 90.0, 'status' => 'success'],
+                    ['name' => 'coverage:unit:frontend', 'coverage' => 80.0, 'status' => 'success'],
+                ],
+            );
+
+            $project = \makeGitLabProject(defaultBranch: 'main', externalId: '123');
+            $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
+            $result = $coverageProvider->fetchCoverage($project);
+
+            expect($result->jobs[0]->name)->toBe('backend');
+            expect($result->jobs[1]->name)->toBe('frontend');
+        });
+
+        it('keeps original name when only one job has coverage', function (): void {
+            $http = \stubHttpClient(
+                [['id' => 42, 'sha' => 'abc123def456', 'coverage' => 85.0]],
+                ['id' => 42, 'sha' => 'abc123def456', 'coverage' => 85.0],
+                [
+                    ['name' => 'test:backend', 'coverage' => 85.0, 'status' => 'success'],
+                ],
+            );
+
+            $project = \makeGitLabProject(defaultBranch: 'main', externalId: '123');
+            $coverageProvider = new GitLabCoverageProvider($http, new NullLogger());
+            $result = $coverageProvider->fetchCoverage($project);
+
+            expect($result->jobs)->toHaveCount(1);
+            expect($result->jobs[0]->name)->toBe('test:backend');
         });
 
         it('returns null and logs warning on API exception', function (): void {
