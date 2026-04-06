@@ -7,8 +7,6 @@ services:
       APP_DEBUG: 1
       XDEBUG_MODE: debug,coverage
       XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
-    ports:
-      - "9003:9003"
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8000/healthz || exit 1"]
       interval: 10s
@@ -26,12 +24,12 @@ services:
     environment:
       CI: "true"
     command: >
-      sh -c "pnpm install &&
+      sh -c "if ! node -e \"require.resolve('vite')\" 2>/dev/null; then
+               echo '[entrypoint] node_modules incomplete, wiping and reinstalling';
+               rm -rf node_modules;
+             fi &&
+             pnpm install --frozen-lockfile &&
              pnpm dev --host 0.0.0.0"
-
-  database:
-    ports:
-      - "5432:5432"
 
   messenger-consumer:
     volumes:
