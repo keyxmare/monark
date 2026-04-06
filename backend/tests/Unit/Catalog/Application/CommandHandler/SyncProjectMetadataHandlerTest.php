@@ -194,12 +194,12 @@ describe('SyncProjectMetadataHandler', function () {
 
         expect($project->getName())->toBe('Renamed Project');
         expect($project->getDescription())->toBe('New desc');
-        expect($project->getDefaultBranch())->toBe('develop');
+        expect($project->getDefaultBranch())->toBe('main');
         expect($project->getVisibility())->toBe(ProjectVisibility::Public);
         expect($projectRepo->saved)->toBe($project);
         expect($eventBus->dispatched)->toHaveCount(1);
         expect($eventBus->dispatched[0])->toBeInstanceOf(ProjectMetadataSyncedEvent::class);
-        expect($eventBus->dispatched[0]->changedFields)->toContain('name', 'description', 'defaultBranch', 'visibility');
+        expect($eventBus->dispatched[0]->changedFields)->toContain('name', 'description', 'visibility');
     });
 
     it('does not emit event when nothing changed', function () {
@@ -270,6 +270,33 @@ describe('SyncProjectMetadataHandler', function () {
 
         $remote = new RemoteProject(
             externalId: '42',
+            name: 'Renamed Project',
+            slug: 'my-project',
+            description: 'Original desc',
+            repositoryUrl: 'https://gitlab.example.com/my-project.git',
+            defaultBranch: 'main',
+            visibility: 'private',
+            avatarUrl: null,
+        );
+
+        $projectRepo = \stubMetadataProjectRepo($project);
+        $factory = \stubMetadataGitProviderFactory($remote);
+        $eventBus = \spyMetadataEventBus();
+
+        $handler = new SyncProjectMetadataHandler($projectRepo, \stubMetadataProviderRepo(), $factory, $eventBus);
+        $handler(new SyncProjectMetadataCommand($project->getId()->toRfc4122()));
+
+        expect($eventBus->dispatched[0]->changedFields)->toBe(['name']);
+        expect($project->getName())->toBe('Renamed Project');
+        expect($project->getDescription())->toBe('Original desc');
+    });
+
+    it('does not sync defaultBranch (user-selected)', function () {
+        $provider = ProviderFactory::create();
+        $project = \createMetadataProject($provider);
+
+        $remote = new RemoteProject(
+            externalId: '42',
             name: 'My Project',
             slug: 'my-project',
             description: 'Original desc',
@@ -286,8 +313,8 @@ describe('SyncProjectMetadataHandler', function () {
         $handler = new SyncProjectMetadataHandler($projectRepo, \stubMetadataProviderRepo(), $factory, $eventBus);
         $handler(new SyncProjectMetadataCommand($project->getId()->toRfc4122()));
 
-        expect($eventBus->dispatched[0]->changedFields)->toBe(['defaultBranch']);
-        expect($project->getDefaultBranch())->toBe('develop');
-        expect($project->getName())->toBe('My Project');
+        expect($project->getDefaultBranch())->toBe('main');
+        expect($projectRepo->saved)->toBeNull();
+        expect($eventBus->dispatched)->toBeEmpty();
     });
 });
