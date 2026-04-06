@@ -20,20 +20,11 @@ services:
   frontend:
     volumes:
       - ../frontend:/app
-      - frontend-node-modules:/app/node_modules
+      - /app/node_modules
     environment:
       CI: "true"
-    command: >
-      sh -c "if ! node -e \"require.resolve('vite')\" 2>/dev/null; then
-               echo '[entrypoint] node_modules incomplete, wiping and reinstalling';
-               rm -rf node_modules;
-             fi &&
-             pnpm install --frozen-lockfile &&
-             pnpm dev --host 0.0.0.0"
+    command: pnpm dev --host 0.0.0.0
 
   messenger-consumer:
     volumes:
       - ../backend:/app
-
-volumes:
-  frontend-node-modules:

@@ -6,7 +6,9 @@ WORKDIR /app
 
 FROM base AS dev
 
-RUN mkdir -p /app/node_modules && chown -R node:node /app
+COPY --chown=node:node frontend/package.json frontend/pnpm-lock.yaml* ./
+
+RUN pnpm install --frozen-lockfile && chown -R node:node /app
 
 USER node
 
