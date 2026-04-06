@@ -45,14 +45,10 @@ quality: lint phpstan deptrac test ## Run all quality checks
 db-migrate: ## Run database migrations
 	$(DC_EXEC) bin/console doctrine:migrations:migrate --no-interaction
 
-db-fixtures: ## Load fixtures
-	$(DC_EXEC) bin/console doctrine:fixtures:load --no-interaction
-
-db-reset: ## Reset database (drop + create + migrate + fixtures)
+db-reset: ## Reset database (drop + create + migrate)
 	$(DC_EXEC) bin/console doctrine:database:drop --force --if-exists
 	$(DC_EXEC) bin/console doctrine:database:create
 	$(DC_EXEC) bin/console doctrine:migrations:migrate --no-interaction
-	$(DC_EXEC) bin/console doctrine:fixtures:load --no-interaction
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'

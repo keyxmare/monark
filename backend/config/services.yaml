@@ -29,10 +29,6 @@ services:
     App\Sync\:
         resource: '../src/Sync/'
 
-    App\DataFixtures\:
-        resource: '../src/DataFixtures/'
-
-
     App\Identity\Domain\Repository\UserRepositoryInterface:
         alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineUserRepository
 

@@ -33,8 +33,5 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
-        <exclude>
-            <directory suffix=".php">src/DataFixtures</directory>
-        </exclude>
     </source>
 </phpunit>
