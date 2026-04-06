@@ -136,7 +136,7 @@ services:
     tmpfs:
       - /app/var/cache
     deploy:
-      replicas: ${MESSENGER_CONSUMERS:-1}
+      replicas: ${MESSENGER_CONSUMERS:-10}
     depends_on:
       backend:
         condition: service_healthy
