@@ -29,6 +29,9 @@ services:
     App\Sync\:
         resource: '../src/Sync/'
 
+    App\History\:
+        resource: '../src/History/'
+
     App\Identity\Domain\Repository\UserRepositoryInterface:
         alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineUserRepository
 
@@ -208,3 +211,30 @@ services:
     App\Sync\Presentation\Controller\StartGlobalSyncController:
         arguments:
             $commandBus: '@command.bus'
+
+    App\History\Domain\Repository\ProjectDebtSnapshotRepositoryInterface:
+        alias: App\History\Infrastructure\Persistence\Doctrine\DoctrineProjectDebtSnapshotRepository
+
+    App\History\Domain\Port\HistoricalVersionResolverInterface:
+        alias: App\History\Infrastructure\Resolver\CompositeHistoricalVersionResolver
+
+    App\History\Infrastructure\Resolver\EndOfLifeHistoricalResolver:
+        arguments:
+            $httpClient: '@external_api.client'
+            $cache: '@cache.app'
+
+    App\History\Application\EventListener\RecordSnapshotOnScanListener:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\History\Application\CommandHandler\BackfillProjectHistoryHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\History\Presentation\Controller\BackfillProjectHistoryController:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\History\Presentation\Controller\GetDebtTimelineController:
+        arguments:
+            $queryBus: '@query.bus'

@@ -74,6 +74,10 @@ function stubGitProviderFactory(bool $connectionSuccess): GitProviderFactoryInte
         {
             return [];
         }
+        public function listCommits(Provider $provider, string $externalProjectId, string $ref, ?\DateTimeImmutable $since = null, ?\DateTimeImmutable $until = null, int $perPage = 100): array
+        {
+            return [];
+        }
     };
 
     $factory = new class ($gitClient) implements GitProviderFactoryInterface {

@@ -57,6 +57,10 @@ function stubScanGitProviderFactory(): \App\Catalog\Domain\Port\GitProviderFacto
                 {
                     return ['main'];
                 }
+                public function listCommits(\App\Catalog\Domain\Model\Provider $provider, string $externalProjectId, string $ref, ?\DateTimeImmutable $since = null, ?\DateTimeImmutable $until = null, int $perPage = 100): array
+                {
+                    return [];
+                }
             };
         }
     };
@@ -196,7 +200,7 @@ function stubProjectScanner(ScanResult $result): ProjectScannerInterface
         {
         }
 
-        public function scan(Project $project): ScanResult
+        public function scan(Project $project, ?string $ref = null): ScanResult
         {
             return $this->scanResult;
         }

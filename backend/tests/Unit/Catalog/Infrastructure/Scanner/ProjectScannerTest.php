@@ -75,6 +75,11 @@ function stubScannerGitClient(array $files = [], array $tree = []): GitProviderI
             return [];
         }
 
+        public function listCommits(Provider $provider, string $externalProjectId, string $ref, ?\DateTimeImmutable $since = null, ?\DateTimeImmutable $until = null, int $perPage = 100): array
+        {
+            return [];
+        }
+
     };
 }
 
@@ -864,6 +869,10 @@ describe('ProjectScanner', function () {
                 );
             }
             public function listBranches(Provider $provider, string $externalProjectId): array
+            {
+                return [];
+            }
+            public function listCommits(Provider $provider, string $externalProjectId, string $ref, ?\DateTimeImmutable $since = null, ?\DateTimeImmutable $until = null, int $perPage = 100): array
             {
                 return [];
             }

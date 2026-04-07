@@ -5,6 +5,7 @@ import { activityRoutes } from '@/activity/routes';
 import { catalogRoutes } from '@/catalog/routes';
 import { coverageRoutes } from '@/coverage/routes';
 import { dependencyRoutes } from '@/dependency/routes';
+import { historyRoutes } from '@/history/routes';
 import { identityRoutes } from '@/identity/routes';
 
 const routes = [
@@ -12,6 +13,7 @@ const routes = [
   ...catalogRoutes,
   ...coverageRoutes,
   ...dependencyRoutes,
+  ...historyRoutes,
   ...identityRoutes,
 ];
 

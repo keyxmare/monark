@@ -9,5 +9,5 @@ use App\Shared\Domain\DTO\ScanResult;
 
 interface ProjectScannerInterface
 {
-    public function scan(Project $project): ScanResult;
+    public function scan(Project $project, ?string $ref = null): ScanResult;
 }

@@ -48,6 +48,14 @@ function makeScanListenerUpdater(FrameworkRepositoryInterface $fwRepo): Framewor
         {
             return null;
         }
+        public function findLatestReleasedBefore(string $name, ?\App\Shared\Domain\ValueObject\PackageManager $pm, \DateTimeImmutable $at): ?ProductVersion
+        {
+            return null;
+        }
+        public function findLatestLtsBefore(string $name, ?\App\Shared\Domain\ValueObject\PackageManager $pm, \DateTimeImmutable $at): ?ProductVersion
+        {
+            return null;
+        }
         public function findByNameManagerAndVersion(string $name, ?\App\Shared\Domain\ValueObject\PackageManager $pm, string $version): ?ProductVersion
         {
             return null;

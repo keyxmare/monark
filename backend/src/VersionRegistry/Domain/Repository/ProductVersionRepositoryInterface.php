@@ -6,6 +6,7 @@ namespace App\VersionRegistry\Domain\Repository;
 
 use App\Shared\Domain\ValueObject\PackageManager;
 use App\VersionRegistry\Domain\Model\ProductVersion;
+use DateTimeImmutable;
 
 interface ProductVersionRepositoryInterface
 {
@@ -13,6 +14,10 @@ interface ProductVersionRepositoryInterface
     public function findByNameAndManager(string $productName, ?PackageManager $packageManager): array;
 
     public function findLatestByNameAndManager(string $productName, ?PackageManager $packageManager): ?ProductVersion;
+
+    public function findLatestReleasedBefore(string $productName, ?PackageManager $packageManager, DateTimeImmutable $at): ?ProductVersion;
+
+    public function findLatestLtsBefore(string $productName, ?PackageManager $packageManager, DateTimeImmutable $at): ?ProductVersion;
 
     public function findByNameManagerAndVersion(string $productName, ?PackageManager $packageManager, string $version): ?ProductVersion;
 

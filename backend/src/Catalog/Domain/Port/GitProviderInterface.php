@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Catalog\Domain\Port;
 
 use App\Catalog\Domain\Model\Provider;
+use App\Catalog\Domain\Model\RemoteCommit;
 use App\Catalog\Domain\Model\RemoteProject;
+use DateTimeImmutable;
 
 interface GitProviderInterface
 {
@@ -25,4 +27,14 @@ interface GitProviderInterface
 
     /** @return list<string> */
     public function listBranches(Provider $provider, string $externalProjectId): array;
+
+    /** @return list<RemoteCommit> */
+    public function listCommits(
+        Provider $provider,
+        string $externalProjectId,
+        string $ref,
+        ?DateTimeImmutable $since = null,
+        ?DateTimeImmutable $until = null,
+        int $perPage = 100,
+    ): array;
 }

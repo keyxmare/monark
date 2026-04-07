@@ -53,3 +53,4 @@ framework:
             App\VersionRegistry\Application\Command\SyncSingleProductCommand: async
             App\Catalog\Application\Command\SyncLanguageCveCommand: async
             App\Coverage\Application\Command\FetchProjectCoverageCommand: async
+            App\History\Application\Command\BackfillProjectHistoryCommand: async

@@ -80,6 +80,10 @@ function stubFailingGitFactory(\Throwable $exception): GitProviderFactoryInterfa
         {
             return [];
         }
+        public function listCommits(Provider $provider, string $externalProjectId, string $ref, ?\DateTimeImmutable $since = null, ?\DateTimeImmutable $until = null, int $perPage = 100): array
+        {
+            return [];
+        }
     };
 
     return new class ($gitClient) implements GitProviderFactoryInterface {
@@ -171,6 +175,10 @@ function stubRemoteGitFactory(array $remoteProjects): GitProviderFactoryInterfac
             return [];
         }
         public function listBranches(Provider $provider, string $externalProjectId): array
+        {
+            return [];
+        }
+        public function listCommits(Provider $provider, string $externalProjectId, string $ref, ?\DateTimeImmutable $since = null, ?\DateTimeImmutable $until = null, int $perPage = 100): array
         {
             return [];
         }

@@ -7,6 +7,7 @@ namespace App\VersionRegistry\Infrastructure\Persistence\Doctrine;
 use App\Shared\Domain\ValueObject\PackageManager;
 use App\VersionRegistry\Domain\Model\ProductVersion;
 use App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class DoctrineProductVersionRepository implements ProductVersionRepositoryInterface
@@ -42,6 +43,51 @@ final readonly class DoctrineProductVersionRepository implements ProductVersionR
             ->where('v.productName = :name')
             ->andWhere('v.isLatest = true')
             ->setParameter('name', $productName);
+
+        if ($packageManager !== null) {
+            $qb->andWhere('v.packageManager = :pm')->setParameter('pm', $packageManager->value);
+        } else {
+            $qb->andWhere('v.packageManager IS NULL');
+        }
+
+        /** @var ProductVersion|null */
+        return $qb->getQuery()->setMaxResults(1)->getOneOrNullResult();
+    }
+
+    public function findLatestReleasedBefore(string $productName, ?PackageManager $packageManager, DateTimeImmutable $at): ?ProductVersion
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->select('v')
+            ->from(ProductVersion::class, 'v')
+            ->where('v.productName = :name')
+            ->andWhere('v.releaseDate IS NOT NULL')
+            ->andWhere('v.releaseDate <= :at')
+            ->setParameter('name', $productName)
+            ->setParameter('at', $at)
+            ->orderBy('v.releaseDate', 'DESC');
+
+        if ($packageManager !== null) {
+            $qb->andWhere('v.packageManager = :pm')->setParameter('pm', $packageManager->value);
+        } else {
+            $qb->andWhere('v.packageManager IS NULL');
+        }
+
+        /** @var ProductVersion|null */
+        return $qb->getQuery()->setMaxResults(1)->getOneOrNullResult();
+    }
+
+    public function findLatestLtsBefore(string $productName, ?PackageManager $packageManager, DateTimeImmutable $at): ?ProductVersion
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->select('v')
+            ->from(ProductVersion::class, 'v')
+            ->where('v.productName = :name')
+            ->andWhere('v.isLts = true')
+            ->andWhere('v.releaseDate IS NOT NULL')
+            ->andWhere('v.releaseDate <= :at')
+            ->setParameter('name', $productName)
+            ->setParameter('at', $at)
+            ->orderBy('v.releaseDate', 'DESC');
 
         if ($packageManager !== null) {
             $qb->andWhere('v.packageManager = :pm')->setParameter('pm', $packageManager->value);

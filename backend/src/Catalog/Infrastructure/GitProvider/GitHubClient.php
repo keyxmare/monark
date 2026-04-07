@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Catalog\Infrastructure\GitProvider;
 
 use App\Catalog\Domain\Model\Provider;
+use App\Catalog\Domain\Model\RemoteCommit;
 use App\Catalog\Domain\Model\RemoteProject;
 use App\Catalog\Domain\Port\GitProviderInterface;
+use DateTimeImmutable;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
@@ -202,6 +204,63 @@ final readonly class GitHubClient implements GitProviderInterface
         } catch (ClientExceptionInterface) {
             return [];
         }
+    }
+
+    public function listCommits(
+        Provider $provider,
+        string $externalProjectId,
+        string $ref,
+        ?DateTimeImmutable $since = null,
+        ?DateTimeImmutable $until = null,
+        int $perPage = 100,
+    ): array {
+        $url = \sprintf('%s/repos/%s/commits', $this->baseUrl($provider), $externalProjectId);
+        $query = [
+            'sha' => $ref,
+            'per_page' => \min($perPage, 100),
+        ];
+        if ($since !== null) {
+            $query['since'] = $since->format(\DATE_ATOM);
+        }
+        if ($until !== null) {
+            $query['until'] = $until->format(\DATE_ATOM);
+        }
+
+        try {
+            $response = $this->httpClient->request('GET', $url, [
+                'headers' => $this->headers($provider),
+                'query' => $query,
+            ]);
+
+            /** @var list<array{sha?: string, commit?: array{committer?: array{date?: string}, author?: array{date?: string}, message?: string}}> $data */
+            $data = $response->toArray();
+        } catch (Throwable) {
+            return [];
+        }
+
+        $commits = [];
+        foreach ($data as $item) {
+            $sha = $item['sha'] ?? null;
+            if ($sha === null) {
+                continue;
+            }
+            $dateStr = $item['commit']['committer']['date'] ?? $item['commit']['author']['date'] ?? null;
+            if ($dateStr === null) {
+                continue;
+            }
+            try {
+                $date = new DateTimeImmutable($dateStr);
+            } catch (Throwable) {
+                continue;
+            }
+            $commits[] = new RemoteCommit(
+                sha: $sha,
+                date: $date,
+                message: $item['commit']['message'] ?? '',
+            );
+        }
+
+        return $commits;
     }
 
     public function listBranches(Provider $provider, string $externalProjectId): array

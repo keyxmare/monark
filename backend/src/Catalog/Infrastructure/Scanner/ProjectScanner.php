@@ -48,10 +48,10 @@ class ProjectScanner implements ProjectScannerInterface
         $this->allManifests = \array_keys($manifests);
     }
 
-    public function scan(Project $project): ScanResult
+    public function scan(Project $project, ?string $ref = null): ScanResult
     {
         try {
-            return $this->doScan($project);
+            return $this->doScan($project, $ref);
         } catch (Throwable $e) {
             $this->logger->error('Scan failed for project {project}: {error}', [
                 'project' => $project->getId()->toRfc4122(),
@@ -62,18 +62,18 @@ class ProjectScanner implements ProjectScannerInterface
         }
     }
 
-    private function doScan(Project $project): ScanResult
+    private function doScan(Project $project, ?string $ref = null): ScanResult
     {
         $provider = $project->getProvider();
         $externalId = $project->getExternalId();
-        $ref = $project->getDefaultBranch();
+        $ref ??= $project->getDefaultBranch();
 
         if ($provider === null || $externalId === null) {
             return new ScanResult(stacks: [], dependencies: []);
         }
 
         $gitProvider = $this->gitProviderFactory->create($provider);
-        $searchPaths = $this->discoverSearchPaths($gitProvider, $project);
+        $searchPaths = $this->discoverSearchPaths($gitProvider, $project, $ref);
 
         /** @var list<DetectedStack> $stacks */
         $stacks = [];
@@ -157,11 +157,11 @@ class ProjectScanner implements ProjectScannerInterface
     }
 
     /** @return list<string> */
-    private function discoverSearchPaths(GitProviderInterface $gitProvider, Project $project): array
+    private function discoverSearchPaths(GitProviderInterface $gitProvider, Project $project, ?string $ref = null): array
     {
         $provider = $project->getProvider();
         $externalId = $project->getExternalId();
-        $ref = $project->getDefaultBranch();
+        $ref ??= $project->getDefaultBranch();
 
         if ($provider === null || $externalId === null) {
             return [''];
