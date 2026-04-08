@@ -1,0 +1,30 @@
+services:
+  backend:
+    volumes:
+      - ../backend:/app
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 1
+      XDEBUG_MODE: debug,coverage
+      XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    command: >
+      sh -c "composer install --no-interaction &&
+             php -S 0.0.0.0:8000 -t public"
+
+  frontend:
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    environment:
+      CI: "true"
+    command: pnpm dev --host 0.0.0.0
+
+  messenger-consumer:
+    volumes:
+      - ../backend:/app

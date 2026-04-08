@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Dependency\Presentation\Controller;
+
+use App\Dependency\Application\Command\SyncDependencyVersionsCommand;
+use App\Dependency\Domain\Repository\DependencyRepositoryInterface;
+use App\Shared\Application\DTO\ApiResponse;
+use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
+
+#[Route('/api/v1/dependency/sync', name: 'dependency_sync', methods: ['POST'])]
+#[OA\Post(
+    summary: 'Sync dependency versions from registries',
+    tags: ['Dependency / Dependencies'],
+    responses: [new OA\Response(response: 202, description: 'Sync started')],
+)]
+final readonly class SyncDependencyVersionsController
+{
+    public function __construct(
+        private MessageBusInterface $commandBus,
+        private DependencyRepositoryInterface $dependencyRepository,
+    ) {
+    }
+
+    public function __invoke(): JsonResponse
+    {
+        $syncId = Uuid::v7()->toRfc4122();
+        $total = \count($this->dependencyRepository->findUniquePackages());
+
+        $this->commandBus->dispatch(new SyncDependencyVersionsCommand(
+            syncId: $syncId,
+        ));
+
+        return new JsonResponse(
+            ApiResponse::success(['syncId' => $syncId, 'total' => $total])->toArray(),
+            202,
+        );
+    }
+}

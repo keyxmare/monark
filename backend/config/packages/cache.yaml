@@ -1,0 +1,7 @@
+framework:
+    cache:
+        pools:
+            cache.query:
+                adapter: cache.adapter.array
+                default_lifetime: 300
+                tags: true

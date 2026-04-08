@@ -1,0 +1,76 @@
+import { mount } from '@vue/test-utils';
+import { describe, expect, it, vi } from 'vitest';
+import { ref } from 'vue';
+
+import SyncProgressBanner from '@/shared/components/SyncProgressBanner.vue';
+import type { GlobalSyncState } from '@/shared/types/globalSync';
+
+const mockCurrentSync = ref<GlobalSyncState | null>(null);
+
+vi.mock('@/shared/composables/useGlobalSync', () => ({
+  useGlobalSync: () => ({
+    currentSync: mockCurrentSync,
+    isRunning: ref(false),
+    startSync: vi.fn(),
+    loadCurrent: vi.fn(),
+    onStepCompleted: vi.fn(),
+  }),
+}));
+
+function mountWithSync(state: GlobalSyncState | null) {
+  mockCurrentSync.value = state;
+  return mount(SyncProgressBanner);
+}
+
+describe('SyncProgressBanner', () => {
+  it('is hidden when no sync', async () => {
+    const wrapper = mountWithSync(null);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('[data-testid="sync-progress-banner"]').exists()).toBe(false);
+  });
+
+  it('shows all 4 steps when running', async () => {
+    const wrapper = mountWithSync({
+      syncId: 'abc',
+      status: 'running',
+      currentStep: 1,
+      currentStepName: 'sync_projects',
+      stepProgress: 2,
+      stepTotal: 5,
+      completedSteps: [],
+    });
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('[data-testid="sync-progress-banner"]').exists()).toBe(true);
+    expect(wrapper.findAll('[data-testid="step-active"]')).toHaveLength(1);
+    expect(wrapper.findAll('[data-testid="step-pending"]')).toHaveLength(3);
+  });
+
+  it('shows progress bar with correct width', async () => {
+    const wrapper = mountWithSync({
+      syncId: 'abc',
+      status: 'running',
+      currentStep: 2,
+      currentStepName: 'sync_versions',
+      stepProgress: 50,
+      stepTotal: 100,
+      completedSteps: ['sync_projects'],
+    });
+    await wrapper.vm.$nextTick();
+    const bar = wrapper.find('[data-testid="sync-progress-bar"]');
+    expect(bar.attributes('style')).toContain('50%');
+  });
+
+  it('shows all steps as completed when status is completed', async () => {
+    const wrapper = mountWithSync({
+      syncId: 'abc',
+      status: 'completed',
+      currentStep: 4,
+      currentStepName: 'scan_cve',
+      stepProgress: 0,
+      stepTotal: 0,
+      completedSteps: ['sync_projects', 'sync_coverage', 'sync_versions', 'scan_cve'],
+    });
+    await wrapper.vm.$nextTick();
+    expect(wrapper.findAll('[data-testid="step-completed"]')).toHaveLength(4);
+  });
+});

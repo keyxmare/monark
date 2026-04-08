@@ -1,0 +1,25 @@
+error:
+  not_found: "Ressource non trouvée"
+  entity_not_found: "%entity% avec l'identifiant \"%id%\" est introuvable."
+  validation: "Échec de la validation"
+  unauthorized: "Non autorisé"
+  forbidden: "Interdit"
+  server_error: "Erreur interne du serveur"
+  duplicate_email: "Un utilisateur avec cet e-mail existe déjà."
+  duplicate_slug: "Ce slug est déjà utilisé."
+  invalid_credentials: "Identifiants invalides."
+  project_not_linked: "Ce projet n'est pas lié à un fournisseur."
+
+project:
+  not_found: "Projet non trouvé"
+  not_linked: "Le projet n'est pas lié à un fournisseur"
+
+dependency:
+  not_found: "Dépendance non trouvée"
+
+vulnerability:
+  not_found: "Vulnérabilité non trouvée"
+
+scan:
+  success: "Scan terminé avec succès"
+  no_provider: "Le projet n'a pas de fournisseur configuré"
