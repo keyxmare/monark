@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      target: prod
+    restart: unless-stopped
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+
+  frontend:
+    build:
+      target: prod
+    restart: unless-stopped
+
+  database:
+    restart: unless-stopped
+
+  rabbitmq:
+    restart: unless-stopped
+
+  messenger-consumer:
+    build:
+      target: prod
+    restart: unless-stopped

@@ -1,0 +1,55 @@
+framework:
+    messenger:
+        default_bus: command.bus
+
+        buses:
+            command.bus:
+                middleware:
+                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
+                    - doctrine_transaction
+            query.bus:
+                middleware:
+                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
+            event.bus:
+                default_middleware:
+                    allow_no_handlers: true
+                middleware:
+                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
+
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: monark
+                        type: topic
+                        default_publish_routing_key: default
+                    queues:
+                        monark_default:
+                            binding_keys: ['default']
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: monark_failed
+                        type: fanout
+                    queues:
+                        monark_failed: ~
+
+        failure_transport: failed
+
+        routing:
+            App\Catalog\Application\Command\ScanProjectCommand: async
+            App\Catalog\Application\Command\SyncProjectMetadataCommand: async
+            App\Dependency\Application\Command\SyncDependencyVersionsCommand: async
+            App\Dependency\Application\Command\SyncSingleDependencyVersionCommand: async
+            App\Dependency\Application\Command\SyncDependencyCveCommand: async
+            App\VersionRegistry\Application\Command\SyncProductVersionsCommand: async
+            App\VersionRegistry\Application\Command\SyncSingleProductCommand: async
+            App\Catalog\Application\Command\SyncLanguageCveCommand: async
+            App\Coverage\Application\Command\FetchProjectCoverageCommand: async

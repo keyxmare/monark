@@ -1,0 +1,222 @@
+deptrac:
+  paths:
+    - ./src
+
+  layers:
+    - name: Identity_Domain
+      collectors:
+        - type: directory
+          value: src/Identity/Domain/.*
+
+    - name: Identity_Application
+      collectors:
+        - type: directory
+          value: src/Identity/Application/.*
+
+    - name: Identity_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Identity/Infrastructure/.*
+
+    - name: Identity_Presentation
+      collectors:
+        - type: directory
+          value: src/Identity/Presentation/.*
+
+    - name: Catalog_Domain
+      collectors:
+        - type: directory
+          value: src/Catalog/Domain/.*
+
+    - name: Catalog_Application
+      collectors:
+        - type: directory
+          value: src/Catalog/Application/.*
+
+    - name: Catalog_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Catalog/Infrastructure/.*
+
+    - name: Catalog_Presentation
+      collectors:
+        - type: directory
+          value: src/Catalog/Presentation/.*
+
+    - name: Dependency_Domain
+      collectors:
+        - type: directory
+          value: src/Dependency/Domain/.*
+
+    - name: Dependency_Application
+      collectors:
+        - type: directory
+          value: src/Dependency/Application/.*
+
+    - name: Dependency_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Dependency/Infrastructure/.*
+
+    - name: Dependency_Presentation
+      collectors:
+        - type: directory
+          value: src/Dependency/Presentation/.*
+
+    - name: Activity_Domain
+      collectors:
+        - type: directory
+          value: src/Activity/Domain/.*
+
+    - name: Activity_Application
+      collectors:
+        - type: directory
+          value: src/Activity/Application/.*
+
+    - name: Activity_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Activity/Infrastructure/.*
+
+    - name: Activity_Presentation
+      collectors:
+        - type: directory
+          value: src/Activity/Presentation/.*
+
+    - name: VersionRegistry_Domain
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Domain/.*
+
+    - name: VersionRegistry_Application
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Application/.*
+
+    - name: VersionRegistry_Infrastructure
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Infrastructure/.*
+
+    - name: VersionRegistry_Presentation
+      collectors:
+        - type: directory
+          value: src/VersionRegistry/Presentation/.*
+
+    - name: Sync_Domain
+      collectors:
+        - type: directory
+          value: src/Sync/Domain/.*
+
+    - name: Sync_Application
+      collectors:
+        - type: directory
+          value: src/Sync/Application/.*
+
+    - name: Sync_Infrastructure
+      collectors:
+        - type: directory
+          value: src/Sync/Infrastructure/.*
+
+    - name: Sync_Presentation
+      collectors:
+        - type: directory
+          value: src/Sync/Presentation/.*
+
+    - name: Shared
+      collectors:
+        - type: directory
+          value: src/Shared/.*
+
+  ruleset:
+    Identity_Domain:
+      - Shared
+    Identity_Application:
+      - Identity_Domain
+      - Shared
+    Identity_Infrastructure:
+      - Identity_Domain
+      - Identity_Application
+      - Shared
+    Identity_Presentation:
+      - Identity_Domain
+      - Identity_Application
+      - Shared
+
+    Catalog_Domain:
+      - Shared
+    Catalog_Application:
+      - Catalog_Domain
+      - VersionRegistry_Domain
+      - Shared
+    Catalog_Infrastructure:
+      - Catalog_Domain
+      - Catalog_Application
+      - Shared
+    Catalog_Presentation:
+      - Catalog_Domain
+      - Catalog_Application
+      - Identity_Domain
+      - Shared
+
+    Dependency_Domain:
+      - Shared
+    Dependency_Application:
+      - Dependency_Domain
+      - Shared
+    Dependency_Infrastructure:
+      - Dependency_Domain
+      - Dependency_Application
+      - Shared
+    Dependency_Presentation:
+      - Dependency_Domain
+      - Dependency_Application
+      - Shared
+
+    Activity_Domain:
+      - Shared
+    Activity_Application:
+      - Activity_Domain
+      - Shared
+    Activity_Infrastructure:
+      - Activity_Domain
+      - Activity_Application
+      - Shared
+    Activity_Presentation:
+      - Activity_Domain
+      - Activity_Application
+      - Shared
+
+    VersionRegistry_Domain:
+      - Shared
+    VersionRegistry_Application:
+      - VersionRegistry_Domain
+      - Shared
+    VersionRegistry_Infrastructure:
+      - VersionRegistry_Domain
+      - VersionRegistry_Application
+      - Dependency_Domain
+      - Shared
+    VersionRegistry_Presentation:
+      - VersionRegistry_Domain
+      - VersionRegistry_Application
+      - Shared
+
+    Sync_Domain:
+      - Shared
+    Sync_Application:
+      - Sync_Domain
+      - Catalog_Application
+      - Catalog_Domain
+      - Dependency_Application
+      - VersionRegistry_Application
+      - Shared
+    Sync_Infrastructure:
+      - Sync_Domain
+      - Shared
+    Sync_Presentation:
+      - Sync_Domain
+      - Sync_Application
+      - Shared
+
+    Shared: ~

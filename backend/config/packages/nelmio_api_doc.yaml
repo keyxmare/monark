@@ -1,0 +1,16 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Monark API
+            description: Project monitoring and dependency management API
+            version: 1.0.0
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+        security:
+            - Bearer: []
+    areas:
+        path_patterns:
+            - ^/api/v1

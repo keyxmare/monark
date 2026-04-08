@@ -1,0 +1,54 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        types:
+            app_email: App\Shared\Infrastructure\Persistence\Doctrine\Type\EmailType
+            app_slug: App\Shared\Infrastructure\Persistence\Doctrine\Type\SlugType
+            app_repository_url: App\Shared\Infrastructure\Persistence\Doctrine\Type\RepositoryUrlType
+
+    orm:
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            Identity:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Identity/Domain/Model'
+                prefix: 'App\Identity\Domain\Model'
+                alias: Identity
+            Catalog:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Catalog/Domain/Model'
+                prefix: 'App\Catalog\Domain\Model'
+                alias: Catalog
+            Dependency:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Dependency/Domain/Model'
+                prefix: 'App\Dependency\Domain\Model'
+                alias: Dependency
+            Activity:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Activity/Domain/Model'
+                prefix: 'App\Activity\Domain\Model'
+                alias: Activity
+            VersionRegistry:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/VersionRegistry/Domain/Model'
+                prefix: 'App\VersionRegistry\Domain\Model'
+                alias: VersionRegistry
+            Sync:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Sync/Domain/Model'
+                prefix: 'App\Sync\Domain\Model'
+                alias: Sync
+            Coverage:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Coverage/Domain/Model'
+                prefix: 'App\Coverage\Domain\Model'
+                alias: Coverage

@@ -1,0 +1,210 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Shared\:
+        resource: '../src/Shared/'
+
+    App\Identity\:
+        resource: '../src/Identity/'
+
+    App\Catalog\:
+        resource: '../src/Catalog/'
+
+    App\Dependency\:
+        resource: '../src/Dependency/'
+
+    App\Activity\:
+        resource: '../src/Activity/'
+
+    App\VersionRegistry\:
+        resource: '../src/VersionRegistry/'
+
+    App\Coverage\:
+        resource: '../src/Coverage/'
+
+    App\Sync\:
+        resource: '../src/Sync/'
+
+    App\Identity\Domain\Repository\UserRepositoryInterface:
+        alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineUserRepository
+
+    App\Catalog\Domain\Repository\ProjectRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProjectRepository
+
+    App\Catalog\Domain\Repository\ProviderRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
+
+    App\Catalog\Domain\Repository\SyncJobRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineSyncJobRepository
+
+    App\Catalog\Domain\Port\GitProviderInterface:
+        alias: App\Catalog\Infrastructure\GitProvider\GitLabClient
+
+    App\Catalog\Domain\Port\GitProviderFactoryInterface:
+        alias: App\Catalog\Infrastructure\GitProvider\GitProviderFactory
+
+    App\Catalog\Domain\Port\ProjectScannerInterface:
+        alias: App\Catalog\Infrastructure\Scanner\ProjectScanner
+
+    App\Activity\Domain\Repository\BuildMetricRepositoryInterface:
+        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineBuildMetricRepository
+
+    App\Catalog\Domain\Repository\LanguageVulnerabilityRepositoryInterface:
+        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineLanguageVulnerabilityRepository
+
+    App\Dependency\Domain\Repository\DependencyRepositoryInterface:
+        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyRepository
+
+    App\Dependency\Domain\Repository\VulnerabilityRepositoryInterface:
+        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineVulnerabilityRepository
+
+    App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface:
+        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyVersionRepository
+
+    App\Catalog\Infrastructure\GitProvider\GitLabClient:
+        arguments:
+            $httpClient: '@external_api.client'
+
+    App\Dependency\Infrastructure\Registry\PackageRegistryFactory:
+        arguments:
+            $adapters: !tagged_iterator dependency.registry_adapter
+
+    App\Dependency\Domain\Port\PackageRegistryResolverPort:
+        alias: App\Dependency\Infrastructure\Registry\PackageRegistryFactory
+
+    App\Dependency\Infrastructure\Registry\NpmRegistryAdapter:
+        tags: ['dependency.registry_adapter']
+        arguments:
+            $httpClient: '@external_api.client'
+
+    App\Dependency\Infrastructure\Registry\PackagistRegistryAdapter:
+        tags: ['dependency.registry_adapter']
+        arguments:
+            $httpClient: '@external_api.client'
+
+    App\Identity\Application\CommandHandler\RegisterUserHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Identity\Application\CommandHandler\UpdateUserHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\CommandHandler\ScanProjectHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\CommandHandler\SyncAllProjectsHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Catalog\Application\CommandHandler\SyncProjectMetadataHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\Service\FrameworkVersionStatusUpdater:
+        arguments:
+            $eventBus: '@event.bus'
+
+
+    App\Dependency\Application\CommandHandler\SyncSingleDependencyVersionHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Dependency\Application\CommandHandler\SyncDependencyCveHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\CommandHandler\SyncLanguageCveHandler:
+        arguments:
+            $eventBus: '@event.bus'
+
+    App\Catalog\Application\EventListener\SyncLanguageCveOnScanListener:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Dependency\Application\EventListener\SyncCveOnScanListener:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Identity\Infrastructure\Security\ApiTokenHandler:
+        arguments:
+            $appSecret: '%kernel.secret%'
+
+    App\Shared\Domain\Port\DependencyReaderPort:
+        alias: App\Dependency\Infrastructure\Adapter\DependencyReaderAdapter
+
+    App\Shared\Domain\Port\DependencyWriterPort:
+        alias: App\Dependency\Infrastructure\Adapter\DependencyWriterAdapter
+
+    App\Shared\Domain\Port\OsvClientInterface:
+        alias: App\Shared\Infrastructure\Osv\OsvApiClient
+
+    App\Shared\Infrastructure\Osv\OsvApiClient:
+        arguments:
+            $httpClient: '@external_api.client'
+
+    App\Shared\Infrastructure\Logging\CorrelationIdProcessor:
+        tags:
+            - { name: monolog.processor }
+
+    App\Shared\Infrastructure\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
+
+    App\Shared\Infrastructure\EventListener\RateLimitListener:
+        arguments:
+            $apiGlobalLimiter: '@limiter.api_global'
+            $apiAuthLimiter: '@limiter.api_auth'
+
+    App\VersionRegistry\Domain\Repository\ProductRepositoryInterface:
+        alias: App\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductRepository
+
+    App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface:
+        alias: App\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductVersionRepository
+
+    App\VersionRegistry\Infrastructure\Resolver\EndOfLifeResolver:
+        tags: [App\VersionRegistry\Domain\Port\VersionResolverInterface]
+        arguments:
+            $httpClient: '@external_api.client'
+
+    App\VersionRegistry\Infrastructure\Resolver\PackageRegistryResolver:
+        tags: [App\VersionRegistry\Domain\Port\VersionResolverInterface]
+
+    App\VersionRegistry\Domain\Service\VersionResolverSelector:
+        arguments:
+            $resolvers: !tagged_iterator App\VersionRegistry\Domain\Port\VersionResolverInterface
+
+    App\VersionRegistry\Presentation\Console\SyncProductVersionsConsoleCommand:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\VersionRegistry\Presentation\Controller\SyncProductVersionsController:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\VersionRegistry\Application\CommandHandler\SyncProductVersionsHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\VersionRegistry\Application\EventListener\RegisterScannedProductsListener:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Coverage\Domain\Repository\CoverageSnapshotRepositoryInterface:
+        alias: App\Coverage\Infrastructure\Persistence\Doctrine\DoctrineCoverageSnapshotRepository
+
+    App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface:
+        class: App\Sync\Infrastructure\Repository\DoctrineGlobalSyncJobRepository
+
+    App\Sync\Application\CommandHandler\GlobalSyncHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Sync\Presentation\Controller\StartGlobalSyncController:
+        arguments:
+            $commandBus: '@command.bus'
