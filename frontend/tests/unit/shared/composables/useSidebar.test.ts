@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { useSidebar } from '@/shared/composables/useSidebar';
+import { useSidebar } from '@/hub/shared/composables/useSidebar';
 
 describe('useSidebar', () => {
   it('starts with collapsed false', () => {

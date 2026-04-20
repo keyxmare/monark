@@ -44,7 +44,7 @@ import {
   createPdfDocument,
   drawGroupBoundary,
   getPdfTableStyles,
-} from '@/shared/utils/pdfExport';
+} from '@/hub/shared/utils/pdfExport';
 
 describe('pdfExport', () => {
   describe('createPdfDocument', () => {

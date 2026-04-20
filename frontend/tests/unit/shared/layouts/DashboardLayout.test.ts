@@ -9,30 +9,30 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/composables/useSidebar', () => ({
+vi.mock('@/hub/shared/composables/useSidebar', () => ({
   useSidebar: () => ({
     collapsed: collapsedRef,
     mobileOpen: mobileOpenRef,
   }),
 }));
 
-vi.mock('@/shared/components/AppSidebar.vue', () => ({
+vi.mock('@/hub/layout/HubSidebar.vue', () => ({
   default: { template: '<aside data-testid="app-sidebar-stub" />' },
 }));
 
-vi.mock('@/shared/components/AppTopbar.vue', () => ({
+vi.mock('@/hub/layout/HubTopbar.vue', () => ({
   default: { template: '<header data-testid="app-topbar-stub" />' },
 }));
 
-import DashboardLayout from '@/shared/layouts/DashboardLayout.vue';
+import HubLayout from '@/hub/layout/HubLayout.vue';
 
 function mountLayout(slotContent = '') {
-  return mount(DashboardLayout, {
+  return mount(HubLayout, {
     slots: { default: slotContent || '<p>Page content</p>' },
   });
 }
 
-describe('DashboardLayout', () => {
+describe('HubLayout', () => {
   beforeEach(() => {
     collapsedRef.value = false;
     mobileOpenRef.value = false;

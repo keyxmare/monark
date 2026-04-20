@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { useForm } from '@/shared/composables/useForm';
+import { useForm } from '@/hub/shared/composables/useForm';
 
 describe('useForm', () => {
   const initialValues = { email: '', name: '' };

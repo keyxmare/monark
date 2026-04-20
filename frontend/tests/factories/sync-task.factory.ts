@@ -1,4 +1,4 @@
-import type { SyncTask } from '@/activity/types/sync-task';
+import type { SyncTask } from '@/apps/monitoring/activity/types/sync-task';
 
 export function createSyncTask(overrides?: Partial<SyncTask>): SyncTask {
   return {

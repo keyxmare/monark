@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { useConfirmDelete } from '@/shared/composables/useConfirmDelete';
+import { useConfirmDelete } from '@/hub/shared/composables/useConfirmDelete';
 
 describe('useConfirmDelete', () => {
   it('starts with null target and closed', () => {

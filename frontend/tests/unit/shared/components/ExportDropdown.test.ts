@@ -5,7 +5,7 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-import ExportDropdown from '@/shared/components/ExportDropdown.vue';
+import ExportDropdown from '@/hub/shared/components/ExportDropdown.vue';
 
 function mountExport() {
   return mount(ExportDropdown);

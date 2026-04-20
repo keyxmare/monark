@@ -3,220 +3,224 @@ deptrac:
     - ./src
 
   layers:
-    - name: Identity_Domain
+    - name: Hub_Identity_Domain
       collectors:
         - type: directory
-          value: src/Identity/Domain/.*
+          value: src/Hub/Identity/Domain/.*
 
-    - name: Identity_Application
+    - name: Hub_Identity_Application
       collectors:
         - type: directory
-          value: src/Identity/Application/.*
+          value: src/Hub/Identity/Application/.*
 
-    - name: Identity_Infrastructure
+    - name: Hub_Identity_Infrastructure
       collectors:
         - type: directory
-          value: src/Identity/Infrastructure/.*
+          value: src/Hub/Identity/Infrastructure/.*
 
-    - name: Identity_Presentation
+    - name: Hub_Identity_Presentation
       collectors:
         - type: directory
-          value: src/Identity/Presentation/.*
+          value: src/Hub/Identity/Presentation/.*
 
-    - name: Catalog_Domain
+    - name: Monitoring_Catalog_Domain
       collectors:
         - type: directory
-          value: src/Catalog/Domain/.*
+          value: src/Monitoring/Catalog/Domain/.*
 
-    - name: Catalog_Application
+    - name: Monitoring_Catalog_Application
       collectors:
         - type: directory
-          value: src/Catalog/Application/.*
+          value: src/Monitoring/Catalog/Application/.*
 
-    - name: Catalog_Infrastructure
+    - name: Monitoring_Catalog_Infrastructure
       collectors:
         - type: directory
-          value: src/Catalog/Infrastructure/.*
+          value: src/Monitoring/Catalog/Infrastructure/.*
 
-    - name: Catalog_Presentation
+    - name: Monitoring_Catalog_Presentation
       collectors:
         - type: directory
-          value: src/Catalog/Presentation/.*
+          value: src/Monitoring/Catalog/Presentation/.*
 
-    - name: Dependency_Domain
+    - name: Monitoring_Dependency_Domain
       collectors:
         - type: directory
-          value: src/Dependency/Domain/.*
+          value: src/Monitoring/Dependency/Domain/.*
 
-    - name: Dependency_Application
+    - name: Monitoring_Dependency_Application
       collectors:
         - type: directory
-          value: src/Dependency/Application/.*
+          value: src/Monitoring/Dependency/Application/.*
 
-    - name: Dependency_Infrastructure
+    - name: Monitoring_Dependency_Infrastructure
       collectors:
         - type: directory
-          value: src/Dependency/Infrastructure/.*
+          value: src/Monitoring/Dependency/Infrastructure/.*
 
-    - name: Dependency_Presentation
+    - name: Monitoring_Dependency_Presentation
       collectors:
         - type: directory
-          value: src/Dependency/Presentation/.*
+          value: src/Monitoring/Dependency/Presentation/.*
 
-    - name: Activity_Domain
+    - name: Monitoring_Activity_Domain
       collectors:
         - type: directory
-          value: src/Activity/Domain/.*
+          value: src/Monitoring/Activity/Domain/.*
 
-    - name: Activity_Application
+    - name: Monitoring_Activity_Application
       collectors:
         - type: directory
-          value: src/Activity/Application/.*
+          value: src/Monitoring/Activity/Application/.*
 
-    - name: Activity_Infrastructure
+    - name: Monitoring_Activity_Infrastructure
       collectors:
         - type: directory
-          value: src/Activity/Infrastructure/.*
+          value: src/Monitoring/Activity/Infrastructure/.*
 
-    - name: Activity_Presentation
+    - name: Monitoring_Activity_Presentation
       collectors:
         - type: directory
-          value: src/Activity/Presentation/.*
+          value: src/Monitoring/Activity/Presentation/.*
 
-    - name: VersionRegistry_Domain
+    - name: Monitoring_VersionRegistry_Domain
       collectors:
         - type: directory
-          value: src/VersionRegistry/Domain/.*
+          value: src/Monitoring/VersionRegistry/Domain/.*
 
-    - name: VersionRegistry_Application
+    - name: Monitoring_VersionRegistry_Application
       collectors:
         - type: directory
-          value: src/VersionRegistry/Application/.*
+          value: src/Monitoring/VersionRegistry/Application/.*
 
-    - name: VersionRegistry_Infrastructure
+    - name: Monitoring_VersionRegistry_Infrastructure
       collectors:
         - type: directory
-          value: src/VersionRegistry/Infrastructure/.*
+          value: src/Monitoring/VersionRegistry/Infrastructure/.*
 
-    - name: VersionRegistry_Presentation
+    - name: Monitoring_VersionRegistry_Presentation
       collectors:
         - type: directory
-          value: src/VersionRegistry/Presentation/.*
+          value: src/Monitoring/VersionRegistry/Presentation/.*
 
-    - name: Sync_Domain
+    - name: Monitoring_Sync_Domain
       collectors:
         - type: directory
-          value: src/Sync/Domain/.*
+          value: src/Monitoring/Sync/Domain/.*
 
-    - name: Sync_Application
+    - name: Monitoring_Sync_Application
       collectors:
         - type: directory
-          value: src/Sync/Application/.*
+          value: src/Monitoring/Sync/Application/.*
 
-    - name: Sync_Infrastructure
+    - name: Monitoring_Sync_Infrastructure
       collectors:
         - type: directory
-          value: src/Sync/Infrastructure/.*
+          value: src/Monitoring/Sync/Infrastructure/.*
 
-    - name: Sync_Presentation
+    - name: Monitoring_Sync_Presentation
       collectors:
         - type: directory
-          value: src/Sync/Presentation/.*
+          value: src/Monitoring/Sync/Presentation/.*
 
-    - name: Shared
+    - name: Hub_Shared
       collectors:
         - type: directory
-          value: src/Shared/.*
+          value: src/Hub/Shared/.*
 
   ruleset:
-    Identity_Domain:
-      - Shared
-    Identity_Application:
-      - Identity_Domain
-      - Shared
-    Identity_Infrastructure:
-      - Identity_Domain
-      - Identity_Application
-      - Shared
-    Identity_Presentation:
-      - Identity_Domain
-      - Identity_Application
-      - Shared
+    Hub_Identity_Domain:
+      - Hub_Shared
+    Hub_Identity_Application:
+      - Hub_Identity_Domain
+      - Hub_Shared
+    Hub_Identity_Infrastructure:
+      - Hub_Identity_Domain
+      - Hub_Identity_Application
+      - Hub_Shared
+    Hub_Identity_Presentation:
+      - Hub_Identity_Domain
+      - Hub_Identity_Application
+      - Hub_Shared
 
-    Catalog_Domain:
-      - Shared
-    Catalog_Application:
-      - Catalog_Domain
-      - VersionRegistry_Domain
-      - Shared
-    Catalog_Infrastructure:
-      - Catalog_Domain
-      - Catalog_Application
-      - Shared
-    Catalog_Presentation:
-      - Catalog_Domain
-      - Catalog_Application
-      - Identity_Domain
-      - Shared
+    Monitoring_Catalog_Domain:
+      - Hub_Shared
+    Monitoring_Catalog_Application:
+      - Monitoring_Catalog_Domain
+      - Monitoring_VersionRegistry_Domain
+      - Monitoring_Dependency_Domain
+      - Hub_Shared
+    Monitoring_Catalog_Infrastructure:
+      - Monitoring_Catalog_Domain
+      - Monitoring_Catalog_Application
+      - Hub_Shared
+    Monitoring_Catalog_Presentation:
+      - Monitoring_Catalog_Domain
+      - Monitoring_Catalog_Application
+      - Hub_Identity_Domain
+      - Hub_Shared
 
-    Dependency_Domain:
-      - Shared
-    Dependency_Application:
-      - Dependency_Domain
-      - Shared
-    Dependency_Infrastructure:
-      - Dependency_Domain
-      - Dependency_Application
-      - Shared
-    Dependency_Presentation:
-      - Dependency_Domain
-      - Dependency_Application
-      - Shared
+    Monitoring_Dependency_Domain:
+      - Hub_Shared
+    Monitoring_Dependency_Application:
+      - Monitoring_Dependency_Domain
+      - Hub_Shared
+    Monitoring_Dependency_Infrastructure:
+      - Monitoring_Dependency_Domain
+      - Monitoring_Dependency_Application
+      - Hub_Shared
+    Monitoring_Dependency_Presentation:
+      - Monitoring_Dependency_Domain
+      - Monitoring_Dependency_Application
+      - Hub_Shared
 
-    Activity_Domain:
-      - Shared
-    Activity_Application:
-      - Activity_Domain
-      - Shared
-    Activity_Infrastructure:
-      - Activity_Domain
-      - Activity_Application
-      - Shared
-    Activity_Presentation:
-      - Activity_Domain
-      - Activity_Application
-      - Shared
+    Monitoring_Activity_Domain:
+      - Hub_Shared
+    Monitoring_Activity_Application:
+      - Monitoring_Activity_Domain
+      - Hub_Shared
+    Monitoring_Activity_Infrastructure:
+      - Monitoring_Activity_Domain
+      - Monitoring_Activity_Application
+      - Hub_Shared
+    Monitoring_Activity_Presentation:
+      - Monitoring_Activity_Domain
+      - Monitoring_Activity_Application
+      - Hub_Shared
 
-    VersionRegistry_Domain:
-      - Shared
-    VersionRegistry_Application:
-      - VersionRegistry_Domain
-      - Shared
-    VersionRegistry_Infrastructure:
-      - VersionRegistry_Domain
-      - VersionRegistry_Application
-      - Dependency_Domain
-      - Shared
-    VersionRegistry_Presentation:
-      - VersionRegistry_Domain
-      - VersionRegistry_Application
-      - Shared
+    Monitoring_VersionRegistry_Domain:
+      - Monitoring_Dependency_Domain
+      - Hub_Shared
+    Monitoring_VersionRegistry_Application:
+      - Monitoring_VersionRegistry_Domain
+      - Hub_Shared
+    Monitoring_VersionRegistry_Infrastructure:
+      - Monitoring_VersionRegistry_Domain
+      - Monitoring_VersionRegistry_Application
+      - Monitoring_Dependency_Domain
+      - Hub_Shared
+    Monitoring_VersionRegistry_Presentation:
+      - Monitoring_VersionRegistry_Domain
+      - Monitoring_VersionRegistry_Application
+      - Hub_Shared
 
-    Sync_Domain:
-      - Shared
-    Sync_Application:
-      - Sync_Domain
-      - Catalog_Application
-      - Catalog_Domain
-      - Dependency_Application
-      - VersionRegistry_Application
-      - Shared
-    Sync_Infrastructure:
-      - Sync_Domain
-      - Shared
-    Sync_Presentation:
-      - Sync_Domain
-      - Sync_Application
-      - Shared
+    Monitoring_Sync_Domain:
+      - Hub_Shared
+    Monitoring_Sync_Application:
+      - Monitoring_Sync_Domain
+      - Monitoring_Catalog_Application
+      - Monitoring_Catalog_Domain
+      - Monitoring_Dependency_Application
+      - Monitoring_Dependency_Domain
+      - Monitoring_VersionRegistry_Application
+      - Monitoring_VersionRegistry_Domain
+      - Hub_Shared
+    Monitoring_Sync_Infrastructure:
+      - Monitoring_Sync_Domain
+      - Hub_Shared
+    Monitoring_Sync_Presentation:
+      - Monitoring_Sync_Domain
+      - Monitoring_Sync_Application
+      - Hub_Shared
 
-    Shared: ~
+    Hub_Shared: ~

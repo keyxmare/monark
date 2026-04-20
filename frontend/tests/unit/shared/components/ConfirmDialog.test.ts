@@ -5,7 +5,7 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-import ConfirmDialog from '@/shared/components/ConfirmDialog.vue';
+import ConfirmDialog from '@/hub/shared/components/ConfirmDialog.vue';
 
 function mountDialog(
   props: Partial<{

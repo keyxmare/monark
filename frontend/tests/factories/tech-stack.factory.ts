@@ -1,4 +1,4 @@
-import type { TechStack } from '@/catalog/types/tech-stack';
+import type { TechStack } from '@/apps/monitoring/catalog/types/tech-stack';
 
 export function createTechStack(overrides?: Partial<TechStack>): TechStack {
   return {

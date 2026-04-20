@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 
-vi.mock('@/activity/services/activity-event.service', () => ({
+vi.mock('@/apps/monitoring/activity/services/activity-event.service', () => ({
   activityEventService: {
     list: vi.fn(),
     get: vi.fn(),
   },
 }));
 
-import { activityEventService } from '@/activity/services/activity-event.service';
-import { useActivityEventStore } from '@/activity/stores/activity-event';
+import { activityEventService } from '@/apps/monitoring/activity/services/activity-event.service';
+import { useActivityEventStore } from '@/apps/monitoring/activity/stores/activity-event';
 
 const mockEvent = {
   id: 'evt-1',

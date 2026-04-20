@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Helpers;
 
-use App\Identity\Domain\Model\User;
-use App\Identity\Infrastructure\Security\ApiTokenHandler;
+use App\Hub\Identity\Domain\Model\User;
+use App\Hub\Identity\Infrastructure\Security\ApiTokenHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 

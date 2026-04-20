@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 
-vi.mock('@/catalog/services/framework.service', () => ({
+vi.mock('@/apps/monitoring/catalog/services/framework.service', () => ({
   frameworkService: {
     list: vi.fn(),
     remove: vi.fn(),
   },
 }));
 
-import { frameworkService } from '@/catalog/services/framework.service';
-import { useFrameworkStore } from '@/catalog/stores/framework';
+import { frameworkService } from '@/apps/monitoring/catalog/services/framework.service';
+import { useFrameworkStore } from '@/apps/monitoring/catalog/stores/framework';
 
 const mockFramework = {
   id: 'fw-1',

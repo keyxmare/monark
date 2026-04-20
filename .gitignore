@@ -4,6 +4,7 @@ node_modules/
 var/
 dist/
 coverage/
+!backend/src/Monitoring/Coverage/
 .phpunit.cache/
 .php-cs-fixer.cache
 

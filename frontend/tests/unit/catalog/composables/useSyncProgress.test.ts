@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 
-import type { SyncJobProgress } from '@/catalog/services/provider.service';
+import type { SyncJobProgress } from '@/apps/monitoring/catalog/services/provider.service';
 
 let mercureOnMessage: ((data: SyncJobProgress) => void) | undefined;
 let mercureClose: ReturnType<typeof vi.fn>;
 
-vi.mock('@/shared/composables/useMercure', () => ({
+vi.mock('@/hub/shared/composables/useMercure', () => ({
   useMercure: vi.fn(
     (_topic: string, options: { onMessage?: (data: SyncJobProgress) => void } = {}) => {
       mercureOnMessage = options.onMessage;
@@ -27,8 +27,8 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-import { useSyncProgress } from '@/catalog/composables/useSyncProgress';
-import { useToastStore } from '@/shared/stores/toast';
+import { useSyncProgress } from '@/apps/monitoring/catalog/composables/useSyncProgress';
+import { useToastStore } from '@/hub/shared/stores/toast';
 
 describe('useSyncProgress', () => {
   beforeEach(() => {

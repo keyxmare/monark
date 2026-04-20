@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ref } from 'vue';
-import type { Framework } from '@/catalog/types/framework';
-import { useFrameworkGrouping } from '@/catalog/composables/useFrameworkGrouping';
+import type { Framework } from '@/apps/monitoring/catalog/types/framework';
+import { useFrameworkGrouping } from '@/apps/monitoring/catalog/composables/useFrameworkGrouping';
 
 function fw(overrides: Partial<Framework> = {}): Framework {
   return {

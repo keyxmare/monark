@@ -14,7 +14,7 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/composables/useSidebar', () => ({
+vi.mock('@/hub/shared/composables/useSidebar', () => ({
   useSidebar: () => ({
     toggleMobile: toggleMobileMock,
   }),
@@ -23,24 +23,24 @@ vi.mock('@/shared/composables/useSidebar', () => ({
 const logoutMock = vi.fn(() => Promise.resolve());
 const currentUserRef = { value: { firstName: 'John', lastName: 'Doe', email: 'john@example.com' } };
 
-vi.mock('@/identity/stores/auth', () => ({
+vi.mock('@/hub/identity/stores/auth', () => ({
   useAuthStore: () => ({
     currentUser: currentUserRef.value,
     logout: logoutMock,
   }),
 }));
 
-vi.mock('@/shared/components/LanguageSwitcher.vue', () => ({
+vi.mock('@/hub/shared/components/LanguageSwitcher.vue', () => ({
   default: { template: '<div data-testid="language-switcher-stub" />' },
 }));
 
-import AppTopbar from '@/shared/components/AppTopbar.vue';
+import HubTopbar from '@/hub/layout/HubTopbar.vue';
 
 function mountTopbar() {
-  return mount(AppTopbar);
+  return mount(HubTopbar);
 }
 
-describe('AppTopbar', () => {
+describe('HubTopbar', () => {
   beforeEach(() => {
     pushMock.mockClear();
     toggleMobileMock.mockClear();

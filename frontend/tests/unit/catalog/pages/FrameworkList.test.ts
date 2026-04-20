@@ -12,34 +12,34 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
-vi.mock('@/shared/components/Pagination.vue', () => ({
+vi.mock('@/hub/shared/components/Pagination.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/shared/components/ExportDropdown.vue', () => ({
+vi.mock('@/hub/shared/components/ExportDropdown.vue', () => ({
   default: { template: '<div />', emits: ['export'] },
 }));
 
-vi.mock('@/shared/components/TechBadge.vue', () => ({
+vi.mock('@/hub/shared/components/TechBadge.vue', () => ({
   default: { props: ['name', 'version', 'size'], template: '<span />' },
 }));
 
-vi.mock('@/catalog/components/ProviderIcon.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/ProviderIcon.vue', () => ({
   default: { props: ['type', 'size'], template: '<span />' },
 }));
 
-vi.mock('@/shared/utils/dateFormat', () => ({
+vi.mock('@/hub/shared/utils/dateFormat', () => ({
   formatRelative: vi.fn(() => '2 days ago'),
 }));
 
 const mockFrameworkFetchAll = vi.fn();
 let frameworkStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/framework', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/framework', () => ({
   useFrameworkStore: vi.fn(() => ({
     currentPage: 1,
     error: null,
@@ -53,7 +53,7 @@ vi.mock('@/catalog/stores/framework', () => ({
 }));
 
 const mockProjectFetchAll = vi.fn();
-vi.mock('@/catalog/stores/project', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/project', () => ({
   useProjectStore: vi.fn(() => ({
     fetchAll: mockProjectFetchAll,
     projects: [],
@@ -61,14 +61,14 @@ vi.mock('@/catalog/stores/project', () => ({
 }));
 
 const mockProviderFetchAll = vi.fn();
-vi.mock('@/catalog/stores/provider', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/provider', () => ({
   useProviderStore: vi.fn(() => ({
     fetchAll: mockProviderFetchAll,
     providers: [],
   })),
 }));
 
-vi.mock('@/shared/composables/useGlobalSync', () => ({
+vi.mock('@/hub/shared/composables/useGlobalSync', () => ({
   useGlobalSync: () => ({
     currentSync: { value: null },
     isRunning: { value: false },
@@ -78,11 +78,11 @@ vi.mock('@/shared/composables/useGlobalSync', () => ({
   }),
 }));
 
-vi.mock('@/shared/components/SyncButton.vue', () => ({
+vi.mock('@/hub/shared/components/SyncButton.vue', () => ({
   default: { template: '<button data-testid="sync-button" />' },
 }));
 
-vi.mock('@/catalog/composables/useFrameworkGrouping', () => ({
+vi.mock('@/apps/monitoring/catalog/composables/useFrameworkGrouping', () => ({
   useFrameworkGrouping: () => ({
     availableFrameworks: [],
     availableProviders: [],
@@ -100,7 +100,7 @@ vi.mock('@/catalog/composables/useFrameworkGrouping', () => ({
   }),
 }));
 
-import FrameworkList from '@/catalog/pages/FrameworkList.vue';
+import FrameworkList from '@/apps/monitoring/catalog/pages/FrameworkList.vue';
 
 describe('FrameworkList', () => {
   beforeEach(() => {

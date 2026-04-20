@@ -80,7 +80,7 @@ audit-frontend: ## Audit frontend dependencies
 	$(EXEC_FRONTEND) pnpm audit
 
 ## —— Global ——————————————————————————————————————
-.PHONY: test lint quality outdated audit ci
+.PHONY: test lint quality outdated audit
 
 test: test-backend test-frontend ## Run all tests
 
@@ -91,9 +91,6 @@ quality: quality-backend quality-frontend ## Full quality check
 outdated: outdated-backend outdated-frontend ## Check all outdated dependencies
 
 audit: audit-backend audit-frontend ## Audit all dependencies
-
-ci: ## CI dashboard — lint, tests, coverage, mutation
-	@./scripts/ci-dashboard.sh
 
 ## —— Database ————————————————————————————————————
 .PHONY: migration migrate seed

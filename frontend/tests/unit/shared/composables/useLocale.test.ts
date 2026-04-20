@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { WritableComputedRef } from 'vue';
 
-import { i18n } from '@/shared/i18n';
-import { useLocale } from '@/shared/composables/useLocale';
-import type { Locale } from '@/shared/composables/useLocale';
+import { i18n } from '@/hub/shared/i18n';
+import { useLocale } from '@/hub/shared/composables/useLocale';
+import type { Locale } from '@/hub/shared/composables/useLocale';
 
 const localeRef = i18n.global.locale as unknown as WritableComputedRef<Locale>;
 

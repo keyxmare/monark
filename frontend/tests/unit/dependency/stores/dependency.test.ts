@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { useDependencyStore } from '@/dependency/stores/dependency';
+import { useDependencyStore } from '@/apps/monitoring/dependency/stores/dependency';
 
-vi.mock('@/dependency/services/dependency.service', () => ({
+vi.mock('@/apps/monitoring/dependency/services/dependency.service', () => ({
   dependencyService: {
     list: vi.fn(),
     get: vi.fn(),
@@ -12,7 +12,7 @@ vi.mock('@/dependency/services/dependency.service', () => ({
   },
 }));
 
-import { dependencyService } from '@/dependency/services/dependency.service';
+import { dependencyService } from '@/apps/monitoring/dependency/services/dependency.service';
 
 const mockDependency = {
   id: 'dep-001',

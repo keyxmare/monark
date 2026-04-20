@@ -6,14 +6,14 @@ vi.mock('vue-router', () => ({
   RouterView: { template: '<div data-testid="router-view" />' },
 }));
 
-vi.mock('@/shared/components/AppToastContainer.vue', () => ({
+vi.mock('@/hub/shared/components/AppToastContainer.vue', () => ({
   default: { template: '<div data-testid="toast-container" />' },
 }));
 
 const mockFetchCurrentUser = vi.fn();
 let authStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/identity/stores/auth', () => ({
+vi.mock('@/hub/identity/stores/auth', () => ({
   useAuthStore: vi.fn(() => ({
     currentUser: null,
     fetchCurrentUser: mockFetchCurrentUser,

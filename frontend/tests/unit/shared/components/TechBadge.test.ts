@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import TechBadge from '@/shared/components/TechBadge.vue';
+import TechBadge from '@/hub/shared/components/TechBadge.vue';
 
 describe('TechBadge', () => {
   it('renders Angular red shield for version 17.x', () => {

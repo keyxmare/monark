@@ -1,4 +1,4 @@
-import type { Provider } from '@/catalog/types/provider';
+import type { Provider } from '@/apps/monitoring/catalog/types/provider';
 
 export function createProvider(overrides?: Partial<Provider>): Provider {
   return {

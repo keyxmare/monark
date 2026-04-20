@@ -15,14 +15,14 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
 const mockFetchOne = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 
-vi.mock('@/identity/stores/user', () => ({
+vi.mock('@/hub/identity/stores/user', () => ({
   useUserStore: vi.fn(() => ({
     error: null,
     fetchOne: mockFetchOne,
@@ -33,7 +33,7 @@ vi.mock('@/identity/stores/user', () => ({
   })),
 }));
 
-import UserDetail from '@/identity/pages/UserDetail.vue';
+import UserDetail from '@/hub/identity/pages/UserDetail.vue';
 
 describe('UserDetail', () => {
   beforeEach(() => {

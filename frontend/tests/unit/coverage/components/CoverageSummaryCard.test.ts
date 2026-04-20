@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import CoverageSummaryCard from '@/coverage/components/CoverageSummaryCard.vue';
-import type { CoverageSummary } from '@/coverage/types';
+import CoverageSummaryCard from '@/apps/monitoring/coverage/components/CoverageSummaryCard.vue';
+import type { CoverageSummary } from '@/apps/monitoring/coverage/types';
 
 const baseSummary: CoverageSummary = {
   averageCoverage: 75.4,

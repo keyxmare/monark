@@ -4,7 +4,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { defineComponent } from 'vue';
 import type { Component } from 'vue';
 
-import { i18n } from '@/shared/i18n';
+import { i18n } from '@/hub/shared/i18n';
 
 const RouterLinkStub = defineComponent({
   name: 'RouterLink',

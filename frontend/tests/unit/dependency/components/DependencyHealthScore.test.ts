@@ -5,12 +5,12 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string, params?: Record<string, unknown>) => key }),
 }));
 
-vi.mock('@/catalog/composables/useFrameworkLts', () => ({
+vi.mock('@/apps/monitoring/catalog/composables/useFrameworkLts', () => ({
   humanizeMs: vi.fn((ms: number) => `${Math.round(ms / 86400000)}d`),
   msUrgency: vi.fn(() => 'fresh'),
 }));
 
-import DependencyHealthScore from '@/dependency/components/DependencyHealthScore.vue';
+import DependencyHealthScore from '@/apps/monitoring/dependency/components/DependencyHealthScore.vue';
 
 describe('DependencyHealthScore', () => {
   beforeEach(() => {

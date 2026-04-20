@@ -12,7 +12,7 @@ interface DependencySyncProgress {
 let mercureOnMessage: ((data: DependencySyncProgress) => void) | undefined;
 let mercureClose: ReturnType<typeof vi.fn>;
 
-vi.mock('@/shared/composables/useMercure', () => ({
+vi.mock('@/hub/shared/composables/useMercure', () => ({
   useMercure: vi.fn(
     (_topic: string, options: { onMessage?: (data: DependencySyncProgress) => void } = {}) => {
       mercureOnMessage = options.onMessage;
@@ -32,8 +32,8 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-import { useDependencySyncProgress } from '@/dependency/composables/useDependencySyncProgress';
-import { useToastStore } from '@/shared/stores/toast';
+import { useDependencySyncProgress } from '@/apps/monitoring/dependency/composables/useDependencySyncProgress';
+import { useToastStore } from '@/hub/shared/stores/toast';
 
 describe('useDependencySyncProgress', () => {
   beforeEach(() => {

@@ -5,7 +5,7 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-import ProviderStatsCards from '@/catalog/components/ProviderStatsCards.vue';
+import ProviderStatsCards from '@/apps/monitoring/catalog/components/ProviderStatsCards.vue';
 
 describe('ProviderStatsCards', () => {
   const defaultProps = {

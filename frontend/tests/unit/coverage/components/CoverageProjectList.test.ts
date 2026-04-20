@@ -5,8 +5,8 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-import CoverageProjectList from '@/coverage/components/CoverageProjectList.vue';
-import type { CoverageProject } from '@/coverage/types';
+import CoverageProjectList from '@/apps/monitoring/coverage/components/CoverageProjectList.vue';
+import type { CoverageProject } from '@/apps/monitoring/coverage/types';
 
 const projects: CoverageProject[] = [
   {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRouter, createWebHistory } from 'vue-router';
 
-import { STORAGE_KEYS } from '@/shared/constants';
+import { STORAGE_KEYS } from '@/hub/shared/constants';
 
 function buildRouter() {
   const r = createRouter({

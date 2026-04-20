@@ -10,15 +10,15 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-vi.mock('@/catalog/components/ProviderIcon.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/ProviderIcon.vue', () => ({
   default: { props: ['type', 'size'], template: '<span data-testid="mock-provider-icon" />' },
 }));
 
-vi.mock('@/shared/components/DropdownMenu.vue', () => ({
+vi.mock('@/hub/shared/components/DropdownMenu.vue', () => ({
   default: { template: '<div data-testid="mock-dropdown" />' },
 }));
 
-import ProviderCard from '@/catalog/components/ProviderCard.vue';
+import ProviderCard from '@/apps/monitoring/catalog/components/ProviderCard.vue';
 
 describe('ProviderCard', () => {
   const provider = createProvider({ name: 'My GitHub', type: 'github', status: 'connected' });

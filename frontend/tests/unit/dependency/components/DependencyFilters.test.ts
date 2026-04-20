@@ -8,14 +8,14 @@ vi.mock('vue-i18n', () => ({
 
 let projectStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/project', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/project', () => ({
   useProjectStore: vi.fn(() => ({
     projects: [],
     ...projectStoreOverrides,
   })),
 }));
 
-import DependencyFilters from '@/dependency/components/DependencyFilters.vue';
+import DependencyFilters from '@/apps/monitoring/dependency/components/DependencyFilters.vue';
 
 describe('DependencyFilters', () => {
   const defaultProps = {

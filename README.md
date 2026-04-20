@@ -127,7 +127,7 @@ make shell-frontend  # Shell dans le container Node
 make test            # Tests backend + frontend
 make lint            # Lint complet
 make quality         # Lint + tests
-make ci              # CI dashboard (lint, tests, coverage, mutation)
+make quality         # Lint + tests (backend + frontend)
 
 # Base de données
 make migrate         # Appliquer les migrations

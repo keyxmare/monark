@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Catalog\Domain\Event\ProjectCreated;
-use App\Catalog\Domain\Event\ProjectDeleted;
-use App\Catalog\Domain\Event\ProjectSyncCompletedEvent;
-use App\Catalog\Domain\Event\ProjectUpdated;
-use App\Dependency\Domain\Event\DependencyCreated;
-use App\Dependency\Domain\Event\DependencyDeleted;
-use App\Dependency\Domain\Event\DependencyUpdated;
+use App\Monitoring\Catalog\Domain\Event\ProjectCreated;
+use App\Monitoring\Catalog\Domain\Event\ProjectDeleted;
+use App\Monitoring\Catalog\Domain\Event\ProjectSyncCompletedEvent;
+use App\Monitoring\Catalog\Domain\Event\ProjectUpdated;
+use App\Monitoring\Dependency\Domain\Event\DependencyCreated;
+use App\Monitoring\Dependency\Domain\Event\DependencyDeleted;
+use App\Monitoring\Dependency\Domain\Event\DependencyUpdated;
 
 it('creates DependencyCreated event', function () {
     $event = new DependencyCreated('d-1', 'symfony/http-kernel', 'composer', '6.4.0', 'proj-1');

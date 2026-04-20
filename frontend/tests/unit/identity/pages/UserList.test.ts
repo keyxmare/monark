@@ -12,14 +12,14 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
 const mockFetchAll = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 
-vi.mock('@/identity/stores/user', () => ({
+vi.mock('@/hub/identity/stores/user', () => ({
   useUserStore: vi.fn(() => ({
     currentPage: 1,
     error: null,
@@ -33,7 +33,7 @@ vi.mock('@/identity/stores/user', () => ({
   })),
 }));
 
-import UserList from '@/identity/pages/UserList.vue';
+import UserList from '@/hub/identity/pages/UserList.vue';
 
 describe('UserList', () => {
   beforeEach(() => {

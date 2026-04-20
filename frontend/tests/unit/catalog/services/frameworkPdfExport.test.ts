@@ -31,7 +31,7 @@ vi.mock('jspdf-autotable', () => ({
 }));
 
 import jsPDF from 'jspdf';
-import { exportFrameworksPdf } from '@/catalog/services/frameworkPdfExport';
+import { exportFrameworksPdf } from '@/apps/monitoring/catalog/services/frameworkPdfExport';
 
 describe('exportFrameworksPdf', () => {
   it('calls autoTable and saves a frameworks.pdf file', () => {

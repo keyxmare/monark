@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import AppToast from '@/shared/components/AppToast.vue';
-import type { Toast } from '@/shared/stores/toast';
+import AppToast from '@/hub/shared/components/AppToast.vue';
+import type { Toast } from '@/hub/shared/stores/toast';
 
 function makeToast(overrides: Partial<Toast> = {}): Toast {
   return {

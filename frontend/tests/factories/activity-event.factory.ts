@@ -1,4 +1,4 @@
-import type { ActivityEvent } from '@/activity/types/activity-event';
+import type { ActivityEvent } from '@/apps/monitoring/activity/types/activity-event';
 
 export function createActivityEvent(overrides?: Partial<ActivityEvent>): ActivityEvent {
   return {

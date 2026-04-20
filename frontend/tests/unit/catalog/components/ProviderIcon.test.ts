@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import ProviderIcon from '@/catalog/components/ProviderIcon.vue';
+import ProviderIcon from '@/apps/monitoring/catalog/components/ProviderIcon.vue';
 
 describe('ProviderIcon', () => {
   it('renders gitlab SVG when type is gitlab', () => {

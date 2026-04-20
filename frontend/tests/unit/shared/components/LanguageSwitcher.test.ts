@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { mount } from '@vue/test-utils';
 import type { WritableComputedRef } from 'vue';
 
-import { i18n } from '@/shared/i18n';
-import type { Locale } from '@/shared/composables/useLocale';
-import LanguageSwitcher from '@/shared/components/LanguageSwitcher.vue';
+import { i18n } from '@/hub/shared/i18n';
+import type { Locale } from '@/hub/shared/composables/useLocale';
+import LanguageSwitcher from '@/hub/shared/components/LanguageSwitcher.vue';
 
 const localeRef = i18n.global.locale as unknown as WritableComputedRef<Locale>;
 

@@ -5,16 +5,16 @@ framework:
         buses:
             command.bus:
                 middleware:
-                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
+                    - App\Hub\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
                     - doctrine_transaction
             query.bus:
                 middleware:
-                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
+                    - App\Hub\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
             event.bus:
                 default_middleware:
                     allow_no_handlers: true
                 middleware:
-                    - App\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
+                    - App\Hub\Shared\Infrastructure\Messenger\Middleware\LoggingMiddleware
 
         transports:
             async:
@@ -44,12 +44,12 @@ framework:
         failure_transport: failed
 
         routing:
-            App\Catalog\Application\Command\ScanProjectCommand: async
-            App\Catalog\Application\Command\SyncProjectMetadataCommand: async
-            App\Dependency\Application\Command\SyncDependencyVersionsCommand: async
-            App\Dependency\Application\Command\SyncSingleDependencyVersionCommand: async
-            App\Dependency\Application\Command\SyncDependencyCveCommand: async
-            App\VersionRegistry\Application\Command\SyncProductVersionsCommand: async
-            App\VersionRegistry\Application\Command\SyncSingleProductCommand: async
-            App\Catalog\Application\Command\SyncLanguageCveCommand: async
-            App\Coverage\Application\Command\FetchProjectCoverageCommand: async
+            App\Monitoring\Catalog\Application\Command\ScanProjectCommand: async
+            App\Monitoring\Catalog\Application\Command\SyncProjectMetadataCommand: async
+            App\Monitoring\Dependency\Application\Command\SyncDependencyVersionsCommand: async
+            App\Monitoring\Dependency\Application\Command\SyncSingleDependencyVersionCommand: async
+            App\Monitoring\Dependency\Application\Command\SyncDependencyCveCommand: async
+            App\Monitoring\VersionRegistry\Application\Command\SyncProductVersionsCommand: async
+            App\Monitoring\VersionRegistry\Application\Command\SyncSingleProductCommand: async
+            App\Monitoring\Catalog\Application\Command\SyncLanguageCveCommand: async
+            App\Monitoring\Coverage\Application\Command\FetchProjectCoverageCommand: async

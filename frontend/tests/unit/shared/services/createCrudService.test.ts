@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/shared/utils/api', () => ({
+vi.mock('@/hub/shared/utils/api', () => ({
   api: { delete: vi.fn(), get: vi.fn(), patch: vi.fn(), post: vi.fn(), put: vi.fn() },
 }));
 
-import { api } from '@/shared/utils/api';
-import { createCrudService } from '@/shared/services/createCrudService';
+import { api } from '@/hub/shared/utils/api';
+import { createCrudService } from '@/hub/shared/services/createCrudService';
 
 interface TestEntity {
   id: string;

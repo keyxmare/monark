@@ -6,7 +6,7 @@ import {
   ltsUrgency,
   resolveFramework,
   useFrameworkLts,
-} from '@/catalog/composables/useFrameworkLts';
+} from '@/apps/monitoring/catalog/composables/useFrameworkLts';
 
 describe('humanizeTimeDiff', () => {
   it('returns < 1 jour for same day', () => {

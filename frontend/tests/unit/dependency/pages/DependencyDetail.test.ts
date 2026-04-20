@@ -15,14 +15,14 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
 const mockDependencyFetchOne = vi.fn();
 let dependencyStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/dependency/stores/dependency', () => ({
+vi.mock('@/apps/monitoring/dependency/stores/dependency', () => ({
   useDependencyStore: vi.fn(() => ({
     error: null,
     fetchOne: mockDependencyFetchOne,
@@ -35,7 +35,7 @@ vi.mock('@/dependency/stores/dependency', () => ({
 const mockProjectFetchOne = vi.fn();
 let projectStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/project', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/project', () => ({
   useProjectStore: vi.fn(() => ({
     fetchOne: mockProjectFetchOne,
     selected: null,
@@ -46,7 +46,7 @@ vi.mock('@/catalog/stores/project', () => ({
 const mockVulnFetchAll = vi.fn();
 let vulnStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/dependency/stores/vulnerability', () => ({
+vi.mock('@/apps/monitoring/dependency/stores/vulnerability', () => ({
   useVulnerabilityStore: vi.fn(() => ({
     fetchAll: mockVulnFetchAll,
     vulnerabilities: [],
@@ -54,7 +54,7 @@ vi.mock('@/dependency/stores/vulnerability', () => ({
   })),
 }));
 
-import DependencyDetail from '@/dependency/pages/DependencyDetail.vue';
+import DependencyDetail from '@/apps/monitoring/dependency/pages/DependencyDetail.vue';
 
 describe('DependencyDetail', () => {
   beforeEach(() => {

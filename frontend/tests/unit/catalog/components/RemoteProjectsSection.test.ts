@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { RemoteProject } from '@/catalog/types/provider';
+import type { RemoteProject } from '@/apps/monitoring/catalog/types/provider';
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string, params?: Record<string, unknown>) => key }),
@@ -11,11 +11,11 @@ vi.mock('vue-router', () => ({
   RouterLink: { props: ['to'], template: '<a><slot /></a>' },
 }));
 
-vi.mock('@/shared/components/Pagination.vue', () => ({
+vi.mock('@/hub/shared/components/Pagination.vue', () => ({
   default: { template: '<div />' },
 }));
 
-import RemoteProjectsSection from '@/catalog/components/RemoteProjectsSection.vue';
+import RemoteProjectsSection from '@/apps/monitoring/catalog/components/RemoteProjectsSection.vue';
 
 function createRemoteProject(overrides?: Partial<RemoteProject>): RemoteProject {
   return {

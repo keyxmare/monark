@@ -1,4 +1,8 @@
-import type { MessengerStats, QueueStats, WorkerStats } from '@/activity/types/messenger';
+import type {
+  MessengerStats,
+  QueueStats,
+  WorkerStats,
+} from '@/apps/monitoring/activity/types/messenger';
 
 export function createQueueStats(overrides?: Partial<QueueStats>): QueueStats {
   return {

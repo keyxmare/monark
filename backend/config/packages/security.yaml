@@ -5,7 +5,7 @@ security:
     providers:
         app_user_provider:
             entity:
-                class: App\Identity\Domain\Model\User
+                class: App\Hub\Identity\Domain\Model\User
                 property: email
 
     firewalls:
@@ -19,23 +19,23 @@ security:
             lazy: true
             provider: app_user_provider
             json_login:
-                check_path: /api/v1/auth/login
+                check_path: /api/v1/hub/auth/login
                 username_path: email
                 password_path: password
-                success_handler: App\Identity\Infrastructure\Security\LoginSuccessHandler
-                failure_handler: App\Identity\Infrastructure\Security\LoginFailureHandler
+                success_handler: App\Hub\Identity\Infrastructure\Security\LoginSuccessHandler
+                failure_handler: App\Hub\Identity\Infrastructure\Security\LoginFailureHandler
             access_token:
-                token_handler: App\Identity\Infrastructure\Security\ApiTokenHandler
+                token_handler: App\Hub\Identity\Infrastructure\Security\ApiTokenHandler
             logout:
-                path: /api/v1/auth/logout
+                path: /api/v1/hub/auth/logout
 
         main:
             lazy: true
 
     access_control:
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
-        - { path: ^/api/v1/auth/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/v1/auth/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/hub/auth/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/hub/auth/register, roles: PUBLIC_ACCESS }
         - { path: ^/healthz, roles: PUBLIC_ACCESS }
         - { path: ^/readyz, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }

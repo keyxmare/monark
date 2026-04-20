@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { useUserStore } from '@/identity/stores/user';
+import { useUserStore } from '@/hub/identity/stores/user';
 
-vi.mock('@/identity/services/user.service', () => ({
+vi.mock('@/hub/identity/services/user.service', () => ({
   userService: {
     list: vi.fn(),
     get: vi.fn(),
@@ -10,7 +10,7 @@ vi.mock('@/identity/services/user.service', () => ({
   },
 }));
 
-import { userService } from '@/identity/services/user.service';
+import { userService } from '@/hub/identity/services/user.service';
 
 const mockUser = {
   id: '123',

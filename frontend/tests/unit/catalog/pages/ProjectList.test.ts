@@ -9,83 +9,66 @@ vi.mock('vue-router', () => ({
 }));
 
 vi.mock('vue-i18n', () => ({
-  useI18n: () => ({ t: (key: string, params?: Record<string, string>) => key }),
-}));
-
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
-  default: { template: '<div><slot /></div>' },
-}));
-
-vi.mock('@/shared/components/ConfirmDialog.vue', () => ({
-  default: { template: '<div />' },
-}));
-
-vi.mock('@/shared/components/DropdownMenu.vue', () => ({
-  default: { template: '<div />' },
-}));
-
-vi.mock('@/shared/components/Pagination.vue', () => ({
-  default: { template: '<div />' },
-}));
-
-vi.mock('@/shared/components/TechBadge.vue', () => ({
-  default: { props: ['name', 'size'], template: '<span>{{ name }}</span>' },
-}));
-
-vi.mock('@/shared/composables/useConfirmDelete', () => ({
-  useConfirmDelete: () => ({
-    cancel: vi.fn(),
-    confirm: vi.fn(),
-    isOpen: false,
-    requestDelete: vi.fn(),
-    target: null,
-  }),
-}));
-
-vi.mock('@/shared/composables/useGlobalSync', () => ({
-  useGlobalSync: () => ({
-    currentSync: { value: null },
-    isRunning: { value: false },
-    startSync: vi.fn(),
-    loadCurrent: vi.fn(),
-    onStepCompleted: vi.fn(),
-  }),
-}));
-
-vi.mock('@/shared/components/SyncButton.vue', () => ({
-  default: { template: '<button data-testid="sync-button" />' },
+  useI18n: () => ({ locale: { value: 'en' }, t: (key: string) => key }),
 }));
 
 const mockFetchAll = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/project', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/project', () => ({
   useProjectStore: vi.fn(() => ({
-    currentPage: 1,
     error: null,
     fetchAll: mockFetchAll,
     loading: false,
     projects: [],
-    remove: vi.fn(),
-    total: 0,
-    totalPages: 0,
     ...storeOverrides,
   })),
 }));
 
-import ProjectList from '@/catalog/pages/ProjectList.vue';
+import ProjectList from '@/apps/monitoring/catalog/pages/ProjectList.vue';
 
-describe('ProjectList', () => {
+function makeProject(overrides: Record<string, unknown> = {}) {
+  return {
+    commitsDailySeries: Array.from({ length: 30 }, () => 0),
+    commitsLast30d: 0,
+    coverageJobs: [],
+    coveragePercent: null,
+    createdAt: '2026-01-01',
+    defaultBranch: 'main',
+    dependenciesCount: 0,
+    description: null,
+    externalId: null,
+    frameworkLag: { major: 0, minor: 0, patch: 0, unknown: 0, upToDate: 0 },
+    id: '1',
+    lastActivityAt: null,
+    lastCommitSha: null,
+    name: 'Project A',
+    outdatedDependenciesCount: 0,
+    ownerId: 'u1',
+    providerId: null,
+    repositoryUrl: 'https://github.com/ex/a',
+    runtimes: [],
+    slug: 'project-a',
+    techStacks: [],
+    techStacksCount: 0,
+    updatedAt: '2026-01-01',
+    visibility: 'public',
+    vulnerabilitiesBySeverity: { critical: 0, high: 0, low: 0, medium: 0 },
+    vulnerabilitiesCount: 0,
+    ...overrides,
+  };
+}
+
+describe('ProjectList (repos split view)', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
     storeOverrides = {};
   });
 
-  it('renders without errors', () => {
+  it('renders the repos root', () => {
     const wrapper = mount(ProjectList);
-    expect(wrapper.exists()).toBe(true);
-    expect(wrapper.find('[data-testid="project-list-page"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="repos-page"]').exists()).toBe(true);
   });
 
   it('calls fetchAll on mount', () => {
@@ -96,61 +79,77 @@ describe('ProjectList', () => {
   it('shows loading state', () => {
     storeOverrides = { loading: true };
     const wrapper = mount(ProjectList);
-    expect(wrapper.find('[data-testid="project-list-loading"]').exists()).toBe(true);
+    expect(wrapper.find('.loading').exists()).toBe(true);
   });
 
-  it('shows error state', () => {
-    storeOverrides = { error: 'Network error' };
+  it('shows the empty state when no projects', () => {
     const wrapper = mount(ProjectList);
-    expect(wrapper.find('[data-testid="project-list-error"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="project-list-error"]').text()).toContain('Network error');
+    expect(wrapper.find('.empty').exists()).toBe(true);
   });
 
-  it('shows empty state when no projects', () => {
-    const wrapper = mount(ProjectList);
-    expect(wrapper.find('[data-testid="project-list-empty"]').exists()).toBe(true);
-  });
-
-  it('renders project cards when projects exist', () => {
+  it('renders one row per project', () => {
     storeOverrides = {
       projects: [
-        {
-          id: '1',
-          name: 'Project A',
-          repositoryUrl: 'https://git.example.com/a',
-          visibility: 'public',
-          defaultBranch: 'main',
-          techStacks: [],
-        },
-        {
+        makeProject({ id: '1', name: 'Project A', slug: 'project-a' }),
+        makeProject({
+          defaultBranch: 'develop',
           id: '2',
           name: 'Project B',
-          repositoryUrl: 'https://git.example.com/b',
+          repositoryUrl: 'https://gitlab.com/ex/b',
+          slug: 'project-b',
           visibility: 'private',
-          defaultBranch: 'develop',
-          techStacks: [],
-        },
+        }),
       ],
     };
     const wrapper = mount(ProjectList);
-    const cards = wrapper.findAll('[data-testid="project-list-card"]');
-    expect(cards).toHaveLength(2);
+    const rows = wrapper.findAll('.row');
+    expect(rows).toHaveLength(2);
   });
 
-  it('shows filters when projects exist', () => {
+  it('opens the selected project in the detail pane', () => {
     storeOverrides = {
       projects: [
-        {
+        makeProject({
+          description: 'hello',
           id: '1',
-          name: 'P',
-          repositoryUrl: '',
-          visibility: 'public',
-          defaultBranch: 'main',
-          techStacks: [],
-        },
+          name: 'Project A',
+          slug: 'project-a',
+        }),
       ],
     };
     const wrapper = mount(ProjectList);
-    expect(wrapper.find('[data-testid="project-list-filters"]').exists()).toBe(true);
+    expect(wrapper.find('.detail-name').exists()).toBe(true);
+    expect(wrapper.find('.detail-name').text()).toBe('Project A');
+  });
+
+  it('displays coverage percent when present', () => {
+    storeOverrides = {
+      projects: [
+        makeProject({
+          coveragePercent: 82.4,
+          id: '1',
+        }),
+      ],
+    };
+    const wrapper = mount(ProjectList);
+    const coverage = wrapper.find('.coverage-empty');
+    expect(coverage.text()).toBe('82%');
+  });
+
+  it('renders the sparkline when commits are present', () => {
+    storeOverrides = {
+      projects: [
+        makeProject({
+          commitsDailySeries: [
+            1, 2, 0, 3, 0, 1, 2, 0, 0, 1, 0, 0, 2, 1, 0, 0, 1, 0, 2, 0, 0, 1, 3, 0, 0, 0, 1, 0, 0,
+            2,
+          ],
+          commitsLast30d: 20,
+          id: '1',
+        }),
+      ],
+    };
+    const wrapper = mount(ProjectList);
+    expect(wrapper.find('svg.spark polyline').exists()).toBe(true);
   });
 });

@@ -15,11 +15,11 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
-vi.mock('@/catalog/components/ProviderIcon.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/ProviderIcon.vue', () => ({
   default: { props: ['type', 'size'], template: '<span />' },
 }));
 
@@ -29,7 +29,7 @@ const mockFetchOne = vi.fn();
 const mockTestConnection = vi.fn();
 let providerStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/provider', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/provider', () => ({
   useProviderStore: vi.fn(() => ({
     create: mockCreate,
     error: null,
@@ -43,7 +43,7 @@ vi.mock('@/catalog/stores/provider', () => ({
 }));
 
 const mockAddToast = vi.fn();
-vi.mock('@/shared/stores/toast', () => ({
+vi.mock('@/hub/shared/stores/toast', () => ({
   useToastStore: vi.fn(() => ({
     addToast: mockAddToast,
   })),
@@ -51,7 +51,7 @@ vi.mock('@/shared/stores/toast', () => ({
 
 import { useRoute } from 'vue-router';
 
-import ProviderForm from '@/catalog/pages/ProviderForm.vue';
+import ProviderForm from '@/apps/monitoring/catalog/pages/ProviderForm.vue';
 
 describe('ProviderForm', () => {
   beforeEach(() => {

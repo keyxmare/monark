@@ -1,4 +1,4 @@
-import type { Dependency } from '@/dependency/types/dependency';
+import type { Dependency } from '@/apps/monitoring/dependency/types/dependency';
 
 export function createDependency(overrides?: Partial<Dependency>): Dependency {
   return {

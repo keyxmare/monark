@@ -3,7 +3,7 @@ import { createApp } from 'vue';
 
 import App from './App.vue';
 import './assets/main.css';
-import { i18n } from '@/shared/i18n';
+import { i18n } from '@/hub/shared/i18n';
 import { router } from './router';
 
 const app = createApp(App);

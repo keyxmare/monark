@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/shared/i18n', () => ({
+vi.mock('@/hub/shared/i18n', () => ({
   i18n: {
     global: {
       locale: { value: 'en' },
@@ -11,7 +11,7 @@ vi.mock('@/shared/i18n', () => ({
 const originalFetch = globalThis.fetch;
 const originalLocation = window.location;
 
-import { api } from '@/shared/utils/api';
+import { api } from '@/hub/shared/utils/api';
 
 describe('api utility', () => {
   let mockFetch: ReturnType<typeof vi.fn>;

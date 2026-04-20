@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import type { CrudService } from '@/shared/types/crud';
-import type { ApiResponse } from '@/shared/types';
-import { createCrudStore } from '@/shared/stores/createCrudStore';
+import type { CrudService } from '@/hub/shared/types/crud';
+import type { ApiResponse } from '@/hub/shared/types';
+import { createCrudStore } from '@/hub/shared/stores/createCrudStore';
 
 interface TestEntity {
   id: string;

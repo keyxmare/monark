@@ -12,13 +12,13 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/layouts/AuthLayout.vue', () => ({
+vi.mock('@/hub/shared/layouts/AuthLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
 const mockRegister = vi.fn();
 const mockLogin = vi.fn();
-vi.mock('@/identity/stores/auth', () => ({
+vi.mock('@/hub/identity/stores/auth', () => ({
   useAuthStore: vi.fn(() => ({
     currentUser: null,
     error: null,
@@ -30,7 +30,7 @@ vi.mock('@/identity/stores/auth', () => ({
   })),
 }));
 
-import RegisterPage from '@/identity/pages/RegisterPage.vue';
+import RegisterPage from '@/hub/identity/pages/RegisterPage.vue';
 
 describe('RegisterPage', () => {
   beforeEach(() => {

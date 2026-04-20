@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
-import DropdownMenu from '@/shared/components/DropdownMenu.vue';
-import type { DropdownMenuItem } from '@/shared/components/DropdownMenu.vue';
+import DropdownMenu from '@/hub/shared/components/DropdownMenu.vue';
+import type { DropdownMenuItem } from '@/hub/shared/components/DropdownMenu.vue';
 
 const items: DropdownMenuItem[] = [
   { action: 'edit', label: 'Edit' },

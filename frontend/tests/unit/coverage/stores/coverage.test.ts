@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 
-vi.mock('@/coverage/services/coverage.service', () => ({
+vi.mock('@/apps/monitoring/coverage/services/coverage.service', () => ({
   coverageService: {
     getDashboard: vi.fn(),
   },
 }));
 
-import { coverageService } from '@/coverage/services/coverage.service';
-import { useCoverageStore } from '@/coverage/stores/coverage';
+import { coverageService } from '@/apps/monitoring/coverage/services/coverage.service';
+import { useCoverageStore } from '@/apps/monitoring/coverage/stores/coverage';
 
 describe('Coverage Store', () => {
   beforeEach(() => {

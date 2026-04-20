@@ -6,14 +6,14 @@ const toastsRef = {
   value: [] as Array<{ id: string; variant: string; title: string; message?: string }>,
 };
 
-vi.mock('@/shared/stores/toast', () => ({
+vi.mock('@/hub/shared/stores/toast', () => ({
   useToastStore: () => ({
     toasts: toastsRef.value,
     removeToast: removeToastMock,
   }),
 }));
 
-vi.mock('@/shared/components/AppToast.vue', () => ({
+vi.mock('@/hub/shared/components/AppToast.vue', () => ({
   default: {
     template:
       '<div :data-testid="`toast-${toast.id}`"><button data-testid="toast-close" @click="$emit(\'close\', toast.id)" /></div>',
@@ -22,7 +22,7 @@ vi.mock('@/shared/components/AppToast.vue', () => ({
   },
 }));
 
-import AppToastContainer from '@/shared/components/AppToastContainer.vue';
+import AppToastContainer from '@/hub/shared/components/AppToastContainer.vue';
 
 function mountContainer() {
   return mount(AppToastContainer, {

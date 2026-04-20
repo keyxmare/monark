@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatDate, formatDateTime, formatRelative } from '@/shared/utils/dateFormat';
+import { formatDate, formatDateTime, formatRelative } from '@/hub/shared/utils/dateFormat';
 
 describe('dateFormat', () => {
   const iso = '2026-03-15T14:30:00Z';

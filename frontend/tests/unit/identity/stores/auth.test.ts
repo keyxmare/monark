@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { useAuthStore } from '@/identity/stores/auth';
+import { useAuthStore } from '@/hub/identity/stores/auth';
 
-vi.mock('@/identity/services/auth.service', () => ({
+vi.mock('@/hub/identity/services/auth.service', () => ({
   authService: {
     login: vi.fn(),
     register: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock('@/identity/services/auth.service', () => ({
   },
 }));
 
-import { authService } from '@/identity/services/auth.service';
+import { authService } from '@/hub/identity/services/auth.service';
 
 const mockUser = {
   id: '123',

@@ -10,11 +10,11 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-vi.mock('@/catalog/components/ProviderIcon.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/ProviderIcon.vue', () => ({
   default: { props: ['type', 'size'], template: '<span />' },
 }));
 
-import ProviderInfoCard from '@/catalog/components/ProviderInfoCard.vue';
+import ProviderInfoCard from '@/apps/monitoring/catalog/components/ProviderInfoCard.vue';
 
 describe('ProviderInfoCard', () => {
   const provider = createProvider({

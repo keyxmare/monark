@@ -12,33 +12,33 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
-vi.mock('@/shared/components/Pagination.vue', () => ({
+vi.mock('@/hub/shared/components/Pagination.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/shared/components/ExportDropdown.vue', () => ({
+vi.mock('@/hub/shared/components/ExportDropdown.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/dependency/components/DependencyFilters.vue', () => ({
+vi.mock('@/apps/monitoring/dependency/components/DependencyFilters.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/dependency/components/DependencyHealthScore.vue', () => ({
+vi.mock('@/apps/monitoring/dependency/components/DependencyHealthScore.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/catalog/composables/useFrameworkLts', () => ({
+vi.mock('@/apps/monitoring/catalog/composables/useFrameworkLts', () => ({
   humanizeMs: vi.fn(() => ''),
   humanizeTimeDiff: vi.fn(() => ''),
   ltsUrgency: vi.fn(() => 'fresh'),
 }));
 
-vi.mock('@/dependency/services/dependency.service', () => ({
+vi.mock('@/apps/monitoring/dependency/services/dependency.service', () => ({
   dependencyService: {
     stats: vi
       .fn()
@@ -46,11 +46,11 @@ vi.mock('@/dependency/services/dependency.service', () => ({
   },
 }));
 
-vi.mock('@/dependency/services/dependencyPdfExport', () => ({
+vi.mock('@/apps/monitoring/dependency/services/dependencyPdfExport', () => ({
   exportDependenciesPdf: vi.fn(),
 }));
 
-vi.mock('@/shared/composables/useGlobalSync', () => ({
+vi.mock('@/hub/shared/composables/useGlobalSync', () => ({
   useGlobalSync: () => ({
     currentSync: { value: null },
     isRunning: { value: false },
@@ -60,14 +60,14 @@ vi.mock('@/shared/composables/useGlobalSync', () => ({
   }),
 }));
 
-vi.mock('@/shared/components/SyncButton.vue', () => ({
+vi.mock('@/hub/shared/components/SyncButton.vue', () => ({
   default: { template: '<button data-testid="sync-button" />' },
 }));
 
 const mockDepFetchAll = vi.fn();
 let depStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/dependency/stores/dependency', () => ({
+vi.mock('@/apps/monitoring/dependency/stores/dependency', () => ({
   useDependencyStore: vi.fn(() => ({
     currentPage: 1,
     dependencies: [],
@@ -82,7 +82,7 @@ vi.mock('@/dependency/stores/dependency', () => ({
 }));
 
 const mockProjectFetchAll = vi.fn();
-vi.mock('@/catalog/stores/project', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/project', () => ({
   useProjectStore: vi.fn(() => ({
     currentPage: 1,
     error: null,
@@ -94,7 +94,7 @@ vi.mock('@/catalog/stores/project', () => ({
   })),
 }));
 
-import DependencyList from '@/dependency/pages/DependencyList.vue';
+import DependencyList from '@/apps/monitoring/dependency/pages/DependencyList.vue';
 
 describe('DependencyList', () => {
   beforeEach(() => {

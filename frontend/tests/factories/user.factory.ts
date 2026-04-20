@@ -1,4 +1,4 @@
-import type { User } from '@/identity/types/user';
+import type { User } from '@/hub/identity/types/user';
 
 export function createUser(overrides?: Partial<User>): User {
   return {

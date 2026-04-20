@@ -1,5 +1,20 @@
-controllers:
+hub:
     resource:
-        path: ../src/
-        namespace: App
+        path: ../src/Hub/
+        namespace: App\Hub
+        exclude: '../src/Hub/Shared/Infrastructure/Controller'
+    type: attribute
+    prefix: /api/v1/hub
+
+monitoring:
+    resource:
+        path: ../src/Monitoring/
+        namespace: App\Monitoring
+    type: attribute
+    prefix: /api/v1/monitoring
+
+health:
+    resource:
+        path: ../src/Hub/Shared/Infrastructure/Controller/
+        namespace: App\Hub\Shared\Infrastructure\Controller
     type: attribute

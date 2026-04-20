@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { useProjectStore } from '@/catalog/stores/project';
+import { useProjectStore } from '@/apps/monitoring/catalog/stores/project';
 
-vi.mock('@/catalog/services/project.service', () => ({
+vi.mock('@/apps/monitoring/catalog/services/project.service', () => ({
   projectService: {
     list: vi.fn(),
     get: vi.fn(),
@@ -12,7 +12,7 @@ vi.mock('@/catalog/services/project.service', () => ({
   },
 }));
 
-import { projectService } from '@/catalog/services/project.service';
+import { projectService } from '@/apps/monitoring/catalog/services/project.service';
 
 const mockProject = {
   id: 'abc-123',

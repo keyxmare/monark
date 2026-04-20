@@ -17,6 +17,6 @@ final class Kernel extends BaseKernel
     protected function build(ContainerBuilder $container): void
     {
         parent::build($container);
-        $container->addCompilerPass(new \App\Dependency\Infrastructure\Registry\CompilerPass\PackageRegistryCompilerPass());
+        $container->addCompilerPass(new \App\Monitoring\Dependency\Infrastructure\Registry\CompilerPass\PackageRegistryCompilerPass());
     }
 }

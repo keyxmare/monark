@@ -1,4 +1,4 @@
-import type { Notification } from '@/activity/types/notification';
+import type { Notification } from '@/apps/monitoring/activity/types/notification';
 
 export function createNotification(overrides?: Partial<Notification>): Notification {
   return {

@@ -8,7 +8,7 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-import Pagination from '@/shared/components/Pagination.vue';
+import Pagination from '@/hub/shared/components/Pagination.vue';
 
 function mountPagination(props: { page: number; totalPages: number; total?: number }) {
   return mount(Pagination, { props });

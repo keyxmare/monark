@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/shared/utils/api', () => ({
+vi.mock('@/hub/shared/utils/api', () => ({
   api: { delete: vi.fn(), get: vi.fn(), patch: vi.fn(), post: vi.fn(), put: vi.fn() },
 }));
 
-import { api } from '@/shared/utils/api';
-import { authService } from '@/identity/services/auth.service';
+import { api } from '@/hub/shared/utils/api';
+import { authService } from '@/hub/identity/services/auth.service';
 
 describe('authService', () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe('authService', () => {
 
     await authService.register(input);
 
-    expect(api.post).toHaveBeenCalledWith('/auth/register', input);
+    expect(api.post).toHaveBeenCalledWith('/hub/auth/register', input);
   });
 
   it('login calls POST /auth/login with email and password', async () => {
@@ -26,7 +26,7 @@ describe('authService', () => {
 
     await authService.login('test@example.com', 'secret');
 
-    expect(api.post).toHaveBeenCalledWith('/auth/login', {
+    expect(api.post).toHaveBeenCalledWith('/hub/auth/login', {
       email: 'test@example.com',
       password: 'secret',
     });
@@ -37,7 +37,7 @@ describe('authService', () => {
 
     await authService.logout();
 
-    expect(api.post).toHaveBeenCalledWith('/auth/logout', {});
+    expect(api.post).toHaveBeenCalledWith('/hub/auth/logout', {});
   });
 
   it('getCurrentUser calls GET /auth/profile', async () => {
@@ -45,6 +45,6 @@ describe('authService', () => {
 
     await authService.getCurrentUser();
 
-    expect(api.get).toHaveBeenCalledWith('/auth/profile');
+    expect(api.get).toHaveBeenCalledWith('/hub/auth/profile');
   });
 });

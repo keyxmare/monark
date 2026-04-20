@@ -5,7 +5,7 @@
 - **Backend** : Symfony 8 / PHP 8.4 / Pest / PHPStan
 - **Frontend** : Vue.js 3 / TypeScript / Vitest / Pinia
 - **Infra** : Docker (PostgreSQL 17, RabbitMQ, Mercure, Redis)
-- **Architecture** : DDD/CQRS, bounded contexts (Identity, Catalog, Dependency, Sync, Coverage, VersionRegistry)
+- **Architecture** : shell applicatif Hub (`App\Hub\*` = Identity + Shared) + sous-app Monitoring (`App\Monitoring\*` = Catalog, Dependency, Coverage, Activity, VersionRegistry, Sync). Routes API préfixées `/api/v1/hub/*` et `/api/v1/monitoring/*`. Frontend : `src/hub/*` + `src/apps/monitoring/*`.
 
 ## Runtime
 
@@ -17,7 +17,6 @@ make test-frontend      # Vitest tests
 make lint-backend       # cs-fixer (dry-run) + PHPStan
 make lint-frontend      # ESLint + Prettier
 make fix-backend        # cs-fixer auto-fix
-make ci                 # Dashboard complet
 make migrate            # Doctrine migrations
 ```
 

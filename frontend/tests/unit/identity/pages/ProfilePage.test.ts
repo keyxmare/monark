@@ -12,14 +12,14 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string, params?: Record<string, string>) => key }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
 const mockFetchCurrentUser = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 
-vi.mock('@/identity/stores/auth', () => ({
+vi.mock('@/hub/identity/stores/auth', () => ({
   useAuthStore: vi.fn(() => ({
     currentUser: null,
     error: null,
@@ -31,7 +31,7 @@ vi.mock('@/identity/stores/auth', () => ({
   })),
 }));
 
-import ProfilePage from '@/identity/pages/ProfilePage.vue';
+import ProfilePage from '@/hub/identity/pages/ProfilePage.vue';
 
 describe('ProfilePage', () => {
   beforeEach(() => {

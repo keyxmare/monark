@@ -31,7 +31,7 @@ vi.mock('jspdf-autotable', () => ({
 }));
 
 import jsPDF from 'jspdf';
-import { exportDependenciesPdf } from '@/dependency/services/dependencyPdfExport';
+import { exportDependenciesPdf } from '@/apps/monitoring/dependency/services/dependencyPdfExport';
 
 const baseRow = {
   name: 'lodash',

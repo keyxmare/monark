@@ -1,19 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import { STORAGE_KEYS } from '@/shared/constants';
-import { activityRoutes } from '@/activity/routes';
-import { catalogRoutes } from '@/catalog/routes';
-import { coverageRoutes } from '@/coverage/routes';
-import { dependencyRoutes } from '@/dependency/routes';
-import { identityRoutes } from '@/identity/routes';
+import { monitoringRoutes } from '@/apps/monitoring/routes';
+import { hubRoutes } from '@/hub/routes';
+import { STORAGE_KEYS } from '@/hub/shared/constants';
 
-const routes = [
-  ...activityRoutes,
-  ...catalogRoutes,
-  ...coverageRoutes,
-  ...dependencyRoutes,
-  ...identityRoutes,
-];
+const routes = [...hubRoutes, ...monitoringRoutes];
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -29,6 +20,6 @@ router.beforeEach((to) => {
   }
 
   if (isAuthenticated && to.name === 'login') {
-    return { name: 'dashboard' };
+    return { name: 'hub-home' };
   }
 });

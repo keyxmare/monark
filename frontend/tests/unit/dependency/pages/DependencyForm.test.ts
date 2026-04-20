@@ -12,7 +12,7 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string, params?: Record<string, string>) => key }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
@@ -21,7 +21,7 @@ const mockUpdate = vi.fn();
 const mockFetchOne = vi.fn();
 let depStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/dependency/stores/dependency', () => ({
+vi.mock('@/apps/monitoring/dependency/stores/dependency', () => ({
   useDependencyStore: vi.fn(() => ({
     create: mockCreate,
     update: mockUpdate,
@@ -36,7 +36,7 @@ vi.mock('@/dependency/stores/dependency', () => ({
 const mockProjectFetchAll = vi.fn();
 let projectStoreOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/project', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/project', () => ({
   useProjectStore: vi.fn(() => ({
     fetchAll: mockProjectFetchAll,
     projects: [],
@@ -44,7 +44,7 @@ vi.mock('@/catalog/stores/project', () => ({
   })),
 }));
 
-import DependencyForm from '@/dependency/pages/DependencyForm.vue';
+import DependencyForm from '@/apps/monitoring/dependency/pages/DependencyForm.vue';
 
 describe('DependencyForm', () => {
   beforeEach(() => {

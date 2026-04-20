@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
 
-import { useListFiltering } from '@/shared/composables/useListFiltering';
+import { useListFiltering } from '@/hub/shared/composables/useListFiltering';
 
 describe('useListFiltering', () => {
   const items = ref([

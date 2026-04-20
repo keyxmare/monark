@@ -12,19 +12,19 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string, params?: Record<string, string>) => key }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
-vi.mock('@/shared/components/ConfirmDialog.vue', () => ({
+vi.mock('@/hub/shared/components/ConfirmDialog.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/catalog/components/ProviderCard.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/ProviderCard.vue', () => ({
   default: { props: ['provider', 'items'], template: '<div data-testid="provider-card" />' },
 }));
 
-vi.mock('@/shared/composables/useConfirmDelete', () => ({
+vi.mock('@/hub/shared/composables/useConfirmDelete', () => ({
   useConfirmDelete: () => ({
     cancel: vi.fn(),
     confirm: vi.fn(),
@@ -34,11 +34,11 @@ vi.mock('@/shared/composables/useConfirmDelete', () => ({
   }),
 }));
 
-vi.mock('@/shared/components/SyncButton.vue', () => ({
+vi.mock('@/hub/shared/components/SyncButton.vue', () => ({
   default: { template: '<button data-testid="sync-button" />' },
 }));
 
-vi.mock('@/shared/composables/useGlobalSync', () => ({
+vi.mock('@/hub/shared/composables/useGlobalSync', () => ({
   useGlobalSync: () => ({
     currentSync: { value: null },
     isRunning: { value: false },
@@ -48,7 +48,7 @@ vi.mock('@/shared/composables/useGlobalSync', () => ({
   }),
 }));
 
-vi.mock('@/shared/stores/toast', () => ({
+vi.mock('@/hub/shared/stores/toast', () => ({
   useToastStore: vi.fn(() => ({
     addToast: vi.fn(),
     toasts: [],
@@ -58,7 +58,7 @@ vi.mock('@/shared/stores/toast', () => ({
 const mockFetchAll = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/provider', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/provider', () => ({
   useProviderStore: vi.fn(() => ({
     currentPage: 1,
     error: null,
@@ -74,7 +74,7 @@ vi.mock('@/catalog/stores/provider', () => ({
   })),
 }));
 
-import ProviderList from '@/catalog/pages/ProviderList.vue';
+import ProviderList from '@/apps/monitoring/catalog/pages/ProviderList.vue';
 
 describe('ProviderList', () => {
   beforeEach(() => {

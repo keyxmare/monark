@@ -1,4 +1,4 @@
-import type { Project } from '@/catalog/types/project';
+import type { Project } from '@/apps/monitoring/catalog/types/project';
 
 export function createProject(overrides?: Partial<Project>): Project {
   return {

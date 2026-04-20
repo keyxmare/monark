@@ -15,27 +15,27 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-vi.mock('@/shared/layouts/DashboardLayout.vue', () => ({
+vi.mock('@/hub/layout/HubLayout.vue', () => ({
   default: { template: '<div><slot /></div>' },
 }));
 
-vi.mock('@/shared/components/ConfirmDialog.vue', () => ({
+vi.mock('@/hub/shared/components/ConfirmDialog.vue', () => ({
   default: { template: '<div />' },
 }));
 
-vi.mock('@/catalog/components/ProviderInfoCard.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/ProviderInfoCard.vue', () => ({
   default: { template: '<div data-testid="provider-info-card" />' },
 }));
 
-vi.mock('@/catalog/components/ProviderStatsCards.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/ProviderStatsCards.vue', () => ({
   default: { template: '<div data-testid="provider-stats-cards" />' },
 }));
 
-vi.mock('@/catalog/components/RemoteProjectsSection.vue', () => ({
+vi.mock('@/apps/monitoring/catalog/components/RemoteProjectsSection.vue', () => ({
   default: { template: '<div data-testid="remote-projects-section" />' },
 }));
 
-vi.mock('@/catalog/composables/useSyncProgress', () => ({
+vi.mock('@/apps/monitoring/catalog/composables/useSyncProgress', () => ({
   useSyncProgress: () => ({
     track: vi.fn(),
   }),
@@ -49,7 +49,7 @@ const mockSyncAll = vi.fn();
 const mockImportProjects = vi.fn();
 let storeOverrides: Record<string, unknown> = {};
 
-vi.mock('@/catalog/stores/provider', () => ({
+vi.mock('@/apps/monitoring/catalog/stores/provider', () => ({
   useProviderStore: vi.fn(() => ({
     error: null,
     fetchOne: mockFetchOne,
@@ -69,13 +69,13 @@ vi.mock('@/catalog/stores/provider', () => ({
 }));
 
 const mockAddToast = vi.fn();
-vi.mock('@/shared/stores/toast', () => ({
+vi.mock('@/hub/shared/stores/toast', () => ({
   useToastStore: vi.fn(() => ({
     addToast: mockAddToast,
   })),
 }));
 
-import ProviderDetail from '@/catalog/pages/ProviderDetail.vue';
+import ProviderDetail from '@/apps/monitoring/catalog/pages/ProviderDetail.vue';
 
 describe('ProviderDetail', () => {
   beforeEach(() => {

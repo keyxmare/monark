@@ -1,210 +1,251 @@
 parameters:
+    app.timezone: '%env(APP_TIMEZONE)%'
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            string $appTimezone: '%app.timezone%'
 
-    App\Shared\:
-        resource: '../src/Shared/'
+    App\Hub\Shared\:
+        resource: '../src/Hub/Shared/'
 
-    App\Identity\:
-        resource: '../src/Identity/'
+    App\Hub\Identity\:
+        resource: '../src/Hub/Identity/'
 
-    App\Catalog\:
-        resource: '../src/Catalog/'
+    App\Monitoring\Catalog\:
+        resource: '../src/Monitoring/Catalog/'
 
-    App\Dependency\:
-        resource: '../src/Dependency/'
+    App\Monitoring\Dependency\:
+        resource: '../src/Monitoring/Dependency/'
 
-    App\Activity\:
-        resource: '../src/Activity/'
+    App\Monitoring\Activity\:
+        resource: '../src/Monitoring/Activity/'
 
-    App\VersionRegistry\:
-        resource: '../src/VersionRegistry/'
+    App\Monitoring\VersionRegistry\:
+        resource: '../src/Monitoring/VersionRegistry/'
 
-    App\Coverage\:
-        resource: '../src/Coverage/'
+    App\Monitoring\Coverage\:
+        resource: '../src/Monitoring/Coverage/'
 
-    App\Sync\:
-        resource: '../src/Sync/'
+    App\Monitoring\Sync\:
+        resource: '../src/Monitoring/Sync/'
 
-    App\Identity\Domain\Repository\UserRepositoryInterface:
-        alias: App\Identity\Infrastructure\Persistence\Doctrine\DoctrineUserRepository
+    App\Hub\Identity\Domain\Repository\UserRepositoryInterface:
+        alias: App\Hub\Identity\Infrastructure\Persistence\Doctrine\DoctrineUserRepository
 
-    App\Catalog\Domain\Repository\ProjectRepositoryInterface:
-        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProjectRepository
+    App\Monitoring\Catalog\Domain\Repository\ProjectRepositoryInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProjectRepository
 
-    App\Catalog\Domain\Repository\ProviderRepositoryInterface:
-        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
+    App\Monitoring\Catalog\Domain\Repository\ProviderRepositoryInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\Persistence\Doctrine\DoctrineProviderRepository
 
-    App\Catalog\Domain\Repository\SyncJobRepositoryInterface:
-        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineSyncJobRepository
+    App\Monitoring\Catalog\Domain\Repository\SyncJobRepositoryInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\Persistence\Doctrine\DoctrineSyncJobRepository
 
-    App\Catalog\Domain\Port\GitProviderInterface:
-        alias: App\Catalog\Infrastructure\GitProvider\GitLabClient
+    App\Monitoring\Catalog\Domain\Port\GitProviderInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\GitProvider\GitLabClient
 
-    App\Catalog\Domain\Port\GitProviderFactoryInterface:
-        alias: App\Catalog\Infrastructure\GitProvider\GitProviderFactory
+    App\Monitoring\Catalog\Domain\Port\GitProviderFactoryInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\GitProvider\GitProviderFactory
 
-    App\Catalog\Domain\Port\ProjectScannerInterface:
-        alias: App\Catalog\Infrastructure\Scanner\ProjectScanner
+    App\Monitoring\Catalog\Domain\Port\ProjectScannerInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\Scanner\ProjectScanner
 
-    App\Activity\Domain\Repository\BuildMetricRepositoryInterface:
-        alias: App\Activity\Infrastructure\Persistence\Doctrine\DoctrineBuildMetricRepository
+    App\Monitoring\Activity\Domain\Repository\BuildMetricRepositoryInterface:
+        alias: App\Monitoring\Activity\Infrastructure\Persistence\Doctrine\DoctrineBuildMetricRepository
 
-    App\Catalog\Domain\Repository\LanguageVulnerabilityRepositoryInterface:
-        alias: App\Catalog\Infrastructure\Persistence\Doctrine\DoctrineLanguageVulnerabilityRepository
+    App\Monitoring\Catalog\Domain\Repository\LanguageVulnerabilityRepositoryInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\Persistence\Doctrine\DoctrineLanguageVulnerabilityRepository
 
-    App\Dependency\Domain\Repository\DependencyRepositoryInterface:
-        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyRepository
+    App\Monitoring\Dependency\Domain\Repository\DependencyRepositoryInterface:
+        alias: App\Monitoring\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyRepository
 
-    App\Dependency\Domain\Repository\VulnerabilityRepositoryInterface:
-        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineVulnerabilityRepository
+    App\Monitoring\Dependency\Domain\Repository\VulnerabilityRepositoryInterface:
+        alias: App\Monitoring\Dependency\Infrastructure\Persistence\Doctrine\DoctrineVulnerabilityRepository
 
-    App\Dependency\Domain\Repository\DependencyVersionRepositoryInterface:
-        alias: App\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyVersionRepository
+    App\Monitoring\Dependency\Domain\Repository\DependencyVersionRepositoryInterface:
+        alias: App\Monitoring\Dependency\Infrastructure\Persistence\Doctrine\DoctrineDependencyVersionRepository
 
-    App\Catalog\Infrastructure\GitProvider\GitLabClient:
+    App\Monitoring\Catalog\Infrastructure\GitProvider\GitLabClient:
         arguments:
             $httpClient: '@external_api.client'
 
-    App\Dependency\Infrastructure\Registry\PackageRegistryFactory:
+    App\Monitoring\Dependency\Infrastructure\Registry\PackageRegistryFactory:
         arguments:
             $adapters: !tagged_iterator dependency.registry_adapter
 
-    App\Dependency\Domain\Port\PackageRegistryResolverPort:
-        alias: App\Dependency\Infrastructure\Registry\PackageRegistryFactory
+    App\Monitoring\Dependency\Domain\Port\PackageRegistryResolverPort:
+        alias: App\Monitoring\Dependency\Infrastructure\Registry\PackageRegistryFactory
 
-    App\Dependency\Infrastructure\Registry\NpmRegistryAdapter:
+    App\Monitoring\Dependency\Infrastructure\Registry\NpmRegistryAdapter:
         tags: ['dependency.registry_adapter']
         arguments:
             $httpClient: '@external_api.client'
 
-    App\Dependency\Infrastructure\Registry\PackagistRegistryAdapter:
+    App\Monitoring\Dependency\Infrastructure\Registry\PackagistRegistryAdapter:
         tags: ['dependency.registry_adapter']
         arguments:
             $httpClient: '@external_api.client'
 
-    App\Identity\Application\CommandHandler\RegisterUserHandler:
+    App\Hub\Identity\Application\CommandHandler\RegisterUserHandler:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Identity\Application\CommandHandler\UpdateUserHandler:
+    App\Hub\Identity\Application\CommandHandler\UpdateUserHandler:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Catalog\Application\CommandHandler\ScanProjectHandler:
+    App\Monitoring\Catalog\Application\CommandHandler\ScanProjectHandler:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Catalog\Application\CommandHandler\SyncAllProjectsHandler:
+    App\Monitoring\Catalog\Application\CommandHandler\SyncAllProjectsHandler:
         arguments:
             $commandBus: '@command.bus'
 
-    App\Catalog\Application\CommandHandler\SyncProjectMetadataHandler:
+    App\Monitoring\Catalog\Application\CommandHandler\SyncProjectMetadataHandler:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Catalog\Application\Service\FrameworkVersionStatusUpdater:
+    App\Monitoring\Catalog\Application\Service\FrameworkVersionStatusUpdater:
         arguments:
             $eventBus: '@event.bus'
 
 
-    App\Dependency\Application\CommandHandler\SyncSingleDependencyVersionHandler:
+    App\Monitoring\Dependency\Application\CommandHandler\SyncSingleDependencyVersionHandler:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Dependency\Application\CommandHandler\SyncDependencyCveHandler:
+    App\Monitoring\Dependency\Application\CommandHandler\SyncDependencyCveHandler:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Catalog\Application\CommandHandler\SyncLanguageCveHandler:
+    App\Monitoring\Catalog\Application\CommandHandler\SyncLanguageCveHandler:
         arguments:
             $eventBus: '@event.bus'
 
-    App\Catalog\Application\EventListener\SyncLanguageCveOnScanListener:
+    App\Monitoring\Catalog\Application\EventListener\SyncLanguageCveOnScanListener:
         arguments:
             $commandBus: '@command.bus'
 
-    App\Dependency\Application\EventListener\SyncCveOnScanListener:
-        arguments:
-            $commandBus: '@command.bus'
-
-    App\Identity\Infrastructure\Security\ApiTokenHandler:
+    App\Hub\Identity\Infrastructure\Security\ApiTokenHandler:
         arguments:
             $appSecret: '%kernel.secret%'
 
-    App\Shared\Domain\Port\DependencyReaderPort:
-        alias: App\Dependency\Infrastructure\Adapter\DependencyReaderAdapter
+    App\Hub\Shared\Domain\Port\ProjectCounterInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\DoctrineProjectCounter
 
-    App\Shared\Domain\Port\DependencyWriterPort:
-        alias: App\Dependency\Infrastructure\Adapter\DependencyWriterAdapter
+    App\Hub\Shared\Domain\Port\CommitCounterInterface:
+        alias: App\Monitoring\Activity\Infrastructure\DoctrineCommitCounter
 
-    App\Shared\Domain\Port\OsvClientInterface:
-        alias: App\Shared\Infrastructure\Osv\OsvApiClient
+    App\Hub\Shared\Domain\Port\BranchCounterInterface:
+        alias: App\Monitoring\Activity\Infrastructure\DoctrineBranchCounter
 
-    App\Shared\Infrastructure\Osv\OsvApiClient:
+    App\Hub\Shared\Domain\Port\DependencyCounterInterface:
+        alias: App\Monitoring\Dependency\Infrastructure\DoctrineDependencyCounter
+
+    App\Hub\Shared\Domain\Port\VulnerabilityCounterInterface:
+        alias: App\Monitoring\Dependency\Infrastructure\DoctrineVulnerabilityCounter
+
+    App\Hub\Shared\Domain\Port\CoverageSummaryInterface:
+        alias: App\Monitoring\Coverage\Infrastructure\DoctrineCoverageSummary
+
+    App\Hub\Shared\Domain\Port\LanguagesSummaryInterface:
+        alias: App\Monitoring\Activity\Infrastructure\DoctrineLanguagesSummary
+
+    App\Hub\Shared\Domain\Port\ProvidersBreakdownInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\DoctrineProvidersBreakdown
+
+    App\Hub\Shared\Domain\Port\ProjectCoverageInterface:
+        alias: App\Monitoring\Coverage\Infrastructure\DoctrineProjectCoverage
+
+    App\Hub\Shared\Domain\Port\ProjectActivityInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\CatalogProjectActivity
+
+    App\Hub\Shared\Domain\Port\DependencyReaderPort:
+        alias: App\Monitoring\Dependency\Infrastructure\Adapter\DependencyReaderAdapter
+
+    App\Hub\Shared\Domain\Port\MostActiveProjectsInterface:
+        alias: App\Monitoring\Activity\Infrastructure\DoctrineMostActiveProjects
+
+    App\Hub\Shared\Domain\Port\WeakestCoverageProjectsInterface:
+        alias: App\Monitoring\Coverage\Infrastructure\DoctrineWeakestCoverageProjects
+
+    App\Hub\Shared\Domain\Port\TopOutdatedDependenciesInterface:
+        alias: App\Monitoring\Dependency\Infrastructure\DoctrineTopOutdatedDependencies
+
+    App\Hub\Shared\Domain\Port\ProjectDriftSummaryInterface:
+        alias: App\Monitoring\Catalog\Infrastructure\DoctrineProjectDriftSummary
+
+    App\Hub\Shared\Domain\Port\DependencyWriterPort:
+        alias: App\Monitoring\Dependency\Infrastructure\Adapter\DependencyWriterAdapter
+
+    App\Hub\Shared\Domain\Port\OsvClientInterface:
+        alias: App\Hub\Shared\Infrastructure\Osv\OsvApiClient
+
+    App\Hub\Shared\Infrastructure\Osv\OsvApiClient:
         arguments:
             $httpClient: '@external_api.client'
 
-    App\Shared\Infrastructure\Logging\CorrelationIdProcessor:
+    App\Hub\Shared\Infrastructure\Logging\CorrelationIdProcessor:
         tags:
             - { name: monolog.processor }
 
-    App\Shared\Infrastructure\EventListener\ExceptionListener:
+    App\Hub\Shared\Infrastructure\EventListener\ExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
 
-    App\Shared\Infrastructure\EventListener\RateLimitListener:
+    App\Hub\Shared\Infrastructure\EventListener\RateLimitListener:
         arguments:
             $apiGlobalLimiter: '@limiter.api_global'
             $apiAuthLimiter: '@limiter.api_auth'
 
-    App\VersionRegistry\Domain\Repository\ProductRepositoryInterface:
-        alias: App\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductRepository
+    App\Monitoring\VersionRegistry\Domain\Repository\ProductRepositoryInterface:
+        alias: App\Monitoring\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductRepository
 
-    App\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface:
-        alias: App\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductVersionRepository
+    App\Monitoring\VersionRegistry\Domain\Repository\ProductVersionRepositoryInterface:
+        alias: App\Monitoring\VersionRegistry\Infrastructure\Persistence\Doctrine\DoctrineProductVersionRepository
 
-    App\VersionRegistry\Infrastructure\Resolver\EndOfLifeResolver:
-        tags: [App\VersionRegistry\Domain\Port\VersionResolverInterface]
+    App\Monitoring\VersionRegistry\Infrastructure\Resolver\EndOfLifeResolver:
+        tags: [App\Monitoring\VersionRegistry\Domain\Port\VersionResolverInterface]
         arguments:
             $httpClient: '@external_api.client'
 
-    App\VersionRegistry\Infrastructure\Resolver\PackageRegistryResolver:
-        tags: [App\VersionRegistry\Domain\Port\VersionResolverInterface]
+    App\Monitoring\VersionRegistry\Infrastructure\Resolver\PackageRegistryResolver:
+        tags: [App\Monitoring\VersionRegistry\Domain\Port\VersionResolverInterface]
 
-    App\VersionRegistry\Domain\Service\VersionResolverSelector:
+    App\Monitoring\VersionRegistry\Domain\Service\VersionResolverSelector:
         arguments:
-            $resolvers: !tagged_iterator App\VersionRegistry\Domain\Port\VersionResolverInterface
+            $resolvers: !tagged_iterator App\Monitoring\VersionRegistry\Domain\Port\VersionResolverInterface
 
-    App\VersionRegistry\Presentation\Console\SyncProductVersionsConsoleCommand:
-        arguments:
-            $commandBus: '@command.bus'
-
-    App\VersionRegistry\Presentation\Controller\SyncProductVersionsController:
+    App\Monitoring\VersionRegistry\Presentation\Console\SyncProductVersionsConsoleCommand:
         arguments:
             $commandBus: '@command.bus'
 
-    App\VersionRegistry\Application\CommandHandler\SyncProductVersionsHandler:
+    App\Monitoring\VersionRegistry\Presentation\Controller\SyncProductVersionsController:
         arguments:
             $commandBus: '@command.bus'
 
-    App\VersionRegistry\Application\EventListener\RegisterScannedProductsListener:
+    App\Monitoring\VersionRegistry\Application\CommandHandler\SyncProductVersionsHandler:
         arguments:
             $commandBus: '@command.bus'
 
-    App\Coverage\Domain\Repository\CoverageSnapshotRepositoryInterface:
-        alias: App\Coverage\Infrastructure\Persistence\Doctrine\DoctrineCoverageSnapshotRepository
-
-    App\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface:
-        class: App\Sync\Infrastructure\Repository\DoctrineGlobalSyncJobRepository
-
-    App\Sync\Application\CommandHandler\GlobalSyncHandler:
+    App\Monitoring\VersionRegistry\Application\EventListener\RegisterScannedProductsListener:
         arguments:
             $commandBus: '@command.bus'
 
-    App\Sync\Presentation\Controller\StartGlobalSyncController:
+    App\Monitoring\Coverage\Domain\Repository\CoverageSnapshotRepositoryInterface:
+        alias: App\Monitoring\Coverage\Infrastructure\Persistence\Doctrine\DoctrineCoverageSnapshotRepository
+
+    App\Monitoring\Sync\Domain\Repository\GlobalSyncJobRepositoryInterface:
+        class: App\Monitoring\Sync\Infrastructure\Repository\DoctrineGlobalSyncJobRepository
+
+    App\Monitoring\Sync\Application\CommandHandler\GlobalSyncHandler:
+        arguments:
+            $commandBus: '@command.bus'
+
+    App\Monitoring\Sync\Presentation\Controller\StartGlobalSyncController:
         arguments:
             $commandBus: '@command.bus'

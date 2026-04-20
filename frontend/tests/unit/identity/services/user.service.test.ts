@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/shared/utils/api', () => ({
+vi.mock('@/hub/shared/utils/api', () => ({
   api: { delete: vi.fn(), get: vi.fn(), patch: vi.fn(), post: vi.fn(), put: vi.fn() },
 }));
 
-import { api } from '@/shared/utils/api';
-import { userService } from '@/identity/services/user.service';
+import { api } from '@/hub/shared/utils/api';
+import { userService } from '@/hub/identity/services/user.service';
 
 describe('userService', () => {
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('userService', () => {
 
     await userService.list();
 
-    expect(api.get).toHaveBeenCalledWith('/identity/users?page=1&per_page=20');
+    expect(api.get).toHaveBeenCalledWith('/hub/identity/users?page=1&per_page=20');
   });
 
   it('list calls GET /identity/users with custom pagination', async () => {
@@ -25,7 +25,7 @@ describe('userService', () => {
 
     await userService.list(3, 50);
 
-    expect(api.get).toHaveBeenCalledWith('/identity/users?page=3&per_page=50');
+    expect(api.get).toHaveBeenCalledWith('/hub/identity/users?page=3&per_page=50');
   });
 
   it('get calls GET /identity/users/:id', async () => {
@@ -33,7 +33,7 @@ describe('userService', () => {
 
     await userService.get('abc');
 
-    expect(api.get).toHaveBeenCalledWith('/identity/users/abc');
+    expect(api.get).toHaveBeenCalledWith('/hub/identity/users/abc');
   });
 
   it('update calls PUT /identity/users/:id with data', async () => {
@@ -42,6 +42,6 @@ describe('userService', () => {
 
     await userService.update('abc', data);
 
-    expect(api.put).toHaveBeenCalledWith('/identity/users/abc', data);
+    expect(api.put).toHaveBeenCalledWith('/hub/identity/users/abc', data);
   });
 });

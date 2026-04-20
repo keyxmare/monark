@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { useLocalStorage } from '@/shared/composables/useLocalStorage';
+import { useLocalStorage } from '@/hub/shared/composables/useLocalStorage';
 
 describe('useLocalStorage', () => {
   beforeEach(() => {

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useMercure } from '@/shared/composables/useMercure';
+import { useMercure } from '@/hub/shared/composables/useMercure';
 
 class MockEventSource {
   static instances: MockEventSource[] = [];

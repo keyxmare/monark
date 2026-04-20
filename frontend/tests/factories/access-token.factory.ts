@@ -1,4 +1,4 @@
-import type { AccessToken } from '@/identity/types/access-token';
+import type { AccessToken } from '@/hub/identity/types/access-token';
 
 export function createAccessToken(overrides?: Partial<AccessToken>): AccessToken {
   return {
